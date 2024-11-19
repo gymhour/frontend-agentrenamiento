@@ -1,0 +1,91 @@
+.sidebar {
+  position: sticky; 
+  top: 0; 
+  width: 320px;
+  min-height: 100%; 
+  background-color: #1B1B1B;
+  color: #FAFAFA;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 25px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-logo {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+  
+.logo {
+  max-width: 120px;
+  width: 100px;
+}
+
+.menu-divider {
+  height: 1.5px;
+  width: 280px;
+  background-color: #303030;
+}
+  
+.sidebar-menu {
+  flex-grow: 1;
+}
+  
+.menu-title, .profile-title {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+  
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+  
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+  background-color: #333;
+}
+  
+.menu-item.logout {
+  color: #ff4d4d;
+}
+  
+.profile-section {
+  margin-top: 20px;
+}
+  
+.sidebar-footer {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.sidebar-footer img {
+  max-width: 150px;
+  width: 140px;
+}
+
+.menu-item i {
+  width: 12px;
+  height: 12px;
+  background-color: #555;
+  display: inline-block;
+  border-radius: 50%;
+}
+  
