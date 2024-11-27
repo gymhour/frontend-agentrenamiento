@@ -5,6 +5,9 @@ import Login from './Pages/Login/Login';
 import SignUp from './Pages/SignUp/SignUp';
 import NotFound from './Pages/NotFound/NotFound';
 import AlumnoInicio from './Pages/Alumno/Inicio/AlumnoInicio';
+import ClasesActividades from './Pages/Alumno/ClasesActividades/ClasesActividades';
+import AdminInicio from './Pages/Admin/Inicio/AdminInicio';
+import ClasesActividadesAdmin from './Pages/Admin/ClasesActividades/ClasesActividades';
 
 
 function App() {
@@ -15,11 +18,34 @@ function App() {
       <Route path="/sign-up" element={<SignUp />} />
 
       {/* Rutas protegidas */}
-      <Route 
-        path="/inicio-alumno" 
+      {/* Admin */}
+      <Route path="/admin/inicio" 
+        element={
+          <ProtectedRoute>
+            <AdminInicio />
+          </ProtectedRoute>
+        } 
+      />     
+      <Route path="/admin/clases-actividades" 
+        element={
+          <ProtectedRoute>
+            <ClasesActividadesAdmin />
+          </ProtectedRoute>
+        } 
+      />      
+      {/* Alumno */}
+      <Route path="/alumno/inicio" 
         element={
           <ProtectedRoute>
             <AlumnoInicio />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/alumno/clases-actividades" 
+        element={
+          <ProtectedRoute>
+            <ClasesActividades/>
           </ProtectedRoute>
         } 
       />

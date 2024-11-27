@@ -1,0 +1,58 @@
+@import url(../../../variables.css);
+
+.create-clase-form {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: 20px;
+}
+
+.create-clase-form form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.create-clase-form .form-input-ctn {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 6px;
+}
+
+.create-clase-form form input, .create-clase-form form textarea {
+    background-color: #252525;
+    border-radius: 12px;
+    min-width: 300px;
+    padding: 16px 32px 16px 20px;
+    border: none;
+    outline: none;
+    color: #FAFAFA;
+    font-size: 16px;
+}
+
+.create-clase-form form textarea {
+    min-height: 150px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+.create-clase-form form button {
+    background-color: var(--primary-color);
+    color: #FAFAFA;
+    padding: 12px 32px;
+    border: none;
+    outline: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-container form .forgot-password-link {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}

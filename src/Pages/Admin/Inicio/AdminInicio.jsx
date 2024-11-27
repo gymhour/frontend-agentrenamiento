@@ -2,15 +2,15 @@ import React from 'react';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 
-const AlumnoInicio = () => {
+const AdminInicio = () => {
     return(
         <div className='page-layout'>
-            <SidebarMenu isAdmin={false}/>
+            <SidebarMenu isAdmin={true}/>
             <div className='content-layout'>
-                <h2> Alumno</h2>
+                <h2> Admin </h2>
             </div>            
         </div>
     );
 }
 
-export default AlumnoInicio;
+export default AdminInicio;

@@ -2,7 +2,7 @@
   position: sticky; 
   top: 0; 
   width: 320px;
-  min-height: 100%; 
+  min-height: 100vh; 
   background-color: #1B1B1B;
   color: #FAFAFA;
   display: flex;
@@ -64,7 +64,7 @@
 }
   
 .menu-item.logout {
-  color: #ff4d4d;
+  color: #CC8889;
 }
   
 .profile-section {
@@ -88,4 +88,22 @@
   display: inline-block;
   border-radius: 50%;
 }
-  
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.menu-list a {
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.menu-link.active {
+  color: white; 
+  font-weight: 500; 
+}
+
+.menu-link.active .icon {
+  fill: white; 
+}

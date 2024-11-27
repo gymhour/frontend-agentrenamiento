@@ -1,11 +1,15 @@
 // components/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Css
 import './login.css';
-import apiClient from '../../axiosConfig';
+// Assets
 import LoginBackgroundImage from '../../assets/login/login_background.png';
 import ClientLogo from '../../assets/client/wembleylogo.png'
 import OurLogo from '../../assets/gymhour/logo_gymhour.png'
+// Funciones
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../../axiosConfig';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,8 +22,25 @@ const Login = () => {
     e.preventDefault();
     try {
         const response = await apiClient.post('/auth/login', { email, password });
-        localStorage.setItem('token', response.data.token);
-        navigate('/inicio-alumno');
+        const token = response.data.token;
+
+        // Almacena el token en localStorage
+        localStorage.setItem('token', token);
+
+        try {
+            // Decodifica el token
+            const decodedToken = jwtDecode(token);
+
+            // Verifica el correo electrónico y redirige según corresponda
+            if (decodedToken.email != 'pedro@example.com') {
+                navigate('/admin/inicio');
+            } else {
+                navigate('/alumno/inicio');
+            }
+        } catch (error) {
+            console.error("Error al decodificar el token: ", error);
+        }
+
         setMessage('Inicio de sesión exitoso. Token almacenado.');
     } catch (error) {
         setMessage(error.response?.data?.error || 'Error al iniciar sesión');
