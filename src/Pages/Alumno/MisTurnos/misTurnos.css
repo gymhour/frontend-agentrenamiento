@@ -1,0 +1,34 @@
+.mis-turnos-ctn {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.proximos-turnos-ctn, .historial-turnos-ctn {
+    width: 550px;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.proximo-turno-turnos {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.proximo-turno-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.historial-turno-title h2 {
+    color: #FAFAFA;
+}
+
+.turnos-ctn-title h2 {
+    color: #FAFAFA;
+}
+

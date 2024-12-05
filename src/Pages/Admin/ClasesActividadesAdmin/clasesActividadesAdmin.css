@@ -1,4 +1,24 @@
-.clases-list {
+@import url(../../../variables.css);
+
+.clases-actividades-ctn {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.create-clase-title {
+    width: 550px;
+    max-width: 550px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.create-clase-title h2 {
+    color: #FAFAFA;
+}
+
+.clases-actividades-ctn .clases-list {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;

@@ -10,6 +10,8 @@ import OurLogo from '../../assets/gymhour/logo_gymhour.png'
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../../axiosConfig';
 import { jwtDecode } from 'jwt-decode';
+// Componentes
+import CustomInput from '../../Components/utils/CustomInput/CustomInput';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,7 +34,7 @@ const Login = () => {
             const decodedToken = jwtDecode(token);
 
             // Verifica el correo electrónico y redirige según corresponda
-            if (decodedToken.email != 'pedro@example.com') {
+            if (decodedToken.email === 'admin@example.com') {
                 navigate('/admin/inicio');
             } else {
                 navigate('/alumno/inicio');
@@ -55,14 +57,14 @@ const Login = () => {
         </div>
         <div className="form-container">
           <form onSubmit={handleSubmit}>
-            <input
+            <CustomInput
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <input
+            <CustomInput
               type="password"
               placeholder="Contraseña"
               value={password}

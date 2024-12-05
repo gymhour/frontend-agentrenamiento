@@ -7,7 +7,12 @@ import NotFound from './Pages/NotFound/NotFound';
 import AlumnoInicio from './Pages/Alumno/Inicio/AlumnoInicio';
 import ClasesActividades from './Pages/Alumno/ClasesActividades/ClasesActividades';
 import AdminInicio from './Pages/Admin/Inicio/AdminInicio';
-import ClasesActividadesAdmin from './Pages/Admin/ClasesActividades/ClasesActividades';
+import ClasesActividadesAdmin from './Pages/Admin/ClasesActividadesAdmin/ClasesActividadesAdmin';
+import MisTurnos from './Pages/Alumno/MisTurnos/MisTurnos';
+import AgendarTurno from './Pages/Alumno/AgendarTurno/AgendarTurno';
+import ClasesActividadesDetalle from './Pages/Alumno/ClasesActividadesDetalle/ClasesActividadesDetalle';
+import ClasesActividadesForm from './Pages/Admin/ClasesActividadesForm/ClasesActividadesForm';
+import ClasesActividadesAdminDetalle from './Pages/Admin/ClasesActividadesAdminDetalle/ClasesActividadesAdminDetalle';
 
 
 function App() {
@@ -32,6 +37,21 @@ function App() {
             <ClasesActividadesAdmin />
           </ProtectedRoute>
         } 
+      />  
+      <Route 
+        path="/admin/clases-actividades/:id" 
+        element={
+          <ProtectedRoute>
+            <ClasesActividadesAdminDetalle/>
+          </ProtectedRoute>
+        } 
+      />   
+      <Route path="/admin/clases-actividades-form" 
+        element={
+          <ProtectedRoute>
+            <ClasesActividadesForm />
+          </ProtectedRoute>
+        } 
       />      
       {/* Alumno */}
       <Route path="/alumno/inicio" 
@@ -41,11 +61,33 @@ function App() {
           </ProtectedRoute>
         } 
       />
+      <Route path="/alumno/turnos" 
+        element={
+          <ProtectedRoute>
+            <MisTurnos />
+          </ProtectedRoute>
+        } 
+      />
+      <Route path="/alumno/agendar-turno" 
+        element={
+          <ProtectedRoute>
+            <AgendarTurno/>
+          </ProtectedRoute>
+        } 
+      />
       <Route 
         path="/alumno/clases-actividades" 
         element={
           <ProtectedRoute>
             <ClasesActividades/>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/alumno/clases-actividades/:id" 
+        element={
+          <ProtectedRoute>
+            <ClasesActividadesDetalle/>
           </ProtectedRoute>
         } 
       />

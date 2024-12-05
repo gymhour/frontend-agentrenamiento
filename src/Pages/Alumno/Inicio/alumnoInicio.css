@@ -1,0 +1,17 @@
+.turnos-ctn {
+    width: 550px;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.turnos-ctn-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.turnos-ctn-title h2 {
+    color: #FAFAFA;
+}

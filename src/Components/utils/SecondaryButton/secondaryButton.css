@@ -1,0 +1,21 @@
+.secondary-button {
+    padding: 10px;
+    background-color: none;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    color: #FAFAFA;
+    text-decoration: none;
+    width: fit-content;
+    font-size: 14px;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+}
+
+.secondary-button.reversed {
+    flex-direction: row-reverse;
+}

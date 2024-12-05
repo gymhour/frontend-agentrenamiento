@@ -1,11 +1,13 @@
-// TODO: diseñar más lindas las cards
-import React, { useState, useEffect } from 'react';
-import './clasesActividades.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import '../../../App.css';
+import './clasesActividadesAdmin.css'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
+import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton";
+import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
+import { Link } from "react-router-dom";
 
-const ClasesActividades = () => {
+const ClasesActividadesAdmin = () => {
     const [clases, setClases] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -32,11 +34,16 @@ const ClasesActividades = () => {
         return text;
     };
 
+
     return (
         <div className='page-layout'>
-            <SidebarMenu isAdmin={false} />
-            <div className='content-layout'>
-                <h1>Clases y actividades</h1>
+        <SidebarMenu isAdmin={true}/>
+        <div className='content-layout'>
+            <div className="clases-actividades-ctn">
+                <div className="create-clase-title">
+                    <h2>Clases y actividades</h2>
+                    <SecondaryButton text="Agregar" linkTo="/admin/clases-actividades-form" icon={AddIconCircle}></SecondaryButton>
+                </div>
                 {loading ? (
                     <p style={{marginTop: '20px'}}>Cargando clases...</p>
                 ) : error ? (
@@ -47,7 +54,7 @@ const ClasesActividades = () => {
                         clases.map((clase) => (
                             <Link 
                                 key={clase.ID_Clase} 
-                                to={`/alumno/clases-actividades/${clase.ID_Clase}`}
+                                to={`/admin/clases-actividades/${clase.ID_Clase}`}
                                 className="clase-link"
                             >
                                 {/* style={{ backgroundImage: `url(${clase.imagen})`}} */}
@@ -63,8 +70,9 @@ const ClasesActividades = () => {
                 </div>
                 )}
             </div>
-        </div>
+        </div>            
+    </div>
     );
 };
 
-export default ClasesActividades;
+export default ClasesActividadesAdmin;

@@ -1,0 +1,16 @@
+.turnos-card-ctn {
+    width: 100%;
+    max-width: 550px;
+    padding: 20px 15px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #1A1A1A;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.turnos-card-ctn .icon {
+    width: 30px;
+    height: 30px;
+}

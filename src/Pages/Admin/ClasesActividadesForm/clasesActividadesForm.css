@@ -1,0 +1,115 @@
+@import url(../../../variables.css);
+
+.create-clase-form {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: 20px;
+}
+
+.clases-actividades-form-ctn {
+    max-width: 450px;
+    width: 450px;
+}
+
+.create-clase-form form {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.create-clase-form .form-input-ctn {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 6px;
+    width: 450px;
+    max-width: 450px;
+}
+
+.create-clase-form form input, .create-clase-form form textarea {
+    background-color: #252525;
+    border-radius: 12px;
+    width: 100%;
+    padding: 16px 32px 16px 20px;
+    border: none;
+    outline: none;
+    color: #FAFAFA;
+    font-size: 16px;
+}
+
+.create-clase-form form select {
+    min-width: 180px;
+    min-height: 50px;
+    background-color: #252525;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    color: #FAFAFA;
+    font-size: 16px;
+    padding: 0px 10px; 
+    appearance: none; 
+    -webkit-appearance: none; 
+    -moz-appearance: none; 
+    /* background-image: url('ruta-a-tu-flecha.svg'); 
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 16px; */
+}
+
+.create-clase-form form select::-ms-expand {
+    display: none;
+}
+
+.create-clase-form form textarea {
+    min-height: 150px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.create-clase-form form .submit-btn {
+    background-color: var(--primary-color);
+    color: #FAFAFA;
+    padding: 12px 32px;
+    border: none;
+    outline: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form-container form .forgot-password-link {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.horario-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.horario-item input {
+    display: flex;
+    min-width: 200px;
+    height: 50px;
+}
+
+.form-input-ctn-horario {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.close-icon {
+    width: 48px;
+    height: 48px;
+    position: relative;
+    top: 10px;
+}

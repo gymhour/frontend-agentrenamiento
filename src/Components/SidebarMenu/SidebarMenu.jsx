@@ -45,7 +45,7 @@ const SidebarMenu = ({ isAdmin }) => {
                                 className={`menu-link ${location.pathname === '/admin/inicio' ? 'active' : ''}`}
                             >
                                 <li className="menu-item">
-                                    <InicioIcon className="icon" /> Inicio
+                                    <InicioIcon className="icon" fill="#A2A2A2"/> Inicio
                                 </li>
                             </Link>
                             <Link
@@ -53,7 +53,7 @@ const SidebarMenu = ({ isAdmin }) => {
                                 className={`menu-link ${location.pathname === '/admin/clases-actividades' ? 'active' : ''}`}
                             >
                                 <li className="menu-item">
-                                    <ClasesActividadesIcon className="icon" /> Clases y actividades
+                                    <ClasesActividadesIcon className="icon" fill="#A2A2A2"/> Clases y actividades
                                 </li>
                             </Link>
                         </>
@@ -76,7 +76,7 @@ const SidebarMenu = ({ isAdmin }) => {
                                 </li>
                             </Link>
                             <Link
-                                to="alumno/agendar-turno"
+                                to="/alumno/agendar-turno"
                                 className={`menu-link ${location.pathname === '/alumno/agendar-turno' ? 'active' : ''}`}
                             >
                                 <li className="menu-item">
