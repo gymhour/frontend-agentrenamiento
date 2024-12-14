@@ -13,6 +13,8 @@ import AgendarTurno from './Pages/Alumno/AgendarTurno/AgendarTurno';
 import ClasesActividadesDetalle from './Pages/Alumno/ClasesActividadesDetalle/ClasesActividadesDetalle';
 import ClasesActividadesForm from './Pages/Admin/ClasesActividadesForm/ClasesActividadesForm';
 import ClasesActividadesAdminDetalle from './Pages/Admin/ClasesActividadesAdminDetalle/ClasesActividadesAdminDetalle';
+import CrearUsuario from './Pages/Admin/CrearUsuario/CrearUsuario';
+import UsuariosList from './Pages/Admin/UsuariosList/UsuariosList';
 
 
 function App() {
@@ -46,10 +48,31 @@ function App() {
           </ProtectedRoute>
         } 
       />   
-      <Route path="/admin/clases-actividades-form" 
+      <Route path="/admin/agregar-clase" 
         element={
           <ProtectedRoute>
-            <ClasesActividadesForm />
+            <ClasesActividadesForm isEditing={false}/>
+          </ProtectedRoute>
+        } 
+      />  
+      <Route path="/admin/editar-clase/:id" 
+        element={
+          <ProtectedRoute>
+            <ClasesActividadesForm isEditing={true} />
+          </ProtectedRoute>
+        } 
+      />    
+      <Route path="/admin/usuarios" 
+        element={
+          <ProtectedRoute>
+            <UsuariosList />
+          </ProtectedRoute>
+        } 
+      />  
+      <Route path="/admin/crear-usuario" 
+        element={
+          <ProtectedRoute>
+            <CrearUsuario />
           </ProtectedRoute>
         } 
       />      

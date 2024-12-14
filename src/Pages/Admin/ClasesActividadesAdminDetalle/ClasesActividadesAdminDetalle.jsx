@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
+import apiClient from '../../../axiosConfig';
 // import './clasesActividadesDetalle.css'
 
 const ClasesActividadesAdminDetalle = () => {
@@ -15,7 +15,7 @@ const ClasesActividadesAdminDetalle = () => {
     useEffect(() => {
         const fetchClaseDetalle = async () => {
             try {
-                const response = await axios.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+                const response = await apiClient.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
                 // console.log(response.data);
                 setClaseDetalle(response.data);
             } catch (error) {
@@ -29,7 +29,7 @@ const ClasesActividadesAdminDetalle = () => {
     if (!claseDetalle) {
         return (
             <div className='page-layout'>
-                <SidebarMenu isAdmin={true} />
+                <SidebarMenu isAdmin={true} /> 
                 <div className='content-layout'>
                     <p>Cargando detalles de la clase...</p>
                 </div>
@@ -39,7 +39,7 @@ const ClasesActividadesAdminDetalle = () => {
 
     const deleteClase = async () => {
         try {
-            const response = await axios.delete(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+            const response = await apiClient.delete(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
         } catch (error) {
             console.error('Error al eliminar la clase - ClasesActividadesAdminDetalle.jsx', error);
         }
@@ -60,8 +60,8 @@ const ClasesActividadesAdminDetalle = () => {
                                 reversed={true}
                             />
                             <div className='clases-actividades-detalle-actions-edit-delete'>
-                                <PrimaryButton text="Editar clase" />
-                                <SecondaryButton text="Eliminar clase" onClick={deleteClase}/>
+                            <PrimaryButton text="Editar clase" linkTo={`/admin/editar-clase/${id}`} />
+                            <SecondaryButton text="Eliminar clase" onClick={deleteClase}/>
                             </div>
                         </div>
                         {/* style={{ backgroundImage: `url(${claseDetalle.imagen})`}} */}

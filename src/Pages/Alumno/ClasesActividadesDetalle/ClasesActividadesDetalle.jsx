@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import './clasesActividadesDetalle.css'
+import apiClient from '../../../axiosConfig';
 
 const ClasesActividadesDetalle = () => {
     const { id } = useParams();
@@ -14,7 +14,7 @@ const ClasesActividadesDetalle = () => {
     useEffect(() => {
         const fetchClaseDetalle = async () => {
             try {
-                const response = await axios.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+                const response = await apiClient.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
                 // console.log(response.data);
                 setClaseDetalle(response.data);
             } catch (error) {

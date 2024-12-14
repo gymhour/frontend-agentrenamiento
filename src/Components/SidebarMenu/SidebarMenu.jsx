@@ -14,6 +14,8 @@ import { ReactComponent as MedicionResultadosicon } from '../../assets/icons/sid
 import { ReactComponent as MiRutinaIcon } from '../../assets/icons/sidebar/mi-rutina.svg';
 import { ReactComponent as MisTurnosIcon } from '../../assets/icons/sidebar/mis-turnos.svg';
 import { ReactComponent as RutinasRecomendadasIcon } from '../../assets/icons/sidebar/rutinas-recomendadas.svg';
+import { ReactComponent as CrearUsuarioIcon} from '../../assets/icons/user-add.svg';
+import { ReactComponent as UsuariosIcon} from '../../assets/icons/users-icon.svg';
 // Routing
 import { useNavigate, useLocation, Link } from "react-router-dom";
 
@@ -54,6 +56,22 @@ const SidebarMenu = ({ isAdmin }) => {
                             >
                                 <li className="menu-item">
                                     <ClasesActividadesIcon className="icon" fill="#A2A2A2"/> Clases y actividades
+                                </li>
+                            </Link>
+                            <Link
+                                to="/admin/usuarios"
+                                className={`menu-link ${location.pathname === '/admin/usuarios' ? 'active' : ''}`}
+                            >
+                                <li className="menu-item">
+                                    <UsuariosIcon className="icon" fill="#A2A2A2"/> Usuarios
+                                </li>
+                            </Link>
+                            <Link
+                                to="/admin/crear-usuario"
+                                className={`menu-link ${location.pathname === '/admin/crear-usuario' ? 'active' : ''}`}
+                            >
+                                <li className="menu-item">
+                                    <CrearUsuarioIcon className="icon" fill="#A2A2A2"/> Crear usuario
                                 </li>
                             </Link>
                         </>

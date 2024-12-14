@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import './clasesActividades.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
+import apiClient from '../../../axiosConfig';
 
 const ClasesActividades = () => {
     const [clases, setClases] = useState([]);
@@ -13,7 +13,7 @@ const ClasesActividades = () => {
     useEffect(() => {
         const fetchClases = async () => {
             try {
-                const response = await axios.get("https://gymbackend-qr97.onrender.com/clase/horario");
+                const response = await apiClient.get("https://gymbackend-qr97.onrender.com/clase/horario");
                 setClases(response.data);
                 setLoading(false);
             } catch (err) {

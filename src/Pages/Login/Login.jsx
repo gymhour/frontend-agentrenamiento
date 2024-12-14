@@ -33,8 +33,10 @@ const Login = () => {
             // Decodifica el token
             const decodedToken = jwtDecode(token);
 
+            console.log(decodedToken);
+
             // Verifica el correo electrónico y redirige según corresponda
-            if (decodedToken.email === 'admin@example.com') {
+            if (decodedToken.tipo === 'admin' || decodedToken.tipo === "Admin") {
                 navigate('/admin/inicio');
             } else {
                 navigate('/alumno/inicio');

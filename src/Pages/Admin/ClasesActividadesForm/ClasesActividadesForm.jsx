@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import '../../../App.css';
 import './clasesActividadesForm.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
@@ -7,78 +6,52 @@ import SecondaryButton from "../../../Components/utils/SecondaryButton/Secondary
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
 import { ReactComponent as CloseIcon } from '../../../assets/icons/close.svg';
+import { useParams } from "react-router-dom";
+import apiClient from "../../../axiosConfig";
 
-const ClasesActividadesForm = () => {
+const ClasesActividadesForm = ({ isEditing, classId }) => {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [image, setImage] = useState(null);
-    const [horarios, setHorarios] = useState([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "", cuposActuales: "" }]);
+    const [horarios, setHorarios] = useState([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
     const [message, setMessage] = useState("");
+    const { id } = useParams();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        if (isEditing) {
+            const fetchClaseDetalle = async () => {
+                try {
+                    // Llamada a la API para obtener detalles de la clase
+                    const response = await apiClient.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+                    const { nombre, descripcion, horarios, image } = response.data;
 
-        const formData = new FormData();
-        formData.append("nombre", nombre);
-        formData.append("descripcion", descripcion);
-        formData.append("imagen", image);
+                    // Rellenar los estados con los datos de la API
+                    setNombre(nombre || "");
+                    setDescripcion(descripcion || "");
+                    setHorarios(horarios || [{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
+                    setImage(image || null);
+                } catch (error) {
+                    console.error("Error al obtener los detalles de la clase:", error);
+                }
+            };
 
-        horarios.forEach((horario, index) => {
-            formData.append(`horarios[${index}].diaSemana`, horario.diaSemana);
-            formData.append(`horarios[${index}].horaIni`, horario.horaIni);
-            formData.append(`horarios[${index}].horaFin`, horario.horaFin);
-            formData.append(`horarios[${index}].cupos`, horario.cupos);
-            formData.append(`horarios[${index}].cuposActuales`, horario.cuposActuales);
-        });
+            fetchClaseDetalle();
+        }
+    }, [isEditing, classId]);
 
-        try {
-            // Sacar cupos actuales
-            // Si es periodica, le paso la hora como string.
-            // Si es especifica, le paso un dia y hora como Datetime
-
-            // SE TIENE QUE ENVIAR ASI
-            // {
-            //     "nombre": "Boxeo",
-            //     "descripcion": "Te cagas a palooo.",
-            //     "horarios": [
-            //     En horaIni y horaFin la fecha es la del dia de hoy y la hora la seleccionada en los dropdown
-            //       {
-            //         "diaSemana": "Martes",
-            //         "horaIni": "2024-11-14T17:00:00.000Z",
-            //         "horaFin": "2024-11-14T18:00:00.000Z",
-            //         "cupos": 20,
-            //       },
-            //       {
-            //         "diaSemana": "Jueves",
-            //         "horaIni": "2024-11-14T20:00:00.000Z",
-            //         "horaFin": "2024-11-14T21:00:00.000Z",
-            //         "cupos": 22,
-            //       }
-            //     ]
-            //   }
-
-
-            const response = await axios.post("https://gymbackend-qr97.onrender.com/clase/horario", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            setMessage("Clase creada exitosamente.");
-            setNombre("");
-            setDescripcion("");
-            setImage(null);
-            setHorarios([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "", cuposActuales: "" }]);
-        } catch (error) {
-            if (error.response?.status === 400) {
-                setMessage(error.response?.data?.message || "Error en los datos proporcionados.");
-            } else {
-                setMessage("Hubo un error en el servidor.");
-            }
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImage(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
     const handleAddHorario = () => {
-        setHorarios([...horarios, { diaSemana: "", horaIni: "", horaFin: "", cupos: "", cuposActuales: "" }]);
+        setHorarios([...horarios, { diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
     };
 
     const handleRemoveHorario = (index) => {
@@ -95,20 +68,63 @@ const ClasesActividadesForm = () => {
 
     const generateTimeSlots = () => {
         const slots = [];
-        const start = 0; // Empieza a las 00:00
-        const end = 24 * 60; // 24 horas en minutos
-    
-        for (let time = start; time < end; time += 30) {
+        for (let time = 0; time < 24 * 60; time += 30) {
             const hours = String(Math.floor(time / 60)).padStart(2, '0');
             const minutes = String(time % 60).padStart(2, '0');
-            const formattedTime = `${hours}:${minutes}`;
-            slots.push(formattedTime);
+            slots.push(`${hours}:${minutes}`);
         }
-    
         return slots;
     };
-    
+
     const timeSlots = generateTimeSlots();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const requestBody = {
+            nombre: nombre,
+            descripcion: descripcion,
+            horarios: horarios.map((horario) => ({
+                diaSemana: horario.diaSemana,
+                horaIni: horario.horaIni,
+                horaFin: horario.horaFin,
+                cupos: Number(horario.cupos)
+            })),
+            image: image
+        };
+
+        console.log("Body:", JSON.stringify(requestBody, null, 2));
+
+        try {
+            if (isEditing) {
+                // Editar clase
+                await apiClient.put(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`, requestBody, {
+                    headers: { "Content-Type": "application/json" },
+                });
+                setMessage("Clase actualizada exitosamente.");
+            } else {
+                // Agregar clase
+                await apiClient.post("https://gymbackend-qr97.onrender.com/clase/horario", requestBody, {
+                    headers: { "Content-Type": "application/json" },
+                });
+                setMessage("Clase creada exitosamente.");
+                resetForm();
+            }
+        } catch (error) {
+            if (error.response?.status === 400) {
+                setMessage(error.response?.data?.message || "Error en los datos proporcionados.");
+            } else {
+                setMessage("Hubo un error en el servidor.");
+            }
+        }
+    };
+
+    const resetForm = () => {
+        setNombre("");
+        setDescripcion("");
+        setImage(null);
+        setHorarios([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
+    };
 
     return (
         <div className='page-layout'>
@@ -117,10 +133,10 @@ const ClasesActividadesForm = () => {
                 <div className="clases-actividades-form-ctn">
                     <div className="clases-actividades-form-title">
                         <SecondaryButton text="Volver atrás" linkTo="/admin/clases-actividades" icon={ArrowLeftIcon} reversed={true}></SecondaryButton>
-                        <h2>Crear nueva clase o actividad</h2>
+                        <h2> {isEditing ? 'Editar clase o actividad' : 'Crear nueva clase o actividad'} </h2>
                     </div>
                     <div className="create-clase-form">
-                        <form onSubmit={handleSubmit} encType="multipart/form-data">
+                        <form encType="multipart/form-data">
                             <div className="form-input-ctn">
                                 <label htmlFor="nombre">Nombre:</label>
                                 <input
@@ -145,7 +161,7 @@ const ClasesActividadesForm = () => {
                                 <input
                                     type="file"
                                     id="imagen"
-                                    onChange={(e) => setImage(e.target.files[0])}
+                                    onChange={handleImageChange}
                                 />
                             </div>
                             <div className="form-input-horarios">
@@ -171,7 +187,6 @@ const ClasesActividadesForm = () => {
                                                     <option value="Domingo">Domingo</option>
                                                 </select>
                                             </div>
-
                                             <div className="form-input-ctn-horario">
                                                 <label>Horario de inicio</label>
                                                 <select
@@ -188,7 +203,6 @@ const ClasesActividadesForm = () => {
                                                     ))}
                                                 </select>
                                             </div>
-
                                             <div className="form-input-ctn-horario">
                                                 <label>Horario de fin</label>
                                                 <select
@@ -205,11 +219,11 @@ const ClasesActividadesForm = () => {
                                                     ))}
                                                 </select>
                                             </div>
-                                            
                                             <div className="form-input-ctn-horario">
                                                 <label> Cupos disponibles </label>
                                                 <input
                                                     type="number"
+                                                    min={1}
                                                     name="cupos"
                                                     placeholder="Cupos"
                                                     value={horario.cupos}
@@ -217,26 +231,13 @@ const ClasesActividadesForm = () => {
                                                     required
                                                 />
                                             </div>
-
-                                            {/* <div className="form-input-ctn-horario">
-                                                <label> Cupos actuales</label>
-                                                <input
-                                                    type="number"
-                                                    name="cuposActuales"
-                                                    placeholder="Cupos actuales"
-                                                    value={horario.cuposActuales}
-                                                    onChange={(e) => handleHorarioChange(e, index)}
-                                                    required
-                                                />
-                                            </div> */}
-
-                                            <CloseIcon onClick={() => handleRemoveHorario(index)} className='close-icon'/>
+                                            <CloseIcon onClick={() => handleRemoveHorario(index)} className='close-icon' />
                                         </div>
                                     </div>
                                 ))}
                                 <SecondaryButton text="Agregar horario" icon={AddIconCircle} onClick={handleAddHorario} />
                             </div>
-                            <button type="submit" className="submit-btn">Crear Clase</button>
+                            <button type="submit" className="submit-btn" onClick={handleSubmit}>{isEditing ? "Guardar cambios" : "Crear Clase"}</button>
                         </form>
                         {message && <p>{message}</p>}
                     </div>

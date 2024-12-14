@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import '../../../App.css';
 import './clasesActividadesAdmin.css'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton";
 import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
 import { Link } from "react-router-dom";
+import apiClient from "../../../axiosConfig";
 
 const ClasesActividadesAdmin = () => {
     const [clases, setClases] = useState([]);
@@ -15,7 +15,7 @@ const ClasesActividadesAdmin = () => {
     useEffect(() => {
         const fetchClases = async () => {
             try {
-                const response = await axios.get("https://gymbackend-qr97.onrender.com/clase/horario");
+                const response = await apiClient.get("https://gymbackend-qr97.onrender.com/clase/horario");
                 setClases(response.data);
                 setLoading(false);
             } catch (err) {
@@ -42,7 +42,7 @@ const ClasesActividadesAdmin = () => {
             <div className="clases-actividades-ctn">
                 <div className="create-clase-title">
                     <h2>Clases y actividades</h2>
-                    <SecondaryButton text="Agregar" linkTo="/admin/clases-actividades-form" icon={AddIconCircle}></SecondaryButton>
+                    <SecondaryButton text="Agregar" linkTo="/admin/agregar-clase" icon={AddIconCircle}></SecondaryButton>
                 </div>
                 {loading ? (
                     <p style={{marginTop: '20px'}}>Cargando clases...</p>

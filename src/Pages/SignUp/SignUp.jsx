@@ -1,6 +1,6 @@
 // components/SignUp.js
 import React, { useState } from 'react';
-import axios from '../../axiosConfig.js';
+import apiClient from '../../axiosConfig.js';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +10,7 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/auth/register', { email, password });
+      const response = await apiClient.post('/auth/register', { email, password });
       setMessage('Registro exitoso. Token: ' + response.data.token);
     } catch (error) {
       setMessage(error.response?.data?.message || 'Error al registrarse');
