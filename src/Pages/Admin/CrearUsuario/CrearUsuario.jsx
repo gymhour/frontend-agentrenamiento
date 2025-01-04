@@ -41,7 +41,7 @@ const CrearUsuario = () => {
     };
     
         
-    const tiposDeUsuario = ["Clientes", "Admin"];
+    const tiposDeUsuario = ["Cliente", "Admin"];
 
     return (
         <div className='page-layout'>

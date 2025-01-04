@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
+import { toast } from "react-toastify";
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import apiClient from '../../../axiosConfig';
-// import './clasesActividadesDetalle.css'
 
 const ClasesActividadesAdminDetalle = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [claseDetalle, setClaseDetalle] = useState(null);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
 
     useEffect(() => {
         const fetchClaseDetalle = async () => {
             try {
                 const response = await apiClient.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
-                // console.log(response.data);
                 setClaseDetalle(response.data);
             } catch (error) {
                 console.error("Error al obtener los detalles de la clase:", error);
@@ -26,25 +28,40 @@ const ClasesActividadesAdminDetalle = () => {
         fetchClaseDetalle();
     }, [id]);
 
+    const deleteClase = async () => {
+        try {
+            await apiClient.delete(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+            toast.success("Clase eliminada correctamente.");
+            navigate("/admin/clases-actividades");
+        } catch (error) {
+            toast.error("Hubo un error al eliminar la clase.");
+            console.error('Error al eliminar la clase - ClasesActividadesAdminDetalle.jsx', error);
+        }
+    };
+
+    const handleDeleteClick = () => {
+        setIsPopupOpen(true);
+    };
+
+    const handlePopupConfirm = () => {
+        setIsPopupOpen(false);
+        deleteClase();
+    };
+
+    const handlePopupClose = () => {
+        setIsPopupOpen(false);
+    };
+
     if (!claseDetalle) {
         return (
             <div className='page-layout'>
-                <SidebarMenu isAdmin={true} /> 
+                <SidebarMenu isAdmin={true} />
                 <div className='content-layout'>
                     <p>Cargando detalles de la clase...</p>
                 </div>
             </div>
         );
     }
-
-    const deleteClase = async () => {
-        try {
-            const response = await apiClient.delete(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
-        } catch (error) {
-            console.error('Error al eliminar la clase - ClasesActividadesAdminDetalle.jsx', error);
-        }
-    };
-    
 
     return (
         <div className='page-layout'>
@@ -60,12 +77,15 @@ const ClasesActividadesAdminDetalle = () => {
                                 reversed={true}
                             />
                             <div className='clases-actividades-detalle-actions-edit-delete'>
-                            <PrimaryButton text="Editar clase" linkTo={`/admin/editar-clase/${id}`} />
-                            <SecondaryButton text="Eliminar clase" onClick={deleteClase}/>
+                                <PrimaryButton text="Editar clase" linkTo={`/admin/editar-clase/${id}`} />
+                                <SecondaryButton text="Eliminar clase" onClick={handleDeleteClick} />
                             </div>
                         </div>
-                        {/* style={{ backgroundImage: `url(${claseDetalle.imagen})`}} */}
-                        <div className="clases-actividades-detalle-title-img" >
+                        <div className="clases-actividades-detalle-title-img" style={{
+                            backgroundImage: `url(${claseDetalle.ImagenesClase.length > 0
+                                ? `https://gymbackend-qr97.onrender.com${claseDetalle.ImagenesClase[0].url}`
+                                : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'})`
+                        }}>
                             <h2>{claseDetalle.nombre}</h2>
                         </div>
                     </div>
@@ -94,6 +114,12 @@ const ClasesActividadesAdminDetalle = () => {
                     </div>
                 </div>
             </div>
+            <ConfirmationPopup
+                isOpen={isPopupOpen}
+                onClose={handlePopupClose}
+                onConfirm={handlePopupConfirm}
+                message="¿Estás seguro de que deseas eliminar esta clase?"
+            />
         </div>
     );
 };

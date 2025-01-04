@@ -42,13 +42,9 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImage(reader.result);
-            };
-            reader.readAsDataURL(file);
+            setImage(file);
         }
-    };
+    };    
 
     const handleAddHorario = () => {
         setHorarios([...horarios, { diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
@@ -78,34 +74,77 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
 
     const timeSlots = generateTimeSlots();
 
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     const requestBody = {
+    //         nombre: nombre,
+    //         descripcion: descripcion,
+    //         horarios: horarios.map((horario) => ({
+    //             diaSemana: horario.diaSemana,
+    //             horaIni: horario.horaIni,
+    //             horaFin: horario.horaFin,
+    //             cupos: Number(horario.cupos)
+    //         })),
+    //         image: image
+    //     };
+
+    //     console.log("Body:", JSON.stringify(requestBody, null, 2));
+
+    //     try {
+    //         if (isEditing) {
+    //             // Editar clase
+    //             await apiClient.put(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`, requestBody, {
+    //                 headers: { "Content-Type": "application/json" },
+    //             });
+    //             setMessage("Clase actualizada exitosamente.");
+    //         } else {
+    //             console.log("Enviado correctamente");
+    //             // Agregar clase
+    //             // await apiClient.post("https://gymbackend-qr97.onrender.com/clase/horario", requestBody, {
+    //             //     headers: { "Content-Type": "application/json" },
+    //             // });
+    //             // setMessage("Clase creada exitosamente.");
+    //             // resetForm();
+    //         }
+    //     } catch (error) {
+    //         if (error.response?.status === 400) {
+    //             setMessage(error.response?.data?.message || "Error en los datos proporcionados.");
+    //         } else {
+    //             setMessage("Hubo un error en el servidor.");
+    //         }
+    //     }
+    // };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const requestBody = {
-            nombre: nombre,
-            descripcion: descripcion,
-            horarios: horarios.map((horario) => ({
-                diaSemana: horario.diaSemana,
-                horaIni: horario.horaIni,
-                horaFin: horario.horaFin,
-                cupos: Number(horario.cupos)
-            })),
-            image: image
-        };
-
-        console.log("Body:", JSON.stringify(requestBody, null, 2));
-
+    
+        const transformedHorarios = horarios.map((horario) => ({
+            ...horario,
+            horaIni: `2024-01-03T${horario.horaIni}:00Z`, // Ejemplo de fecha fija
+            horaFin: `2024-01-03T${horario.horaFin}:00Z`,
+            cupos: Number(horario.cupos), // Asegurar que cupos sea un número
+        }));
+    
+        const formData = new FormData();
+        formData.append("nombre", nombre);
+        formData.append("descripcion", descripcion);
+        if (image) {
+            formData.append("image", image); // Adjuntar el archivo si existe
+        }
+        formData.append("horarios", JSON.stringify(transformedHorarios)); // Convertir horarios a JSON
+    
         try {
             if (isEditing) {
                 // Editar clase
-                await apiClient.put(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`, requestBody, {
-                    headers: { "Content-Type": "application/json" },
+                await apiClient.put(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
                 });
                 setMessage("Clase actualizada exitosamente.");
             } else {
                 // Agregar clase
-                await apiClient.post("https://gymbackend-qr97.onrender.com/clase/horario", requestBody, {
-                    headers: { "Content-Type": "application/json" },
+                await apiClient.post("https://gymbackend-qr97.onrender.com/clase/horario", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
                 });
                 setMessage("Clase creada exitosamente.");
                 resetForm();
@@ -118,7 +157,9 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
             }
         }
     };
-
+    
+    
+    
     const resetForm = () => {
         setNombre("");
         setDescripcion("");

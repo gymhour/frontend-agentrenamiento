@@ -1,5 +1,7 @@
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify'; // Importa el ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Importa los estilos de Toastify
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Pages/Login/Login';
 import SignUp from './Pages/SignUp/SignUp';
@@ -16,108 +18,123 @@ import ClasesActividadesAdminDetalle from './Pages/Admin/ClasesActividadesAdminD
 import CrearUsuario from './Pages/Admin/CrearUsuario/CrearUsuario';
 import UsuariosList from './Pages/Admin/UsuariosList/UsuariosList';
 
-
 function App() {
   return (
-    <Routes>
-      {/* Rutas públicas */}
-      <Route path="/" element={<Login />} />
-      <Route path="/sign-up" element={<SignUp />} />
+    <>
+      <Routes>
+        {/* Rutas públicas */}
+        <Route path="/" element={<Login />} />
+        <Route path="/sign-up" element={<SignUp />} />
 
-      {/* Rutas protegidas */}
-      {/* Admin */}
-      <Route path="/admin/inicio" 
-        element={
-          <ProtectedRoute>
-            <AdminInicio />
-          </ProtectedRoute>
-        } 
-      />     
-      <Route path="/admin/clases-actividades" 
-        element={
-          <ProtectedRoute>
-            <ClasesActividadesAdmin />
-          </ProtectedRoute>
-        } 
-      />  
-      <Route 
-        path="/admin/clases-actividades/:id" 
-        element={
-          <ProtectedRoute>
-            <ClasesActividadesAdminDetalle/>
-          </ProtectedRoute>
-        } 
-      />   
-      <Route path="/admin/agregar-clase" 
-        element={
-          <ProtectedRoute>
-            <ClasesActividadesForm isEditing={false}/>
-          </ProtectedRoute>
-        } 
-      />  
-      <Route path="/admin/editar-clase/:id" 
-        element={
-          <ProtectedRoute>
-            <ClasesActividadesForm isEditing={true} />
-          </ProtectedRoute>
-        } 
-      />    
-      <Route path="/admin/usuarios" 
-        element={
-          <ProtectedRoute>
-            <UsuariosList />
-          </ProtectedRoute>
-        } 
-      />  
-      <Route path="/admin/crear-usuario" 
-        element={
-          <ProtectedRoute>
-            <CrearUsuario />
-          </ProtectedRoute>
-        } 
-      />      
-      {/* Alumno */}
-      <Route path="/alumno/inicio" 
-        element={
-          <ProtectedRoute>
-            <AlumnoInicio />
-          </ProtectedRoute>
-        } 
-      />
-      <Route path="/alumno/turnos" 
-        element={
-          <ProtectedRoute>
-            <MisTurnos />
-          </ProtectedRoute>
-        } 
-      />
-      <Route path="/alumno/agendar-turno" 
-        element={
-          <ProtectedRoute>
-            <AgendarTurno/>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/alumno/clases-actividades" 
-        element={
-          <ProtectedRoute>
-            <ClasesActividades/>
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/alumno/clases-actividades/:id" 
-        element={
-          <ProtectedRoute>
-            <ClasesActividadesDetalle/>
-          </ProtectedRoute>
-        } 
-      />
+        {/* Rutas protegidas */}
+        {/* Admin */}
+        <Route path="/admin/inicio" 
+          element={
+            <ProtectedRoute>
+              <AdminInicio />
+            </ProtectedRoute>
+          } 
+        />     
+        <Route path="/admin/clases-actividades" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdmin />
+            </ProtectedRoute>
+          } 
+        />  
+        <Route 
+          path="/admin/clases-actividades/:id" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdminDetalle/>
+            </ProtectedRoute>
+          } 
+        />   
+        <Route path="/admin/agregar-clase" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesForm isEditing={false}/>
+            </ProtectedRoute>
+          } 
+        />  
+        <Route path="/admin/editar-clase/:id" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesForm isEditing={true} />
+            </ProtectedRoute>
+          } 
+        />    
+        <Route path="/admin/usuarios" 
+          element={
+            <ProtectedRoute>
+              <UsuariosList />
+            </ProtectedRoute>
+          } 
+        />  
+        <Route path="/admin/crear-usuario" 
+          element={
+            <ProtectedRoute>
+              <CrearUsuario />
+            </ProtectedRoute>
+          } 
+        />      
+        {/* Alumno */}
+        <Route path="/alumno/inicio" 
+          element={
+            <ProtectedRoute>
+              <AlumnoInicio />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/alumno/turnos" 
+          element={
+            <ProtectedRoute>
+              <MisTurnos />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/alumno/agendar-turno" 
+          element={
+            <ProtectedRoute>
+              <AgendarTurno/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/clases-actividades" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividades/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/clases-actividades/:id" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesDetalle/>
+            </ProtectedRoute>
+          } 
+        />
 
-      {/* Ruta de error */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* Ruta de error */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      
+      {/* ToastContainer Global */}
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+    </>
   );
 }
 

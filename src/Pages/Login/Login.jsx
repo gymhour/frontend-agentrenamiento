@@ -1,4 +1,3 @@
-// components/Login.js
 import React, { useState } from 'react';
 // Css
 import './login.css';
@@ -12,50 +11,51 @@ import apiClient from '../../axiosConfig';
 import { jwtDecode } from 'jwt-decode';
 // Componentes
 import CustomInput from '../../Components/utils/CustomInput/CustomInput';
+import LoaderFullScreen from '../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import { toast } from 'react-toastify';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // TODO: Agregar un loader e identificar si el usuario es admin o alumno para llevarlo a su respectivo dashboard.
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
-        const response = await apiClient.post('/auth/login', { email, password });
-        const token = response.data.token;
+      const response = await apiClient.post('/auth/login', { email, password });
+      const token = response.data.token;
 
-        // Almacena el token en localStorage
-        localStorage.setItem('token', token);
+      // Almacena el token en localStorage
+      localStorage.setItem('token', token);
 
-        try {
-            // Decodifica el token
-            const decodedToken = jwtDecode(token);
+      // Decodifica el token
+      const decodedToken = jwtDecode(token);
 
-            console.log(decodedToken);
+      // Verifica el correo electrónico y redirige según corresponda
+      if (decodedToken.tipo === 'admin' || decodedToken.tipo === "Admin") {
+        navigate('/admin/inicio');
+      } else {
+        navigate('/alumno/inicio');
+      }
 
-            // Verifica el correo electrónico y redirige según corresponda
-            if (decodedToken.tipo === 'admin' || decodedToken.tipo === "Admin") {
-                navigate('/admin/inicio');
-            } else {
-                navigate('/alumno/inicio');
-            }
-        } catch (error) {
-            console.error("Error al decodificar el token: ", error);
-        }
-
-        setMessage('Inicio de sesión exitoso. Token almacenado.');
+      toast.success('Inicio de sesión exitoso');
     } catch (error) {
-        setMessage(error.response?.data?.error || 'Error al iniciar sesión');
+      toast.error("Error al iniciar sesión. Comprueba tus credenciales")
+      // toast.error(error.response?.data?.error || 'Error al iniciar sesión');
+    } finally {
+      setIsLoading(false);
     }
-};
+  };
 
   return (
-    <div className='login-container' style={{backgroundImage: `url(${LoginBackgroundImage})`}}>
+    <div className='login-container' style={{ backgroundImage: `url(${LoginBackgroundImage})` }}>
+      {isLoading && <LoaderFullScreen />}
       <div className="login-subcontainer">
         <div className="gym-logo-container">
-          <img src={ClientLogo} alt="Logo del gimnasio - cliente" width={120}/>
+          <img src={ClientLogo} alt="Logo del gimnasio - cliente" width={120} />
         </div>
         <div className="form-container">
           <form onSubmit={handleSubmit}>
@@ -75,11 +75,10 @@ const Login = () => {
             />
             <button type="submit">Iniciar sesión</button>
             <p className='forgot-password-link'> Me olvidé mi contraseña </p>
-            {message && <p>{message}</p>}
           </form>
         </div>
         <div className="our-logo-container">
-          <img src={OurLogo} alt="Logo de nuestra empresa" width={120}/>
+          <img src={OurLogo} alt="Logo de nuestra empresa" width={120} />
         </div>
       </div>
     </div>
