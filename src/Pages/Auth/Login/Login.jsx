@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 // Css
 import './login.css';
 // Assets
-import LoginBackgroundImage from '../../assets/login/login_background.png';
-import ClientLogo from '../../assets/client/wembleylogo.png'
-import OurLogo from '../../assets/gymhour/logo_gymhour.png'
+import LoginBackgroundImage from '../../../assets/login/login_background.png';
+import ClientLogo from '../../../assets/client/wembleylogo.png'
+import OurLogo from '../../../assets/gymhour/logo_gymhour.png'
 // Funciones
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../axiosConfig';
+import { Link } from 'react-router-dom';
+import apiClient from '../../../axiosConfig';
 import { jwtDecode } from 'jwt-decode';
 // Componentes
-import CustomInput from '../../Components/utils/CustomInput/CustomInput';
-import LoaderFullScreen from '../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -74,7 +75,9 @@ const Login = () => {
               required
             />
             <button type="submit">Iniciar sesión</button>
-            <p className='forgot-password-link'> Me olvidé mi contraseña </p>
+            <Link to="/reset-password" className='forgot-password-link'>
+              Me olvidé mi contraseña          
+            </Link>
           </form>
         </div>
         <div className="our-logo-container">

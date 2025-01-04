@@ -1,6 +1,6 @@
 // components/SignUp.js
 import React, { useState } from 'react';
-import apiClient from '../../axiosConfig.js';
+import apiClient from '../../../axiosConfig.js';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');

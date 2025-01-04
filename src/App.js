@@ -3,8 +3,8 @@ import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify'; // Importa el ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Importa los estilos de Toastify
 import ProtectedRoute from './ProtectedRoute';
-import Login from './Pages/Login/Login';
-import SignUp from './Pages/SignUp/SignUp';
+import Login from './Pages/Auth/Login/Login';
+import SignUp from './Pages/Auth/SignUp/SignUp';
 import NotFound from './Pages/NotFound/NotFound';
 import AlumnoInicio from './Pages/Alumno/Inicio/AlumnoInicio';
 import ClasesActividades from './Pages/Alumno/ClasesActividades/ClasesActividades';
@@ -17,6 +17,7 @@ import ClasesActividadesForm from './Pages/Admin/ClasesActividadesForm/ClasesAct
 import ClasesActividadesAdminDetalle from './Pages/Admin/ClasesActividadesAdminDetalle/ClasesActividadesAdminDetalle';
 import CrearUsuario from './Pages/Admin/CrearUsuario/CrearUsuario';
 import UsuariosList from './Pages/Admin/UsuariosList/UsuariosList';
+import ForgotPassword from './Pages/Auth/ResetPassword/ResetPassword';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         {/* Rutas públicas */}
         <Route path="/" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path='/reset-password' element={<ForgotPassword/>}/>
 
         {/* Rutas protegidas */}
         {/* Admin */}
