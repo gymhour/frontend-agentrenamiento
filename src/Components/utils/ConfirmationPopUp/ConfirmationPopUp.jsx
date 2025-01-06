@@ -9,8 +9,8 @@ const ConfirmationPopup = ({ isOpen, onClose, onConfirm, message }) => {
             <div className="confirmation-popup">
                 <p>{message}</p>
                 <div className="confirmation-popup-buttons">
-                    <button onClick={onConfirm} className="confirm-button">Sí</button>
-                    <button onClick={onClose} className="cancel-button">No</button>
+                <button onClick={onClose} className="cancel-button">Cancelar</button>
+                    <button onClick={onConfirm} className="confirm-button">Sí, cerrar sesión</button>
                 </div>
             </div>
         </div>

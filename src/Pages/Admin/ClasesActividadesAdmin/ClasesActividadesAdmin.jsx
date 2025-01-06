@@ -58,7 +58,7 @@ const ClasesActividadesAdmin = () => {
                                         className="clase-link"
                                     >
                                         <div className="clase-item" style={{
-                                            backgroundImage: `url(${clase.ImagenesClase.length > 0
+                                            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${clase.ImagenesClase.length > 0
                                                 ?  `https://gymbackend-qr97.onrender.com${clase.ImagenesClase[0].url}`
                                                 : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'})`
                                         }}>

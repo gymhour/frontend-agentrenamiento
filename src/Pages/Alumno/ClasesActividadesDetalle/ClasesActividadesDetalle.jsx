@@ -49,7 +49,11 @@ const ClasesActividadesDetalle = () => {
                             reversed={true}
                         />
                         {/* style={{ backgroundImage: `url(${claseDetalle.imagen})`}} */}
-                        <div className="clases-actividades-detalle-title-img" >
+                        <div className="clases-actividades-detalle-title-img" style={{
+                            backgroundImage: `url(${claseDetalle.ImagenesClase.length > 0
+                                ? `https://gymbackend-qr97.onrender.com${claseDetalle.ImagenesClase[0].url}`
+                                : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'})`
+                        }}>
                             <h2>{claseDetalle.nombre}</h2>
                         </div>
                     </div>

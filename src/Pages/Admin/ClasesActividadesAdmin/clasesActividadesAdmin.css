@@ -1,3 +1,6 @@
+/* 
+USO EL CSS DE Alumno/ClasesActividades/clasesActividades.css
+
 @import url(../../../variables.css);
 
 .clases-actividades-ctn {
@@ -24,48 +27,14 @@
     gap: 20px;
     max-width: 1200px;
     margin-top: 40px;
-}
 
-.clase-item {
-    position: relative; 
-    padding: 20px;
-    width: 280px;
-    max-width: 300px;
-    height: fit-content;
-    min-height: 300px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+
+} */
+
+.create-clase-title {
+    width: 550px;
+    max-width: 550px;
     display: flex;
-    flex-direction: column;
-    justify-content: end;
-    align-items: start;
-    border-radius: 16px;
-    overflow: hidden; 
-}
-
-.clase-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
-    z-index: 1;
-    transition: all ease-in-out 200ms;
-}
-
-.clase-item:hover::before {
-    background-color: rgba(0, 0, 0, 0.4); 
-}
-
-.clase-item > * {
-    position: relative; 
-    z-index: 2;
-}
-
-.clase-link {
-    color: white;
-    text-decoration: none;
+    justify-content: space-between;
+    align-items: center;
 }

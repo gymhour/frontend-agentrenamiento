@@ -16,12 +16,12 @@ const AlumnoInicio = () => {
                 <div className="turnos-ctn">
                     <div className="turnos-ctn-title">
                         <h2> Turnos </h2>
-                        <SecondaryButton text="Ver historial" icon={ArrowLeftIcon}></SecondaryButton>
+                        <SecondaryButton linkTo="/alumno/turnos" text="Ver historial" icon={ArrowLeftIcon}></SecondaryButton>
                     </div>
                     <div className="turnos-ctn-turnos">
                         <TurnosCard nombreTurno="Crossfit" fechaTurno="Hoy 27/11/2024" horaTurno="10:00 AM" />
                     </div>
-                    <PrimaryButton text="Agregar nuevo" icon={AddIconCircle}></PrimaryButton>
+                    <PrimaryButton linkTo="/alumno/agendar-turno" text="Agregar nuevo" icon={AddIconCircle}></PrimaryButton>
                 </div>
             </div>            
         </div>

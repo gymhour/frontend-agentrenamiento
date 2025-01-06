@@ -38,29 +38,32 @@ const ClasesActividades = () => {
             <div className='content-layout'>
                 <h1>Clases y actividades</h1>
                 {loading ? (
-                    <p style={{marginTop: '20px'}}>Cargando clases...</p>
+                    <p style={{ marginTop: '20px' }}>Cargando clases...</p>
                 ) : error ? (
                     <p className="error-message">{error}</p>
                 ) : (
-                <div className="clases-list">
-                    {clases.length > 0 ? (
-                        clases.map((clase) => (
-                            <Link 
-                                key={clase.ID_Clase} 
-                                to={`/alumno/clases-actividades/${clase.ID_Clase}`}
-                                className="clase-link"
-                            >
-                                {/* style={{ backgroundImage: `url(${clase.imagen})`}} */}
-                                <div className="clase-item">
-                                    <h2>{clase.nombre}</h2>
-                                    <p>{truncateText(clase.descripcion, 80)}</p>
-                                </div>
-                            </Link>
-                        ))
-                    ) : (
-                        <p>No hay clases disponibles.</p>
-                    )}
-                </div>
+                    <div className="clases-list">
+                        {clases.length > 0 ? (
+                            clases.map((clase) => (
+                                <Link
+                                    key={clase.ID_Clase}
+                                    to={`/alumno/clases-actividades/${clase.ID_Clase}`}
+                                    className="clase-link"
+                                >
+                                    <div className="clase-item" id='clase-item' style={{
+                                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${clase.ImagenesClase.length > 0
+                                                ? `https://gymbackend-qr97.onrender.com${clase.ImagenesClase[0].url}`
+                                                : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'})`
+                                    }}>
+                                        <h2>{clase.nombre}</h2>
+                                        <p>{truncateText(clase.descripcion, 80)}</p>
+                                    </div>
+                                </Link>
+                            ))
+                        ) : (
+                            <p>No hay clases disponibles.</p>
+                        )}
+                    </div>
                 )}
             </div>
         </div>

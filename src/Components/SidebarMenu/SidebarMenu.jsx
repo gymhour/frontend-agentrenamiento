@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 // Css
 import "./sidebarmenu.css";
 // Assets
@@ -18,15 +18,26 @@ import { ReactComponent as CrearUsuarioIcon} from '../../assets/icons/user-add.s
 import { ReactComponent as UsuariosIcon} from '../../assets/icons/users-icon.svg';
 // Routing
 import { useNavigate, useLocation, Link } from "react-router-dom";
+// Componentes
+import ConfirmationPopup from "../utils/ConfirmationPopUp/ConfirmationPopUp";
 
 const SidebarMenu = ({ isAdmin }) => {
     const navigate = useNavigate();
     const location = useLocation(); 
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-    const handleLogout = () => {
-        // TODO: Mostrar un modal antes.
+    const handleLogoutClick = () => {
+        setIsPopupOpen(true);
+    };
+
+    const handleLogoutConfirm = () => {
+        setIsPopupOpen(false);
         localStorage.removeItem("token");
         navigate("/");
+    };
+
+    const handleLogoutCancel = () => {
+        setIsPopupOpen(false);
     };
 
     return (
@@ -156,7 +167,7 @@ const SidebarMenu = ({ isAdmin }) => {
                                 <AjustesIcon className="icon" fill="#A2A2A2"/> Cambiar contraseña
                             </li>
                         </Link>
-                        <li className="menu-item logout" onClick={handleLogout}>
+                        <li className="menu-item logout" onClick={handleLogoutClick}>
                             <CerrarSesionIcon className="icon" fill="#CC8889"/> Cerrar sesión
                         </li>
                     </ul>
@@ -165,6 +176,12 @@ const SidebarMenu = ({ isAdmin }) => {
                     <img src={OurLogo} alt="GymHour Logo" className="logo" />
                 </div>
             </nav>
+            <ConfirmationPopup
+                isOpen={isPopupOpen}
+                onClose={handleLogoutCancel}
+                onConfirm={handleLogoutConfirm}
+                message="¿Estás seguro de que desea cerrar sesión?"
+            />
         </aside>
     );
 };

@@ -14,7 +14,7 @@ const MisTurnos = () => {
                 <div className="proximos-turnos-ctn">
                     <div className="proximo-turno-title">
                         <h2> Próximo turno </h2>
-                        <SecondaryButton text="Agendar nuevo" icon={AddCircleIcon}></SecondaryButton>
+                        <SecondaryButton linkTo="/alumno/agendar-turno" text="Agendar nuevo" icon={AddCircleIcon}></SecondaryButton>
                     </div>
                     <div className="proximo-turno-turnos">
                         <TurnosCard nombreTurno="Crossfit" fechaTurno="Hoy 27/11/2024" horaTurno="10:00 AM" />

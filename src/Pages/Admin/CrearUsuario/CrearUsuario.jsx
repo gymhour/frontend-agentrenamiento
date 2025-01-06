@@ -3,6 +3,7 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
 import apiClient from '../../../axiosConfig';
+import { toast } from 'react-toastify';
 
 const CrearUsuario = () => {
     const [formData, setFormData] = useState({
@@ -10,7 +11,6 @@ const CrearUsuario = () => {
         password: '',
         userType: 'Cliente',
     });
-    const [message, setMessage] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,15 +28,17 @@ const CrearUsuario = () => {
                 password: formData.password,
                 userType: formData.userType.toLowerCase(),
             });
-            setMessage('Registro exitoso');
-    
+
+            toast.success("Usuario añadido correctamente");
+
             setFormData({
                 email: '',
                 password: '',
                 userType: 'Cliente', 
             });
         } catch (error) {
-            setMessage(error.response?.data?.message || 'Error al registrarse');
+            // setMessage(error.response?.data?.message || 'Error al registrarse');
+            toast.error("No se pudo registrar el usuario");
         }
     };
     
@@ -80,9 +82,6 @@ const CrearUsuario = () => {
                         id='userType'
                     />
                     <PrimaryButton text="Crear usuario" onClick={handleSubmit}/>
-                    {
-                        message ? <p> {message} </p> : ''
-                    }
                 </form>
             </div>
         </div>
