@@ -15,3 +15,17 @@
 .turnos-ctn-title h2 {
     color: #FAFAFA;
 }
+
+.inicio-clases-act-title {
+    margin-top: 30px;
+    width: 550px;
+    max-width: 550px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.turnos-ctn-turnos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}

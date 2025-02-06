@@ -1,3 +1,8 @@
 .agendar-turno-ctn {
     margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
 }

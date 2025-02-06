@@ -6,7 +6,7 @@ const TurnosCard = ({nombreTurno, fechaTurno, horaTurno}) => {
     return(
         <div className='turnos-card-ctn'>
             <TurnoIcon className='icon'> </TurnoIcon>
-            <p> {nombreTurno} </p>
+            <p> {nombreTurno ?? "Nombre no disponible"} </p>
             <p> {fechaTurno} </p>
             <p> {horaTurno} </p>
         </div>

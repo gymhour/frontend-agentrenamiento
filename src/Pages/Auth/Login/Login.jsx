@@ -34,6 +34,7 @@ const Login = () => {
 
       // Decodifica el token
       const decodedToken = jwtDecode(token);
+      localStorage.setItem("usuarioId", decodedToken.id)
 
       // Verifica el correo electrónico y redirige según corresponda
       if (decodedToken.tipo === 'admin' || decodedToken.tipo === "Admin") {
@@ -67,6 +68,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {/* TODO: Agregar el ojito */}
             <CustomInput
               type="password"
               placeholder="Contraseña"
