@@ -1,0 +1,29 @@
+/* Contenedor en cuadrícula para las tarjetas */
+.trainers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .trainer-card {
+    width: 295px;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  
+  .trainer-card img {
+    width: 295px;
+    height: 315px;
+    border-radius: 20px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+  }
+  
+  .trainer-card .profesion {
+    font-weight: 400;
+    text-transform: capitalize;
+  }
+  

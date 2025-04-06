@@ -4,7 +4,7 @@ import './LoaderFullScreen.css';
 const LoaderFullScreen = () => {
   return (
     <div className="full-screen-loader">
-      <div className="spinner"></div>
+      <span class="loader"></span>
     </div>
   );
 };

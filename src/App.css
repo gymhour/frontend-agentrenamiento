@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'BebasNewu';
+    src: url('assets/fonts/BebasNeue-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }  
+
 .page-layout {
     display: flex;
     justify-content: start;

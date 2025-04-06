@@ -18,6 +18,13 @@ import ClasesActividadesAdminDetalle from './Pages/Admin/ClasesActividadesAdminD
 import CrearUsuario from './Pages/Admin/CrearUsuario/CrearUsuario';
 import UsuariosList from './Pages/Admin/UsuariosList/UsuariosList';
 import ForgotPassword from './Pages/Auth/ResetPassword/ResetPassword';
+import MiRutina from './Pages/Alumno/MiRutina/MiRutina';
+import CrearRutina from './Pages/Alumno/CrearRutina/CrearRutina';
+import MedicionResultados from './Pages/Alumno/MediciónResultados/MedicionResultados';
+import Entrenadores from './Pages/Alumno/Entrenadores/Entrenadores';
+import RutinasRecomendadas from './Pages/Alumno/RutinasRecomendadas/RutinasRecomendadas';
+import NuevaMedicion from './Pages/Alumno/NuevaMedicion/NuevaMedicion';
+import MedicionResultadosDetalle from './Pages/Alumno/MedicionResultadosDetalle/MedicionResultadosDetalle';
 
 function App() {
   return (
@@ -115,6 +122,62 @@ function App() {
           element={
             <ProtectedRoute>
               <ClasesActividadesDetalle/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/mi-rutina" 
+          element={
+            <ProtectedRoute>
+              <MiRutina/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/crear-rutina" 
+          element={
+            <ProtectedRoute>
+              <CrearRutina/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/medicion-resultados" 
+          element={
+            <ProtectedRoute>
+              <MedicionResultados/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/medicion-resultados/nueva-medicion" 
+          element={
+            <ProtectedRoute>
+              <NuevaMedicion/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/medicion-resultados/ejercicio/:id" 
+          element={
+            <ProtectedRoute>
+              <MedicionResultadosDetalle/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/entrenadores" 
+          element={
+            <ProtectedRoute>
+              <Entrenadores/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/rutinas-recomendadas" 
+          element={
+            <ProtectedRoute>
+              <RutinasRecomendadas/>
             </ProtectedRoute>
           } 
         />

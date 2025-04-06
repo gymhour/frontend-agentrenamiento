@@ -54,7 +54,7 @@ const Login = () => {
 
   return (
     <div className='login-container' style={{ backgroundImage: `url(${LoginBackgroundImage})` }}>
-      {isLoading && <LoaderFullScreen />}
+      {/* {isLoading && <LoaderFullScreen />} */}
       <div className="login-subcontainer">
         <div className="gym-logo-container">
           <img src={ClientLogo} alt="Logo del gimnasio - cliente" width={120} />
@@ -76,7 +76,9 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit">Iniciar sesión</button>
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
+            </button>
             <Link to="/reset-password" className='forgot-password-link'>
               Me olvidé mi contraseña          
             </Link>

@@ -4,6 +4,7 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import ClasesActividadesCard from '../ClasesActividadesCard/ClasesActividadesCard';
 import apiClient from '../../../axiosConfig';
 import apiService from '../../../services/apiService';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const ClasesActividades = () => {
     const [clases, setClases] = useState([]);
@@ -28,12 +29,11 @@ const ClasesActividades = () => {
 
     return (
         <div className='page-layout'>
+            { loading && <LoaderFullScreen/> }
             <SidebarMenu isAdmin={false} />
             <div className='content-layout'>
-                <h1>Clases y actividades</h1>
-                {loading ? (
-                    <p style={{ marginTop: '20px' }}>Cargando clases...</p>
-                ) : error ? (
+                <h2>Clases y actividades</h2>
+                {error ? (
                     <p className="error-message">{error}</p>
                 ) : (
                     <div className="clases-list">

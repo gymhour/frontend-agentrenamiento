@@ -23,7 +23,7 @@ const CrearUsuario = () => {
     const handleSubmit = async (e) => {
         e.preventDefault(); 
         try {
-            const response = await apiClient.post('https://gymbackend-qr97.onrender.com/auth/register', {
+            const response = await apiClient.post('/auth/register', {
                 email: formData.email,
                 password: formData.password,
                 userType: formData.userType.toLowerCase(),

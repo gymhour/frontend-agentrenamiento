@@ -17,7 +17,7 @@ const UsuariosList = () => {
     const fetchUsuarios = async () => {
         setLoading(true);
         try {
-            const response = await apiClient.get('https://gymbackend-qr97.onrender.com/usuarios');
+            const response = await apiClient.get('/usuarios');
             setUsuarios(response.data);
             setLoading(false);
         } catch (error) {
@@ -32,7 +32,7 @@ const UsuariosList = () => {
 
     const deleteUsuario = async (idUsuario) => {
         try {
-            await apiClient.delete(`https://gymbackend-qr97.onrender.com/usuarios/${idUsuario}`);
+            await apiClient.delete(`/usuarios/${idUsuario}`);
             // Eliminación del usuario eliminado en la UI
             setUsuarios(prevUsuarios => prevUsuarios.filter(usuario => usuario.ID_Usuario !== idUsuario));
         } catch (error) {

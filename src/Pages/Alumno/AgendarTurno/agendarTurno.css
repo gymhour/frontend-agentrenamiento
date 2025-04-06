@@ -1,3 +1,6 @@
+@import 'react-datepicker/dist/react-datepicker.css';
+@import '../../../variables.css';
+
 .agendar-turno-ctn {
     margin-top: 16px;
     display: flex;
@@ -6,3 +9,104 @@
     width: 100%;
     max-width: 400px;
 }
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.custom-date-picker-input {
+    width: 100%;
+}
+
+.react-datepicker__triangle {
+    display: none;
+}
+
+.react-datepicker {
+    background-color: #333 !important;
+    border: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+.react-datepicker__header {
+    background-color: #444 !important;
+    border-bottom: 1px solid #555 !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+    color: #fff !important;
+}
+
+/* Días en el calendario */
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+    color: #fff !important;
+}
+
+/* Día seleccionado */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: #666 !important;
+    color: #fff !important;
+}
+
+/* Días fuera del mes actual */
+.react-datepicker__day--outside-month {
+    color: #999 !important;
+}
+
+/* Hover en días */
+.react-datepicker__day:hover {
+    background-color: #555 !important;
+}
+
+/* Contenedor de la lista de horas */
+.react-datepicker__time-container .react-datepicker__time {
+    background-color: #333 !important;
+}
+
+/* Lista de horas */
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box .react-datepicker__time-list-item {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+/* Hover en la lista de horas */
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box .react-datepicker__time-list-item:hover {
+    background-color: #555 !important;
+}
+
+/* Hora seleccionada */
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box .react-datepicker__time-list-item--selected {
+    background-color: #666 !important;
+    color: #fff !important;
+}
+
+/* Estilo para fechas deshabilitadas */
+.react-datepicker__day--disabled {
+    color: #777 !important; /* Color inactivo */
+    opacity: 0.5 !important;
+    pointer-events: none; /* Opcional: para evitar interacción */
+  }
+
+.react-datepicker__day--today {
+    color: var(--primary-color);
+}
+  
+.react-datepicker__time-list-item--disabled {
+    display: none;
+}
+
+.custom-date-picker-input:enabled::placeholder {
+    color: #fff; /* Color blanco para el placeholder cuando el input está habilitado */
+    opacity: 1; /* Asegura que no se vea semitransparente */
+  }
+  
+  /* Opcional: puedes definir un estilo distinto para cuando el input esté deshabilitado */
+  .custom-date-picker-input:disabled::placeholder {
+    color: #aaa; /* Color diferente para el placeholder en estado deshabilitado */
+  }
+  

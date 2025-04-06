@@ -145,7 +145,7 @@ const SidebarMenu = ({ isAdmin }) => {
                                 </li>
                             </Link>
                             <Link
-                                to="alumno/rutinas-recomendadas"
+                                to="/alumno/rutinas-recomendadas"
                                 className={`menu-link ${location.pathname === '/alumno/rutinas-recomendadas' ? 'active' : ''}`}                                
                             >
                                 <li className="menu-item">

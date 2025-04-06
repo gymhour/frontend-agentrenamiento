@@ -1,0 +1,73 @@
+/* ------------------------ */
+/*     NuevaMedicion.css    */
+/* ------------------------ */
+
+/* Contenedor principal */
+.nueva-medicion-container {
+    color: #fff;
+  }
+  
+  /* Título de la sección */
+  .nueva-medicion-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: #ffffff;
+  }
+  
+  /* Mensaje de error */
+  .error-message {
+    color: #ff6b6b;
+    margin-bottom: 1rem;
+  }
+  
+  /* Formulario */
+  .nueva-medicion-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 400px; /* Ajusta el ancho si lo deseas */
+  }
+  
+  /* Grupo de campo (label + input) */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    color: #cccccc;
+  }
+  
+  .form-group input {
+    background-color: #1f1f1f;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 0.6rem;
+    color: #fff;
+    font-size: 0.95rem;
+  }
+  
+  .form-group input::placeholder {
+    color: #777;
+  }
+  
+  /* Botón Agregar */
+  .btn-agregar {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    align-self: flex-start;
+  }
+  
+  .btn-agregar:hover {
+    background-color: #444;
+    transform: scale(1.02);
+  }
+  

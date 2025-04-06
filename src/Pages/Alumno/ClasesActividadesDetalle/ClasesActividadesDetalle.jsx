@@ -14,7 +14,7 @@ const ClasesActividadesDetalle = () => {
     useEffect(() => {
         const fetchClaseDetalle = async () => {
             try {
-                const response = await apiClient.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+                const response = await apiClient.get(`/clase/horario/${id}`);
                 // console.log(response.data);
                 setClaseDetalle(response.data);
             } catch (error) {

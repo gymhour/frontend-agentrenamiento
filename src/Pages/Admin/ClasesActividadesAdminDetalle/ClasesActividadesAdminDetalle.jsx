@@ -18,7 +18,7 @@ const ClasesActividadesAdminDetalle = () => {
     useEffect(() => {
         const fetchClaseDetalle = async () => {
             try {
-                const response = await apiClient.get(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+                const response = await apiClient.get(`/clase/horario/${id}`);
                 setClaseDetalle(response.data);
             } catch (error) {
                 console.error("Error al obtener los detalles de la clase:", error);
@@ -30,7 +30,7 @@ const ClasesActividadesAdminDetalle = () => {
 
     const deleteClase = async () => {
         try {
-            await apiClient.delete(`https://gymbackend-qr97.onrender.com/clase/horario/${id}`);
+            await apiClient.delete(`/clase/horario/${id}`);
             toast.success("Clase eliminada correctamente.");
             navigate("/admin/clases-actividades");
         } catch (error) {

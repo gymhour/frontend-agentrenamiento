@@ -1,0 +1,116 @@
+.medicion-resultados-title {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 20px;
+}
+
+/* ------------------------ */
+/*     MedicionResultados.css     */
+/* ------------------------ */
+
+/* Estructura principal de la página */
+.page-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #121212; /* Fondo oscuro general */
+  }
+  
+  /* Contenedor principal del contenido, a la derecha del Sidebar */
+  .content-layout {
+    flex: 1;
+    padding: 2rem;
+    color: #fff; /* Texto en blanco */
+  }
+  
+  /* Título principal y descripción */
+  .medicion-resultados-title h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .medicion-resultados-title p {
+    font-size: 1rem;
+    color: #b3b3b3;
+    margin-bottom: 2rem;
+  }
+
+  
+  .med-resultados-ejercicios-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .med-resultados-ejercicios-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  /* Botón o link para "Agregar nuevo" */
+  .btn-agregar-nuevo {
+    background-color: #1f1f1f;
+    color: #ffffff;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid #333;
+    font-size: 0.9rem;
+    transition: background-color 0.2s, transform 0.2s;
+  }
+  
+  .btn-agregar-nuevo:hover {
+    background-color: #333;
+    transform: scale(1.03);
+  }
+  
+  /* Listado de tarjetas (ejercicios) */
+  .med-resultados-ejercicios-list {
+    display: grid;
+    gap: 1rem;
+    /* Ajusta la cantidad de columnas según tu preferencia */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
+  /* Tarjeta individual de cada ejercicio */
+  .med-resultados-card {
+    background-color: #1f1f1f;
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: #ffffff;
+    text-decoration: none; /* Para el Link */
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .med-resultados-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  
+  /* Contenido interno de la tarjeta */
+  .med-resultados-card-content {
+    text-align: center;
+  }
+  
+  .med-resultados-card-header h3 {
+    font-size: 2rem;
+    margin: 0;
+  }
+  
+  .med-resultados-card-header span {
+    font-size: 0.9rem;
+    color: #999999;
+  }
+  
+  /* Nombre del ejercicio */
+  .med-resultados-card-body p {
+    margin-top: 0.75rem;
+    font-size: 1rem;
+    color: #ffffff;
+  }
+  

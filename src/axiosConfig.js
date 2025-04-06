@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://gymbackend-qr97.onrender.com', // URL base del backend
+  baseURL: 'https://gym-backend-rust.vercel.app', // URL base del backend
 });
 
 // Interceptor para agregar el token a los headers
