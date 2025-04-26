@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import '../../../App.css';
 import './NuevaMedicion.css';
+import apiClient from '../../../axiosConfig';
 
 const NuevaMedicion = () => {
   const [nombre, setNombre] = useState('');
@@ -24,7 +25,7 @@ const NuevaMedicion = () => {
 
     try {
       // 1. Crear el nuevo ejercicio
-      const responseEjercicio = await fetch('https://gymbackend-qr97.onrender.com/ejercicios-resultados', {
+      const responseEjercicio = await apiClient.get('/ejercicios-resultados', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -36,7 +37,7 @@ const NuevaMedicion = () => {
         })
       });
 
-      if (!responseEjercicio.ok) {
+      if (!responseEjercicio.data) {
         throw new Error('Error al crear el ejercicio');
       }
 
@@ -44,7 +45,7 @@ const NuevaMedicion = () => {
       const nuevoEjercicio = await responseEjercicio.json();
 
       // 2. Crear el histórico inicial con la cantidad y fecha
-      const responseHistorico = await fetch('https://gymbackend-qr97.onrender.com/historicoEjercicio', {
+      const responseHistorico = await apiClient('/historicoEjercicio', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -56,9 +57,9 @@ const NuevaMedicion = () => {
         })
       });
 
-      if (!responseHistorico.ok) {
-        throw new Error('Error al registrar el histórico');
-      }
+      // if (!responseHistorico.ok) {
+      //   throw new Error('Error al registrar el histórico');
+      // }
 
       // Si todo fue exitoso, redireccionamos a la lista principal de mediciones
       navigate('/alumno/medicion-resultados');

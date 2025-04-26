@@ -1,45 +1,63 @@
 import React, { useState } from 'react';
-import LoginBackgroundImage from "../../../assets/login/login_background.png"
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import LoginBackgroundImage from "../../../assets/login/login_background.png";
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
-import { Link } from 'react-router-dom';
-import './ResetPassword.css'
+import apiService from '../../../services/apiService';
+import { toast } from 'react-toastify';
 
-const ForgotPassword = () => {
-    const [email, setEmail] = useState('');
+const ResetPassword = () => {
+  const [nuevaContraseña, setNuevaContraseña] = useState('');
+  const [searchParams]    = useSearchParams();
+  const token             = searchParams.get('token') || '';
+  const navigate          = useNavigate();
 
-    const handleSubmit = () => {
-        console.log("Mail enviado")
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!token) {
+      toast.error('Token inválido o faltante en la URL');
+      return;
     }
 
-    return (
-        <>
-            <div className='reset-container' style={{ backgroundImage: `url(${LoginBackgroundImage})` }}>
-                <div className="reset-subcontainer">
-                    <div className='reset-subcontainer-title'>
-                        <h4> Restablecer contraseña </h4>
-                        <p> Introduce la dirección de correo electrónico asociada a tu cuenta y te enviaremos un vínculo para restablecer tu contraseña.
-                        </p>
-                    </div>
-                    <div className="reset-form-container">
-                        <form onSubmit={handleSubmit}>
-                            <CustomInput
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                width='100%'
-                                required
-                            />
-                            <button type="submit">Continuar</button>
-                        </form>
-                    </div>
-                    <div className='reset-back-login-container'>
-                        <Link to="/" className='back-login-link'> Volver a inicio de sesión </Link>
-                    </div>
-                </div>
-            </div>
-        </>
-    )
+    const body = { 
+      newPassword: nuevaContraseña,
+      token
+    };
+
+    try {
+      await apiService.resetPassword(body);
+      toast.success('Contraseña actualizada correctamente. Te redirigimos al inicio.');
+      navigate('/');
+    } catch (error) {
+      toast.error('Error al crear nueva contraseña');
+    }
+  };
+
+  return (
+    <div
+      className='reset-container'
+      style={{ backgroundImage: `url(${LoginBackgroundImage})` }}
+    >
+      <div className="reset-subcontainer">
+        <div className='reset-subcontainer-title'>
+          <h4>Ingrese su nueva contraseña</h4>
+        </div>
+        <div className="reset-form-container">
+          <form onSubmit={handleSubmit}>
+            <CustomInput
+              type="password"
+              placeholder="Nueva contraseña"
+              value={nuevaContraseña}
+              onChange={(e) => setNuevaContraseña(e.target.value)}
+              width='100%'
+              required
+            />
+            <button type="submit">Continuar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default ForgotPassword;
+export default ResetPassword;

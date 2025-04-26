@@ -50,8 +50,10 @@ const MiRutina = () => {
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
-          <h2>Mi Rutina</h2>
-          <p>Creá tu rutina semanal y consultá la de tu clase o la asignada por tu entrenador personal.</p>
+          <div>
+            <h2>Mis rutinas</h2>
+            {/* <p>Creá tu rutina semanal y consultá la de tu clase o la asignada por tu entrenador personal.</p> */}
+          </div>
           <PrimaryButton text="Crear rutina" linkTo="/alumno/crear-rutina" />
         </div>
 
@@ -67,9 +69,9 @@ const MiRutina = () => {
                     <button onClick={() => deleteRutina(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
                       <DeleteIcon width={20} height={20}/>
                     </button>
-                    <button className='mi-rutina-eliminar-btn'>
+                    {/* <button className='mi-rutina-eliminar-btn'>
                       <EditIcon width={20} height={20}/>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
 
@@ -78,33 +80,72 @@ const MiRutina = () => {
                   <p> Día de la semana: {rutina.dayOfWeek}</p>
                 </div>
 
-                {/* Mostrar bloques de cada rutina */}
                 {rutina.Bloques && rutina.Bloques.length > 0 && (
                   <div className="bloques-list">
                     {rutina.Bloques.map((bloque) => (
                       <div key={bloque.ID_Bloque} className="bloque-card">
-                        {/* Tipo de serie */}
-                        <p className='bloques-list-bloque'> {bloque.type}</p>
-                        {bloque.setsReps && <p>Sets/Reps: {bloque.setsReps}</p>}
-                        {bloque.nombreEj && <p>Ejercicio: {bloque.nombreEj}</p>}
-                        {bloque.descansoRonda && (
-                          <p>Descanso: {bloque.descansoRonda} seg</p>
+                        {/* SETS & REPS */}
+                        {bloque.type === 'SETS_REPS' && (
+                          <p>
+                            {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                          </p>
                         )}
-                        {bloque.cantRondas && <p>Rondas: {bloque.cantRondas}</p>}
-                        {bloque.durationMin && <p>Minutos: {bloque.durationMin}</p>}
-                        {bloque.tipoEscalera && <p>Escalera: {bloque.tipoEscalera}</p>}
 
-                        {/* Ejercicios de cada bloque */}
-                        {bloque.ejercicios && bloque.ejercicios.length > 0 && (
-                          <ul style={{ paddingLeft: '20px' }}>
-                            {bloque.ejercicios.map((ej) => (
-                              <li key={ej.ID_Ejercicio}>
-                                {ej.reps
-                                  ? `${ej.reps} reps - ${ej.setRepWeight}`
-                                  : ej.setRepWeight}
-                              </li>
-                            ))}
-                          </ul>
+                        {/* ROUNDS */}
+                        {bloque.type === 'ROUNDS' && (
+                          <>
+                            <p>{`${bloque.cantRondas} rondas de:`}</p>
+                            <ul style={{ paddingLeft: '20px' }}>
+                              {bloque.ejercicios.map((ej) => (
+                                <li key={ej.ID_Ejercicio}>
+                                  {`${ej.reps} ${ej.setRepWeight}`}
+                                </li>
+                              ))}
+                            </ul>
+                            {bloque.descansoRonda != null && (
+                              <p>{`con ${bloque.descansoRonda} segs de descanso`}</p>
+                            )}
+                          </>
+                        )}
+
+                        {/* AMRAP */}
+                        {bloque.type === 'AMRAP' && (
+                          <>
+                            <p>{`AMRAP ${bloque.durationMin}min:`}</p>
+                            <ul style={{ paddingLeft: '20px' }}>
+                              {bloque.ejercicios.map((ej) => (
+                                <li key={ej.ID_Ejercicio}>
+                                  {`${ej.reps} ${ej.setRepWeight}`}
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+
+                        {/* EMOM */}
+                        {bloque.type === 'EMOM' && (
+                          <>
+                            <p>{`EMOM ${bloque.durationMin}min:`}</p>
+                            <ul style={{ paddingLeft: '20px' }}>
+                              {bloque.ejercicios.map((ej, idx) => (
+                                <li key={ej.ID_Ejercicio}>
+                                  {`0-${idx}: ${ej.reps} ${ej.setRepWeight}`}
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+
+                        {/* LADDER */}
+                        {bloque.type === 'LADDER' && (
+                          <>
+                            <p>{bloque.tipoEscalera}</p>
+                            <ul style={{ paddingLeft: '20px' }}>
+                              {bloque.ejercicios.map((ej) => (
+                                <li key={ej.ID_Ejercicio}>{ej.setRepWeight}</li>
+                              ))}
+                            </ul>
+                          </>
                         )}
                       </div>
                     ))}

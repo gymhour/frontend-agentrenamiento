@@ -7,12 +7,14 @@ import './usuariosList.css'
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
+import { useNavigate } from 'react-router-dom';
 
 const UsuariosList = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
+    const navigate = useNavigate();
 
     const fetchUsuarios = async () => {
         setLoading(true);
@@ -89,11 +91,14 @@ const UsuariosList = () => {
                                             <td>{usuario.tipo || 'N/A'}</td>
                                             <td>{new Date(usuario.fechaRegistro).toLocaleDateString()}</td>
                                             <td style={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                                                <PrimaryButton text="Editar usuario" />
-                                                <SecondaryButton
-                                                    text="Eliminar usuario"
-                                                    onClick={() => handleDeleteClick(usuario.ID_Usuario)}
-                                                />
+                                            <PrimaryButton
+                                                text="Editar usuario"
+                                                linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
+                                            />
+                                            <SecondaryButton
+                                                text="Eliminar usuario"
+                                                onClick={() => handleDeleteClick(usuario.ID_Usuario)}
+                                            />
                                             </td>
                                         </tr>
                                     ))}

@@ -77,6 +77,43 @@ const getEntrenadores = async () => {
     }
 };
 
+const getUserById = async (id) => {
+    try {
+        const response = await apiClient.get(`/usuarios/${id}`);
+        return response.data
+    } catch (error) {
+        throw new Error(`Error al obtener el usuario con ID ${id}`);
+    }
+}
+
+const updateUserById = async (id, body) => {
+    try {
+        const response = await apiClient.put(`/usuarios/${id}`, body);
+        return response.data
+    } catch (error) {
+        throw new Error(`Error al editar el usuario con ID ${id}`);
+    }
+}
+
+// Contraseñas
+const forgotPassword = async (body) => {
+    try {
+        const response = await apiClient.post('/auth/forgot-password', body);
+        return response.data;
+    } catch (error) {
+        throw new Error(`Error al enviar mail para recuperar contraseña`);
+    }
+}
+
+const resetPassword = async(body) => {
+    try {
+        const response = await apiClient.post('/auth/reset-password', body);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error al crear nueva contraseña');
+    }
+}
+
 export default {
     getClases,
     getTurnos,
@@ -85,5 +122,9 @@ export default {
     getRutinas,
     createRutina,
     deleteRutina,
-    getEntrenadores
+    getEntrenadores,
+    getUserById,
+    updateUserById,
+    forgotPassword,
+    resetPassword
 };

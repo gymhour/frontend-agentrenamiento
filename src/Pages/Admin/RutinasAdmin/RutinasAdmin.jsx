@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import '../../../App.css';
-import '../MiRutina/MiRutina.css'
+import './RutinasAdmin.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
-import apiService from '../../../services/apiService';
-import LoaderSection from '../../../Components/utils/LoaderSection/LoaderSection.jsx';
+import apiService from '../../../services/apiService.js';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
+import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
+import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
 
-const RutinasRecomendadas = () => {
-  // Estado para guardar las rutinas que traemos de la API
+
+const RutinasAdmin = () => {
   const [rutinas, setRutinas] = useState([]);
-  // Estado para manejar el loading
   const [loading, setLoading] = useState(true);
 
-  // useEffect para cargar rutinas al montar el componente
   useEffect(() => {
     const fetchRutinas = async () => {
       try {
         const data = await apiService.getRutinas();
-        // Si la respuesta viene con la estructura data.rutinas:
         setRutinas(data.rutinas);
       } catch (error) {
         console.error("Error al obtener rutinas:", error);
@@ -30,7 +28,6 @@ const RutinasRecomendadas = () => {
     fetchRutinas();
   }, []);
 
-  // Función para eliminar una rutina
   const deleteRutina = async (idRutina) => {
     try {
       await apiService.deleteRutina(idRutina);
@@ -45,35 +42,41 @@ const RutinasRecomendadas = () => {
 
   return (
     <div className='page-layout'>
-      {loading && <LoaderFullScreen/> }
-      <SidebarMenu isAdmin={false}/>
+      { loading && <LoaderFullScreen/> }
+      <SidebarMenu isAdmin={true} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
-          <h2>Rutinas Recomendadas</h2>
-          {/* <p>Explorá rutinas que pueden ayudarte a alcanzar tus objetivos.</p> */}
+          <div>
+            <h2>Mi Rutina</h2>
+            {/* <p>Creá tu rutina semanal y consultá la de tu clase o la asignada por tu entrenador personal.</p> */}
+          </div>
+          <PrimaryButton text="Crear rutina" linkTo="/admin/crear-rutina" />
         </div>
 
-        {/* Si está cargando, muestra el LoaderSection */}
-          <div className="mis-rutinas-list">
-            {rutinas.length === 0 ? (
-              <p>No hay rutinas cargadas</p>
-            ) : (
-              rutinas.map((rutina) => (
-                <div key={rutina.ID_Rutina} className="rutina-card">
-                  <div className='rutina-header'>
-                    <h3>{rutina.nombre}</h3>
-                    {/* <button 
-                      onClick={() => deleteRutina(rutina.ID_Rutina)} 
-                      className='mi-rutina-eliminar-btn'
-                    >
-                      Eliminar
-                    </button> */}
+        <div className="mis-rutinas-list">
+          {rutinas.length === 0 ? (
+            <p>No hay rutinas cargadas</p>
+          ) : (
+            rutinas.map((rutina) => (
+              <div key={rutina.ID_Rutina} className="rutina-card">
+                <div className='rutina-header'>
+                  <h3>{rutina.nombre}</h3>
+                  <div className="rutina-header-acciones">
+                    <button onClick={() => deleteRutina(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
+                      <DeleteIcon width={20} height={20}/>
+                    </button>
+                    <button className='mi-rutina-eliminar-btn'>
+                      <EditIcon width={20} height={20}/>
+                    </button>
                   </div>
-                  {/* <p>{rutina.desc}</p> */}
-                  <div className="rutina-data">
+                </div>
+
+                <div className="rutina-data">
                   {/* Aca deberia ir categoria y duración también */}
                   <p> Día de la semana: {rutina.dayOfWeek}</p>
                 </div>
+
+                {/* Mostrar bloques de cada rutina */}
                 {rutina.Bloques && rutina.Bloques.length > 0 && (
                   <div className="bloques-list">
                     {rutina.Bloques.map((bloque) => (
@@ -145,13 +148,13 @@ const RutinasRecomendadas = () => {
                     ))}
                   </div>
                 )}
-                </div>
-              ))
-            )}
-          </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default RutinasRecomendadas;
+export default RutinasAdmin;

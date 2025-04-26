@@ -85,6 +85,22 @@ const SidebarMenu = ({ isAdmin }) => {
                                     <CrearUsuarioIcon className="icon" fill="#A2A2A2"/> Crear usuario
                                 </li>
                             </Link>
+                            <Link
+                                to="/admin/rutinas"
+                                className={`menu-link ${location.pathname === '/admin/rutinas' ? 'active' : ''}`}                                
+                            >
+                                <li className="menu-item">
+                                    <MiRutinaIcon className="icon" fill="#A2A2A2"/> Cargar rutinas
+                                </li>
+                            </Link>
+                            <Link
+                                to="/admin/cuotas"
+                                className={`menu-link ${location.pathname === '/admin/cuotas' ? 'active' : ''}`}                                
+                            >
+                                <li className="menu-item">
+                                    <MiRutinaIcon className="icon" fill="#A2A2A2"/> Cuotas
+                                </li>
+                            </Link>
                         </>
                     ) : (
                         <>

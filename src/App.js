@@ -17,7 +17,7 @@ import ClasesActividadesForm from './Pages/Admin/ClasesActividadesForm/ClasesAct
 import ClasesActividadesAdminDetalle from './Pages/Admin/ClasesActividadesAdminDetalle/ClasesActividadesAdminDetalle';
 import CrearUsuario from './Pages/Admin/CrearUsuario/CrearUsuario';
 import UsuariosList from './Pages/Admin/UsuariosList/UsuariosList';
-import ForgotPassword from './Pages/Auth/ResetPassword/ResetPassword';
+import ForgotPassword from './Pages/Auth/ForgotPassword/ForgotPassword';
 import MiRutina from './Pages/Alumno/MiRutina/MiRutina';
 import CrearRutina from './Pages/Alumno/CrearRutina/CrearRutina';
 import MedicionResultados from './Pages/Alumno/MediciónResultados/MedicionResultados';
@@ -25,6 +25,11 @@ import Entrenadores from './Pages/Alumno/Entrenadores/Entrenadores';
 import RutinasRecomendadas from './Pages/Alumno/RutinasRecomendadas/RutinasRecomendadas';
 import NuevaMedicion from './Pages/Alumno/NuevaMedicion/NuevaMedicion';
 import MedicionResultadosDetalle from './Pages/Alumno/MedicionResultadosDetalle/MedicionResultadosDetalle';
+import EditarUsuario from './Pages/Admin/EditarUsuario/EditarUsuario';
+import RutinasAdmin from './Pages/Admin/RutinasAdmin/RutinasAdmin';
+import CrearRutinaAdmin from './Pages/Admin/CrearRutinaAdmin/CrearRutinaAdmin';
+import CuotasUsuarios from './Pages/Admin/CuotasUsuarios/CuotasUsuarios';
+import ResetPassword from './Pages/Auth/ResetPassword/ResetPassword';
 
 function App() {
   return (
@@ -33,7 +38,8 @@ function App() {
         {/* Rutas públicas */}
         <Route path="/" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
-        <Route path='/reset-password' element={<ForgotPassword/>}/>
+        <Route path='/forgot-password' element={<ForgotPassword/>}/>
+        <Route path='/reset-password' element={<ResetPassword/>}/>
 
         {/* Rutas protegidas */}
         {/* Admin */}
@@ -87,6 +93,37 @@ function App() {
             </ProtectedRoute>
           } 
         />      
+        <Route path="/admin/editar-usuario/:id" 
+          element={
+            <ProtectedRoute>
+              <EditarUsuario />
+            </ProtectedRoute>
+          } 
+        />    
+        <Route 
+          path="/admin/rutinas" 
+          element={
+            <ProtectedRoute>
+              <RutinasAdmin/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/crear-rutina" 
+          element={
+            <ProtectedRoute>
+              <CrearRutinaAdmin/>
+            </ProtectedRoute>
+          } 
+        />  
+        <Route 
+          path="/admin/cuotas" 
+          element={
+            <ProtectedRoute>
+              <CuotasUsuarios/>
+            </ProtectedRoute>
+          } 
+        />  
         {/* Alumno */}
         <Route path="/alumno/inicio" 
           element={

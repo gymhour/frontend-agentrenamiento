@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import '../../../App.css';
 import './MedicionResultadosDetalle.css';
-
 /* Importamos componentes de Recharts (opcional) */
 import {
   BarChart,
@@ -14,6 +13,7 @@ import {
   CartesianGrid,
   ResponsiveContainer
 } from 'recharts';
+import apiClient from '../../../axiosConfig';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams(); // ID del ejercicio en la ruta
@@ -29,11 +29,11 @@ const MedicionResultadosDetalle = () => {
   useEffect(() => {
     const fetchEjercicios = async () => {
       try {
-        const response = await fetch('https://gymbackend-qr97.onrender.com/ejercicios-resultados');
-        if (!response.ok) {
+        const response = await apiClient.get('/ejercicios-resultados');
+        if (!response.data) {
           throw new Error('Error al obtener los ejercicios');
         }
-        const data = await response.json();
+        const data = await response.data;
         // Filtramos el ejercicio que coincide con el ID de la URL
         const foundEjercicio = data.find(
           (item) => item.ID_EjercicioMedicion === parseInt(id)
@@ -63,7 +63,7 @@ const MedicionResultadosDetalle = () => {
     }
 
     try {
-      const response = await fetch('https://gymbackend-qr97.onrender.com/historicoEjercicio', {
+      const response = await apiClient.get('/historicoEjercicio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -73,7 +73,7 @@ const MedicionResultadosDetalle = () => {
         })
       });
 
-      if (!response.ok) {
+      if (!response.data) {
         throw new Error('Error al agregar el nuevo resultado');
       }
 
@@ -123,17 +123,14 @@ const MedicionResultadosDetalle = () => {
   }
 
   // 4. Preparar datos para el gráfico
-  // Ordenamos por fecha y transformamos a un formato para Recharts
   const sortedHistorico = [...ejercicio.HistoricoEjercicios].sort(
     (a, b) => new Date(a.Fecha) - new Date(b.Fecha)
   );
 
-  const dataChart = sortedHistorico.map((item) => {
-    return {
-      fecha: new Date(item.Fecha).toLocaleDateString(),
-      cantidad: item.Cantidad
-    };
-  });
+  const dataChart = sortedHistorico.map((item) => ({
+    fecha: new Date(item.Fecha).toLocaleDateString(),
+    cantidad: item.Cantidad
+  }));
 
   return (
     <div className="page-layout">

@@ -79,7 +79,7 @@ const Login = () => {
             <button type="submit" disabled={isLoading}>
               {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
             </button>
-            <Link to="/reset-password" className='forgot-password-link'>
+            <Link to="/forgot-password" className='forgot-password-link'>
               Me olvidé mi contraseña          
             </Link>
           </form>

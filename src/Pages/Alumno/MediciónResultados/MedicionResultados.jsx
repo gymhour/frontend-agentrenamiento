@@ -4,6 +4,7 @@ import '../../../App.css';
 import './MedicionResultados.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import apiClient from '../../../axiosConfig';
 
 const MedicionResultados = () => {
   const [ejercicios, setEjercicios] = useState([]);
@@ -14,11 +15,11 @@ const MedicionResultados = () => {
   useEffect(() => {
     const fetchEjercicios = async () => {
       try {
-        const response = await fetch('https://gymbackend-qr97.onrender.com/ejercicios-resultados');
-        if (!response.ok) {
+        const response = await apiClient.get('/ejercicios-resultados');
+        if (!response.data) {
           throw new Error('Error al obtener la lista de ejercicios');
         }
-        const data = await response.json();
+        const data = await response.data;
         setEjercicios(data);
       } catch (err) {
         setError(err.message);

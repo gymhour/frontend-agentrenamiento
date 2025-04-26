@@ -5,9 +5,9 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput.jsx';
 import './CrearRutina.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
-import apiService from '../../../services/apiService';
+import apiService from '../../../services/apiService.js';
 
-const CrearRutina = () => {
+const CrearRutinaAdmin = () => {
   const diasSemana = [
     "Lunes",
     "Martes",
@@ -229,7 +229,7 @@ const CrearRutina = () => {
 
   return (
     <div className='page-layout'>
-      <SidebarMenu isAdmin={false} />
+      <SidebarMenu isAdmin={true} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
           <h2>Crear Rutina</h2>
@@ -566,4 +566,4 @@ const CrearRutina = () => {
   );
 };
 
-export default CrearRutina;
+export default CrearRutinaAdmin;
