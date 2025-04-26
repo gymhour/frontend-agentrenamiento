@@ -14,9 +14,10 @@ const RutinasAdmin = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let userId = localStorage.getItem("usuarioId")
     const fetchRutinas = async () => {
       try {
-        const data = await apiService.getRutinas();
+        const data = await apiService.getUserRutinas(userId);
         setRutinas(data.rutinas);
       } catch (error) {
         console.error("Error al obtener rutinas:", error);

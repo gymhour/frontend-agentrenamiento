@@ -17,9 +17,10 @@ const MiRutina = () => {
 
   // useEffect para cargar rutinas al montar el componente
   useEffect(() => {
+    let userId = localStorage.getItem("usuarioId")
     const fetchRutinas = async () => {
       try {
-        const data = await apiService.getRutinas();
+        const data = await apiService.getUserRutinas(userId);
         // En la respuesta que compartiste, el array viene en data.rutinas
         setRutinas(data.rutinas);
       } catch (error) {

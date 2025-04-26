@@ -41,9 +41,18 @@ const deleteTurno = async (id) => {
 }
 
 // Rutinas
-const getRutinas = async (data) => {
+const getRutinas = async () => {
     try {
         const response = await apiClient.get("/rutinas");
+        return response.data
+    } catch (error) {
+        throw new Error("Error en el service de getRutinas");
+    }
+}
+
+const getUserRutinas = async (id) => {
+    try {
+        const response = await apiClient.get(`/rutinas/usuario/${id}`);
         return response.data
     } catch (error) {
         throw new Error("Error en el service de getRutinas");
@@ -114,17 +123,28 @@ const resetPassword = async(body) => {
     }
 }
 
+const changePassword = async(body) => {
+    try {
+        const response = await apiClient.put("/auth/change-password", body);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error al cambiar contraseña');
+    }
+}
+
 export default {
     getClases,
     getTurnos,
     postTurno,
     deleteTurno,
     getRutinas,
+    getUserRutinas,
     createRutina,
     deleteRutina,
     getEntrenadores,
     getUserById,
     updateUserById,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 };

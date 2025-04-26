@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import '../../../App.css';
 import './MedicionResultadosDetalle.css';
-/* Importamos componentes de Recharts (opcional) */
+import { Link } from 'react-router-dom';
 import {
   BarChart,
   Bar,
@@ -14,6 +14,8 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import apiClient from '../../../axiosConfig';
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams(); // ID del ejercicio en la ruta
@@ -138,6 +140,7 @@ const MedicionResultadosDetalle = () => {
       <div className="content-layout detalle-container">
         {/* Encabezado */}
         <div className="detalle-header">
+          <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true}/>
           <h1>
             {ejercicio.nombre} - {ejercicio.tipoMedicion}
           </h1>
