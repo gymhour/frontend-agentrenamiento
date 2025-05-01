@@ -52,7 +52,7 @@ const ResetPassword = () => {
               width='100%'
               required
             />
-            <button type="submit">Continuar</button>
+            <button type="submit" className='forgot-pass-btn'>Continuar</button>
           </form>
         </div>
       </div>

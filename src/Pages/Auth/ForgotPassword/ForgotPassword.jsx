@@ -32,7 +32,7 @@ const ForgotPassword = () => {
                         </p>
                     </div>
                     <div className="reset-form-container">
-                        <form onSubmit={handleSubmit}>
+                        <form className='forgot-pass-form' onSubmit={handleSubmit}>
                             <CustomInput
                                 type="email"
                                 placeholder="Email"
@@ -41,7 +41,7 @@ const ForgotPassword = () => {
                                 width='100%'
                                 required
                             />
-                            <button type="submit">Continuar</button>
+                            <button type="submit" className='forgot-pass-btn'>Continuar</button>
                         </form>
                     </div>
                     <div className='reset-back-login-container'>

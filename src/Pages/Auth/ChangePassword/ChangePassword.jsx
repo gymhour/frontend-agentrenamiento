@@ -57,6 +57,7 @@ const ChangePassword = () => {
                 </div>
                 <div className="cambiar-contrasena-campos">
                     <CustomInput
+                        type='password'
                         placeholder="Contraseña anterior"
                         value={formData.oldPassword}
                         onChange={(e) =>
@@ -64,6 +65,7 @@ const ChangePassword = () => {
                         }
                     />
                     <CustomInput
+                        type='password'
                         placeholder="Contraseña nueva"
                         value={formData.newPassword}
                         onChange={(e) =>
@@ -71,6 +73,7 @@ const ChangePassword = () => {
                         }
                     />
                     <CustomInput
+                        type='password'
                         placeholder="Repetir la contraseña nueva"
                         value={formData.repeatNewPassword}
                         onChange={(e) =>

@@ -12,6 +12,11 @@ const getClases = async () => {
     }
 };
 
+// Poder asignarle un instructor a una clase. Ponerlo en la creación de clases.
+const postInstructorToClase = async() => {
+    
+}
+
 // Turnos
 const getTurnos = async () => {
     try {
@@ -20,6 +25,15 @@ const getTurnos = async () => {
     } catch (error) {
         throw new Error("Error en el service de getTurnos")
     }
+}
+
+const getTurnoById = async(id) => {
+    try {
+        const response = await apiClient.get(`/turnos/${id}`);
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el service de getTurnosByUsuario")
+    }   
 }
 
 const postTurno = async (body) => {
@@ -135,6 +149,7 @@ const changePassword = async(body) => {
 export default {
     getClases,
     getTurnos,
+    getTurnoById,
     postTurno,
     deleteTurno,
     getRutinas,

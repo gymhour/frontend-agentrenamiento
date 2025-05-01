@@ -8,6 +8,38 @@ input {
     font-size: 16px;
 }
 
+.custom-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.custom-input {
+  width: 100%;
+  padding-right: 3rem;
+  box-sizing: border-box;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+}
+
+.eye-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

@@ -76,7 +76,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button type="submit" disabled={isLoading}>
+            <button className='btn-login' type="submit" disabled={isLoading}>
               {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
             </button>
             <Link to="/forgot-password" className='forgot-password-link'>

@@ -26,7 +26,7 @@
     gap: 30px;
 }
 
-.form-container form button {
+.form-container form .btn-login {
     background-color: var(--primary-color);
     color: #FAFAFA;
     padding: 12px 32px;
