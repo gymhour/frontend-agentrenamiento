@@ -91,6 +91,7 @@ const deleteRutina = async (id) => {
     }
 }
 
+/* Entrenadores */
 const getEntrenadores = async () => {
     try {
       const response = await apiClient.get('/usuarios/entrenadores');
@@ -99,6 +100,14 @@ const getEntrenadores = async () => {
       throw new Error("Error al obtener entrenadores");
     }
 };
+
+const addEntrenadorToClase = async(idClase, idEntrenador) => {
+    try {
+        const response = await apiClient.post(`/clase/${idClase}/entrenador/${idEntrenador}`)
+    } catch (error) {
+        throw new Error("Error al asignar entrenador a una clase");
+    }
+}
 
 const getUserById = async (id) => {
     try {
@@ -157,6 +166,7 @@ export default {
     createRutina,
     deleteRutina,
     getEntrenadores,
+    addEntrenadorToClase,
     getUserById,
     updateUserById,
     forgotPassword,

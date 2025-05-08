@@ -113,3 +113,25 @@
     position: relative;
     top: 10px;
 }
+
+.selected-tags{
+    width: 300px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 12px;
+}
+
+.selected-tags .tag {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+.tag-close {
+    cursor: pointer;
+}

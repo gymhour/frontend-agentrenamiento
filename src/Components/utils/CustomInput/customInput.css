@@ -2,10 +2,15 @@ input {
     background-color: #252525;
     border-radius: 12px;
     padding: 16px 32px 16px 20px;
-    border: none;
+    border: 1.5px solid #252525;
     outline: none;
     color: #FAFAFA;
     font-size: 16px;
+    transition: all ease-in-out 150ms;
+}
+
+input:focus {
+  border: 1.5px solid rgba(255, 255, 255, 0.2) ;
 }
 
 .custom-input-wrapper {

@@ -15,7 +15,7 @@ const ClasesActividadesDetalle = () => {
         const fetchClaseDetalle = async () => {
             try {
                 const response = await apiClient.get(`/clase/horario/${id}`);
-                // console.log(response.data);
+                console.log(response.data);
                 setClaseDetalle(response.data);
             } catch (error) {
                 console.error("Error al obtener los detalles de la clase:", error);
@@ -76,8 +76,21 @@ const ClasesActividadesDetalle = () => {
                                 <p>No hay horarios disponibles.</p>
                             )}
                         </div>
+
+                        {/* Instructores */}
                         <div className="clases-actividades-item clases-actividades-detalle-info-instructores">
-                            <h2> Instructores </h2>
+                            <h2>Instructores</h2>
+                            {claseDetalle.Entrenadores && claseDetalle.Entrenadores.length > 0 ? (
+                                <ul>
+                                    {claseDetalle.Entrenadores.map(ent => (
+                                        <li key={ent.ID_Usuario}>
+                                            {ent.nombre} {ent.apellido} {ent.profesion && `– ${ent.profesion}`}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>No hay instructores asignados.</p>
+                            )}
                         </div>
                     </div>
                 </div>

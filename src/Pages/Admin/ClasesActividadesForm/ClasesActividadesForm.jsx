@@ -8,6 +8,8 @@ import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circl
 import { ReactComponent as CloseIcon } from '../../../assets/icons/close.svg';
 import { useParams } from "react-router-dom";
 import apiClient from "../../../axiosConfig";
+import apiService from "../../../services/apiService";
+import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropdown";
 
 const ClasesActividadesForm = ({ isEditing, classId }) => {
     const [nombre, setNombre] = useState("");
@@ -15,6 +17,9 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
     const [image, setImage] = useState(null);
     const [horarios, setHorarios] = useState([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
     const [message, setMessage] = useState("");
+    const [entrenadores, setEntrenadores] = useState([]);
+    const [selectedEntrenadores, setSelectedEntrenadores] = useState([]);
+    const [dropdownValue, setDropdownValue] = useState("");
     const { id } = useParams();
 
     useEffect(() => {
@@ -37,14 +42,47 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
 
             fetchClaseDetalle();
         }
-    }, [isEditing, classId]);
+
+        const fetchEntrenadores = async () => {
+            try {
+                const resp = await apiService.getEntrenadores();
+                setEntrenadores(resp.data ?? resp);
+            } catch (error) {
+                console.error("Error al obtener los entrenadores", error);
+            }
+        };
+        fetchEntrenadores();
+    }, [isEditing, id]);
+
+    const handleSelectEntrenador = (nombre) => {
+        const ent = entrenadores.find(e => e.nombre === nombre);
+        if (!ent) {
+            console.warn("No se encontró ningún entrenador con ese nombre");
+            return;
+        }
+        // Comprobamos si ya estaba seleccionado
+        const yaSeleccionado = selectedEntrenadores.some(s => s.ID_Usuario === ent.ID_Usuario);
+        if (!yaSeleccionado) {
+            setSelectedEntrenadores(prev => {
+                const nuevo = [...prev, ent];
+                // console.log("selectedEntrenadores ahora es:", nuevo);
+                return nuevo;
+            });
+        }
+    };
+
+    const handleRemoveEntrenador = (ID_Usuario) => {
+        setSelectedEntrenadores((prev) =>
+            prev.filter((e) => e.ID_Usuario !== ID_Usuario)
+        );
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setImage(file);
         }
-    };    
+    };
 
     const handleAddHorario = () => {
         setHorarios([...horarios, { diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
@@ -74,55 +112,67 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
 
     const timeSlots = generateTimeSlots();
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-    
-        const transformedHorarios = horarios.map((horario) => ({
-            ...horario,
-            horaIni: `2024-01-03T${horario.horaIni}:00Z`, // Ejemplo de fecha fija
-            horaFin: `2024-01-03T${horario.horaFin}:00Z`,
-            cupos: Number(horario.cupos), // Asegurar que cupos sea un número
+      
+        // Transformar horarios
+        const transformedHorarios = horarios.map(h => ({
+          ...h,
+          horaIni: `2024-01-03T${h.horaIni}:00Z`,
+          horaFin: `2024-01-03T${h.horaFin}:00Z`,
+          cupos: Number(h.cupos),
         }));
-    
+      
+        // Armar formData
         const formData = new FormData();
         formData.append("nombre", nombre);
         formData.append("descripcion", descripcion);
-        if (image) {
-            formData.append("image", image); // Adjuntar el archivo si existe
+        if (image) formData.append("image", image);
+        formData.append("horarios", JSON.stringify(transformedHorarios));
+      
+        // IDs de entrenadores seleccionados
+        const entrenadorIds = selectedEntrenadores.map(e => e.ID_Usuario);
+        formData.append("entrenadores", JSON.stringify(entrenadorIds));
+      
+        if (isEditing) {
+          // PUT (edición) puede seguir con async/await o then, según prefieras
+          apiClient.put(`/clase/horario/${id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+          })
+          .then(() => setMessage("Clase actualizada exitosamente."))
+          .catch(err => setMessage("Error actualizando clase"));
+        } else {
+          // POST + then()
+          apiClient.post("/clase/horario", formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+          })
+          .then(response => {
+            const idClase = response.data.clase.ID_Clase;
+            // Disparo todas las asignaciones en paralelo
+            return Promise.all(
+              entrenadorIds.map(idEntr => 
+                apiService.addEntrenadorToClase(idClase, idEntr)
+              )
+            );
+          })
+          .then(() => {
+            setMessage("Clase creada y entrenadores asignados exitosamente.");
+            resetForm();
+          })
+          .catch(error => {
+            console.error(error);
+            setMessage("Hubo un error en la creación o asignación.");
+          });
         }
-        formData.append("horarios", JSON.stringify(transformedHorarios)); // Convertir horarios a JSON
-    
-        try {
-            if (isEditing) {
-                // Editar clase
-                await apiClient.put(`/clase/horario/${id}`, formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                setMessage("Clase actualizada exitosamente.");
-            } else {
-                // Agregar clase
-                await apiClient.post("/clase/horario", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-                setMessage("Clase creada exitosamente.");
-                resetForm();
-            }
-        } catch (error) {
-            if (error.response?.status === 400) {
-                setMessage(error.response?.data?.message || "Error en los datos proporcionados.");
-            } else {
-                setMessage("Hubo un error en el servidor.");
-            }
-        }
-    };
-    
-    
-    
+      };
+      
+
     const resetForm = () => {
         setNombre("");
         setDescripcion("");
         setImage(null);
         setHorarios([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
+        setSelectedEntrenadores([]);
     };
 
     return (
@@ -135,7 +185,7 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                         <h2> {isEditing ? 'Editar clase o actividad' : 'Crear nueva clase o actividad'} </h2>
                     </div>
                     <div className="create-clase-form">
-                        <form encType="multipart/form-data">
+                        <form encType="multipart/form-data" onSubmit={handleSubmit}>
                             <div className="form-input-ctn">
                                 <label htmlFor="nombre">Nombre:</label>
                                 <input
@@ -146,6 +196,8 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                                     required
                                 />
                             </div>
+
+                            {/* Descripción */}
                             <div className="form-input-ctn">
                                 <label htmlFor="descripcion">Descripción:</label>
                                 <textarea
@@ -155,6 +207,8 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                                     required
                                 />
                             </div>
+
+                            {/* Imagen */}
                             <div className="form-input-ctn">
                                 <label htmlFor="imagen">Imagen:</label>
                                 <input
@@ -163,80 +217,140 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                                     onChange={handleImageChange}
                                 />
                             </div>
+
+                            {/* Entrenadores */}
+                            <div className="form-input-ctn">
+                                <label htmlFor="entrenadores">Entrenadores:</label>
+                                <CustomDropdown
+                                    id="entrenadores"
+                                    name="entrenadores"
+                                    options={entrenadores.filter(e => e.nombre).map(e => e.nombre)}
+                                    placeholderOption="Seleccionar entrenador"
+                                    value={dropdownValue}
+                                    onChange={(e) => {
+                                        const nombre = e.target.value;
+                                        handleSelectEntrenador(nombre);
+                                        setDropdownValue("");
+                                    }}
+                                />
+                                <div className="selected-tags">
+                                    {selectedEntrenadores.map((ent) => (
+                                        <div key={ent.ID_Usuario} className="tag">
+                                            <span>{ent.nombre}</span>
+                                            <CloseIcon
+                                                className="tag-close"
+                                                width={30}
+                                                height={30}
+                                                onClick={() =>
+                                                    handleRemoveEntrenador(ent.ID_Usuario)
+                                                }
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Horarios */}
                             <div className="form-input-horarios">
                                 <label>Horarios:</label>
-                                {horarios.map((horario, index) => (
-                                    <div key={index}>
-                                        <div className="horario-item">
-                                            <div className="form-input-ctn-horario">
-                                                <label> Dia de la semana </label>
-                                                <select
-                                                    name="diaSemana"
-                                                    value={horario.diaSemana}
-                                                    onChange={(e) => handleHorarioChange(e, index)}
-                                                    required
-                                                >
-                                                    <option value="">Seleccionar día</option>
-                                                    <option value="Lunes">Lunes</option>
-                                                    <option value="Martes">Martes</option>
-                                                    <option value="Miércoles">Miércoles</option>
-                                                    <option value="Jueves">Jueves</option>
-                                                    <option value="Viernes">Viernes</option>
-                                                    <option value="Sábado">Sábado</option>
-                                                    <option value="Domingo">Domingo</option>
-                                                </select>
-                                            </div>
-                                            <div className="form-input-ctn-horario">
-                                                <label>Horario de inicio</label>
-                                                <select
-                                                    name="horaIni"
-                                                    value={horario.horaIni}
-                                                    onChange={(e) => handleHorarioChange(e, index)}
-                                                    required
-                                                >
-                                                    <option value="">Seleccionar horario</option>
-                                                    {timeSlots.map((time, idx) => (
-                                                        <option key={idx} value={time}>
-                                                            {time}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="form-input-ctn-horario">
-                                                <label>Horario de fin</label>
-                                                <select
-                                                    name="horaFin"
-                                                    value={horario.horaFin}
-                                                    onChange={(e) => handleHorarioChange(e, index)}
-                                                    required
-                                                >
-                                                    <option value="">Seleccionar horario</option>
-                                                    {timeSlots.map((time, idx) => (
-                                                        <option key={idx} value={time}>
-                                                            {time}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="form-input-ctn-horario">
-                                                <label> Cupos disponibles </label>
-                                                <input
-                                                    type="number"
-                                                    min={1}
-                                                    name="cupos"
-                                                    placeholder="Cupos"
-                                                    value={horario.cupos}
-                                                    onChange={(e) => handleHorarioChange(e, index)}
-                                                    required
-                                                />
-                                            </div>
-                                            <CloseIcon onClick={() => handleRemoveHorario(index)} className='close-icon' />
+                                {horarios.map((horario, idx) => (
+                                    <div key={idx} className="horario-item">
+                                        {/* Día */}
+                                        <div className="form-input-ctn-horario">
+                                            <label>Dia de la semana</label>
+                                            <select
+                                                name="diaSemana"
+                                                value={horario.diaSemana}
+                                                onChange={(e) =>
+                                                    handleHorarioChange(e, idx)
+                                                }
+                                                required
+                                            >
+                                                <option value="">Seleccionar día</option>
+                                                <option value="Lunes">Lunes</option>
+                                                <option value="Martes">Martes</option>
+                                                <option value="Miércoles">Miércoles</option>
+                                                <option value="Jueves">Jueves</option>
+                                                <option value="Viernes">Viernes</option>
+                                                <option value="Sábado">Sábado</option>
+                                                <option value="Domingo">Domingo</option>
+                                            </select>
                                         </div>
+
+                                        {/* Hora inicio */}
+                                        <div className="form-input-ctn-horario">
+                                            <label>Horario de inicio</label>
+                                            <select
+                                                name="horaIni"
+                                                value={horario.horaIni}
+                                                onChange={(e) =>
+                                                    handleHorarioChange(e, idx)
+                                                }
+                                                required
+                                            >
+                                                <option value="">Seleccionar horario</option>
+                                                {timeSlots.map((time) => (
+                                                    <option key={time} value={time}>
+                                                        {time}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* Hora fin */}
+                                        <div className="form-input-ctn-horario">
+                                            <label>Horario de fin</label>
+                                            <select
+                                                name="horaFin"
+                                                value={horario.horaFin}
+                                                onChange={(e) =>
+                                                    handleHorarioChange(e, idx)
+                                                }
+                                                required
+                                            >
+                                                <option value="">Seleccionar horario</option>
+                                                {timeSlots.map((time) => (
+                                                    <option key={time} value={time}>
+                                                        {time}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* Cupos */}
+                                        <div className="form-input-ctn-horario">
+                                            <label>Cupos disponibles</label>
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                name="cupos"
+                                                placeholder="Cupos"
+                                                value={horario.cupos}
+                                                onChange={(e) =>
+                                                    handleHorarioChange(e, idx)
+                                                }
+                                                required
+                                            />
+                                        </div>
+
+                                        <CloseIcon
+                                            className="close-icon"
+                                            onClick={() => handleRemoveHorario(idx)}
+                                        />
                                     </div>
                                 ))}
-                                <SecondaryButton text="Agregar horario" icon={AddIconCircle} onClick={handleAddHorario} />
+
+                                <SecondaryButton
+                                    text="Agregar horario"
+                                    icon={AddIconCircle}
+                                    onClick={handleAddHorario}
+                                />
                             </div>
-                            <button type="submit" className="submit-btn" onClick={handleSubmit}>{isEditing ? "Guardar cambios" : "Crear Clase"}</button>
+
+                            {/* Submit */}
+                            <button type="submit" className="submit-btn">
+                                {isEditing ? "Guardar cambios" : "Crear Clase"}
+                            </button>
                         </form>
                         {message && <p>{message}</p>}
                     </div>
