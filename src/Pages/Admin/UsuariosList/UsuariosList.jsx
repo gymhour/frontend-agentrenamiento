@@ -15,6 +15,7 @@ const UsuariosList = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const navigate = useNavigate();
+    const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
 
     const fetchUsuarios = async () => {
         setLoading(true);
@@ -87,18 +88,25 @@ const UsuariosList = () => {
                                     {usuarios.map((usuario) => (
                                         <tr key={usuario.ID_Usuario}>
                                             <td>{usuario.ID_Usuario}</td>
-                                            <td>{usuario.email}</td>
+                                            <td style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                                                <div className="usuarios-table-userimage" style={{
+                                                    backgroundImage: `url(${usuario.avatarUrlThumb || defaultAvatar})`,
+                                                    backgroundSize: 'cover',
+                                                    backgroundPosition: 'center',
+                                                    backgroundRepeat: 'no-repeat'
+                                                }}></div>
+                                                {usuario.email}</td>
                                             <td>{usuario.tipo || 'N/A'}</td>
                                             <td>{new Date(usuario.fechaRegistro).toLocaleDateString()}</td>
                                             <td style={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                                            <PrimaryButton
-                                                text="Editar usuario"
-                                                linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
-                                            />
-                                            <SecondaryButton
-                                                text="Eliminar usuario"
-                                                onClick={() => handleDeleteClick(usuario.ID_Usuario)}
-                                            />
+                                                <PrimaryButton
+                                                    text="Editar usuario"
+                                                    linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
+                                                />
+                                                <SecondaryButton
+                                                    text="Eliminar usuario"
+                                                    onClick={() => handleDeleteClick(usuario.ID_Usuario)}
+                                                />
                                             </td>
                                         </tr>
                                     ))}

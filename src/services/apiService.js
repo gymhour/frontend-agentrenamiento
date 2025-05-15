@@ -1,4 +1,4 @@
-import apiClient from '../axiosConfig'; 
+import apiClient from '../axiosConfig';
 
 const apiUrl = "https://gym-backend-rust.vercel.app";
 
@@ -13,8 +13,8 @@ const getClases = async () => {
 };
 
 // Poder asignarle un instructor a una clase. Ponerlo en la creación de clases.
-const postInstructorToClase = async() => {
-    
+const postInstructorToClase = async () => {
+
 }
 
 // Turnos
@@ -27,13 +27,22 @@ const getTurnos = async () => {
     }
 }
 
-const getTurnoById = async(id) => {
+const getTurnosUsuario = async (usuarioId) => {
+    try {
+        const response = await apiClient.get(`/turnos/usuario/${usuarioId}`)
+        return response.data.turnos;
+    } catch (error) {
+        throw new Error("Error en el service de getTurnosUsuario");
+    }
+}
+
+const getTurnoById = async (id) => {
     try {
         const response = await apiClient.get(`/turnos/${id}`);
         return response.data;
     } catch (error) {
         throw new Error("Error en el service de getTurnosByUsuario")
-    }   
+    }
 }
 
 const postTurno = async (body) => {
@@ -75,12 +84,12 @@ const getUserRutinas = async (id) => {
 
 const createRutina = async (data) => {
     try {
-      const response = await apiClient.post("/rutinas", data);
-      return response.data;
+        const response = await apiClient.post("/rutinas", data);
+        return response.data;
     } catch (error) {
-      throw new Error("Error al crear la rutina");
+        throw new Error("Error al crear la rutina");
     }
-};  
+};
 
 const deleteRutina = async (id) => {
     try {
@@ -94,14 +103,14 @@ const deleteRutina = async (id) => {
 /* Entrenadores */
 const getEntrenadores = async () => {
     try {
-      const response = await apiClient.get('/usuarios/entrenadores');
-      return response.data;
+        const response = await apiClient.get('/usuarios/entrenadores');
+        return response.data;
     } catch (error) {
-      throw new Error("Error al obtener entrenadores");
+        throw new Error("Error al obtener entrenadores");
     }
 };
 
-const addEntrenadorToClase = async(idClase, idEntrenador) => {
+const addEntrenadorToClase = async (idClase, idEntrenador) => {
     try {
         const response = await apiClient.post(`/clase/${idClase}/entrenador/${idEntrenador}`)
     } catch (error) {
@@ -137,7 +146,7 @@ const forgotPassword = async (body) => {
     }
 }
 
-const resetPassword = async(body) => {
+const resetPassword = async (body) => {
     try {
         const response = await apiClient.post('/auth/reset-password', body);
         return response.data;
@@ -146,7 +155,7 @@ const resetPassword = async(body) => {
     }
 }
 
-const changePassword = async(body) => {
+const changePassword = async (body) => {
     try {
         const response = await apiClient.put("/auth/change-password", body);
         return response.data;
@@ -155,21 +164,93 @@ const changePassword = async(body) => {
     }
 }
 
+// Medicion resultado
+const getEjerciciosResultados = async () => {
+    try {
+        const response = await apiClient.get('/ejercicios-resultados');
+        return response.data;
+    } catch (err) {
+        throw new Error("Error al traer ejercicios y resultados");
+    }
+}
+
+const getEjerciciosResultadosUsuario = async (usuarioId) => {
+    try {
+        const response = await apiClient.get(`/ejercicios-resultados/usuario/${usuarioId}`);
+        return response.data.ejercicios;
+    } catch (err) {
+        throw new Error("Error en el servicio getEjerciciosResultadosUsuario");
+    }
+}
+
+// Ejercicio
+const postEjercicio = async(body) => {
+    try {
+        const response = await apiClient.post(`/ejercicios-resultados`, body);
+        return response.data;
+    } catch (err) {
+        throw new Error("Error en el servicio postEjercicio");
+    }
+}
+
+const postEjercicioResultado = async(body) => {
+    try {
+        const response = await apiClient.post("/historicoEjercicio", body);
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el servicio postEjercicioResultado");
+    }
+}
+
+const deleteEjercicio = async(ejercicioId) => {
+    try {
+        const response = await apiClient.delete(`/ejercicios-resultados/${ejercicioId}`);
+        return response.data;
+    } catch (err) {
+        throw new Error("Error en el servicio postEjercicio");
+    } 
+}
+
+// Admin dashboard
+const getKPIs = async() => {
+    try {
+        const response = await apiClient.get("/admin/dashboard");
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el servicio de getKPIs")
+    }
+}
+
 export default {
+    // Clases
     getClases,
+    // Turnos
     getTurnos,
+    getTurnosUsuario,
     getTurnoById,
     postTurno,
     deleteTurno,
+    // Rutinas
     getRutinas,
     getUserRutinas,
     createRutina,
     deleteRutina,
+    // Entrenadores
     getEntrenadores,
     addEntrenadorToClase,
+    // Usuario
     getUserById,
     updateUserById,
+    // Contraseña
     forgotPassword,
     resetPassword,
-    changePassword
+    changePassword,
+    // Medicion resultado
+    getEjerciciosResultados,
+    getEjerciciosResultadosUsuario,
+    postEjercicio,
+    deleteEjercicio,
+    postEjercicioResultado,
+    // Admin dashboard
+    getKPIs
 };

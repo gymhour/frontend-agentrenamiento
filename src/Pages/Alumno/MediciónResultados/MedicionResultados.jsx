@@ -5,6 +5,7 @@ import './MedicionResultados.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import apiClient from '../../../axiosConfig';
+import apiService from '../../../services/apiService';
 
 const MedicionResultados = () => {
   const [ejercicios, setEjercicios] = useState([]);
@@ -15,12 +16,9 @@ const MedicionResultados = () => {
   useEffect(() => {
     const fetchEjercicios = async () => {
       try {
-        const response = await apiClient.get('/ejercicios-resultados');
-        if (!response.data) {
-          throw new Error('Error al obtener la lista de ejercicios');
-        }
-        const data = await response.data;
-        setEjercicios(data);
+        const usuarioId = localStorage.getItem("usuarioId");
+        const response = await apiService.getEjerciciosResultadosUsuario(usuarioId);
+        setEjercicios(response);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -36,6 +34,15 @@ const MedicionResultados = () => {
     if (!historico || historico.length === 0) return 0;
     return historico.reduce((max, item) => (item.Cantidad > max ? item.Cantidad : max), 0);
   };
+
+  const handleDeleteEjercicio = (idEjercicio) => {
+    try {
+      const response = apiService.deleteEjercicio(idEjercicio)
+      console.log(response);
+    } catch (error) {
+      console.log("Error al eliminar ejercicio", error)
+    }
+  }
 
   if (error) {
     return (
@@ -71,31 +78,36 @@ const MedicionResultados = () => {
           </div>
 
           <div className="med-resultados-ejercicios-list">
-            {ejercicios.map((ejercicio) => {
-              const maxCantidad = getMaxCantidad(ejercicio.HistoricoEjercicios);
-              return (
-                <Link
-                  key={ejercicio.ID_EjercicioMedicion}
-                  to={`/alumno/medicion-resultados/ejercicio/${ejercicio.ID_EjercicioMedicion}`}
-                  className="med-resultados-card"
-                >
-                  <div className="med-resultados-card-content">
-                    {/* Muestra la cantidad máxima y el tipo de medición */}
-                    <div className="med-resultados-card-header">
-                      <h3>
-                        {maxCantidad}{' '}
-                        {ejercicio.tipoMedicion === 'Cantidad' ? 'Reps' : 'kg'}
-                      </h3>
-                      <span>{ejercicio.tipoMedicion}</span>
+            {!loading && ejercicios.length === 0 ? (
+              <p className="no-ejercicios-message">
+                No tienes ejercicios registrados. ¡Agrega uno para comenzar!
+              </p>
+            ) : (
+              ejercicios.map((ejercicio) => {
+                const maxCantidad = getMaxCantidad(ejercicio.HistoricoEjercicios);
+                return (
+                  <Link
+                    key={ejercicio.ID_EjercicioMedicion}
+                    to={`/alumno/medicion-resultados/ejercicio/${ejercicio.ID_EjercicioMedicion}`}
+                    className="med-resultados-card"
+                  >
+                    <div className="med-resultados-card-content">
+                      <div className="med-resultados-card-header">
+                        <h3>
+                          {maxCantidad}{' '}
+                          {ejercicio.tipoMedicion === 'Cantidad' ? 'Reps' : 'kg'}
+                        </h3>
+                        <span>{ejercicio.tipoMedicion}</span>
+                      </div>
+                      <div className="med-resultados-card-body">
+                        <p>{ejercicio.nombre}</p>
+                      </div>
+                      <button onClick={() => handleDeleteEjercicio(ejercicio.ID_EjercicioMedicion)} > Borrar </button>
                     </div>
-
-                    <div className="med-resultados-card-body">
-                      <p>{ejercicio.nombre}</p>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

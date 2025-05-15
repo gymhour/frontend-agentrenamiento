@@ -21,9 +21,10 @@ const AlumnoInicio = () => {
         setLoading(true);
         const fetchData = async () => {
             try {
+                const usuarioId = localStorage.getItem("usuarioId");
                 const [clasesData, turnosData] = await Promise.all([
                     apiService.getClases(),
-                    apiService.getTurnos()
+                    apiService.getTurnosUsuario(usuarioId)
                 ]);
     
                 setClases(clasesData);

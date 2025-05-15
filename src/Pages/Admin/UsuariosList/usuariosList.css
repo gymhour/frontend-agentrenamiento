@@ -12,3 +12,9 @@
     background-color: rgba(52, 52, 52, 0.8);
     text-align: left;
 }
+
+.usuarios-table-userimage {
+    border-radius: 50px;
+    width: 35px;
+    height: 35px;
+}

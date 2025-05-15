@@ -1,0 +1,44 @@
+.cards-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1;
+  min-width: 200px;
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.25rem;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform .2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.card .value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.chart-section {
+  margin-top: 2rem;
+}
+
+.chart-section h3 {
+  margin-bottom: 0.75rem;
+  color: #fff;
+  font-size: 1.1rem;
+}

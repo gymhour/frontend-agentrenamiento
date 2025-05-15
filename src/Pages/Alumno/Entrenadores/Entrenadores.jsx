@@ -9,6 +9,7 @@ const Entrenadores = () => {
   const [entrenadores, setEntrenadores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
 
   useEffect(() => {
     const fetchEntrenadores = async () => {
@@ -35,20 +36,25 @@ const Entrenadores = () => {
 
         <div className="trainers-grid">
           {!loading && !error && entrenadores.map((trainer) => (
-            <div className="trainer-card" key={trainer.ID_Usuario}>
-              {/* Imagen fija, por ahora */}
-              <img
-                src="https://hips.hearstapps.com/hmg-prod/images/mh-trainer-2-1533576998.png"
-                alt={`${trainer.nombre || ''} ${trainer.apellido || ''}`}
-              />
-
-            <p> 
-                <strong> 
-                    {trainer.nombre ? trainer.nombre : 'Nombre'}, {' '}
-                    {/* {trainer.apellido ? trainer.apellido : 'Apellido'} , {' '}  */}
+            <div>
+              <div
+                className="trainer-card"
+                key={trainer.ID_Usuario}
+                style={{
+                  backgroundImage: `url(${trainer.avatarUrlThumb || defaultAvatar})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }}
+              >
+              </div>
+              <p style={{paddingTop: '12px', textAlign: 'center'}}>
+                <strong>
+                  {trainer.nombre ? trainer.nombre : 'Nombre'}, {' '}
+                  {/* {trainer.apellido ? trainer.apellido : 'Apellido'} , {' '}  */}
                 </strong>
                 <span className='profesion'>
-                    {trainer.profesion ? trainer.profesion : 'Profesión'}                
+                  {trainer.profesion ? trainer.profesion : 'Profesión'}
                 </span>
             </p>
 

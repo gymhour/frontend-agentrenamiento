@@ -4,6 +4,7 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import '../../../App.css';
 import './NuevaMedicion.css';
 import apiClient from '../../../axiosConfig';
+import apiService from '../../../services/apiService';
 
 const NuevaMedicion = () => {
   const [nombre, setNombre] = useState('');
@@ -24,20 +25,15 @@ const NuevaMedicion = () => {
     }
 
     try {
+      let body = {
+        ID_Usuario: localStorage.getItem("usuarioId"),
+        nombre: nombre,
+        tipoMedicion: tipoMedicion
+      }
       // 1. Crear el nuevo ejercicio
-      const responseEjercicio = await apiClient.get('/ejercicios-resultados', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ID_Usuario: 32,        // <-- Ajusta el ID de usuario si es dinámico
-          nombre: nombre,
-          tipoMedicion: tipoMedicion
-        })
-      });
+      const responseEjercicio = await apiService.postEjercicio(body);
 
-      if (!responseEjercicio.data) {
+      if (!responseEjercicio) {
         throw new Error('Error al crear el ejercicio');
       }
 

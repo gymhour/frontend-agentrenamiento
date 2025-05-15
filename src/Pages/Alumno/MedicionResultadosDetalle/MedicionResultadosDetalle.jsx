@@ -16,6 +16,7 @@ import {
 import apiClient from '../../../axiosConfig';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import apiService from '../../../services/apiService';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams(); // ID del ejercicio en la ruta
@@ -65,17 +66,14 @@ const MedicionResultadosDetalle = () => {
     }
 
     try {
-      const response = await apiClient.get('/historicoEjercicio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ID_EjercicioMedicion: parseInt(id),
-          Cantidad: parseFloat(nuevaCantidad),
-          Fecha: nuevaFecha
-        })
-      });
+      let body = {
+        ID_EjercicioMedicion: parseInt(id),
+        Cantidad: parseFloat(nuevaCantidad),
+        Fecha: nuevaFecha
+      }
+      const response = await apiService.postEjercicioResultado(body);
 
-      if (!response.data) {
+      if (!response) {
         throw new Error('Error al agregar el nuevo resultado');
       }
 

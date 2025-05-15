@@ -20,8 +20,10 @@ const MisTurnos = () => {
     useEffect(() => {
         setLoading(true);
         const fetchData = async () => {
+            const usuarioId = localStorage.getItem("usuarioId");
             try {
-                const turnosData = await apiService.getTurnos(); 
+                const turnosData = await apiService.getTurnosUsuario(usuarioId); 
+                // console.log("Turnos", turnosData);
                 setTurnos(turnosData);
                 setLoading(false);
             } catch (err) {
