@@ -9,51 +9,50 @@ import { toast } from 'react-toastify';
 const EditarUsuario = () => {
   const { id } = useParams();
 
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     email: '',
-    userType: '',
     nombre: '',
     apellido: '',
-    direccion: '',
     profesion: '',
+    direc: '',
     tel: '',
-    estado: '',
+    tipo: 'Cliente',
     fechaCumple: '',
-  });
+    estado: true,
+  };
 
-  const tiposDeUsuario = ['Cliente', 'Entrenador', 'Admin'];
+  const [formData, setFormData] = useState(initialFormData);
+  const [avatarFile, setAvatarFile] = useState(null);
+
+  const tipos = ['Cliente', 'Entrenador', 'Admin'];
   const opcionesEstado = ['Si', 'No'];
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const user = await apiService.getUserById(id);
-
-        // formatea fechaCumple a YYYY-MM-DD para el <input type="date">
-        const fechaISO = user.fechaCumple;
-        const fecha = fechaISO
-          ? new Date(fechaISO).toISOString().slice(0, 10)
+        const fechaISO = user.fechaCumple
+          ? new Date(user.fechaCumple).toISOString().slice(0, 10)
           : '';
-
-        // capitaliza el tipo de usuario
         const rawTipo = user.tipo || '';
-        const tipo = rawTipo
+        const tipoCapitalizado = rawTipo
           ? rawTipo.charAt(0).toUpperCase() + rawTipo.slice(1)
-          : '';
+          : 'Cliente';
 
         setFormData({
           email:      user.email    || '',
-          userType:   tipo,
           nombre:     user.nombre   || '',
           apellido:   user.apellido || '',
-          direccion:  user.direc    || '',
           profesion:  user.profesion|| '',
+          direc:      user.direc    || '',
           tel:        user.tel      || '',
-          estado:     user.estado ? 'Si' : 'No',
-          fechaCumple: fecha,
+          tipo:       tipoCapitalizado,
+          fechaCumple: fechaISO,
+          estado:     !!user.estado,
         });
-      } catch (error) {
-        toast.error('Error al cargar la información del usuario');
+      } catch (err) {
+        console.error(err);
+        toast.error('No se pudo cargar los datos del usuario');
       }
     };
 
@@ -61,30 +60,63 @@ const EditarUsuario = () => {
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleTipoChange = (val) => {
+    const tipo = typeof val === 'string' ? val : val.target.value;
+    setFormData(f => ({ ...f, tipo }));
+  };
+
+  const handleEstadoChange = (val) => {
+    const estado = typeof val === 'string'
+      ? val === 'Si'
+      : val.target.value === 'Si';
+    setFormData(f => ({ ...f, estado }));
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files?.[0]) {
+      setAvatarFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const isoFecha = formData.fechaCumple ? new Date(formData.fechaCumple).toISOString() : null;
-      const payload = {
-        email:      formData.email,
-        tipo:       formData.userType.toLowerCase(),
-        nombre:     formData.nombre,
-        apellido:   formData.apellido,
-        direc:      formData.direccion,
-        profesion:  formData.profesion,
-        tel:        formData.tel,
-        estado:     formData.estado === 'Si',
-        fechaCumple: isoFecha,
-      };
+      const isoFecha = formData.fechaCumple
+        ? new Date(formData.fechaCumple).toISOString()
+        : '';
+
+      const payload = new FormData();
+      payload.append('email', formData.email);
+      payload.append('nombre', formData.nombre);
+      payload.append('apellido', formData.apellido);
+      payload.append('direc', formData.direc);
+      payload.append('tel', formData.tel);
+      payload.append('tipo', formData.tipo.toLowerCase());
+      payload.append('fechaCumple', isoFecha);
+      payload.append('estado', formData.estado.toString());
+
+      if (formData.tipo === 'Entrenador' && formData.profesion) {
+        payload.append('profesion', formData.profesion);
+      }
+
+      if (avatarFile) {
+        payload.append('avatar', avatarFile);
+      }
 
       await apiService.updateUserById(id, payload);
       toast.success('Usuario actualizado correctamente');
     } catch (error) {
-      toast.error('No se pudo actualizar el usuario');
+      console.error(error);
+      const msg = error.response?.data?.message || 'Error al actualizar usuario';
+      toast.error(msg);
     }
   };
 
@@ -99,7 +131,7 @@ const EditarUsuario = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            width: '300px',
+            width: '320px',
             paddingTop: '30px',
           }}
         >
@@ -134,42 +166,37 @@ const EditarUsuario = () => {
             placeholder="Ingresa el apellido"
           />
 
-          <label htmlFor="direccion">Dirección:</label>
+          <label htmlFor="tipo">Tipo de usuario:</label>
+          <CustomDropdown
+            options={tipos}
+            value={formData.tipo}
+            onChange={handleTipoChange}
+            name="tipo"
+            id="tipo"
+          />
+
+          {formData.tipo === 'Entrenador' && (
+            <>
+              <label htmlFor="profesion">Profesión:</label>
+              <input
+                type="text"
+                id="profesion"
+                name="profesion"
+                value={formData.profesion}
+                onChange={handleChange}
+                placeholder="Ingresa la profesión"
+              />
+            </>
+          )}
+
+          <label htmlFor="direc">Dirección:</label>
           <input
             type="text"
-            id="direccion"
-            name="direccion"
-            value={formData.direccion}
+            id="direc"
+            name="direc"
+            value={formData.direc}
             onChange={handleChange}
             placeholder="Ingresa la dirección"
-          />
-
-          <label htmlFor="userType">Tipo de usuario:</label>
-          <CustomDropdown
-            options={tiposDeUsuario}
-            value={formData.userType}
-            onChange={handleChange}
-            name="userType"
-            id="userType"
-          />
-
-          <label htmlFor="profesion">Profesión:</label>
-          <input
-            type="text"
-            id="profesion"
-            name="profesion"
-            value={formData.profesion}
-            onChange={handleChange}
-            placeholder="Ingresa la profesión"
-          />
-
-          <label htmlFor="estado">Activo:</label>
-          <CustomDropdown
-            options={opcionesEstado}
-            value={formData.estado}
-            onChange={handleChange}
-            name="estado"
-            id="estado"
           />
 
           <label htmlFor="tel">Teléfono:</label>
@@ -182,7 +209,16 @@ const EditarUsuario = () => {
             placeholder="Ingresa el teléfono"
           />
 
-          <label htmlFor="fechaCumple">Fecha de Cumpleaños:</label>
+          <label htmlFor="estado">Activo:</label>
+          <CustomDropdown
+            options={opcionesEstado}
+            value={formData.estado ? 'Si' : 'No'}
+            onChange={handleEstadoChange}
+            name="estado"
+            id="estado"
+          />
+
+          <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>
           <input
             type="date"
             id="fechaCumple"
@@ -191,7 +227,16 @@ const EditarUsuario = () => {
             onChange={handleChange}
           />
 
-          <PrimaryButton text="Actualizar usuario" onClick={handleSubmit} />
+          <label htmlFor="avatar">Avatar:</label>
+          <input
+            type="file"
+            id="avatar"
+            name="avatar"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+
+          <PrimaryButton text="Actualizar usuario" type="submit" onClick={handleSubmit} />
         </form>
       </div>
     </div>

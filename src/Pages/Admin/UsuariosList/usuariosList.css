@@ -3,8 +3,11 @@
     border-collapse: collapse;
 }
 
-.usuarios-table th, .usuarios-table td {
+.usuarios-table td {
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.usuarios-table th, .usuarios-table td {
     padding: 8px;
 }
 

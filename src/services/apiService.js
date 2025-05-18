@@ -1,7 +1,5 @@
 import apiClient from '../axiosConfig';
 
-const apiUrl = "https://gym-backend-rust.vercel.app";
-
 // Clases
 const getClases = async () => {
     try {
