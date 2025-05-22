@@ -1,7 +1,7 @@
 input {
     background-color: #252525;
     border-radius: 12px;
-    padding: 16px 32px 16px 20px;
+    padding: 16px 12px 16px 12px;
     border: 1.5px solid #252525;
     outline: none;
     color: #FAFAFA;
@@ -21,7 +21,7 @@ input:focus {
 
 .custom-input {
   width: 100%;
-  padding-right: 3rem;
+  padding-right: 10px;
   box-sizing: border-box;
 }
 

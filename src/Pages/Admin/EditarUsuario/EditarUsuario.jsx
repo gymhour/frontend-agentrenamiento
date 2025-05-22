@@ -101,7 +101,7 @@ const EditarUsuario = () => {
       payload.append('tel', formData.tel);
       payload.append('tipo', formData.tipo.toLowerCase());
       payload.append('fechaCumple', isoFecha);
-      payload.append('estado', formData.estado.toString());
+      // payload.append('estado', formData.estado);
 
       if (formData.tipo === 'Entrenador' && formData.profesion) {
         payload.append('profesion', formData.profesion);

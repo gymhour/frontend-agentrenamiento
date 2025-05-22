@@ -58,9 +58,9 @@ const AlumnoInicio = () => {
                         {error ? (
                             <p className="error-message">{error}</p>
                         ) : latestTurnos.length > 0 ? (
-                            latestTurnos.map((turno) => (
+                            latestTurnos.map((turno, index) => (
                                 <TurnosCard 
-                                    key={turno.ID_Turno} 
+                                    key={`${turno.ID_Turno}_${index}`} 
                                     nombreTurno={turno.HorarioClase.Clase.nombre} 
                                     fechaTurno={turno.fecha} 
                                     horaTurno={turno.hora} 
@@ -82,8 +82,8 @@ const AlumnoInicio = () => {
                     ) : (
                         <div className="clases-list">
                             {clases.length > 0 ? (
-                                clases.slice(0, 3).map((clase) => (  // Limitar a 3 clases
-                                    <ClasesActividadesCard key={clase.ID_Clase} clase={clase} />
+                                clases.slice(0, 3).map((clase, index) => (  // Limitar a 3 clases
+                                    <ClasesActividadesCard key={`${clase.ID_Clase}_${index}`} clase={clase} />
                                 ))
                             ) : (
                                 <p>No hay clases disponibles.</p>

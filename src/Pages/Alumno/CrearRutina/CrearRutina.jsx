@@ -6,6 +6,8 @@ import CustomInput from '../../../Components/utils/CustomInput/CustomInput.jsx';
 import './CrearRutina.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
 import apiService from '../../../services/apiService';
+import { toast } from "react-toastify";
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 
 const CrearRutina = () => {
   const diasSemana = [
@@ -39,13 +41,27 @@ const CrearRutina = () => {
   const [blocks, setBlocks] = useState([]);
   const [showBlockTypeDropdown, setShowBlockTypeDropdown] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
+  const exampleExercises = [
+    "Pecho plano 60kg",
+    "Flexiones de brazo",
+    "Press de hombro 60kg",
+    "Sentadillas con barra 80kg",
+    "Remo con mancuerna 40kg",
+    "Dominadas",
+    "Elevaciones laterales 8kg",
+  ];
+  
+  const getRandomExercise = () => exampleExercises[Math.floor(Math.random() * exampleExercises.length)];  
+
   // Objetos iniciales para cada tipo de bloque
   const initialBlockData = {
-    'Series y repeticiones': { setsReps: [{ series: '', exercise: '' }] },
-    'Rondas': { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '' }] },
-    'EMOM': { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '' }] },
-    'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '' }] },
-    'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '' }] },
+    'Series y repeticiones': { setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
+    'Rondas': { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
+    'EMOM': { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
+    'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
+    'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
   };
 
   // --- STEP 1: Continuar ---
@@ -110,7 +126,22 @@ const CrearRutina = () => {
           ...block,
           data: {
             ...block.data,
-            setsReps: [...block.data.setsReps, { series: '', exercise: '' }]
+            setsReps: [...block.data.setsReps, { series: '', exercise: '', placeholderExercise: getRandomExercise() }]
+          }
+        };
+      }
+      return block;
+    }));
+  };
+
+  const handleDeleteSetRep = (blockId, index) => {
+    setBlocks(blocks.map(block => {
+      if (block.id === blockId) {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            setsReps: block.data.setsReps.filter((_, i) => i !== index)
           }
         };
       }
@@ -149,7 +180,7 @@ const CrearRutina = () => {
               nombreEj: block.data.setsReps[0]?.exercise || null,
               weight: null,
               descansoRonda: parseInt(block.data.descanso, 10) || null,
-              cantRondas: parseInt(block.data.rounds,10) || null,
+              cantRondas: parseInt(block.data.rounds, 10) || null,
               durationMin: null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.slice(1).map(item => ({
@@ -157,24 +188,24 @@ const CrearRutina = () => {
                 setRepWeight: item.exercise
               }))
             };
-            case 'EMOM':
-              return {
-                type: "EMOM",
-                setsReps: null,
-                nombreEj: null,
-                weight: null,
-                descansoRonda: null,
-                cantRondas: null,
-                // Convertir a número (o null si está vacío o no es número)
-                durationMin: block.data.totalMinutes 
-                  ? parseInt(block.data.totalMinutes, 10) 
-                  : null,
-                tipoEscalera: null,
-                ejercicios: block.data.setsReps.map(item => ({
-                  reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
-                  setRepWeight: item.exercise
-                }))
-              };            
+          case 'EMOM':
+            return {
+              type: "EMOM",
+              setsReps: null,
+              nombreEj: null,
+              weight: null,
+              descansoRonda: null,
+              cantRondas: null,
+              // Convertir a número (o null si está vacío o no es número)
+              durationMin: block.data.totalMinutes
+                ? parseInt(block.data.totalMinutes, 10)
+                : null,
+              tipoEscalera: null,
+              ejercicios: block.data.setsReps.map(item => ({
+                reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
+                setRepWeight: item.exercise
+              }))
+            };
           case 'AMRAP':
             return {
               type: "AMRAP",
@@ -183,7 +214,7 @@ const CrearRutina = () => {
               weight: null,
               descansoRonda: null,
               cantRondas: null,
-              durationMin: parseInt(block.data.duration,10) || null,
+              durationMin: parseInt(block.data.duration, 10) || null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.map(item => ({
                 reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
@@ -216,19 +247,23 @@ const CrearRutina = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const rutinaData = prepareRutinaData();
+    setLoading(true)
     console.log("Final data to send:", rutinaData);
     try {
-      // Se envía la rutina al endpoint (asegurate de tener implementado createRutina en tu apiService)
       const response = await apiService.createRutina(rutinaData);
+      setLoading(false)
+      toast.success("Rutina creada correctamente.");
       console.log("Rutina creada:", response);
-      // Opcional: reiniciar el formulario o redirigir al usuario
     } catch (error) {
       console.error("Error al crear rutina:", error);
+      setLoading(false)
+      toast.error("No se pudo crear la rutina");
     }
   };
 
   return (
     <div className='page-layout'>
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
@@ -288,36 +323,29 @@ const CrearRutina = () => {
         {step === 2 && (
           <div className="crear-rutina-step2">
             <div className="crear-rutina-step-2-form">
-              {/* Botón para agregar un bloque */}
-              <PrimaryButton
-                text="Agregar bloque"
-                linkTo="#"
-                onClick={handleMostrarDropdown}
-              />
-
-              {/* Dropdown para seleccionar tipo de bloque */}
-              {showBlockTypeDropdown && (
+              <div className='agregar-bloque-ctn'>
+                <p> Agregar bloque: </p>
                 <CustomDropdown
                   placeholderOption="Tipo de serie"
                   options={tiposDeSerie}
                   value=""
                   onChange={handleAddBlock}
                 />
-              )}
+              </div>
 
               {/* Renderizamos cada bloque agregado */}
               {blocks.map((block) => (
-                <div 
-                  key={block.id} 
-                  className="block-container" 
-                  style={{ marginTop: '20px', borderTop: '1px solid #ccc', padding: '10px', position: 'relative' }}
+                <div
+                  key={block.id}
+                  className="block-container"
+                  style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.15)', padding: '10px', position: 'relative' }}
                 >
                   {/* Botón de eliminación */}
-                  <button 
+                  <button
                     onClick={() => handleDeleteBlock(block.id)}
                     style={{
                       position: 'absolute',
-                      top: '5px',
+                      top: '12px',
                       right: '5px',
                       background: 'transparent',
                       border: 'none',
@@ -329,30 +357,49 @@ const CrearRutina = () => {
                   >
                     ✕
                   </button>
-                  <h4>{block.type}</h4>
+                  <h4 style={{ margin: '16px 0px' }} >{block.type}</h4>
 
                   {block.type === "Series y repeticiones" && (
                     <div className="sets-reps-ctn">
                       {block.data.setsReps.map((setRep, idx) => (
-                        <div key={idx} style={{ display: 'flex', marginBottom: '8px' }}>
+                        <div
+                          key={idx}
+                          className='sets-reps-subctn'
+                          style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
+                        >
                           <CustomInput
                             placeholder="ej. 3x12"
-                            width="110px"
+                            width="80px"
                             value={setRep.series}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleSetRepChange(block.id, idx, 'series', e.target.value)
                             }
                           />
                           <CustomInput
-                            placeholder="ej. Curl de biceps con mancuerna 10kg"
+                            placeholder={setRep.placeholderExercise}
                             width="350px"
                             value={setRep.exercise}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleSetRepChange(block.id, idx, 'exercise', e.target.value)
                             }
                           />
+                          <button
+                            onClick={() => handleDeleteSetRep(block.id, idx)}
+                            style={{
+                              marginLeft: '8px',
+                              background: 'transparent',
+                              border: 'none',
+                              color: '#e55',
+                              fontSize: '20px',
+                              cursor: 'pointer'
+                            }}
+                            title="Eliminar este set"
+                          >
+                            –
+                          </button>
                         </div>
                       ))}
+
                       <PrimaryButton
                         text="+"
                         linkTo="#"
@@ -366,16 +413,16 @@ const CrearRutina = () => {
                       <div className="cantidad-rondas-descanso">
                         <CustomInput
                           placeholder="3"
-                          width="70px"
+                          width="60px"
                           value={block.data.rounds}
                           onChange={(e) =>
                             handleBlockFieldChange(block.id, 'rounds', e.target.value)
                           }
                         />
-                        <span> Rondas con </span>
+                        <span> rondas con </span>
                         <CustomInput
                           placeholder="90"
-                          width="90px"
+                          width="60px"
                           value={block.data.descanso}
                           onChange={(e) =>
                             handleBlockFieldChange(block.id, 'descanso', e.target.value)
@@ -385,7 +432,7 @@ const CrearRutina = () => {
                       </div>
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} style={{ display: 'flex', marginBottom: '8px' }}>
+                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
                             <CustomInput
                               placeholder="ej. 3x12"
                               width="110px"
@@ -395,13 +442,27 @@ const CrearRutina = () => {
                               }
                             />
                             <CustomInput
-                              placeholder="ej. Curl de biceps con mancuerna 10kg"
+                              placeholder={setRep.placeholderExercise}
                               width="350px"
                               value={setRep.exercise}
                               onChange={(e) =>
                                 handleSetRepChange(block.id, idx, 'exercise', e.target.value)
                               }
                             />
+                            <button
+                              onClick={() => handleDeleteSetRep(block.id, idx)}
+                              style={{
+                                marginLeft: '8px',
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#e55',
+                                fontSize: '20px',
+                                cursor: 'pointer'
+                              }}
+                              title="Eliminar este set"
+                            >
+                              –
+                            </button>
                           </div>
                         ))}
                         <PrimaryButton
@@ -419,7 +480,7 @@ const CrearRutina = () => {
                         <span> Cada </span>
                         <CustomInput
                           placeholder="1"
-                          width="60px"
+                          width="45px"
                           value={block.data.interval}
                           onChange={(e) =>
                             handleBlockFieldChange(block.id, 'interval', e.target.value)
@@ -427,13 +488,13 @@ const CrearRutina = () => {
                         />
                         <CustomInput
                           placeholder="minuto"
-                          width="180px"
+                          width="100px"
                           disabled
                         />
                         <span> por </span>
                         <CustomInput
                           placeholder="20"
-                          width="90px"
+                          width="45px"
                           value={block.data.totalMinutes}
                           onChange={(e) =>
                             handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)
@@ -441,13 +502,13 @@ const CrearRutina = () => {
                         />
                         <CustomInput
                           placeholder="minutos"
-                          width="180px"
+                          width="100px"
                           disabled
                         />
                       </div>
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} style={{ display: 'flex', marginBottom: '8px' }}>
+                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
                             <CustomInput
                               placeholder="ej. 3x12"
                               width="110px"
@@ -457,13 +518,27 @@ const CrearRutina = () => {
                               }
                             />
                             <CustomInput
-                              placeholder="ej. Curl de biceps con mancuerna 10kg"
+                              placeholder={setRep.placeholderExercise}
                               width="350px"
                               value={setRep.exercise}
                               onChange={(e) =>
                                 handleSetRepChange(block.id, idx, 'exercise', e.target.value)
                               }
                             />
+                            <button
+                              onClick={() => handleDeleteSetRep(block.id, idx)}
+                              style={{
+                                marginLeft: '8px',
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#e55',
+                                fontSize: '20px',
+                                cursor: 'pointer'
+                              }}
+                              title="Eliminar este set"
+                            >
+                              –
+                            </button>
                           </div>
                         ))}
                         <PrimaryButton
@@ -481,7 +556,7 @@ const CrearRutina = () => {
                         <span> AMRAP de </span>
                         <CustomInput
                           placeholder="20"
-                          width="90px"
+                          width="45px"
                           value={block.data.duration}
                           onChange={(e) =>
                             handleBlockFieldChange(block.id, 'duration', e.target.value)
@@ -489,13 +564,13 @@ const CrearRutina = () => {
                         />
                         <CustomInput
                           placeholder="minutos"
-                          width="180px"
+                          width="100px"
                           disabled
                         />
                       </div>
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} style={{ display: 'flex', marginBottom: '8px' }}>
+                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
                             <CustomInput
                               placeholder="ej. 3x12"
                               width="110px"
@@ -505,13 +580,27 @@ const CrearRutina = () => {
                               }
                             />
                             <CustomInput
-                              placeholder="ej. Curl de biceps con mancuerna 10kg"
+                              placeholder={setRep.placeholderExercise}
                               width="350px"
                               value={setRep.exercise}
                               onChange={(e) =>
                                 handleSetRepChange(block.id, idx, 'exercise', e.target.value)
                               }
                             />
+                            <button
+                              onClick={() => handleDeleteSetRep(block.id, idx)}
+                              style={{
+                                marginLeft: '8px',
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#e55',
+                                fontSize: '20px',
+                                cursor: 'pointer'
+                              }}
+                              title="Eliminar este set"
+                            >
+                              –
+                            </button>
                           </div>
                         ))}
                         <PrimaryButton
@@ -527,7 +616,7 @@ const CrearRutina = () => {
                     <div className="escalera-ctn">
                       <div className="cantidad-escalera-ctn">
                         <CustomInput
-                          placeholder="Tipo de escalera"
+                          placeholder="Ej. 21-15-9"
                           width="200px"
                           value={block.data.escaleraType}
                           onChange={(e) =>
@@ -537,15 +626,29 @@ const CrearRutina = () => {
                       </div>
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} style={{ display: 'flex', marginBottom: '8px' }}>
+                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
                             <CustomInput
-                              placeholder="ej. Curl de biceps con mancuerna 10kg"
-                              width="350px"
+                              placeholder={setRep.placeholderExercise}
+                              width="450px"
                               value={setRep.exercise}
                               onChange={(e) =>
                                 handleSetRepChange(block.id, idx, 'exercise', e.target.value)
                               }
                             />
+                            <button
+                              onClick={() => handleDeleteSetRep(block.id, idx)}
+                              style={{
+                                marginLeft: '8px',
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#e55',
+                                fontSize: '20px',
+                                cursor: 'pointer'
+                              }}
+                              title="Eliminar este set"
+                            >
+                              –
+                            </button>
                           </div>
                         ))}
                         <PrimaryButton
