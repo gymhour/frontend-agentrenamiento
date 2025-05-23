@@ -113,7 +113,7 @@ function App() {
           path="/admin/crear-rutina" 
           element={
             <ProtectedRoute>
-              <CrearRutinaAdmin/>
+              <CrearRutina/>
             </ProtectedRoute>
           } 
         />  

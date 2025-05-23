@@ -10,6 +10,7 @@ import apiClient from '../../../axiosConfig';
 const ClasesActividadesDetalle = () => {
     const { id } = useParams();
     const [claseDetalle, setClaseDetalle] = useState(null);
+    const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
 
     useEffect(() => {
         const fetchClaseDetalle = async () => {
@@ -81,9 +82,15 @@ const ClasesActividadesDetalle = () => {
                         <div className="clases-actividades-item clases-actividades-detalle-info-instructores">
                             <h2>Instructores</h2>
                             {claseDetalle.Entrenadores && claseDetalle.Entrenadores.length > 0 ? (
-                                <ul>
+                                <ul className='listado-entrenadores'>
                                     {claseDetalle.Entrenadores.map(ent => (
                                         <li key={ent.ID_Usuario}>
+                                             <div className="usuarios-table-userimage" style={{
+                                                    backgroundImage: `url(${ent.imagenUsuario || defaultAvatar})`,
+                                                    backgroundSize: 'cover',
+                                                    backgroundPosition: 'center',
+                                                    backgroundRepeat: 'no-repeat'
+                                                }}></div>
                                             {ent.nombre} {ent.apellido} {ent.profesion && `– ${ent.profesion}`}
                                         </li>
                                     ))}

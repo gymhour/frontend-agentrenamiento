@@ -185,7 +185,7 @@ const getEjerciciosResultadosUsuario = async (usuarioId) => {
 const postEjercicio = async(body) => {
     try {
         const response = await apiClient.post(`/ejercicios-resultados`, body);
-        return response.data;
+        return response;
     } catch (err) {
         throw new Error("Error en el servicio postEjercicio");
     }

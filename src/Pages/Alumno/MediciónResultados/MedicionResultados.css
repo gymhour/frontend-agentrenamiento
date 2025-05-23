@@ -114,3 +114,16 @@
     color: #ffffff;
   }
   
+  .med-resultados-card{
+    position: relative;
+  }
+
+  .borrar-ejercicio-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+  }

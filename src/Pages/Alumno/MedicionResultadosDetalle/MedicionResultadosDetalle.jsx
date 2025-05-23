@@ -28,6 +28,30 @@ const MedicionResultadosDetalle = () => {
   const [nuevaCantidad, setNuevaCantidad] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
 
+  // util
+  const parseDateString = (dateStr) => {
+    // si viene con hora: “2025-05-10T14:00:00Z”
+    if (dateStr.includes('T')) {
+      dateStr = dateStr.split('T')[0];
+    }
+    const parts = dateStr.split('-').map(Number);
+    let year, month, day;
+  
+    if (parts[0] > 31) {
+      // asumo YYYY-MM-DD
+      [year, month, day] = parts;
+    } else {
+      // asumo DD-MM-YYYY
+      [day, month, year] = parts;
+    }
+  
+    return new Date(year, month - 1, day);
+  };
+  
+  const formatAsLocalDate = (dateStr) =>
+    parseDateString(dateStr).toLocaleDateString();
+  
+
   // 1. Cargar todos los ejercicios y filtrar por ID
   useEffect(() => {
     const fetchEjercicios = async () => {
@@ -128,7 +152,7 @@ const MedicionResultadosDetalle = () => {
   );
 
   const dataChart = sortedHistorico.map((item) => ({
-    fecha: new Date(item.Fecha).toLocaleDateString(),
+    fecha: formatAsLocalDate(item.Fecha),
     cantidad: item.Cantidad
   }));
 
@@ -205,7 +229,7 @@ const MedicionResultadosDetalle = () => {
             <tbody>
               {sortedHistorico.map((item) => (
                 <tr key={item.ID_HistoricoEjercicio}>
-                  <td>{new Date(item.Fecha).toLocaleDateString()}</td>
+                  <td>{formatAsLocalDate(item.Fecha)}</td>
                   <td>{item.Cantidad}</td>
                 </tr>
               ))}

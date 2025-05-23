@@ -6,6 +6,8 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import apiClient from '../../../axiosConfig';
 import apiService from '../../../services/apiService';
+import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
+import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
 
 const MedicionResultados = () => {
   const [ejercicios, setEjercicios] = useState([]);
@@ -69,12 +71,7 @@ const MedicionResultados = () => {
           <div className="med-resultados-ejercicios-header">
             <h2>Ejercicios</h2>
             {/* Botón o link para agregar nuevo */}
-            <Link
-              to="/alumno/medicion-resultados/nueva-medicion"
-              className="btn-agregar-nuevo"
-            >
-              Agregar nuevo
-            </Link>
+            <PrimaryButton text="Agregar ejercicio" linkTo={"/alumno/medicion-resultados/nueva-medicion"} />
           </div>
 
           <div className="med-resultados-ejercicios-list">
@@ -102,7 +99,7 @@ const MedicionResultados = () => {
                       <div className="med-resultados-card-body">
                         <p>{ejercicio.nombre}</p>
                       </div>
-                      <button onClick={() => handleDeleteEjercicio(ejercicio.ID_EjercicioMedicion)} > Borrar </button>
+                      <button className='borrar-ejercicio-btn' onClick={() => handleDeleteEjercicio(ejercicio.ID_EjercicioMedicion)} >  <DeleteIcon width={20}/> </button>
                     </div>
                   </Link>
                 );

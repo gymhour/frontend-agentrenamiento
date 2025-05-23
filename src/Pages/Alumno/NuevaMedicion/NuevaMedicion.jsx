@@ -5,6 +5,9 @@ import '../../../App.css';
 import './NuevaMedicion.css';
 import apiClient from '../../../axiosConfig';
 import apiService from '../../../services/apiService';
+import { toast } from 'react-toastify';
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 
 const NuevaMedicion = () => {
   const [nombre, setNombre] = useState('');
@@ -16,11 +19,10 @@ const NuevaMedicion = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
     // Validar campos vacíos
     if (!nombre || !tipoMedicion || !cantidad || !fecha) {
       setError('Por favor completa todos los campos.');
+      toast.error(error)
       return;
     }
 
@@ -34,7 +36,9 @@ const NuevaMedicion = () => {
       const responseEjercicio = await apiService.postEjercicio(body);
 
       if (!responseEjercicio) {
-        throw new Error('Error al crear el ejercicio');
+        toast.error("Error al crear el ejercicio. Por favor, intente nuevamente.")
+      } else {
+        toast.success("Se agregó el ejercicio correctamente.")
       }
 
       // Obtenemos la respuesta del ejercicio recién creado
@@ -68,10 +72,8 @@ const NuevaMedicion = () => {
     <div className="page-layout">
       <SidebarMenu isAdmin={false} />
       <div className="content-layout nueva-medicion-container">
+        <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true}/>
         <h2>Agregar nuevo ejercicio</h2>
-
-        {error && <p className="error-message">{error}</p>}
-
         <form className="nueva-medicion-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nombre del ejercicio</label>

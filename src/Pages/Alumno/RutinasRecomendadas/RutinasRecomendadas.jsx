@@ -17,9 +17,15 @@ const RutinasRecomendadas = () => {
   useEffect(() => {
     const fetchRutinas = async () => {
       try {
-        const data = await apiService.getRutinas();
-        // Si la respuesta viene con la estructura data.rutinas:
-        setRutinas(data.rutinas);
+        const { rutinas } = await apiService.getRutinas();
+      
+        // Filtrar solo las rutinas de admin o entrenador
+        const rutinasFiltradas = rutinas.filter(rutina =>
+          rutina.User &&
+          (rutina.User.tipo === 'admin' || rutina.User.tipo === 'entrenador')
+        );
+  
+        setRutinas(rutinasFiltradas);
       } catch (error) {
         console.error("Error al obtener rutinas:", error);
       } finally {

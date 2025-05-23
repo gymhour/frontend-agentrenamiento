@@ -10,6 +10,7 @@
   /* Título de la sección */
   .nueva-medicion-container h2 {
     font-size: 1.8rem;
+    margin-top: 10px;
     margin-bottom: 2rem;
     color: #ffffff;
   }
