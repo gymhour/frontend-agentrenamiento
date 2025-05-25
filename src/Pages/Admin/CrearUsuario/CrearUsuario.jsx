@@ -4,6 +4,7 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
 import apiClient from '../../../axiosConfig';
 import { toast } from 'react-toastify';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const CrearUsuario = () => {
   const initialFormData = {
@@ -21,6 +22,7 @@ const CrearUsuario = () => {
 
   const [formData, setFormData] = useState(initialFormData);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -40,6 +42,8 @@ const CrearUsuario = () => {
     e.preventDefault();
 
     try {
+      setIsLoading(true);
+
       const isoFecha = formData.fechaCumple
         ? new Date(formData.fechaCumple).toISOString()
         : '';
@@ -68,9 +72,11 @@ const CrearUsuario = () => {
       toast.success('Usuario añadido correctamente');
       setFormData(initialFormData);
       setAvatarFile(null);
+      setIsLoading(false);
     } catch (error) {
       const msg = error.response?.data?.message || 'No se pudo registrar el usuario';
       toast.error(msg);
+      setIsLoading(false);
     }
   };
 

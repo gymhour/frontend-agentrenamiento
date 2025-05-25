@@ -36,7 +36,7 @@ const MedicionResultadosDetalle = () => {
     }
     const parts = dateStr.split('-').map(Number);
     let year, month, day;
-  
+
     if (parts[0] > 31) {
       // asumo YYYY-MM-DD
       [year, month, day] = parts;
@@ -44,13 +44,13 @@ const MedicionResultadosDetalle = () => {
       // asumo DD-MM-YYYY
       [day, month, year] = parts;
     }
-  
+
     return new Date(year, month - 1, day);
   };
-  
+
   const formatAsLocalDate = (dateStr) =>
     parseDateString(dateStr).toLocaleDateString();
-  
+
 
   // 1. Cargar todos los ejercicios y filtrar por ID
   useEffect(() => {
@@ -162,7 +162,7 @@ const MedicionResultadosDetalle = () => {
       <div className="content-layout detalle-container">
         {/* Encabezado */}
         <div className="detalle-header">
-          <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true}/>
+          <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true} />
           <h1>
             {ejercicio.nombre} - {ejercicio.tipoMedicion}
           </h1>
@@ -204,14 +204,52 @@ const MedicionResultadosDetalle = () => {
           <h3>Historial</h3>
           {sortedHistorico.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={dataChart}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="fecha" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="cantidad" fill="#e63946" />
+              <BarChart data={dataChart} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                {/* Gradiente igual al anterior */}
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#e63946" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#e63946" stopOpacity={0.2} />
+                  </linearGradient>
+                </defs>
+
+                <CartesianGrid vertical={false} stroke="#444" strokeDasharray="3 3" />
+
+                <XAxis
+                  dataKey="fecha"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#aaa", fontSize: 12 }}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#aaa", fontSize: 12 }}
+                />
+
+                <Tooltip
+                  cursor={{ fill: "rgba(0, 0, 0, 0.7)" }}
+                  contentStyle={{
+                    backgroundColor: "#000",
+                    border: "none",
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                  }}
+                  labelStyle={{ color: "#fff", fontSize: 12, fontWeight: "bold" }}
+                  itemStyle={{ color: "#fff", fontSize: 12 }}
+                />
+
+                <Bar
+                  name="Cantidad"
+                  dataKey="cantidad"
+                  fill="url(#barGradient)"
+                  radius={[6, 6, 0, 0]}
+                  barSize={75}
+                  animationDuration={800}
+                />
               </BarChart>
             </ResponsiveContainer>
+
           ) : (
             <p>No hay datos en el historial</p>
           )}

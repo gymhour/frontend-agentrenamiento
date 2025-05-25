@@ -169,7 +169,7 @@ const CrearRutina = () => {
               durationMin: null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.slice(1).map(item => ({
-                reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
+                reps: item.series, // Aca el ep deberia poder aceptar un stirng
                 setRepWeight: item.exercise
               }))
             };

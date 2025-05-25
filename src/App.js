@@ -125,6 +125,14 @@ function App() {
             </ProtectedRoute>
           } 
         />  
+        <Route 
+          path="/admin/cambiar-contrasena" 
+          element={
+            <ProtectedRoute>
+              <ChangePassword fromAdmin={true}/>
+            </ProtectedRoute>
+          } 
+        />
         {/* Alumno */}
         <Route path="/alumno/inicio" 
           element={
@@ -223,7 +231,7 @@ function App() {
           path="/alumno/cambiar-contrasena" 
           element={
             <ProtectedRoute>
-              <ChangePassword/>
+              <ChangePassword fromAdmin={false}/>
             </ProtectedRoute>
           } 
         />

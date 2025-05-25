@@ -38,6 +38,8 @@ const SidebarMenu = ({ isAdmin }) => {
   };
   const handleLogoutCancel = () => setIsPopupOpen(false);
 
+  const changePasswordPath = isAdmin ? "/admin/cambiar-contrasena" : "/alumno/cambiar-contrasena";
+
   return (
     <>
       {/* Botón “Abrir” en mobile */}
@@ -297,28 +299,18 @@ const SidebarMenu = ({ isAdmin }) => {
             <h3 className="profile-title">PERFIL</h3>
             <ul className="menu-list">
               <Link
-                to="/alumno/cambiar-contrasena"
+                to={changePasswordPath}
                 className={`menu-link ${
-                  location.pathname ===
-                  "/alumno/cambiar-contrasena"
-                    ? "active"
-                    : ""
+                  location.pathname === changePasswordPath ? "active" : ""
                 }`}
               >
                 <li className="menu-item">
-                  <AjustesIcon className="icon" fill="#A2A2A2" /> Cambiar
-                  contraseña
+                  <AjustesIcon className="icon" fill="#A2A2A2" /> Cambiar contraseña
                 </li>
               </Link>
-              <li
-                className="menu-item logout"
-                onClick={handleLogoutClick}
-              >
-                <CerrarSesionIcon
-                  className="icon"
-                  fill="#CC8889"
-                />{" "}
-                Cerrar sesión
+
+              <li className="menu-item logout" onClick={handleLogoutClick}>
+                <CerrarSesionIcon className="icon" fill="#CC8889" /> Cerrar sesión
               </li>
             </ul>
           </div>

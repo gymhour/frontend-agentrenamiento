@@ -1,20 +1,29 @@
+// ConfirmationPopup.jsx
 import React from "react";
-import "./ConfirmationPopup.css"; 
+import ReactDOM from "react-dom";
+import "./ConfirmationPopup.css";
 
 const ConfirmationPopup = ({ isOpen, onClose, onConfirm, message }) => {
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    return (
-        <div className="confirmation-popup-overlay">
-            <div className="confirmation-popup">
-                <p>{message}</p>
-                <div className="confirmation-popup-buttons">
-                <button onClick={onClose} className="cancel-button">Cancelar</button>
-                    <button onClick={onConfirm} className="confirm-button">Confirmar</button>
-                </div>
-            </div>
+  return ReactDOM.createPortal(
+    <div className="confirmation-popup-overlay">
+      <div className="confirmation-popup">
+        <p>{message}</p>
+        <div className="confirmation-popup-buttons">
+          <div className="popup-btns-ctn">
+            <button onClick={onClose} className="popup-cancel-button">
+              Cancelar
+            </button>
+            <button onClick={onConfirm} className="popup-confirm-button">
+              Confirmar
+            </button>
+          </div>
         </div>
-    );
+      </div>
+    </div>,
+    document.body
+  );
 };
 
 export default ConfirmationPopup;

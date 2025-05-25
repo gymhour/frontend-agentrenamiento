@@ -87,24 +87,39 @@ const MiRutina = () => {
                       <div key={bloque.ID_Bloque} className="bloque-card">
                         {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
-                          <p>
-                            {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
-                          </p>
+                          <div> 
+                            <p>
+                              {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                            </p>
+                            <ul style={{ paddingLeft: '20px' }}>
+                            {bloque.ejercicios.map((ej) => (
+                              <li key={ej.ID_Ejercicio}>
+                                {`${ej.reps} ${ej.setRepWeight}`}
+                              </li>
+                            ))}
+                          </ul>
+                          </div>
                         )}
 
                         {/* ROUNDS */}
                         {bloque.type === 'ROUNDS' && (
                           <>
                             <p>{`${bloque.cantRondas} rondas de:`}</p>
+
                             <ul style={{ paddingLeft: '20px' }}>
+                              <li>
+                                {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                              </li>
+
                               {bloque.ejercicios.map((ej) => (
                                 <li key={ej.ID_Ejercicio}>
                                   {`${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
+
                             {bloque.descansoRonda != null && (
-                              <p>{`con ${bloque.descansoRonda} segs de descanso`}</p>
+                              <p style={{color: "rgba(255,255,255,0.6)"}}>{`con ${bloque.descansoRonda} segs de descanso`}</p>
                             )}
                           </>
                         )}

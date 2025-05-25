@@ -9,7 +9,7 @@ import apiService from '../../../services/apiService';
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 
-const ChangePassword = () => {
+const ChangePassword = ({fromAdmin}) => {
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         oldPassword: '',
@@ -50,7 +50,7 @@ const ChangePassword = () => {
         <div className='page-layout'>
             {loading && <LoaderFullScreen />}
             <ToastContainer theme="dark" />
-            <SidebarMenu isAdmin={false} />
+            <SidebarMenu isAdmin={fromAdmin} />
             <div className='content-layout'>
                 <div className="mi-rutina-title">
                     <h2>Cambiar contraseña</h2>

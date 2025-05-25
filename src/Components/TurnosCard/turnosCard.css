@@ -40,6 +40,8 @@
     padding: 8px 14px;
     cursor: pointer;
     transition: all ease-in-out 200ms;
+    border: none;
+    outline: none;
 }
 
 .cancel-button:hover {

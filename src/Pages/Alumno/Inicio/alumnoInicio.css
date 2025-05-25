@@ -1,3 +1,7 @@
+.inicio-bienvenida-ctn {
+    margin-bottom: 20px;
+}
+
 .turnos-ctn {
     width: 550px;
     max-width: 550px;
@@ -12,8 +16,9 @@
     align-items: center;
 }
 
-.turnos-ctn-title h2 {
+.turnos-ctn-title h3 {
     color: #FAFAFA;
+    font-weight: 600;
 }
 
 .inicio-clases-act-title {
@@ -22,6 +27,12 @@
     max-width: 550px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.inicio-clases-act-title h3 {
+    color: #FAFAFA;
+    font-weight: 600;
 }
 
 .turnos-ctn-turnos {

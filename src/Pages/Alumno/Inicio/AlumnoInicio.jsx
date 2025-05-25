@@ -14,44 +14,50 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 const AlumnoInicio = () => {
     const [clases, setClases] = useState([]);
     const [turnos, setTurnos] = useState([]);
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [nombreUsuario, setNombreUsuario] = useState("");
 
     useEffect(() => {
-        setLoading(true);
-        const fetchData = async () => {
+        const fetchAll = async () => {
+            setLoading(true);
             try {
                 const usuarioId = localStorage.getItem("usuarioId");
-                const [clasesData, turnosData] = await Promise.all([
+                const [clasesData, turnosData, usuarioData] = await Promise.all([
                     apiService.getClases(),
-                    apiService.getTurnosUsuario(usuarioId)
+                    apiService.getTurnosUsuario(usuarioId),
+                    apiService.getUserById(usuarioId),
                 ]);
-    
                 setClases(clasesData);
                 setTurnos(turnosData);
-                setLoading(false);
-            } catch (err) {
-                setError("Error al cargar las clases y turnos. Intente nuevamente.");
+                setNombreUsuario(usuarioData.nombre + " " + usuarioData.apellido)
+                console.log("Info usuario", usuarioData);
+                setError("");
+            } catch {
+                setError("Error al cargar los datos. Intente nuevamente.");
+            } finally {
                 setLoading(false);
             }
         };
-    
-        fetchData();
+
+        fetchAll();
     }, []);
 
-    // Ordenar los turnos por fecha de forma descendente (más reciente primero)
     const latestTurnos = [...turnos]
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .slice(0, 3);
 
-    return(
+    return (
         <div className='page-layout'>
-            {loading && <LoaderFullScreen/> }
-            <SidebarMenu isAdmin={false}/>
+            {loading && <LoaderFullScreen />}
+            <SidebarMenu isAdmin={false} />
             <div className='content-layout'>
+                <div className="inicio-bienvenida-ctn">
+                    <h2> ¡Hola, {nombreUsuario}! </h2>
+                </div>
                 <div className="turnos-ctn">
                     <div className="turnos-ctn-title">
-                        <h2> Últimos turnos </h2>
+                        <h3> Últimos turnos </h3>
                         <SecondaryButton linkTo="/alumno/turnos" text="Ver historial" icon={ArrowLeftIcon} />
                     </div>
                     <div className="turnos-ctn-turnos">
@@ -59,11 +65,11 @@ const AlumnoInicio = () => {
                             <p className="error-message">{error}</p>
                         ) : latestTurnos.length > 0 ? (
                             latestTurnos.map((turno, index) => (
-                                <TurnosCard 
-                                    key={`${turno.ID_Turno}_${index}`} 
-                                    nombreTurno={turno.HorarioClase.Clase.nombre} 
-                                    fechaTurno={turno.fecha} 
-                                    horaTurno={turno.hora} 
+                                <TurnosCard
+                                    key={`${turno.ID_Turno}_${index}`}
+                                    nombreTurno={turno.HorarioClase.Clase.nombre}
+                                    fechaTurno={turno.fecha}
+                                    horaTurno={turno.hora}
                                 />
                             ))
                         ) : (
@@ -74,7 +80,7 @@ const AlumnoInicio = () => {
                 </div>
                 <div className="inicio-clases-act-ctn">
                     <div className="inicio-clases-act-title">
-                        <h2> Clases y actividades </h2>
+                        <h3> Clases y actividades </h3>
                         <SecondaryButton linkTo="/alumno/clases-actividades" text="Ver todas" icon={ArrowLeftIcon} />
                     </div>
                     {error ? (
@@ -91,7 +97,7 @@ const AlumnoInicio = () => {
                         </div>
                     )}
                 </div>
-            </div>            
+            </div>
         </div>
     );
 }

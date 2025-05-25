@@ -10,20 +10,23 @@ import { useParams } from "react-router-dom";
 import apiClient from "../../../axiosConfig";
 import apiService from "../../../services/apiService";
 import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropdown";
+import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
+import { toast } from "react-toastify";
 
 const ClasesActividadesForm = ({ isEditing, classId }) => {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [image, setImage] = useState(null);
     const [horarios, setHorarios] = useState([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
-    const [message, setMessage] = useState("");
     const [entrenadores, setEntrenadores] = useState([]);
     const [selectedEntrenadores, setSelectedEntrenadores] = useState([]);
     const [dropdownValue, setDropdownValue] = useState("");
     const { id } = useParams();
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (isEditing) {
+            setIsLoading(true);
             const fetchClaseDetalle = async () => {
                 try {
                     // Llamada a la API para obtener detalles de la clase
@@ -35,8 +38,11 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                     setDescripcion(descripcion || "");
                     setHorarios(horarios || [{ diaSemana: "", horaIni: "", horaFin: "", cupos: "" }]);
                     setImage(image || null);
+                    setIsLoading(false);
                 } catch (error) {
                     console.error("Error al obtener los detalles de la clase:", error);
+                    toast.error("Error al obtener información de la clase. Intente nuevamente.")
+                    setIsLoading(false);
                 }
             };
 
@@ -135,14 +141,19 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
         formData.append("entrenadores", JSON.stringify(entrenadorIds));
       
         if (isEditing) {
-          // PUT (edición) puede seguir con async/await o then, según prefieras
+          setIsLoading(true)
           apiClient.put(`/clase/horario/${id}`, formData, {
             headers: { "Content-Type": "multipart/form-data" }
           })
-          .then(() => setMessage("Clase actualizada exitosamente."))
-          .catch(err => setMessage("Error actualizando clase"));
+            .then(() => {
+                toast.success("Clase actualizada exitosamente.")
+                setIsLoading(false)
+            })
+            .catch(err => {
+                toast.error("Error actualizando clase");
+                setIsLoading(false)
+            });
         } else {
-          // POST + then()
           apiClient.post("/clase/horario", formData, {
             headers: { "Content-Type": "multipart/form-data" }
           })
@@ -156,12 +167,12 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
             );
           })
           .then(() => {
-            setMessage("Clase creada y entrenadores asignados exitosamente.");
+            toast.success("Clase creada y entrenadores asignados exitosamente.");
             resetForm();
           })
           .catch(error => {
             console.error(error);
-            setMessage("Hubo un error en la creación o asignación.");
+            toast.error("Hubo un error en la creación o asignación.");
           });
         }
       };
@@ -177,6 +188,7 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
 
     return (
         <div className='page-layout'>
+            {isLoading && <LoaderFullScreen />}
             <SidebarMenu isAdmin={true} />
             <div className='content-layout'>
                 <div className="clases-actividades-form-ctn">
@@ -352,7 +364,6 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                                 {isEditing ? "Guardar cambios" : "Crear Clase"}
                             </button>
                         </form>
-                        {message && <p>{message}</p>}
                     </div>
                 </div>
             </div>
