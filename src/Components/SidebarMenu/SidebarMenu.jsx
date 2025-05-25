@@ -19,6 +19,8 @@ import { ReactComponent as CrearUsuarioIcon } from '../../assets/icons/user-add.
 import { ReactComponent as UsuariosIcon } from '../../assets/icons/users-icon.svg';
 import { ReactComponent as MenuHamburguesaIcon } from '../../assets/icons/sidebar/ic_menu_hamburguesa.svg';
 import { ReactComponent as CloseIcon } from '../../assets/icons/close.svg';
+import { ReactComponent as IngresosIcon } from '../../assets/icons/money-icon.svg';
+import { ReactComponent as EntrenadoresIcon } from '../../assets/icons/sidebar/entrenadores-icon.svg';
 // Routing
 import { useNavigate, useLocation, Link } from "react-router-dom";
 // Componentes
@@ -127,7 +129,7 @@ const SidebarMenu = ({ isAdmin }) => {
                   <li className="menu-item">
                     <UsuariosIcon
                       className="icon"
-                      fill="#A2A2A2"
+                      stroke="#A2A2A2"
                     />{" "}
                     Usuarios
                   </li>
@@ -143,7 +145,7 @@ const SidebarMenu = ({ isAdmin }) => {
                   <li className="menu-item">
                     <CrearUsuarioIcon
                       className="icon"
-                      fill="#A2A2A2"
+                      stroke="#A2A2A2"
                     />{" "}
                     Crear usuario
                   </li>
@@ -173,9 +175,9 @@ const SidebarMenu = ({ isAdmin }) => {
                   }`}
                 >
                   <li className="menu-item">
-                    <MiRutinaIcon
+                    <IngresosIcon
                       className="icon"
-                      fill="#A2A2A2"
+                      stroke="#A2A2A2"
                     />{" "}
                     Cuotas
                   </li>
@@ -274,7 +276,7 @@ const SidebarMenu = ({ isAdmin }) => {
                   }`}
                 >
                   <li className="menu-item">
-                    <RutinasRecomendadasIcon className="icon" /> Entrenadores
+                    <EntrenadoresIcon className="icon" /> Entrenadores
                   </li>
                 </Link>
                 <Link

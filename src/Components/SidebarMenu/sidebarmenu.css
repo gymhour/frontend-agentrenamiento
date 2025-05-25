@@ -3,13 +3,14 @@
   top: 0;
   width: 320px;
   min-height: 100vh;
-  background-color: #1B1B1B;
+  background-color: #101010;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   color: #FAFAFA;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px 25px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-logo {
@@ -106,7 +107,8 @@
 }
 
 .menu-link.active .icon {
-  fill: white;
+  /* fill: white; */
+  stroke: #FAFAFA;
 }
 
 /* MOBILE */
