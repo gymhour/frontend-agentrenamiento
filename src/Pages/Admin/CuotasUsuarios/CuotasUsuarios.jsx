@@ -143,7 +143,6 @@ const CuotasUsuarios = () => {
             <tbody>
               {cuotas.map(c => (
                 <tr key={c.ID_Cuota}>
-                  {/* <td>{c.ID_Cuota}</td> */}
                   <td>{c.User?.email || '–'}</td>
                   <td>{c.mes}</td>
                   <td>{formatCurrency(c.importe)}</td>

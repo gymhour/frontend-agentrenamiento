@@ -85,6 +85,7 @@ const CrearUsuario = () => {
 
   return (
     <div className="page-layout">
+      {isLoading && <LoaderFullScreen/>}
       <SidebarMenu isAdmin={true} />
       <div className="content-layout">
         <h2>Crear usuario</h2>

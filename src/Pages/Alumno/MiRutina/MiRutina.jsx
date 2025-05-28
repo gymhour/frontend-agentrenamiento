@@ -7,13 +7,14 @@ import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
-
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
+import { toast } from 'react-toastify';
 
 const MiRutina = () => {
-  // Estado para guardar las rutinas que traemos de la API
   const [rutinas, setRutinas] = useState([]);
-  // Estado para manejar el loading
   const [loading, setLoading] = useState(true);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedRutinaId, setSelectedRutinaId] = useState(null);
 
   // useEffect para cargar rutinas al montar el componente
   useEffect(() => {
@@ -34,15 +35,36 @@ const MiRutina = () => {
   }, []);
 
   const deleteRutina = async (idRutina) => {
+    setLoading(true)
     try {
       await apiService.deleteRutina(idRutina);
-      console.log("Rutina " + idRutina + " eliminada correctamente");
       setRutinas((prevRutinas) =>
         prevRutinas.filter((rutina) => rutina.ID_Rutina !== idRutina)
       );
+      toast.success("Rutina eliminada correctamente");
+      setLoading(false)
     } catch (error) {
-      console.error("Error al eliminar rutina", error);
+      toast.error("La rutina no se pudo eliminar. Por favor, intente nuevamente.")
+      setLoading(false);
     }
+  };
+
+  const handlePopUpOpen = (id) => {
+    setSelectedRutinaId(id);
+    setIsPopupOpen(true);
+  };
+
+  const handlePopupConfirm = () => {
+    setIsPopupOpen(false);
+    if (selectedRutinaId) {
+      deleteRutina(selectedRutinaId);
+      setSelectedRutinaId(null);
+    }
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+    setSelectedRutinaId(null);
   };
 
   return (
@@ -67,7 +89,7 @@ const MiRutina = () => {
                 <div className='rutina-header'>
                   <h3>{rutina.nombre}</h3>
                   <div className="rutina-header-acciones">
-                    <button onClick={() => deleteRutina(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
+                    <button onClick={() => handlePopUpOpen(rutina.ID_Rutina)}  className='mi-rutina-eliminar-btn'>
                       <DeleteIcon width={20} height={20}/>
                     </button>
                     {/* <button className='mi-rutina-eliminar-btn'>
@@ -172,6 +194,12 @@ const MiRutina = () => {
           )}
         </div>
       </div>
+      <ConfirmationPopup
+        isOpen={isPopupOpen}
+        onClose={handlePopupClose}
+        onConfirm={handlePopupConfirm}
+        message="¿Estás seguro de que deseas eliminar esta rutina?"
+      />
     </div>
   );
 };

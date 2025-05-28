@@ -117,6 +117,8 @@ const AgendarTurno = () => {
   };
 
   const manejarAgendarTurno = async () => {
+    setLoading(true);
+
     if (!selectedClase || !selectedDateTime) {
       toast.error("Por favor, selecciona una clase y un turno (fecha y hora) disponibles.");
       return;
@@ -150,10 +152,10 @@ const AgendarTurno = () => {
     setIsAgendando(true);
     try {
       const respuesta = await apiService.postTurno(body);
+      setLoading(false);
       toast.success("Turno agendado exitosamente.");
-      console.log("Respuesta de la API:", respuesta);
     } catch (err) {
-      console.error(err);
+      setLoading(false)
       toast.error("Hubo un error al agendar el turno. Intente nuevamente.");
     } finally {
       setIsAgendando(false);

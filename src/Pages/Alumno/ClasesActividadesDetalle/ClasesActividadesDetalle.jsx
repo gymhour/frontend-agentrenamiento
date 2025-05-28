@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import './clasesActividadesDetalle.css'
 import apiClient from '../../../axiosConfig';
 
@@ -86,7 +86,7 @@ const ClasesActividadesDetalle = () => {
                                     {claseDetalle.Entrenadores.map(ent => (
                                         <li key={ent.ID_Usuario}>
                                              <div className="usuarios-table-userimage" style={{
-                                                    backgroundImage: `url(${ent.imagenUsuario || defaultAvatar})`,
+                                                    backgroundImage: `url(${`https://res.cloudinary.com/dnzotdsbf/image/upload/v1/${ent.imagenUsuario}`|| defaultAvatar})`,
                                                     backgroundSize: 'cover',
                                                     backgroundPosition: 'center',
                                                     backgroundRepeat: 'no-repeat'

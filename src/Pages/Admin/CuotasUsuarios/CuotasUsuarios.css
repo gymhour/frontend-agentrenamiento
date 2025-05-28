@@ -1,146 +1,151 @@
-
 .cuotas-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .cuotas-table th,
-  .cuotas-table td {
-    padding: 12px 8px;
-    text-align: left;
-    font-size: 14px;
-  }
+  width: 100%;
+  border-collapse: collapse;
+}
 
-  .cuotas-table th {
-    background-color: rgba(52, 52, 52, 0.8);
+.cuotas-table th,
+.cuotas-table td {
+  padding: 18px 8px;
+  text-align: left;
+  font-size: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-  }
+.cuotas-table th {
+  background-color: rgba(52, 52, 52, 0.178);
+  font-weight: 400;
+}
 
-  .badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-  
-  .badge.paid {
-    background-color: #d4edda;
-    color: #155724;
-  }
-  
-  .badge.pending {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-  
-  .text-error {
-    color: #c00;
-  }
-  
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.badge.paid {
+  background-color: #CDFFCD;
+  color: #1E7E34;
+}
+
+.badge.pending {
+  background-color: #ffe9c6;
+  color: #d27300;
+}
+
+.text-error {
+  color: #c00;
+}
+
+.acciones-cell {
+  display: flex;
+  gap: 14px;
+}
+
+.accion-button {
+  background-color: #000;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: green;
+}
+
+.accion-button.delete {
+  background-color: #000;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: red;
+}
 
 /* Ajustes a la cabecera */
 .header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  /* Modal overlay y contenido */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  .modal-content {
-    background: #000;
-    padding: 24px;
-    border-radius: 8px;
-    width: 400px;
-  }
-  .modal-content h3 {
-    color: white;
-    margin-top: 0;
-    margin-bottom: 16px;
-  }
-  
-  /* Form del modal */
-  .modal-form label {
-    display: block;
-    margin: 8px 0 4px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.8);
-  }
-  .modal-form .custom-input,
-  .modal-form .custom-dropdown {
-    margin-bottom: 12px;
-  }
-  
-  /* Acciones del modal */
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
-  }
-  
-  .modal-primary-button {
-    padding: 10px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--primary-color);
-    color: #FAFAFA;
-    text-decoration: none;
-    width: fit-content;
-    font-size: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    outline: none;
-    border: none;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
-  .modal-secondary-button {
-    padding: 10px;
-    background-color: none;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    color: #FAFAFA;
-    text-decoration: none;
-    width: fit-content;
-    font-size: 14px;
-    border-radius: 8px;
-    background-color: #000;
-    cursor: pointer;
-    outline: none;
-    border: none;
-  }
+/* Modal overlay y contenido */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
-  .acciones-cell {
-    display: flex;
-    gap: 14px;
-  }
+.modal-content {
+  background: #000;
+  padding: 24px;
+  border-radius: 8px;
+  width: 400px;
+}
 
-  .accion-button {
-    background-color: #000;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    color: green;
-  }
+.modal-content h3 {
+  color: white;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
 
-  .accion-button.delete {
-    background-color: #000;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    color: red;
-  }
+/* Form del modal */
+.modal-form label {
+  display: block;
+  margin: 8px 0 4px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.modal-form .custom-input,
+.modal-form .custom-dropdown {
+  margin-bottom: 12px;
+}
+
+/* Acciones del modal */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modal-primary-button {
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: #FAFAFA;
+  text-decoration: none;
+  width: fit-content;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+.modal-secondary-button {
+  padding: 10px;
+  background-color: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  color: #FAFAFA;
+  text-decoration: none;
+  width: fit-content;
+  font-size: 14px;
+  border-radius: 8px;
+  background-color: #000;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}

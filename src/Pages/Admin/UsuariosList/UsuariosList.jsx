@@ -8,13 +8,14 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { useNavigate } from 'react-router-dom';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import { toast } from "react-toastify";
 
 const UsuariosList = () => {
     const [usuarios, setUsuarios] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
-    const navigate = useNavigate();
     const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
 
     const fetchUsuarios = async () => {
@@ -34,12 +35,16 @@ const UsuariosList = () => {
     }, []);
 
     const deleteUsuario = async (idUsuario) => {
+        setLoading(true)
         try {
             await apiClient.delete(`/usuarios/${idUsuario}`);
             // Eliminación del usuario eliminado en la UI
             setUsuarios(prevUsuarios => prevUsuarios.filter(usuario => usuario.ID_Usuario !== idUsuario));
+            setLoading(false)
+            toast.success("Usuario eliminado correctamente");
         } catch (error) {
-            console.error('Error al eliminar el usuario - UsuariosList.jsx', error);
+            toast.error('Error al eliminar el usuario. Por favor, intente nuevamente.');
+            setLoading(false)
         }
     };
 
@@ -63,14 +68,12 @@ const UsuariosList = () => {
 
     return (
         <div className='page-layout'>
+            {loading && <LoaderFullScreen/>}
             <SidebarMenu isAdmin={true} />
             <div className='content-layout'>
                 <h2 style={{ marginBottom: '30px' }}> Lista de usuarios </h2>
 
                 {
-                    loading ?
-                        <p> Cargando usuarios...</p>
-                        :
                         usuarios.length === 0 ? (
                             <p>No hay usuarios para mostrar.</p>
                         ) : (

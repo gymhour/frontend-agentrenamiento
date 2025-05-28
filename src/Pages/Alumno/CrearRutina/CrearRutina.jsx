@@ -8,6 +8,7 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import apiService from '../../../services/apiService';
 import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const CrearRutina = ({fromAdmin}) => {
   const diasSemana = [
@@ -52,6 +53,8 @@ const CrearRutina = ({fromAdmin}) => {
     "Dominadas",
     "Elevaciones laterales 8kg",
   ];
+
+  const navigate = useNavigate();
   
   const getRandomExercise = () => exampleExercises[Math.floor(Math.random() * exampleExercises.length)];  
 
@@ -246,14 +249,15 @@ const CrearRutina = ({fromAdmin}) => {
   // --- Envío final de la rutina ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const rutinaData = prepareRutinaData();
     setLoading(true)
+    const rutinaData = prepareRutinaData();
     console.log("Final data to send:", rutinaData);
     try {
       const response = await apiService.createRutina(rutinaData);
       setLoading(false)
       toast.success("Rutina creada correctamente.");
-      console.log("Rutina creada:", response);
+      navigate("/alumno/mi-rutina");
+      // console.log("Rutina creada:", response);
     } catch (error) {
       console.error("Error al crear rutina:", error);
       setLoading(false)
