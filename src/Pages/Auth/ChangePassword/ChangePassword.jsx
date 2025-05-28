@@ -3,8 +3,7 @@ import '../../../App.css';
 import './ChangePassword.css'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import apiService from '../../../services/apiService';
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
@@ -49,7 +48,6 @@ const ChangePassword = ({fromAdmin}) => {
     return (
         <div className='page-layout'>
             {loading && <LoaderFullScreen />}
-            <ToastContainer theme="dark" />
             <SidebarMenu isAdmin={fromAdmin} />
             <div className='content-layout'>
                 <div className="mi-rutina-title">

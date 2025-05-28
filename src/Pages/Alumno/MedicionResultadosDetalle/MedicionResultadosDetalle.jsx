@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import apiClient from '../../../axiosConfig';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 import apiService from '../../../services/apiService';
 
 const MedicionResultadosDetalle = () => {

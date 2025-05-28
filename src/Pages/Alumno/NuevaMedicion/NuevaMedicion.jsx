@@ -7,7 +7,7 @@ import apiClient from '../../../axiosConfig';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 
 const NuevaMedicion = () => {
   const [nombre, setNombre] = useState('');

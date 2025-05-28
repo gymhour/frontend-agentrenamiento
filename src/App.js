@@ -27,7 +27,7 @@ import NuevaMedicion from './Pages/Alumno/NuevaMedicion/NuevaMedicion';
 import MedicionResultadosDetalle from './Pages/Alumno/MedicionResultadosDetalle/MedicionResultadosDetalle';
 import EditarUsuario from './Pages/Admin/EditarUsuario/EditarUsuario';
 import RutinasAdmin from './Pages/Admin/RutinasAdmin/RutinasAdmin';
-import CrearRutinaAdmin from './Pages/Admin/CrearRutinaAdmin/CrearRutinaAdmin';
+// import CrearRutinaAdmin from './Pages/Admin/CrearRutinaAdmin/CrearRutinaAdmin';
 import CuotasUsuarios from './Pages/Admin/CuotasUsuarios/CuotasUsuarios';
 import ResetPassword from './Pages/Auth/ResetPassword/ResetPassword';
 import ChangePassword from './Pages/Auth/ChangePassword/ChangePassword';
@@ -113,7 +113,7 @@ function App() {
           path="/admin/crear-rutina" 
           element={
             <ProtectedRoute>
-              <CrearRutina/>
+              <CrearRutina fromAdmin={true}/>
             </ProtectedRoute>
           } 
         />  
@@ -183,7 +183,7 @@ function App() {
           path="/alumno/crear-rutina" 
           element={
             <ProtectedRoute>
-              <CrearRutina/>
+              <CrearRutina fromAdmin={false}/>
             </ProtectedRoute>
           } 
         />

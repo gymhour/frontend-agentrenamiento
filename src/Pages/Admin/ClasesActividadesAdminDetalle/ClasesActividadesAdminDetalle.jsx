@@ -6,7 +6,7 @@ import SecondaryButton from '../../../Components/utils/SecondaryButton/Secondary
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { toast } from "react-toastify";
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 import apiClient from '../../../axiosConfig';
 
 const ClasesActividadesAdminDetalle = () => {

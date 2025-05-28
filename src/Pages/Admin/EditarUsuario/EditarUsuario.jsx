@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const EditarUsuario = () => {
   const { id } = useParams();
@@ -26,8 +29,11 @@ const EditarUsuario = () => {
 
   const tipos = ['Cliente', 'Entrenador', 'Admin'];
   const opcionesEstado = ['Si', 'No'];
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    setIsLoading(true)
     const fetchUser = async () => {
       try {
         const user = await apiService.getUserById(id);
@@ -50,9 +56,11 @@ const EditarUsuario = () => {
           fechaCumple: fechaISO,
           estado:     !!user.estado,
         });
+        setIsLoading(false)
       } catch (err) {
         console.error(err);
         toast.error('No se pudo cargar los datos del usuario');
+        setIsLoading(false);
       }
     };
 
@@ -87,7 +95,7 @@ const EditarUsuario = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true)
     try {
       const isoFecha = formData.fechaCumple
         ? new Date(formData.fechaCumple).toISOString()
@@ -112,18 +120,28 @@ const EditarUsuario = () => {
       }
 
       await apiService.updateUserById(id, payload);
+      setIsLoading(false)
       toast.success('Usuario actualizado correctamente');
+      navigate("/admin/usuarios");
     } catch (error) {
       console.error(error);
       const msg = error.response?.data?.message || 'Error al actualizar usuario';
+      setIsLoading(false)
       toast.error(msg);
     }
   };
 
   return (
     <div className="page-layout">
+      { isLoading && <LoaderFullScreen/> }
       <SidebarMenu isAdmin={true} />
       <div className="content-layout">
+      <SecondaryButton
+              text="Volver atrás"
+              linkTo="/admin/usuarios"
+              icon={ArrowLeftIcon}
+              reversed={true}
+            />
         <h2>Editar usuario</h2>
         <form
           onSubmit={handleSubmit}

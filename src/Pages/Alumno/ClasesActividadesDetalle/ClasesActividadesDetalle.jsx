@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 import './clasesActividadesDetalle.css'
 import apiClient from '../../../axiosConfig';
 

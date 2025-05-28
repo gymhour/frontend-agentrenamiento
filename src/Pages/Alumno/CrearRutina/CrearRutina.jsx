@@ -9,7 +9,7 @@ import apiService from '../../../services/apiService';
 import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 
-const CrearRutina = () => {
+const CrearRutina = ({fromAdmin}) => {
   const diasSemana = [
     "Lunes",
     "Martes",
@@ -264,7 +264,7 @@ const CrearRutina = () => {
   return (
     <div className='page-layout'>
       {loading && <LoaderFullScreen />}
-      <SidebarMenu isAdmin={false} />
+      <SidebarMenu isAdmin={fromAdmin} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
           <h2>Crear Rutina</h2>

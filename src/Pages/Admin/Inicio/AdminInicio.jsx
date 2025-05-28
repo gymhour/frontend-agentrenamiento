@@ -7,7 +7,6 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import { ReactComponent as UsuariosIcon } from '../../../assets/icons/users_icon_luc.svg';
 import { ReactComponent as IngresosIcon } from '../../../assets/icons/money-icon.svg';
 import { ReactComponent as IngresosPendientesIcon } from '../../../assets/icons/pending-icon.svg';
-
 import {
   BarChart,
   Bar,
@@ -17,9 +16,10 @@ import {
   CartesianGrid,
   ResponsiveContainer
 } from 'recharts';
+import { toast } from 'react-toastify';
 
 const AdminInicio = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [kpi, setKpi] = useState({
     totalActiveUsers: 0,
     quotasPaidThisMonth: 0,
@@ -34,9 +34,9 @@ const AdminInicio = () => {
       const response = await apiService.getKPIs();
       setKpi(response.kpi);
       setHistory(response.history || []);
+      setLoading(false);
     } catch (error) {
       console.error('Error al obtener los KPIs:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -48,12 +48,12 @@ const AdminInicio = () => {
       if (response.tipo = "admin") {
         setNombreUsuario("Administrador")
       }
-      console.log("Info usuario", response)
-    } catch (error) {
-      console.error('Error al obtener los KPIs:', error);
-    } finally {
       setLoading(false)
-    }
+    } catch (error) {
+      console.error('Error al obtener el usuario:', error);
+      toast.error("Error al obtener el usuario")
+      setLoading(false)
+    } 
   }
 
   useEffect(() => {
@@ -61,10 +61,15 @@ const AdminInicio = () => {
     getKPIs();
   }, []);
 
+  // mapeo de datos para el gráfico
   const chartData = history.map(item => ({
     mes: item.mes,
     totalPagado: item.totalPagado
   }));
+
+  // helper para formatear números como $12.345
+  const currencyFormatter = (value) =>
+    `$${value.toLocaleString('es-AR')}`;
 
   return (
     <div className='page-layout'>
@@ -77,24 +82,47 @@ const AdminInicio = () => {
         <div className='cards-container'>
           <div className='card'>
             <div className='card-text-ctn'>
-              <UsuariosIcon width={20} height={20} fill='none' style={{ color: "#bfbfbf" }}/>
+              <UsuariosIcon
+                width={20}
+                height={20}
+                fill='none'
+                style={{ color: "#bfbfbf" }}
+              />
               <h3>Clientes activos</h3>
             </div>
             <p className='value'>{kpi.totalActiveUsers}</p>
           </div>
+
           <div className='card'>
             <div className="card-text-ctn">
-              <IngresosIcon width={20} height={20} fill='none' style={{ color: "#bfbfbf" }}/>
+              <IngresosIcon
+                width={20}
+                height={20}
+                fill='none'
+                style={{ color: "#bfbfbf" }}
+              />
               <h3>Pagos realizados</h3>
             </div>
-            <p className='value'>{kpi.quotasPaidThisMonth}</p>
+            {/* formateo de moneda en cards */}
+            <p className='value'>
+              {kpi.quotasPaidThisMonth}
+            </p>
           </div>
+
           <div className='card'>
             <div className="card-text-ctn">
-              <IngresosPendientesIcon width={20} height={20} fill='none' style={{ color: "#bfbfbf" }}/>
+              <IngresosPendientesIcon
+                width={20}
+                height={20}
+                fill='none'
+                style={{ color: "#bfbfbf" }}
+              />
               <h3>Pagos pendientes</h3>
             </div>
-            <p className='value'>{kpi.quotasPendingThisMonth}</p>
+            {/* formateo de moneda en cards */}
+            <p className='value'>
+              {kpi.quotasPendingThisMonth}
+            </p>
           </div>
         </div>
 
@@ -102,15 +130,36 @@ const AdminInicio = () => {
           <h3>Ingresos Mensuales</h3>
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+              >
                 <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#e63946" stopOpacity={0.8} />
-                    <stop offset="100%" stopColor="#e63946" stopOpacity={0.2} />
+                  <linearGradient
+                    id="barGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor="#e63946"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="#e63946"
+                      stopOpacity={0.2}
+                    />
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid vertical={false} stroke="#444" strokeDasharray="3 3" />
+                <CartesianGrid
+                  vertical={false}
+                  stroke="#444"
+                  strokeDasharray="3 3"
+                />
 
                 <XAxis
                   dataKey="mes"
@@ -118,31 +167,39 @@ const AdminInicio = () => {
                   tickLine={false}
                   tick={{ fill: "#aaa", fontSize: 12 }}
                 />
+
+                {/* 1) Formateo de las etiquetas del eje Y */}
                 <YAxis
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "#aaa", fontSize: 12 }}
+                  tickFormatter={currencyFormatter}
                 />
 
+                {/* 2) Formateo del valor que se muestra en el tooltip */}
                 <Tooltip
-                  // 1) Fondo aún más oscuro
                   cursor={{ fill: "rgba(0, 0, 0, 0.7)" }}
-
-                  // 2) Estilos del contenedor de tooltip
                   contentStyle={{
                     backgroundColor: "#000",   // negro puro
                     border: "none",
                     borderRadius: "8px",       // tooltip redondeado
                     boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
                   }}
-                  // 3) Texto en blanco
-                  labelStyle={{ color: "#fff", fontSize: 12, fontWeight: "bold" }}
+                  labelStyle={{
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: "bold"
+                  }}
                   itemStyle={{ color: "#fff", fontSize: 12 }}
+                  formatter={(value, name) => [
+                    currencyFormatter(value),
+                    name
+                  ]}
                 />
 
                 <Bar
                   dataKey="totalPagado"
-                  name="Ingresos"               // 4) aquí defines el texto que saldrá en el tooltip
+                  name="Ingresos"               // así sale el título en el tooltip
                   fill="url(#barGradient)"
                   radius={[6, 6, 0, 0]}
                   barSize={75}

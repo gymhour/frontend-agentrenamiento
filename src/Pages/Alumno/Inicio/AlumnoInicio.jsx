@@ -4,7 +4,7 @@ import './alumnoInicio.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 import TurnosCard from '../../../Components/TurnosCard/TurnosCard';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import apiService from '../../../services/apiService';
