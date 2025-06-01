@@ -8,12 +8,15 @@ import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/Confi
 import { toast } from "react-toastify";
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 import apiClient from '../../../axiosConfig';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const ClasesActividadesAdminDetalle = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [claseDetalle, setClaseDetalle] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchClaseDetalle = async () => {
@@ -28,11 +31,14 @@ const ClasesActividadesAdminDetalle = () => {
   }, [id]);
 
   const deleteClase = async () => {
+    setLoading(true);
     try {
       await apiClient.delete(`/clase/horario/${id}`);
       toast.success("Clase eliminada correctamente.");
       navigate("/admin/clases-actividades");
+      setLoading(false);
     } catch (error) {
+      setLoading(false)
       toast.error("Hubo un error al eliminar la clase.");
       console.error('Error al eliminar la clase - ClasesActividadesAdminDetalle.jsx', error);
     }
@@ -58,6 +64,7 @@ const ClasesActividadesAdminDetalle = () => {
 
   return (
     <div className='page-layout'>
+      {loading && <LoaderFullScreen/>}
       <SidebarMenu isAdmin={true} />
       <div className='content-layout'>
         <div className="clases-actividades-detalle-ctn">
@@ -77,11 +84,10 @@ const ClasesActividadesAdminDetalle = () => {
             <div
               className="clases-actividades-detalle-title-img"
               style={{
-                backgroundImage: `url(${
-                  claseDetalle.imagenClase != null
-                    ? claseDetalle.imagenClase
-                    : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'
-                })`
+                backgroundImage: `url(${claseDetalle.imagenClase != null
+                  ? claseDetalle.imagenClase
+                  : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'
+                  })`
               }}
             >
               <h2>{claseDetalle.nombre}</h2>
@@ -124,9 +130,15 @@ const ClasesActividadesAdminDetalle = () => {
             <div className="clases-actividades-item clases-actividades-detalle-info-instructores">
               <h2>Instructores</h2>
               {claseDetalle.Entrenadores && claseDetalle.Entrenadores.length > 0 ? (
-                <ul>
+                <ul className='listado-entrenadores'>
                   {claseDetalle.Entrenadores.map(ent => (
                     <li key={ent.ID_Usuario}>
+                      <div className="usuarios-table-userimage" style={{
+                        backgroundImage: `url(${ent.imagenUsuario ? ent.imagenUsuario : defaultAvatar})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat'
+                      }}></div>
                       {ent.nombre} {ent.apellido} {ent.profesion && `– ${ent.profesion}`}
                     </li>
                   ))}

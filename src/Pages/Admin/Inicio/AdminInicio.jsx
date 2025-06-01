@@ -23,7 +23,9 @@ const AdminInicio = () => {
   const [kpi, setKpi] = useState({
     totalActiveUsers: 0,
     quotasPaidThisMonth: 0,
-    quotasPendingThisMonth: 0
+    quotasPendingThisMonth: 0,
+    totalAmountPaidThisMonth: 0,
+    totalAmountPendingThisMonth: 0,
   });
   const [history, setHistory] = useState([]); 
   const [nombreUsuario, setNombreUsuario] = useState("");
@@ -101,11 +103,12 @@ const AdminInicio = () => {
                 fill='none'
                 style={{ color: "#bfbfbf" }}
               />
-              <h3>Pagos realizados</h3>
+              <h3>Cobros recibidos</h3>
             </div>
             {/* formateo de moneda en cards */}
             <p className='value'>
-              {kpi.quotasPaidThisMonth}
+              {currencyFormatter(kpi.totalAmountPaidThisMonth)}
+              <span style={{fontWeight: 400, fontSize: '16px'}}> ({kpi.quotasPaidThisMonth}) </span>
             </p>
           </div>
 
@@ -117,11 +120,12 @@ const AdminInicio = () => {
                 fill='none'
                 style={{ color: "#bfbfbf" }}
               />
-              <h3>Pagos pendientes</h3>
+              <h3>Cobros pendientes</h3>
             </div>
             {/* formateo de moneda en cards */}
             <p className='value'>
-              {kpi.quotasPendingThisMonth}
+              {currencyFormatter(kpi.totalAmountPendingThisMonth)}
+              <span style={{fontWeight: 400, fontSize: '16px'}}> ({kpi.quotasPendingThisMonth}) </span>
             </p>
           </div>
         </div>

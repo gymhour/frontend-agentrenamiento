@@ -86,7 +86,7 @@ const ClasesActividadesDetalle = () => {
                                     {claseDetalle.Entrenadores.map(ent => (
                                         <li key={ent.ID_Usuario}>
                                              <div className="usuarios-table-userimage" style={{
-                                                    backgroundImage: `url(${`https://res.cloudinary.com/dnzotdsbf/image/upload/v1/${ent.imagenUsuario}`|| defaultAvatar})`,
+                                                    backgroundImage: `url(${ent.imagenUsuario ? ent.imagenUsuario : defaultAvatar})`,
                                                     backgroundSize: 'cover',
                                                     backgroundPosition: 'center',
                                                     backgroundRepeat: 'no-repeat'

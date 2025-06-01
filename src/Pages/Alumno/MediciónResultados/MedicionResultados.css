@@ -5,11 +5,6 @@
     padding-bottom: 20px;
 }
 
-/* ------------------------ */
-/*     MedicionResultados.css     */
-/* ------------------------ */
-
-/* Estructura principal de la página */
 .page-layout {
     display: flex;
     min-height: 100vh;
@@ -126,4 +121,5 @@
     border: none;
     outline: none;
     cursor: pointer;
+    z-index: 1000;
   }

@@ -4,23 +4,28 @@ import '../../../App.css';
 import './MedicionResultados.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-import apiClient from '../../../axiosConfig';
 import apiService from '../../../services/apiService';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
+import { toast } from 'react-toastify';
 
 const MedicionResultados = () => {
   const [ejercicios, setEjercicios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Para el popup de confirmación
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedEjercicioId, setSelectedEjercicioId] = useState(null);
+
   // Fetch de los ejercicios
   useEffect(() => {
     const fetchEjercicios = async () => {
       try {
         const usuarioId = localStorage.getItem("usuarioId");
-        const response = await apiService.getEjerciciosResultadosUsuario(usuarioId);
-        setEjercicios(response);
+        const data = await apiService.getEjerciciosResultadosUsuario(usuarioId);
+        setEjercicios(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -34,17 +39,45 @@ const MedicionResultados = () => {
   // Función para obtener el máximo de cada ejercicio desde su historial
   const getMaxCantidad = (historico) => {
     if (!historico || historico.length === 0) return 0;
-    return historico.reduce((max, item) => (item.Cantidad > max ? item.Cantidad : max), 0);
+    return historico.reduce(
+      (max, item) => (item.Cantidad > max ? item.Cantidad : max),
+      0
+    );
   };
 
-  const handleDeleteEjercicio = (idEjercicio) => {
+  // Abre el popup y almacena el ID del ejercicio a eliminar
+  const handlePopupOpen = (id) => {
+    setSelectedEjercicioId(id);
+    setIsPopupOpen(true);
+  };
+
+  // Confirma el borrado
+  const handlePopupConfirm = async () => {
+    setIsPopupOpen(false);
+    if (!selectedEjercicioId) return;
+
+    setLoading(true);
     try {
-      const response = apiService.deleteEjercicio(idEjercicio)
-      console.log(response);
-    } catch (error) {
-      console.log("Error al eliminar ejercicio", error)
+      await apiService.deleteEjercicio(selectedEjercicioId);
+      // Filtramos la lista en el estado para remover el ejercicio borrado
+      setEjercicios((prev) =>
+        prev.filter((e) => e.ID_EjercicioMedicion !== selectedEjercicioId)
+      );
+      toast.success("Ejercicio eliminado correctamente.");
+    } catch (err) {
+      toast.error("No se pudo eliminar el ejercicio. Inténtalo nuevamente.");
+      console.error("Error al eliminar ejercicio:", err);
+    } finally {
+      setLoading(false);
+      setSelectedEjercicioId(null);
     }
-  }
+  };
+
+  // Cierra el popup sin borrar nada
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+    setSelectedEjercicioId(null);
+  };
 
   if (error) {
     return (
@@ -59,19 +92,21 @@ const MedicionResultados = () => {
 
   return (
     <div className="page-layout">
-      {loading && <LoaderFullScreen/> }
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className="content-layout">
         <div className="medicion-resultados-title">
-          <h2>Medición de resultados</h2>
+          <h2>Medición de ejercicios</h2>
           <p>Lleva registro de tu progreso en el gimnasio. 💪🏻</p>
         </div>
 
         <div className="med-resultados-ejercicios-section">
           <div className="med-resultados-ejercicios-header">
             <h2>Ejercicios</h2>
-            {/* Botón o link para agregar nuevo */}
-            <PrimaryButton text="Agregar ejercicio" linkTo={"/alumno/medicion-resultados/nueva-medicion"} />
+            <PrimaryButton
+              text="Agregar ejercicio"
+              linkTo={"/alumno/medicion-resultados/nueva-medicion"}
+            />
           </div>
 
           <div className="med-resultados-ejercicios-list">
@@ -91,15 +126,25 @@ const MedicionResultados = () => {
                     <div className="med-resultados-card-content">
                       <div className="med-resultados-card-header">
                         <h3>
-                          {maxCantidad}{' '}
-                          {ejercicio.tipoMedicion === 'Cantidad' ? 'Reps' : 'kg'}
+                          {maxCantidad}{" "}
+                          {ejercicio.tipoMedicion === "Cantidad" ? "rps" : "kg"}
                         </h3>
                         <span>{ejercicio.tipoMedicion}</span>
                       </div>
                       <div className="med-resultados-card-body">
                         <p>{ejercicio.nombre}</p>
                       </div>
-                      <button className='borrar-ejercicio-btn' onClick={() => handleDeleteEjercicio(ejercicio.ID_EjercicioMedicion)} >  <DeleteIcon width={20}/> </button>
+                      {/* Botón de borrar: detiene la propagación y abre el popup */}
+                      <button
+                        className="borrar-ejercicio-btn"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePopupOpen(ejercicio.ID_EjercicioMedicion);
+                        }}
+                      >
+                        <DeleteIcon width={20} />
+                      </button>
                     </div>
                   </Link>
                 );
@@ -108,6 +153,14 @@ const MedicionResultados = () => {
           </div>
         </div>
       </div>
+
+      {/* ConfirmationPopup al final del return */}
+      <ConfirmationPopup
+        isOpen={isPopupOpen}
+        onClose={handlePopupClose}
+        onConfirm={handlePopupConfirm}
+        message="¿Estás seguro de que deseas eliminar este ejercicio?"
+      />
     </div>
   );
 };

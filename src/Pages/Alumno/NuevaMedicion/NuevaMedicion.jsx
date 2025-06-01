@@ -8,6 +8,7 @@ import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const NuevaMedicion = () => {
   const [nombre, setNombre] = useState('');
@@ -16,60 +17,74 @@ const NuevaMedicion = () => {
   const [fecha, setFecha] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+  
     // Validar campos vacíos
     if (!nombre || !tipoMedicion || !cantidad || !fecha) {
-      setError('Por favor completa todos los campos.');
-      toast.error(error)
+      toast.error('Por favor completa todos los campos.');
+      setLoading(false);
       return;
     }
-
+  
     try {
-      let body = {
-        ID_Usuario: localStorage.getItem("usuarioId"),
+      const bodyEjercicio = {
+        ID_Usuario: localStorage.getItem('usuarioId'),
         nombre: nombre,
-        tipoMedicion: tipoMedicion
-      }
+        tipoMedicion: tipoMedicion,
+      };
+  
       // 1. Crear el nuevo ejercicio
-      const responseEjercicio = await apiService.postEjercicio(body);
-
-      if (!responseEjercicio) {
-        toast.error("Error al crear el ejercicio. Por favor, intente nuevamente.")
-      } else {
-        toast.success("Se agregó el ejercicio correctamente.")
+      const responseEjercicio = await apiService.postEjercicio(bodyEjercicio);
+      // Supongamos que apiService usa axios y hace algo como axios.post('/ejercicios', data)
+  
+      if (responseEjercicio.status !== 201) {
+        throw new Error('Error al crear el ejercicio. Por favor, intente nuevamente.');
       }
-
-      // Obtenemos la respuesta del ejercicio recién creado
-      const nuevoEjercicio = await responseEjercicio.json();
-
-      // 2. Crear el histórico inicial con la cantidad y fecha
-      const responseHistorico = await apiClient('/historicoEjercicio', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ID_EjercicioMedicion: nuevoEjercicio.ID_EjercicioMedicion,
-          Cantidad: parseFloat(cantidad),
-          Fecha: fecha
-        })
-      });
-
-      // if (!responseHistorico.ok) {
-      //   throw new Error('Error al registrar el histórico');
-      // }
-
-      // Si todo fue exitoso, redireccionamos a la lista principal de mediciones
+  
+      // Obtenemos el objeto creado
+      const nuevoEjercicio = responseEjercicio.data;
+      const { ID_EjercicioMedicion } = nuevoEjercicio;
+  
+      // 2. Crear el histórico inicial con la cantidad y fecha — usando Axios correctamente
+      const historicoPayload = {
+        ID_EjercicioMedicion: ID_EjercicioMedicion,
+        Cantidad: parseFloat(cantidad),
+        Fecha: fecha,
+      };
+  
+      const responseHistorico = await apiClient.post(
+        '/historicoEjercicio',
+        historicoPayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (responseHistorico.status !== 201 && responseHistorico.status !== 200) {
+        // Ajusta según tu API (puede devolver 200 o 201)
+        throw new Error('Error al registrar el histórico');
+      }
+  
+      // Mostrar mensaje de éxito y redireccionar
+      toast.success('Se agregó el ejercicio correctamente.');
       navigate('/alumno/medicion-resultados');
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
+      console.log(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="page-layout">
+      {loading && <LoaderFullScreen/>}
       <SidebarMenu isAdmin={false} />
       <div className="content-layout nueva-medicion-container">
         <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true}/>
@@ -83,8 +98,13 @@ const NuevaMedicion = () => {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
+            {/* <CustomInput
+              placeholder="ej. Press Banca"
+              width="350px"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            /> */}
           </div>
-
           <div className="form-group">
             <label>Medida (1RM, 3RM, Repeticiones, etc.)</label>
             <input

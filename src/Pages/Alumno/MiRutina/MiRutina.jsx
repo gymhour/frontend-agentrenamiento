@@ -113,13 +113,13 @@ const MiRutina = () => {
                             <p>
                               {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
                             </p>
-                            <ul style={{ paddingLeft: '20px' }}>
+                            {/* <ul style={{ paddingLeft: '20px' }}> */}
                             {bloque.ejercicios.map((ej) => (
-                              <li key={ej.ID_Ejercicio}>
+                              <p key={ej.ID_Ejercicio}>
                                 {`${ej.reps} ${ej.setRepWeight}`}
-                              </li>
+                              </p>
                             ))}
-                          </ul>
+                          {/* </ul> */}
                           </div>
                         )}
 

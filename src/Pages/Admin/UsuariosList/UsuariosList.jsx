@@ -89,7 +89,7 @@ const UsuariosList = () => {
                                 </thead>
                                 <tbody>
                                     {usuarios.map((usuario) => (
-                                        <tr key={usuario.ID_Usuario}>
+                                        <tr key={usuario.ID_Usuario} >
                                             <td>{usuario.ID_Usuario}</td>
                                             <td style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
                                                 <div className="usuarios-table-userimage" style={{
@@ -99,17 +99,20 @@ const UsuariosList = () => {
                                                     backgroundRepeat: 'no-repeat'
                                                 }}></div>
                                                 {usuario.email}</td>
-                                            <td>{usuario.tipo || 'N/A'}</td>
+                                            <td style={{textTransform: 'capitalize'}}>{usuario.tipo || 'N/A'}</td>
                                             <td>{new Date(usuario.fechaRegistro).toLocaleDateString()}</td>
-                                            <td style={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                                            <td style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '20px' }}>
                                                 <PrimaryButton
                                                     text="Editar usuario"
                                                     linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
                                                 />
-                                                <SecondaryButton
-                                                    text="Eliminar usuario"
-                                                    onClick={() => handleDeleteClick(usuario.ID_Usuario)}
-                                                />
+                                                {
+                                                    usuario.tipo !== "admin" && 
+                                                        <SecondaryButton
+                                                            text="Eliminar usuario"
+                                                            onClick={() => handleDeleteClick(usuario.ID_Usuario)}
+                                                        />
+                                                }
                                             </td>
                                         </tr>
                                     ))}

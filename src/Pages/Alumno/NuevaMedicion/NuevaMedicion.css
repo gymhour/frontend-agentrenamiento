@@ -1,74 +1,81 @@
-/* ------------------------ */
-/*     NuevaMedicion.css    */
-/* ------------------------ */
+@import url(../../../variables.css);
 
 /* Contenedor principal */
 .nueva-medicion-container {
-    color: #fff;
-  }
-  
-  /* Título de la sección */
-  .nueva-medicion-container h2 {
-    font-size: 1.8rem;
-    margin-top: 10px;
-    margin-bottom: 2rem;
-    color: #ffffff;
-  }
-  
-  /* Mensaje de error */
-  .error-message {
-    color: #ff6b6b;
-    margin-bottom: 1rem;
-  }
-  
-  /* Formulario */
-  .nueva-medicion-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-width: 400px; /* Ajusta el ancho si lo deseas */
-  }
-  
-  /* Grupo de campo (label + input) */
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .form-group label {
-    font-size: 0.95rem;
-    margin-bottom: 0.5rem;
-    color: #cccccc;
-  }
-  
-  .form-group input {
-    background-color: #1f1f1f;
-    border: 1px solid #333;
-    border-radius: 4px;
-    padding: 0.6rem;
-    color: #fff;
-    font-size: 0.95rem;
-  }
-  
-  .form-group input::placeholder {
-    color: #777;
-  }
-  
-  /* Botón Agregar */
-  .btn-agregar {
-    background-color: #333;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 0.7rem 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-    align-self: flex-start;
-  }
-  
-  .btn-agregar:hover {
-    background-color: #444;
-    transform: scale(1.02);
-  }
-  
+  color: #fff;
+}
+
+/* Título de la sección */
+.nueva-medicion-container h2 {
+  font-size: 1.8rem;
+  margin-top: 10px;
+  margin-bottom: 2rem;
+  color: #ffffff;
+}
+
+/* Mensaje de error */
+.error-message {
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+}
+
+/* Formulario */
+.nueva-medicion-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  /* Ajusta el ancho si lo deseas */
+}
+
+/* Grupo de campo (label + input) */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: #cccccc;
+}
+
+.form-group input {
+  background-color: #252525;
+  border-radius: 12px;
+  padding: 16px 12px 16px 12px;
+  border: 1.5px solid #252525;
+  outline: none;
+  color: #FAFAFA;
+  font-size: 16px;
+  transition: all ease-in-out 150ms;
+}
+
+.form-group input::placeholder {
+  color: #777;
+}
+
+.form-group input:focus {
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Botón Agregar */
+.btn-agregar {
+  padding: 10px;
+  background-color: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: #FAFAFA;
+  text-decoration: none;
+  width: fit-content;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+.btn-agregar:hover {
+  background-color: #ea5642;
+  transform: scale(1.02);
+}

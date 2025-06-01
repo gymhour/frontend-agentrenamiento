@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import '../../../App.css';
 import './MedicionResultadosDetalle.css';
-import { Link } from 'react-router-dom';
 import {
   BarChart,
   Bar,
@@ -17,6 +16,7 @@ import apiClient from '../../../axiosConfig';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
 import apiService from '../../../services/apiService';
+import { toast } from 'react-toastify';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams(); // ID del ejercicio en la ruta
@@ -118,6 +118,7 @@ const MedicionResultadosDetalle = () => {
       // Limpiamos campos del formulario
       setNuevaCantidad('');
       setNuevaFecha('');
+      toast.success("Medición cargada correctamente.")
     } catch (err) {
       setError(err.message);
     }

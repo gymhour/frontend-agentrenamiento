@@ -264,7 +264,7 @@ const SidebarMenu = ({ isAdmin }) => {
                 >
                   <li className="menu-item">
                     <MedicionResultadosIcon className="icon" /> Medición
-                    de resultados
+                    de ejercicios
                   </li>
                 </Link>
                 <Link

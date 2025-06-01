@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import '../../../App.css';
-import './clasesActividadesForm.css';
-import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
+import "../../../App.css";
+import "./clasesActividadesForm.css";
+import SidebarMenu from "../../../Components/SidebarMenu/SidebarMenu";
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton";
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
-import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
-import { ReactComponent as CloseIcon } from '../../../assets/icons/close.svg';
+import { ReactComponent as ArrowLeftIcon } from "../../../assets/icons/arrow-left.svg";
+import { ReactComponent as AddIconCircle } from "../../../assets/icons/add-circle.svg";
+import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
 import { useParams } from "react-router-dom";
 import apiClient from "../../../axiosConfig";
 import apiService from "../../../services/apiService";
@@ -13,7 +13,16 @@ import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropd
 import { toast } from "react-toastify";
 import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
 
-const ClasesActividadesForm = ({ isEditing, classId }) => {
+const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
+  // ——————————————————————————————————————————
+  // 1. Si te llega `classId` desde el padre, úsalo. Si no, cae en useParams().id.
+  // ——————————————————————————————————————————
+  const { id: classIdParam } = useParams();
+  const classId = isEditing ? classIdProp ?? classIdParam : null;
+  // Nota: si llamas a este componente desde una ruta con `/:id`, usa `classIdProp = undefined`
+  // y el parámetro vendrá por useParams().id. Si en cambio pasas <ClasesActividadesForm isEditing={true} classId={42} />,
+  // entonces usará ese 42.
+
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [image, setImage] = useState(null);
@@ -24,26 +33,28 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
   const [entrenadores, setEntrenadores] = useState([]);
   const [selectedEntrenadores, setSelectedEntrenadores] = useState([]);
   const [dropdownValue, setDropdownValue] = useState("");
-  const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Genera los time slots de 30 en 30 minutos
+  // Genera los time slots de 30 en 30 minutos (formato "HH:mm")
   const generateTimeSlots = () => {
     const slots = [];
     for (let time = 0; time < 24 * 60; time += 30) {
-      const hours = String(Math.floor(time / 60)).padStart(2, '0');
-      const minutes = String(time % 60).padStart(2, '0');
+      const hours = String(Math.floor(time / 60)).padStart(2, "0");
+      const minutes = String(time % 60).padStart(2, "0");
       slots.push(`${hours}:${minutes}`);
     }
     return slots;
   };
   const timeSlots = generateTimeSlots();
 
-  // 1. Carga entrenadores al montar
+  // ——————————————————————————————————————————
+  // 2. Cargar todos los entrenadores en el dropdown
+  // ——————————————————————————————————————————
   useEffect(() => {
     const fetchEntrenadores = async () => {
       try {
         const resp = await apiService.getEntrenadores();
+        // Dependiendo de cómo venga la respuesta, resp.data o resp
         setEntrenadores(resp.data ?? resp);
       } catch (error) {
         console.error("Error al obtener los entrenadores", error);
@@ -52,14 +63,16 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
     fetchEntrenadores();
   }, []);
 
-  // 2. Si estamos editando, carga los datos de la clase
+  // ——————————————————————————————————————————
+  // 3. Si estamos editando, cargar los datos de la clase
+  // ——————————————————————————————————————————
   useEffect(() => {
-    if (!isEditing) return;
+    if (!isEditing || !classId) return;
 
     const fetchClaseDetalle = async () => {
       setIsLoading(true);
       try {
-        const { data } = await apiClient.get(`/clase/horario/${id}`);
+        const { data } = await apiClient.get(`/clase/horario/${classId}`);
         const {
           nombre: nombreAPI,
           descripcion: descripcionAPI,
@@ -71,49 +84,64 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
         setNombre(nombreAPI);
         setDescripcion(descripcionAPI);
 
-        // Formatea los horarios al shape de tu formulario
-        const formatted = HorariosClase.map(h => ({
+        // ——————————————————————————————————————————
+        // 3.1 Formatear horarios exactamente al formato "HH:mm" que usamos en los <select>
+        //     No usamos `new Date(...).toISOString()` porque puede desfasar por la zona horaria.
+        //     Basta con extraer la subcadena de la ISO original.
+        // ——————————————————————————————————————————
+        const formatted = HorariosClase.map((h) => ({
           diaSemana: h.diaSemana,
-          horaIni: new Date(h.horaIni).toISOString().substr(11,5),
-          horaFin: new Date(h.horaFin).toISOString().substr(11,5),
+          // La hora viene como "2024-01-03T06:00:00.000Z".
+          // Extraemos directamente substring(11,5) de h.horaIni:
+          horaIni: h.horaIni.substr(11, 5),
+          horaFin: h.horaFin.substr(11, 5),
           cupos: h.cupos,
           idHorarioClase: h.ID_HorarioClase
         }));
-        setHorarios(formatted.length > 0 ? formatted : [{
-          diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null
-        }]);
+        setHorarios(
+          formatted.length > 0
+            ? formatted
+            : [{ diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null }]
+        );
 
         // Preview de la imagen existente
         setImagePreview(imagenClase);
         setImage(null);
 
-        // Si quieres preseleccionar entrenadores:
+        // ——————————————————————————————————————————
+        // 3.2 Preseleccionar los entrenadores que ya están asignados a esta clase
+        //     Suponemos que `entrenadoresIniciales` viene como arreglo de objetos { ID_Usuario, nombre, … }.
+        // ——————————————————————————————————————————
         setSelectedEntrenadores(entrenadoresIniciales ?? []);
       } catch (error) {
         console.error("Error al obtener los detalles de la clase:", error);
-        toast.error("Error al obtener información de la clase. Intente nuevamente.");
+        toast.error("Error al obtener información de la clase. Intenta nuevamente.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchClaseDetalle();
-  }, [isEditing, id]);
+  }, [isEditing, classId]);
 
-  // Handler para seleccionar un entrenador
+  // ——————————————————————————————————————————
+  // 4. Funciones para manejar selección o remo del entrenador
+  // ——————————————————————————————————————————
   const handleSelectEntrenador = (nombre) => {
-    const ent = entrenadores.find(e => e.nombre === nombre);
+    const ent = entrenadores.find((e) => e.nombre === nombre);
     if (!ent) return;
-    if (!selectedEntrenadores.some(s => s.ID_Usuario === ent.ID_Usuario)) {
-      setSelectedEntrenadores(prev => [...prev, ent]);
+    if (!selectedEntrenadores.some((s) => s.ID_Usuario === ent.ID_Usuario)) {
+      setSelectedEntrenadores((prev) => [...prev, ent]);
     }
   };
 
   const handleRemoveEntrenador = (ID_Usuario) => {
-    setSelectedEntrenadores(prev => prev.filter(e => e.ID_Usuario !== ID_Usuario));
+    setSelectedEntrenadores((prev) => prev.filter((e) => e.ID_Usuario !== ID_Usuario));
   };
 
-  // Cuando cambio el input file
+  // ——————————————————————————————————————————
+  // 5. Cuando cambias el input file
+  // ——————————————————————————————————————————
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -122,36 +150,43 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
     }
   };
 
+  // ——————————————————————————————————————————
+  // 6. Agregar o quitar filas de horarios
+  // ——————————————————————————————————————————
   const handleAddHorario = () => {
-    setHorarios(prev => [
+    setHorarios((prev) => [
       ...prev,
       { diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null }
     ]);
   };
 
   const handleRemoveHorario = (index) => {
-    setHorarios(prev => prev.filter((_, i) => i !== index));
+    setHorarios((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleHorarioChange = (e, index) => {
     const { name, value } = e.target;
-    setHorarios(prev => {
+    setHorarios((prev) => {
       const arr = [...prev];
       arr[index] = { ...arr[index], [name]: value };
       return arr;
     });
   };
 
-  // Submit (no modificamos formData de la imagen por tu petición)
+  // ——————————————————————————————————————————
+  // 7. Al enviar el formulario (crear o editar)
+  // ——————————————————————————————————————————
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const transformedHorarios = horarios.map(h => ({
+    // 7.1 Convertimos cada horario a ISO concatenando la fecha fija + valor "HH:mm"
+    //      (Tu backend espera algo como "2024-01-03T06:00:00Z").
+    const transformedHorarios = horarios.map((h) => ({
       ...h,
       horaIni: `2024-01-03T${h.horaIni}:00Z`,
       horaFin: `2024-01-03T${h.horaFin}:00Z`,
-      cupos: Number(h.cupos),
+      cupos: Number(h.cupos)
     }));
 
     const formData = new FormData();
@@ -160,11 +195,12 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
     if (image) formData.append("image", image);
     formData.append("horarios", JSON.stringify(transformedHorarios));
 
-    const entrenadorIds = selectedEntrenadores.map(e => e.ID_Usuario);
+    const entrenadorIds = selectedEntrenadores.map((e) => e.ID_Usuario);
     formData.append("entrenadores", JSON.stringify(entrenadorIds));
 
     if (isEditing) {
-      apiClient.put(`/clase/horario/${id}`, formData, {
+      apiClient
+        .put(`/clase/horario/${classId}`, formData, {
           headers: { "Content-Type": "multipart/form-data" }
         })
         .then(() => {
@@ -175,13 +211,15 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
         })
         .finally(() => setIsLoading(false));
     } else {
-      apiClient.post("/clase/horario", formData, {
+      apiClient
+        .post("/clase/horario", formData, {
           headers: { "Content-Type": "multipart/form-data" }
         })
-        .then(response => {
-          const idClase = response.data.clase.ID_Clase;
+        .then((response) => {
+          const idNuevaClase = response.data.clase.ID_Clase;
+          // Asignamos entrenadores uno a uno
           return Promise.all(
-            entrenadorIds.map(idEntr => apiService.addEntrenadorToClase(idClase, idEntr))
+            entrenadorIds.map((idEntr) => apiService.addEntrenadorToClase(idNuevaClase, idEntr))
           );
         })
         .then(() => {
@@ -202,13 +240,14 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
     setImagePreview("");
     setHorarios([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null }]);
     setSelectedEntrenadores([]);
+    setDropdownValue("");
   };
 
   return (
-    <div className='page-layout'>
+    <div className="page-layout">
       {isLoading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={true} />
-      <div className='content-layout'>
+      <div className="content-layout">
         <div className="clases-actividades-form-ctn">
           <div className="clases-actividades-form-title">
             <SecondaryButton
@@ -217,7 +256,7 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
               icon={ArrowLeftIcon}
               reversed={true}
             />
-            <h2>{isEditing ? 'Editar clase o actividad' : 'Crear nueva clase o actividad'}</h2>
+            <h2>{isEditing ? "Editar clase o actividad" : "Crear nueva clase o actividad"}</h2>
           </div>
           <div className="create-clase-form">
             <form encType="multipart/form-data" onSubmit={handleSubmit}>
@@ -228,7 +267,7 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                   type="text"
                   id="nombre"
                   value={nombre}
-                  onChange={e => setNombre(e.target.value)}
+                  onChange={(e) => setNombre(e.target.value)}
                   required
                 />
               </div>
@@ -239,7 +278,7 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                 <textarea
                   id="descripcion"
                   value={descripcion}
-                  onChange={e => setDescripcion(e.target.value)}
+                  onChange={(e) => setDescripcion(e.target.value)}
                   required
                 />
               </div>
@@ -247,14 +286,15 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
               {/* Imagen */}
               <div className="form-input-ctn">
                 <label htmlFor="imagen">Imagen:</label>
-                <input
-                  type="file"
-                  id="imagen"
-                  onChange={handleImageChange}
-                />
+                <input type="file" id="imagen" onChange={handleImageChange} />
                 {imagePreview && (
                   <div className="preview-container">
-                    <img src={imagePreview} alt="Preview clase" className="preview-img" width={300} />
+                    <img
+                      src={imagePreview}
+                      alt="Preview clase"
+                      className="preview-img"
+                      width={300}
+                    />
                   </div>
                 )}
               </div>
@@ -265,16 +305,16 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                 <CustomDropdown
                   id="entrenadores"
                   name="entrenadores"
-                  options={entrenadores.filter(e => e.nombre).map(e => e.nombre)}
+                  options={entrenadores.map((e) => e.nombre)}
                   placeholderOption="Seleccionar entrenador"
                   value={dropdownValue}
-                  onChange={e => {
+                  onChange={(e) => {
                     handleSelectEntrenador(e.target.value);
                     setDropdownValue("");
                   }}
                 />
                 <div className="selected-tags">
-                  {selectedEntrenadores.map(ent => (
+                  {selectedEntrenadores.map((ent) => (
                     <div key={ent.ID_Usuario} className="tag">
                       <span>{ent.nombre}</span>
                       <CloseIcon
@@ -292,13 +332,16 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
               <div className="form-input-horarios">
                 <label>Horarios:</label>
                 {horarios.map((horario, idx) => (
-                  <div key={horario.idHorarioClase ?? idx} className="horario-item">
+                  <div
+                    key={horario.idHorarioClase ?? idx}
+                    className="horario-item"
+                  >
                     <div className="form-input-ctn-horario">
                       <label>Dia de la semana</label>
                       <select
                         name="diaSemana"
                         value={horario.diaSemana}
-                        onChange={e => handleHorarioChange(e, idx)}
+                        onChange={(e) => handleHorarioChange(e, idx)}
                         required
                       >
                         <option value="">Seleccionar día</option>
@@ -316,12 +359,14 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                       <select
                         name="horaIni"
                         value={horario.horaIni}
-                        onChange={e => handleHorarioChange(e, idx)}
+                        onChange={(e) => handleHorarioChange(e, idx)}
                         required
                       >
                         <option value="">Seleccionar horario</option>
-                        {timeSlots.map(time => (
-                          <option key={time} value={time}>{time}</option>
+                        {timeSlots.map((time) => (
+                          <option key={time} value={time}>
+                            {time}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -330,12 +375,14 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                       <select
                         name="horaFin"
                         value={horario.horaFin}
-                        onChange={e => handleHorarioChange(e, idx)}
+                        onChange={(e) => handleHorarioChange(e, idx)}
                         required
                       >
                         <option value="">Seleccionar horario</option>
-                        {timeSlots.map(time => (
-                          <option key={time} value={time}>{time}</option>
+                        {timeSlots.map((time) => (
+                          <option key={time} value={time}>
+                            {time}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -347,7 +394,7 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
                         name="cupos"
                         placeholder="Cupos"
                         value={horario.cupos}
-                        onChange={e => handleHorarioChange(e, idx)}
+                        onChange={(e) => handleHorarioChange(e, idx)}
                         required
                       />
                     </div>
@@ -365,7 +412,11 @@ const ClasesActividadesForm = ({ isEditing, classId }) => {
               </div>
 
               {/* Submit */}
-              <button type="submit" className="submit-btn" disabled={isLoading}>
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isLoading}
+              >
                 {isEditing ? "Guardar cambios" : "Crear Clase"}
               </button>
             </form>
