@@ -293,6 +293,19 @@ const SidebarMenu = ({ isAdmin }) => {
                     recomendadas
                   </li>
                 </Link>
+                <Link
+                  to="/alumno/cuotas"
+                  className={`menu-link ${
+                    location.pathname ===
+                    "/alumno/cuotas"
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <IngresosIcon className="icon" /> Cuotas
+                  </li>
+                </Link>
               </>
             )}
           </ul>

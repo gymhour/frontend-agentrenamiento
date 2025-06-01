@@ -1,0 +1,12 @@
+.cuotas-datos-pagos {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 8px;
+}
+
+.cuotas-table-usuario {
+    margin-top: 20px;
+}

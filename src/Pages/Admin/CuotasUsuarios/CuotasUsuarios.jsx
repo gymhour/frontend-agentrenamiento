@@ -8,11 +8,12 @@ import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import apiClient from '../../../axiosConfig';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const CuotasUsuarios = () => {
   const [cuotas, setCuotas]         = useState([]);
   const [users, setUsers]           = useState([]);
-  const [loading, setLoading]       = useState(true);
+  const [loading, setLoading]       = useState(false);
   const [error, setError]           = useState(null);
   const [showModal, setShowModal]   = useState(false);
 
@@ -74,6 +75,7 @@ const CuotasUsuarios = () => {
   // Confirmación de la acción
   const handleConfirm = async () => {
     if (!selectedCuota) return;
+    setLoading(true)
     try {
       if (actionType === 'pay') {
         await apiClient.put(`/cuotas/${selectedCuota.ID_Cuota}/pay`);
@@ -82,15 +84,19 @@ const CuotasUsuarios = () => {
       }
       closeConfirmation();
       fetchData();
+      setLoading(false)
     } catch (err) {
       console.error(`Error al ${actionType} la cuota:`, err);
       alert(`No se pudo ${actionType === 'pay' ? 'pagar' : 'eliminar'} la cuota.`);
+      setLoading(false)
     }
   };
 
   // Envío del formulario de nueva cuota
   const handleSubmit = async e => {
     e.preventDefault();
+    setShowModal(false);
+    setLoading(true)
     const user = users.find(u => u.email === selectedEmail);
     if (!user) return alert('Seleccioná un usuario válido.');
 
@@ -102,14 +108,18 @@ const CuotasUsuarios = () => {
       setShowModal(false);
       setSelectedEmail(''); setMes(''); setImporte(''); setPlan(''); setFormaPago('');
       fetchData();
+      setLoading(false)
     } catch (err) {
       console.error('Error al crear cuota:', err);
       alert('No se pudo crear la cuota.');
+      setShowModal(false);
+      setLoading(false)
     }
   };
 
   return (
     <div className="page-layout">
+      {loading && <LoaderFullScreen/>}
       <SidebarMenu isAdmin={true} />
 
       <div className="content-layout">

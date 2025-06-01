@@ -31,6 +31,7 @@ import RutinasAdmin from './Pages/Admin/RutinasAdmin/RutinasAdmin';
 import CuotasUsuarios from './Pages/Admin/CuotasUsuarios/CuotasUsuarios';
 import ResetPassword from './Pages/Auth/ResetPassword/ResetPassword';
 import ChangePassword from './Pages/Auth/ChangePassword/ChangePassword';
+import Cuotas from './Pages/Alumno/Cuotas/Cuotas';
 
 function App() {
   return (
@@ -224,6 +225,14 @@ function App() {
           element={
             <ProtectedRoute>
               <RutinasRecomendadas/>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/alumno/cuotas" 
+          element={
+            <ProtectedRoute>
+              <Cuotas/>
             </ProtectedRoute>
           } 
         />

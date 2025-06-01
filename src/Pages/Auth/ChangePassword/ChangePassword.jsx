@@ -3,10 +3,10 @@ import '../../../App.css';
 import './ChangePassword.css'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-import { toast } from 'react-toastify';
 import apiService from '../../../services/apiService';
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
+import { toast } from 'react-toastify';
 
 const ChangePassword = ({fromAdmin}) => {
     const [loading, setLoading] = useState(false)
@@ -19,26 +19,24 @@ const ChangePassword = ({fromAdmin}) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validación básica
         if (!formData.oldPassword || !formData.newPassword || !formData.repeatNewPassword) {
-            return toast.error('Por favor, completa todos los campos');
+            console.log("Campos incompletos")
+            return toast.error('Por favor, completa todos los campos.');
         }
         if (formData.newPassword !== formData.repeatNewPassword) {
+            console.log("Las contraseñas no coinciden.")
             return toast.error('Las contraseñas nuevas no coinciden');
         }
 
         try {
             setLoading(true);
-            // La API espera { currentPassword, newPassword }
             await apiService.changePassword({
                 currentPassword: formData.oldPassword,
                 newPassword: formData.newPassword
             });
             toast.success('Contraseña actualizada con éxito');
-            // Opcional: limpiar campos
             setFormData({ oldPassword: '', newPassword: '', repeatNewPassword: '' });
         } catch (err) {
-            // El servicio lanza un Error con mensaje 'Error al cambiar contraseña'
             toast.error(err.message || 'Ocurrió un error al cambiar la contraseña');
         } finally {
             setLoading(false);

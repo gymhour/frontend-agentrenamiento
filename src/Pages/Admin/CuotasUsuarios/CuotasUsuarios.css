@@ -48,7 +48,7 @@
   border: none;
   outline: none;
   cursor: pointer;
-  color: green;
+  color: #62BD66;
 }
 
 .accion-button.delete {
@@ -56,7 +56,7 @@
   border: none;
   outline: none;
   cursor: pointer;
-  color: red;
+  color: rgb(255, 50, 50);
 }
 
 /* Ajustes a la cabecera */
