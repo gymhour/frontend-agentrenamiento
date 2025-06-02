@@ -85,7 +85,6 @@
   background: #000;
   padding: 24px;
   border-radius: 8px;
-  width: 400px;
 }
 
 .modal-content h3 {
@@ -148,4 +147,19 @@
   cursor: pointer;
   outline: none;
   border: none;
+}
+
+.css-1yju044-control , .css-6anckf-control, .css-vdx20g-menu {
+  width: 300px !important;
+  background-color: #252525 !important;
+  min-height: 50px !important;
+  border-radius: 8px !important;
+}
+.css-1yju044-control:focus, .css-1yju044-control:active {
+  background-color: #252525;
+  width: 300px;
+}
+
+.custom-datepicker-mes {
+  width: 300px;
 }

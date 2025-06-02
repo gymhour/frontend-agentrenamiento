@@ -256,7 +256,7 @@ const CrearRutina = ({fromAdmin}) => {
       const response = await apiService.createRutina(rutinaData);
       setLoading(false)
       toast.success("Rutina creada correctamente.");
-      navigate("/alumno/mi-rutina");
+      fromAdmin ? navigate("/admin/rutinas") : navigate("/alumno/mi-rutina")
       // console.log("Rutina creada:", response);
     } catch (error) {
       console.error("Error al crear rutina:", error);

@@ -10,21 +10,26 @@ import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/Confi
 import apiClient from '../../../axiosConfig';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
-const CuotasUsuarios = () => {
-  const [cuotas, setCuotas]         = useState([]);
-  const [users, setUsers]           = useState([]);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState(null);
-  const [showModal, setShowModal]   = useState(false);
+import Select from 'react-select';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-  // Popups de confirmación
-  const [popupOpen, setPopupOpen]     = useState(false);
-  const [actionType, setActionType]   = useState(''); // 'pay' | 'delete'
+const CuotasUsuarios = () => {
+  // Estado general
+  const [cuotas, setCuotas]             = useState([]);
+  const [users, setUsers]               = useState([]);
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState(null);
+  const [showModal, setShowModal]       = useState(false);
+
+  // Popup de confirmación
+  const [popupOpen, setPopupOpen]       = useState(false);
+  const [actionType, setActionType]     = useState(''); // 'pay' | 'delete'
   const [selectedCuota, setSelectedCuota] = useState(null);
 
-  // Form state
+  // Estado del formulario “Nueva cuota”
   const [selectedEmail, setSelectedEmail] = useState('');
-  const [mes, setMes]                     = useState('');
+  const [mesDate, setMesDate]             = useState(null); // almacenamos un Date (mes/año)
   const [importe, setImporte]             = useState('');
   const [plan, setPlan]                   = useState('');
   const [formaPago, setFormaPago]         = useState('');
@@ -52,7 +57,7 @@ const CuotasUsuarios = () => {
     fetchData();
   }, []);
 
-  // Formateos
+  // Formateos para la tabla
   const formatMonth = m =>
     new Date(m + '-01').toLocaleString('es-AR', { month: 'long', year: 'numeric' });
   const formatDate = iso =>
@@ -60,7 +65,7 @@ const CuotasUsuarios = () => {
   const formatCurrency = val =>
     new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
 
-  // Apertura del popup
+  // Abrir/cerrar popup de confirmación
   const openConfirmation = (type, cuota) => {
     setActionType(type);
     setSelectedCuota(cuota);
@@ -72,10 +77,10 @@ const CuotasUsuarios = () => {
     setSelectedCuota(null);
   };
 
-  // Confirmación de la acción
+  // Confirmar acción “Pagar” o “Eliminar”
   const handleConfirm = async () => {
     if (!selectedCuota) return;
-    setLoading(true)
+    setLoading(true);
     try {
       if (actionType === 'pay') {
         await apiClient.put(`/cuotas/${selectedCuota.ID_Cuota}/pay`);
@@ -84,42 +89,115 @@ const CuotasUsuarios = () => {
       }
       closeConfirmation();
       fetchData();
-      setLoading(false)
     } catch (err) {
       console.error(`Error al ${actionType} la cuota:`, err);
       alert(`No se pudo ${actionType === 'pay' ? 'pagar' : 'eliminar'} la cuota.`);
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Envío del formulario de nueva cuota
+  // Envío del formulario para crear nueva cuota
   const handleSubmit = async e => {
     e.preventDefault();
     setShowModal(false);
-    setLoading(true)
-    const user = users.find(u => u.email === selectedEmail);
-    if (!user) return alert('Seleccioná un usuario válido.');
+    setLoading(true);
 
-    const vence = `${mes}-10T23:59:59.000Z`;
-    const payload = { mes, importe: Number(importe), vence, plan, formaPago };
+    // Buscamos el usuario por email
+    const user = users.find(u => u.email === selectedEmail);
+    if (!user) {
+      alert('Seleccioná un usuario válido.');
+      setLoading(false);
+      return;
+    }
+
+    if (!mesDate) {
+      alert('Seleccioná un mes válido.');
+      setLoading(false);
+      return;
+    }
+
+    // Convertimos la fecha mesDate (Date) a string "YYYY-MM"
+    const year = mesDate.getFullYear();
+    const monthNumber = mesDate.getMonth() + 1; // 0-based
+    const mesString = `${year}-${monthNumber < 10 ? '0' + monthNumber : monthNumber}`;
+
+    // Fecha de vencimiento interna: por ejemplo el día 10 de ese mes (a las 23:59:59 UTC)
+    const vence = `${mesString}-10T23:59:59.000Z`;
+
+    const payload = {
+      mes: mesString,
+      importe: Number(importe),
+      vence,
+      plan,
+      formaPago
+    };
 
     try {
       await apiClient.post(`/cuotas/usuario/${user.ID_Usuario}`, payload);
-      setShowModal(false);
-      setSelectedEmail(''); setMes(''); setImporte(''); setPlan(''); setFormaPago('');
+      // Limpiamos campos
+      setSelectedEmail('');
+      setMesDate(null);
+      setImporte('');
+      setPlan('');
+      setFormaPago('');
       fetchData();
-      setLoading(false)
     } catch (err) {
       console.error('Error al crear cuota:', err);
       alert('No se pudo crear la cuota.');
-      setShowModal(false);
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Estilos oscuros para react-select
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#2c2f36',
+      borderColor: state.isFocused ? '#555' : '#444',
+      minHeight: '44px',
+      boxShadow: 'none',
+      '&:hover': { borderColor: '#666' },
+    }),
+    singleValue: provided => ({
+      ...provided,
+      color: '#fff',
+    }),
+    input: provided => ({
+      ...provided,
+      color: '#fff',
+    }),
+    placeholder: provided => ({
+      ...provided,
+      color: '#aaa',
+    }),
+    menu: provided => ({
+      ...provided,
+      backgroundColor: '#2c2f36',
+      marginTop: 0,
+      borderRadius: 0,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? '#3a3f47' : '#2c2f36',
+      color: '#fff',
+      cursor: 'pointer',
+    }),
+    dropdownIndicator: provided => ({
+      ...provided,
+      color: '#bbb',
+      '&:hover': { color: '#ddd' },
+    }),
+    indicatorSeparator: provided => ({
+      ...provided,
+      backgroundColor: '#444',
+    }),
   };
 
   return (
     <div className="page-layout">
-      {loading && <LoaderFullScreen/>}
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={true} />
 
       <div className="content-layout">
@@ -138,7 +216,6 @@ const CuotasUsuarios = () => {
           <table className="cuotas-table">
             <thead>
               <tr>
-                {/* <th>ID</th> */}
                 <th>Usuario</th>
                 <th>Mes</th>
                 <th>Importe</th>
@@ -153,8 +230,12 @@ const CuotasUsuarios = () => {
             <tbody>
               {cuotas.map(c => (
                 <tr key={c.ID_Cuota}>
-                  <td>{c.User?.email || '–'}</td>
-                  <td>{c.mes}</td>
+                  <td>
+                    {c.User
+                      ? `${c.User.nombre} ${c.User.apellido}`
+                      : '–'}
+                  </td>
+                  <td>{formatMonth(c.mes)}</td>
                   <td>{formatCurrency(c.importe)}</td>
                   <td>{formatDate(c.vence)}</td>
                   <td>{c.plan}</td>
@@ -193,23 +274,40 @@ const CuotasUsuarios = () => {
           <div className="modal-content">
             <h3>Nueva cuota</h3>
             <form onSubmit={handleSubmit} className="modal-form">
+              {/* — Usuario (react-select con búsqueda y estilo dark) — */}
               <label>Usuario</label>
-              <CustomDropdown
-                options={users.map(u => u.email)}
-                value={selectedEmail}
-                onChange={e => setSelectedEmail(e.target.value)}
-                placeholderOption="Seleccioná un usuario"
+              <Select
+                options={users.map(u => ({
+                  label: `${u.nombre} ${u.apellido} (${u.email})`,
+                  value: u.email
+                }))}
+                value={
+                  selectedEmail
+                    ? { label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${
+                        users.find(u => u.email === selectedEmail)?.apellido || ''
+                      } (${selectedEmail})`, value: selectedEmail }
+                    : null
+                }
+                onChange={option => setSelectedEmail(option.value)}
+                placeholder="Seleccioná un usuario"
+                styles={customSelectStyles}
+                isSearchable
                 required
               />
 
+              {/* — Mes (picker mes/año) — */}
               <label>Mes</label>
-              <CustomInput
-                type="month"
-                value={mes}
-                onChange={e => setMes(e.target.value)}
+              <ReactDatePicker
+                selected={mesDate}
+                onChange={date => setMesDate(date)}
+                dateFormat="MM/yyyy"
+                showMonthYearPicker
+                placeholderText="Seleccioná mes y año"
+                className="custom-datepicker custom-datepicker-mes"
                 required
               />
 
+              {/* — Importe — */}
               <label>Importe</label>
               <CustomInput
                 type="number"
@@ -219,14 +317,17 @@ const CuotasUsuarios = () => {
                 required
               />
 
+              {/* — Plan (dropdown hardcodeado) — */}
               <label>Plan</label>
-              <CustomInput
-                placeholder="Plan Básico"
+              <CustomDropdown
+                options={['Plan Básico', 'Plan Intermedio', 'Plan Premium']}
                 value={plan}
                 onChange={e => setPlan(e.target.value)}
+                placeholderOption="Seleccioná un plan"
                 required
               />
 
+              {/* — Forma de pago — */}
               <label>Forma de pago</label>
               <CustomDropdown
                 options={['Efectivo', 'Transferencia', 'Tarjeta']}

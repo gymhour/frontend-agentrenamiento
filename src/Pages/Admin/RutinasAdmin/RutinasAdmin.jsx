@@ -84,9 +84,18 @@ const RutinasAdmin = () => {
                       <div key={bloque.ID_Bloque} className="bloque-card">
                         {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
-                          <p>
-                            {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
-                          </p>
+                          <div> 
+                            <p>
+                              {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                            </p>
+                            {/* <ul style={{ paddingLeft: '20px' }}> */}
+                            {bloque.ejercicios.map((ej) => (
+                              <p key={ej.ID_Ejercicio}>
+                                {`${ej.reps} ${ej.setRepWeight}`}
+                              </p>
+                            ))}
+                          {/* </ul> */}
+                          </div>
                         )}
 
                         {/* ROUNDS */}

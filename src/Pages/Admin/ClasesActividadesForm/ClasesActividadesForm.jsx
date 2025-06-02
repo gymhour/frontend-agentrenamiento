@@ -184,11 +184,13 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
     //      (Tu backend espera algo como "2024-01-03T06:00:00Z").
     const transformedHorarios = horarios.map((h) => ({
       ...h,
-      horaIni: `2024-01-03T${h.horaIni}:00Z`,
-      horaFin: `2024-01-03T${h.horaFin}:00Z`,
+      horaIni: `2024-01-03T${h.horaIni}:00.000Z`, // probamos aca
+      horaFin: `2024-01-03T${h.horaFin}:00.000Z`,
       cupos: Number(h.cupos)
     }));
 
+    console.log("horarios", transformedHorarios);
+    console.log("hora ini", transformedHorarios.horaIni)
     const formData = new FormData();
     formData.append("nombre", nombre);
     formData.append("descripcion", descripcion);
