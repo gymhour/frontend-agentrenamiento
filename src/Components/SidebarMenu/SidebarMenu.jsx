@@ -26,7 +26,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 // Componentes
 import ConfirmationPopup from "../utils/ConfirmationPopUp/ConfirmationPopUp";
 
-const SidebarMenu = ({ isAdmin }) => {
+const SidebarMenu = ({ isAdmin, isEntrenador }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -86,7 +86,9 @@ const SidebarMenu = ({ isAdmin }) => {
         <nav className="sidebar-menu">
           <h3 className="menu-title">MENÚ</h3>
           <ul className="menu-list">
-            {isAdmin ? (
+            {
+            // SIDEBAR ADMIN
+            isAdmin ? (
               <>
                 <Link
                   to="/admin/inicio"
@@ -183,7 +185,34 @@ const SidebarMenu = ({ isAdmin }) => {
                   </li>
                 </Link>
               </>
-            ) : (
+            )
+            // SIDEBAR ENTRENADOR 
+            : isEntrenador ? (
+              <>
+                <Link
+                  to="/entrenador/inicio"
+                  className={`menu-link ${
+                    location.pathname === "/entrenador/inicio" ? "active" : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <InicioIcon className="icon" fill="#A2A2A2" /> Inicio
+                  </li>
+                </Link>
+                <Link
+                  to="/entrenador/asignar-rutinas"
+                  className={`menu-link ${
+                    location.pathname === "/entrenador/asignar-rutinas" ? "active" : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <MiRutinaIcon className="icon" fill="#A2A2A2" /> Asignar Rutinas
+                  </li>
+                </Link>
+              </>
+            ) 
+            // SIDEBAR ALUMNO
+            : (
               <>
                 <Link
                   to="/alumno/inicio"

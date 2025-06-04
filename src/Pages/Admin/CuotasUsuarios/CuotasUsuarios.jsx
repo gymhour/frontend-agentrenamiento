@@ -42,8 +42,8 @@ const CuotasUsuarios = () => {
         apiClient.get('/cuotas'),
         apiClient.get('/usuarios')
       ]);
-      setCuotas(cuotasRes.data);
-      setUsers(usersRes.data);
+      setCuotas(cuotasRes.data.data);
+      setUsers(usersRes.data.data);
       setError(null);
     } catch (err) {
       console.error(err);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown.jsx';
@@ -9,8 +9,10 @@ import apiService from '../../../services/apiService';
 import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useNavigate } from 'react-router-dom';
+// Importamos react-select para el dropdown de usuarios
+import Select from 'react-select';
 
-const CrearRutina = ({fromAdmin}) => {
+const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const diasSemana = [
     "Lunes",
     "Martes",
@@ -37,6 +39,10 @@ const CrearRutina = ({fromAdmin}) => {
     diaSemana: '',
     hora: ''
   });
+
+  // Para fetch y selección de usuarios (sólo aplica a entrenador)
+  const [users, setUsers] = useState([]);
+  const [selectedEmail, setSelectedEmail] = useState(null);
 
   // Estados para step2
   const [blocks, setBlocks] = useState([]);
@@ -67,10 +73,30 @@ const CrearRutina = ({fromAdmin}) => {
     'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
   };
 
+  // Si el componente se usa en modo entrenador, traemos los usuarios para seleccionarlos
+  useEffect(() => {
+    if (fromEntrenador) {
+      apiService.getAllUsuarios()
+        .then(res => {
+          setUsers(res.data);
+        })
+        .catch(() => {
+          toast.error("No se pudieron cargar los usuarios");
+        });
+    }
+  }, [fromEntrenador]);
+
   // --- STEP 1: Continuar ---
   const handleContinue = (e) => {
     e.preventDefault();
-    console.log("Datos del step1:", formData);
+
+    // Si es entrenador, nos aseguramos de que haya seleccionado un usuario
+    if (fromEntrenador && !selectedEmail) {
+      toast.error("Por favor, selecciona un usuario antes de continuar");
+      return;
+    }
+
+    console.log("Datos del step1:", formData, "Usuario seleccionado:", selectedEmail);
     setStep(2);
   };
 
@@ -152,10 +178,13 @@ const CrearRutina = ({fromAdmin}) => {
     }));
   };
 
-  // Función que transforma la data de la rutina al formato esperado por el endpoint
   const prepareRutinaData = () => {
+    const userId = fromEntrenador
+      ? users.find(u => u.email === selectedEmail)?.ID_Usuario
+      : localStorage.getItem("usuarioId");
+
     return {
-      userId: localStorage.getItem("usuarioId"),
+      userId,
       nombre: formData.nombre,
       descripcion: formData.descripcion,
       dayOfWeek: formData.diaSemana,
@@ -172,7 +201,7 @@ const CrearRutina = ({fromAdmin}) => {
               durationMin: null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.slice(1).map(item => ({
-                reps: item.series, // Aca el ep deberia poder aceptar un stirng
+                reps: item.series,
                 setRepWeight: item.exercise
               }))
             };
@@ -187,7 +216,7 @@ const CrearRutina = ({fromAdmin}) => {
               durationMin: null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.slice(1).map(item => ({
-                reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
+                reps: item.series,
                 setRepWeight: item.exercise
               }))
             };
@@ -199,13 +228,12 @@ const CrearRutina = ({fromAdmin}) => {
               weight: null,
               descansoRonda: null,
               cantRondas: null,
-              // Convertir a número (o null si está vacío o no es número)
               durationMin: block.data.totalMinutes
                 ? parseInt(block.data.totalMinutes, 10)
                 : null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.map(item => ({
-                reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
+                reps: item.series,
                 setRepWeight: item.exercise
               }))
             };
@@ -220,7 +248,7 @@ const CrearRutina = ({fromAdmin}) => {
               durationMin: parseInt(block.data.duration, 10) || null,
               tipoEscalera: null,
               ejercicios: block.data.setsReps.map(item => ({
-                reps: isNaN(parseInt(item.series)) ? item.series : parseInt(item.series),
+                reps: item.series,
                 setRepWeight: item.exercise
               }))
             };
@@ -243,24 +271,38 @@ const CrearRutina = ({fromAdmin}) => {
             return {};
         }
       })
-    }
+    };
   };
 
   // --- Envío final de la rutina ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     const rutinaData = prepareRutinaData();
     console.log("Final data to send:", rutinaData);
+
     try {
       const response = await apiService.createRutina(rutinaData);
-      setLoading(false)
+      setLoading(false);
       toast.success("Rutina creada correctamente.");
-      fromAdmin ? navigate("/admin/rutinas") : navigate("/alumno/mi-rutina")
-      // console.log("Rutina creada:", response);
+      if (fromAdmin) {
+        navigate("/admin/rutinas");
+      } else if (fromEntrenador) {
+        setStep(1);
+        setFormData({
+          nombre: '',
+          descripcion: '',
+          diaSemana: '',
+          hora: ''
+        });
+        setSelectedEmail(null);
+        setBlocks([]);
+      } else {
+        navigate("/alumno/mi-rutina");
+      }
     } catch (error) {
       console.error("Error al crear rutina:", error);
-      setLoading(false)
+      setLoading(false);
       toast.error("No se pudo crear la rutina");
     }
   };
@@ -268,19 +310,17 @@ const CrearRutina = ({fromAdmin}) => {
   return (
     <div className='page-layout'>
       {loading && <LoaderFullScreen />}
-      <SidebarMenu isAdmin={fromAdmin} />
+      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
           <h2>Crear Rutina</h2>
-          {
-            step === 2 && (
-              <PrimaryButton
-                text="Crear rutina"
-                linkTo="#"
-                onClick={handleSubmit}
-              />
-            )
-          }
+          {step === 2 && (
+            <PrimaryButton
+              text="Crear rutina"
+              linkTo="#"
+              onClick={handleSubmit}
+            />
+          )}
         </div>
 
         {step === 1 && (
@@ -315,6 +355,31 @@ const CrearRutina = ({fromAdmin}) => {
                   setFormData({ ...formData, hora: e.target.value })
                 }
               />
+
+              {/* Si es entrenador, mostramos dropdown para buscar usuarios */}
+              {fromEntrenador && (
+                <Select
+                  options={users.map(u => ({
+                    label: `${u.nombre} ${u.apellido} (${u.email})`,
+                    value: u.email
+                  }))}
+                  value={
+                    selectedEmail
+                      ? {
+                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${
+                            users.find(u => u.email === selectedEmail)?.apellido || ''
+                          } (${selectedEmail})`,
+                          value: selectedEmail
+                        }
+                      : null
+                  }
+                  onChange={option => setSelectedEmail(option.value)}
+                  placeholder="Seleccioná un usuario"
+                  isSearchable
+                  required
+                />
+              )}
+
               <PrimaryButton
                 text="Continuar"
                 linkTo="#"

@@ -5,6 +5,7 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import apiClient from '../../../axiosConfig';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import { useNavigate } from 'react-router-dom';
 
 const CrearUsuario = () => {
   const initialFormData = {
@@ -23,6 +24,7 @@ const CrearUsuario = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [avatarFile, setAvatarFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -72,6 +74,7 @@ const CrearUsuario = () => {
       toast.success('Usuario añadido correctamente');
       setFormData(initialFormData);
       setAvatarFile(null);
+      navigate("/admin/usuarios")
       setIsLoading(false);
     } catch (error) {
       const msg = error.response?.data?.message || 'No se pudo registrar el usuario';

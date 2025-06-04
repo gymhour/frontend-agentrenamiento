@@ -176,7 +176,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
   // ——————————————————————————————————————————
   // 7. Al enviar el formulario (crear o editar)
   // ——————————————————————————————————————————
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -208,8 +208,14 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
         .then(() => {
           toast.success("Clase actualizada exitosamente.");
         })
-        .catch(() => {
-          toast.error("Error actualizando clase");
+        .catch((error) => {
+          // Si el servidor responde con 413, es probable que axios NO tenga response.status.
+
+          if (error.code === "ERR_NETWORK") {
+            toast.error("La foto es muy grande. Intente con una imagen de menor tamaño.");
+          } else {
+            toast.error("Error actualizando clase");
+          }
         })
         .finally(() => setIsLoading(false));
     } else {
@@ -228,8 +234,12 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
           toast.success("Clase creada y entrenadores asignados exitosamente.");
           resetForm();
         })
-        .catch(() => {
-          toast.error("Hubo un error en la creación o asignación.");
+        .catch((error) => {
+          if (error.code === "ERR_NETWORK") {
+            toast.error("La foto es muy grande. Intente con una imagen de menor tamaño.");
+          } else {
+            toast.error("Hubo un error en la creación o asignación.");
+          }
         })
         .finally(() => setIsLoading(false));
     }

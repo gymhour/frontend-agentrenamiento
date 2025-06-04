@@ -132,132 +132,180 @@ const EditarUsuario = () => {
   };
 
   return (
-    <div className="page-layout">
-      { isLoading && <LoaderFullScreen/> }
-      <SidebarMenu isAdmin={true} />
-      <div className="content-layout">
-      <SecondaryButton
-              text="Volver atrás"
-              linkTo="/admin/usuarios"
-              icon={ArrowLeftIcon}
-              reversed={true}
-            />
-        <h2>Editar usuario</h2>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            width: '320px',
-            paddingTop: '30px',
-          }}
-        >
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            placeholder="Ingresa tu email"
-          />
+    <>
+      {/* Estilos para dos columnas en escritorio y una columna en mobile */}
+      <style>{`
+        .form-two {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          width: 100%;
+          max-width: 640px;
+          padding-top: 30px;
+        }
+        .form-field {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          width: calc(50% - 8px);
+        }
+        .form-field.full-width {
+          width: 100%;
+        }
+        @media (max-width: 768px) {
+          .form-field {
+            width: 100%;
+          }
+        }
+        .button-container {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          margin-top: 16px;
+        }
+      `}</style>
 
-          <label htmlFor="nombre">Nombre:</label>
-          <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            placeholder="Ingresa el nombre"
+      <div className="page-layout">
+        { isLoading && <LoaderFullScreen/> }
+        <SidebarMenu isAdmin={true} />
+        <div className="content-layout">
+          <SecondaryButton
+            text="Volver atrás"
+            linkTo="/admin/usuarios"
+            icon={ArrowLeftIcon}
+            reversed={true}
           />
+          <h2>Editar usuario</h2>
+          <form
+            onSubmit={handleSubmit}
+            className="form-two"
+          >
+            <div className="form-field">
+              <label htmlFor="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="Ingresa tu email"
+              />
+            </div>
 
-          <label htmlFor="apellido">Apellido:</label>
-          <input
-            type="text"
-            id="apellido"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
-            placeholder="Ingresa el apellido"
-          />
-
-          <label htmlFor="tipo">Tipo de usuario:</label>
-          <CustomDropdown
-            options={tipos}
-            value={formData.tipo}
-            onChange={handleTipoChange}
-            name="tipo"
-            id="tipo"
-          />
-
-          {formData.tipo === 'Entrenador' && (
-            <>
-              <label htmlFor="profesion">Profesión:</label>
+            <div className="form-field">
+              <label htmlFor="nombre">Nombre:</label>
               <input
                 type="text"
-                id="profesion"
-                name="profesion"
-                value={formData.profesion}
+                id="nombre"
+                name="nombre"
+                value={formData.nombre}
                 onChange={handleChange}
-                placeholder="Ingresa la profesión"
+                placeholder="Ingresa el nombre"
               />
-            </>
-          )}
+            </div>
 
-          <label htmlFor="direc">Dirección:</label>
-          <input
-            type="text"
-            id="direc"
-            name="direc"
-            value={formData.direc}
-            onChange={handleChange}
-            placeholder="Ingresa la dirección"
-          />
+            <div className="form-field">
+              <label htmlFor="apellido">Apellido:</label>
+              <input
+                type="text"
+                id="apellido"
+                name="apellido"
+                value={formData.apellido}
+                onChange={handleChange}
+                placeholder="Ingresa el apellido"
+              />
+            </div>
 
-          <label htmlFor="tel">Teléfono:</label>
-          <input
-            type="tel"
-            id="tel"
-            name="tel"
-            value={formData.tel}
-            onChange={handleChange}
-            placeholder="Ingresa el teléfono"
-          />
+            <div className="form-field">
+              <label htmlFor="tipo">Tipo de usuario:</label>
+              <CustomDropdown
+                options={tipos}
+                value={formData.tipo}
+                onChange={handleTipoChange}
+                name="tipo"
+                id="tipo"
+              />
+            </div>
 
-          <label htmlFor="estado">Activo:</label>
-          <CustomDropdown
-            options={opcionesEstado}
-            value={formData.estado ? 'Si' : 'No'}
-            onChange={handleEstadoChange}
-            name="estado"
-            id="estado"
-          />
+            {formData.tipo === 'Entrenador' && (
+              <div className="form-field">
+                <label htmlFor="profesion">Profesión:</label>
+                <input
+                  type="text"
+                  id="profesion"
+                  name="profesion"
+                  value={formData.profesion}
+                  onChange={handleChange}
+                  placeholder="Ingresa la profesión"
+                />
+              </div>
+            )}
 
-          <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>
-          <input
-            type="date"
-            id="fechaCumple"
-            name="fechaCumple"
-            value={formData.fechaCumple}
-            onChange={handleChange}
-          />
+            <div className="form-field">
+              <label htmlFor="direc">Dirección:</label>
+              <input
+                type="text"
+                id="direc"
+                name="direc"
+                value={formData.direc}
+                onChange={handleChange}
+                placeholder="Ingresa la dirección"
+              />
+            </div>
 
-          <label htmlFor="avatar">Avatar:</label>
-          <input
-            type="file"
-            id="avatar"
-            name="avatar"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+            <div className="form-field">
+              <label htmlFor="tel">Teléfono:</label>
+              <input
+                type="tel"
+                id="tel"
+                name="tel"
+                value={formData.tel}
+                onChange={handleChange}
+                placeholder="Ingresa el teléfono"
+              />
+            </div>
 
-          <PrimaryButton text="Actualizar usuario" type="submit" onClick={handleSubmit} />
-        </form>
+            <div className="form-field">
+              <label htmlFor="estado">Activo:</label>
+              <CustomDropdown
+                options={opcionesEstado}
+                value={formData.estado ? 'Si' : 'No'}
+                onChange={handleEstadoChange}
+                name="estado"
+                id="estado"
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>
+              <input
+                type="date"
+                id="fechaCumple"
+                name="fechaCumple"
+                value={formData.fechaCumple}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="avatar">Avatar:</label>
+              <input
+                type="file"
+                id="avatar"
+                name="avatar"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            <div className="form-field full-width button-container">
+              <PrimaryButton text="Actualizar usuario" type="submit" onClick={handleSubmit}  />
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -22,7 +22,7 @@ const UsuariosList = () => {
         setLoading(true);
         try {
             const response = await apiClient.get('/usuarios');
-            setUsuarios(response.data);
+            setUsuarios(response.data.data);
             setLoading(false);
         } catch (error) {
             console.error('Error al obtener los usuarios:', error);

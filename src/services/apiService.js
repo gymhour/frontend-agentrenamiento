@@ -116,6 +116,15 @@ const addEntrenadorToClase = async (idClase, idEntrenador) => {
     }
 }
 
+const getAllUsuarios = async() => {
+    try {
+        const response = await apiClient('/usuarios');
+        return response.data;
+    } catch (error) {
+        throw new Error(`Error al obtener los usuarios`);   
+    }
+}
+
 const getUserById = async (id) => {
     try {
         const response = await apiClient.get(`/usuarios/${id}`);
@@ -237,6 +246,7 @@ export default {
     getEntrenadores,
     addEntrenadorToClase,
     // Usuario
+    getAllUsuarios,
     getUserById,
     updateUserById,
     // Contraseña

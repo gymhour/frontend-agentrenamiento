@@ -32,6 +32,7 @@ import CuotasUsuarios from './Pages/Admin/CuotasUsuarios/CuotasUsuarios';
 import ResetPassword from './Pages/Auth/ResetPassword/ResetPassword';
 import ChangePassword from './Pages/Auth/ChangePassword/ChangePassword';
 import Cuotas from './Pages/Alumno/Cuotas/Cuotas';
+import InicioEntrenador from './Pages/Entrenador/InicioEntrenador/InicioEntrenador';
 
 function App() {
   return (
@@ -131,6 +132,21 @@ function App() {
           element={
             <ProtectedRoute>
               <ChangePassword fromAdmin={true}/>
+            </ProtectedRoute>
+          } 
+        />
+        {/* Entrenador */}
+        <Route path="/entrenador/inicio" 
+          element={
+            <ProtectedRoute>
+              <InicioEntrenador />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/entrenador/asignar-rutinas" 
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromEntrenador={true} />
             </ProtectedRoute>
           } 
         />

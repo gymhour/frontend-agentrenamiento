@@ -24,33 +24,40 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+  
     try {
       const response = await apiClient.post('/auth/login', { email, password });
       const token = response.data.token;
-
+  
       // Almacena el token en localStorage
       localStorage.setItem('token', token);
-
+  
       // Decodifica el token
       const decodedToken = jwtDecode(token);
-      localStorage.setItem("usuarioId", decodedToken.id)
-
-      // Verifica el correo electrónico y redirige según corresponda
-      if (decodedToken.tipo === 'admin' || decodedToken.tipo === "Admin") {
+      // console.log("Decoded token", decodedToken)
+      localStorage.setItem("usuarioId", decodedToken.id);
+  
+      // Obtén el tipo en minúsculas para evitar problemas de mayúsculas/minúsculas
+      const tipoNormalized = decodedToken.tipo.toLowerCase();
+  
+      // Redirige según el rol
+      if (tipoNormalized === 'admin') {
         navigate('/admin/inicio');
+      } else if (tipoNormalized === 'entrenador') {
+        navigate('/entrenador/inicio');
       } else {
+        // Por defecto asumimos que es alumno (u otro tipo que quieras manejar)
         navigate('/alumno/inicio');
       }
-
+  
       toast.success('Inicio de sesión exitoso');
     } catch (error) {
-      toast.error("Error al iniciar sesión. Comprueba tus credenciales")
-      // toast.error(error.response?.data?.error || 'Error al iniciar sesión');
+      toast.error("Error al iniciar sesión. Comprueba tus credenciales");
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className='login-container' style={{ backgroundImage: `url(${LoginBackgroundImage})` }}>

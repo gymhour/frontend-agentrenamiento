@@ -149,15 +149,33 @@
   border: none;
 }
 
-.css-1yju044-control , .css-6anckf-control, .css-vdx20g-menu {
+.css-1yju044-control , .css-6anckf-control, .css-vdx20g-menu, .css-13cymwt-control, .css-t3ipsp-control, .css-t3ipsp-control:hover, .css-1nmdiq5-menu {
   width: 300px !important;
   background-color: #252525 !important;
+  color: #FAFAFA;
   min-height: 50px !important;
   border-radius: 8px !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
-.css-1yju044-control:focus, .css-1yju044-control:active {
+
+.css-1dimb5e-singleValue, .css-1cfo1cf {
+  color: white !important;
+}
+
+.css-1yju044-control:focus, .css-1yju044-control:active, .css-13cymwt-control:focus, .css-13cymwt-control:active {
   background-color: #252525;
   width: 300px;
+}
+
+.css-1nmdiq5-menu .css-qr46ko .css-tr4s17-option, .css-1nmdiq5-menu .css-qr46ko .css-10wo9uf-option {
+  background-color: transparent !important;
+  color: white !important;
+  transition: all ease-in-out 100ms !important;
+}
+
+.css-1nmdiq5-menu .css-qr46ko .css-tr4s17-option:hover, .css-1nmdiq5-menu .css-qr46ko .css-10wo9uf-option:hover, .css-1nmdiq5-menu .css-qr46ko .css-10wo9uf-option:focus,  .css-d7l1ni-option  {
+  background-color: #303030 !important;
 }
 
 .custom-datepicker-mes {

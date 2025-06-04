@@ -135,3 +135,8 @@
 .tag-close {
     cursor: pointer;
 }
+
+.preview-container img{
+    border-radius: 6px;
+    padding-top: 20px;
+}
