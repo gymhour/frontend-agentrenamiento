@@ -8,7 +8,6 @@ const CustomDropdown = ({ options = [], value, onChange, name, id, placeholderOp
       onChange={onChange} 
       name={name} 
       id={id}
-
       className="custom-dropdown"
     >
       <option value="" disabled>

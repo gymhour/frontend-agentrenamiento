@@ -51,3 +51,8 @@
   font-size: 20px;
   font-weight: 600;
 }
+
+.custom-datepicker-mes {
+  width: 150px;
+  height: 48px;
+}

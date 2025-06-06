@@ -21,3 +21,9 @@
     width: 35px;
     height: 35px;
 }
+
+.usuarios-filtros-form-inputs-ctn {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
