@@ -74,41 +74,35 @@ const AgendarTurno = () => {
     if (!scheduleForDay) return false;
     const startTime = new Date(time);
     const endTime = new Date(time);
-    const horaInicio = new Date(scheduleForDay.horaIni);
-    const horaFin = new Date(scheduleForDay.horaFin);
-    startTime.setHours(horaInicio.getHours(), horaInicio.getMinutes(), 0, 0);
-    endTime.setHours(horaFin.getHours(), horaFin.getMinutes(), 0, 0);
+    const utcHoraIni = new Date(scheduleForDay.horaIni);
+    const utcHoraFin = new Date(scheduleForDay.horaFin);
+    startTime.setHours(utcHoraIni.getUTCHours(), utcHoraIni.getUTCMinutes(), 0, 0);
+    endTime.setHours(utcHoraFin.getUTCHours(), utcHoraFin.getUTCMinutes(), 0, 0);
     return time >= startTime && time <= endTime;
   };
 
   // Genera un array de horarios permitidos en intervalos de 15 minutos para el día seleccionado
   const getAllowedTimes = (date) => {
     if (!date || !selectedClase) return [];
-    const selectedDay = date.getDay();
-    const claseSeleccionada = clases.find(clase => clase.nombre === selectedClase);
-    if (!claseSeleccionada) return [];
-    
-    const scheduleForDay = claseSeleccionada.HorariosClase.find(
-      h => mapping[h.diaSemana] === selectedDay
+    const dia = date.getDay();
+    const clase = clases.find(c => c.nombre === selectedClase);
+    if (!clase) return [];
+  
+    const horario = clase.HorariosClase
+      .find(h => mapping[h.diaSemana] === dia);
+    if (!horario) return [];
+  
+    // parse UTC y crear un Date local con la misma fecha + hora de inicio
+    const utcInicio = new Date(horario.horaIni);
+    const localStart = new Date(date);
+    localStart.setHours(
+      utcInicio.getUTCHours(),
+      utcInicio.getUTCMinutes(),
+      0, 0
     );
-    if (!scheduleForDay) return [];
-    
-    const startTime = new Date(date);
-    const endTime = new Date(date);
-    const horaInicio = new Date(scheduleForDay.horaIni);
-    const horaFin = new Date(scheduleForDay.horaFin);
-    startTime.setHours(horaInicio.getHours(), horaInicio.getMinutes(), 0, 0);
-    endTime.setHours(horaFin.getHours(), horaFin.getMinutes(), 0, 0);
-    
-    const times = [];
-    const interval = 15; // minutos
-    const currentTime = new Date(startTime);
-    while (currentTime <= endTime) {
-      times.push(new Date(currentTime));
-      currentTime.setMinutes(currentTime.getMinutes() + interval);
-    }
-    return times;
-  };
+  
+    return [ localStart ];
+  };  
 
   const manejarSeleccionClase = (e) => {
     const nombreClaseSeleccionada = e.target.value;
@@ -156,7 +150,8 @@ const AgendarTurno = () => {
       toast.success("Turno agendado exitosamente.");
     } catch (err) {
       setLoading(false)
-      toast.error("Hubo un error al agendar el turno. Intente nuevamente.");
+      console.log(err)
+      toast.error(err.message);
     } finally {
       setIsAgendando(false);
     }

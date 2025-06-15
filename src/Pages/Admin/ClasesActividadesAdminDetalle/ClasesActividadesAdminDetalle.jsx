@@ -10,7 +10,7 @@ import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-rig
 import apiClient from '../../../axiosConfig';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
-const ClasesActividadesAdminDetalle = () => {
+const ClasesActividadesAdminDetalle = ({ fromAdmin, fromEntrenador }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [claseDetalle, setClaseDetalle] = useState(null);
@@ -54,7 +54,7 @@ const ClasesActividadesAdminDetalle = () => {
   if (!claseDetalle) {
     return (
       <div className='page-layout'>
-        <SidebarMenu isAdmin={true} />
+        <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
         <div className='content-layout'>
           <p>Cargando detalles de la clase...</p>
         </div>
@@ -62,23 +62,42 @@ const ClasesActividadesAdminDetalle = () => {
     );
   }
 
+  // Permito editar al admin o a los entrenadores que dan la clase
+  const usuarioId = Number(localStorage.getItem("usuarioId"));
+  const isEntrenadorClase = claseDetalle.Entrenadores
+    .some(ent => ent.ID_Usuario === usuarioId);
+  const canEdit = fromAdmin || isEntrenadorClase;
+
+
   return (
     <div className='page-layout'>
-      {loading && <LoaderFullScreen/>}
-      <SidebarMenu isAdmin={true} />
+      {loading && <LoaderFullScreen />}
+      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
       <div className='content-layout'>
         <div className="clases-actividades-detalle-ctn">
           <div className="clases-actividades-detalle-title">
             <div className='clases-actividades-detalle-actions'>
               <SecondaryButton
                 text="Clases y actividades"
-                linkTo="/admin/clases-actividades"
+                linkTo={fromAdmin ? "/admin/clases-actividades" : "/entrenador/clases-actividades"}
                 icon={ArrowLeftIcon}
                 reversed={true}
               />
               <div className='clases-actividades-detalle-actions-edit-delete'>
-                <PrimaryButton text="Editar clase" linkTo={`/admin/editar-clase/${id}`} />
-                <SecondaryButton text="Eliminar clase" onClick={handleDeleteClick} />
+                {canEdit && (
+                  <PrimaryButton
+                    text="Editar clase"
+                    linkTo={
+                      fromAdmin
+                        ? `/admin/editar-clase/${id}`
+                        : `/entrenador/editar-clase/${id}`
+                    }
+                  />
+                )
+                }
+                {
+                  fromAdmin && <SecondaryButton text="Eliminar clase" onClick={handleDeleteClick} />
+                }
               </div>
             </div>
             <div
@@ -109,15 +128,7 @@ const ClasesActividadesAdminDetalle = () => {
                   {claseDetalle.HorariosClase.map(horario => (
                     <li key={horario.ID_HorarioClase}>
                       {horario.diaSemana} de{' '}
-                      {new Date(horario.horaIni).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}{' '}
-                      a{' '}
-                      {new Date(horario.horaFin).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {horario.horaIni.slice(11, 16)} a {horario.horaFin.slice(11, 16)}
                     </li>
                   ))}
                 </ul>

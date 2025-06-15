@@ -209,6 +209,36 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                     <MiRutinaIcon className="icon" fill="#A2A2A2" /> Asignar Rutinas
                   </li>
                 </Link>
+                <Link
+                  to="/entrenador/rutinas-asignadas"
+                  className={`menu-link ${
+                    location.pathname === "/entrenador/rutinas-asignadas" ? "active" : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <MiRutinaIcon className="icon" fill="#A2A2A2" /> Rutinas asignadas
+                  </li>
+                </Link>
+                <Link
+                  to="/entrenador/usuarios"
+                  className={`menu-link ${
+                    location.pathname === "/entrenador/usuarios" ? "active" : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <UsuariosIcon className="icon" fill="#A2A2A2" /> Usuarios
+                  </li>
+                </Link>
+                <Link
+                  to="/entrenador/clases-actividades"
+                  className={`menu-link ${
+                    location.pathname === "/entrenador/clases-actividades" ? "active" : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <ClasesActividadesIcon className="icon" fill="#A2A2A2" /> Clases y actividades
+                  </li>
+                </Link>
               </>
             ) 
             // SIDEBAR ALUMNO

@@ -42,15 +42,17 @@ const getTurnoById = async (id) => {
         throw new Error("Error en el service de getTurnosByUsuario")
     }
 }
-
+// services/apiService.js
 const postTurno = async (body) => {
     try {
         const response = await apiClient.post("/turnos", body);
         return response.data;
     } catch (error) {
-        throw new Error("Error en el service de postTurno")
+        const apiMsg = error.response?.data?.message;
+        throw new Error(apiMsg || error.message);
     }
-}
+};
+
 
 const deleteTurno = async (id) => {
     try {
@@ -116,12 +118,12 @@ const addEntrenadorToClase = async (idClase, idEntrenador) => {
     }
 }
 
-const getAllUsuarios = async() => {
+const getAllUsuarios = async () => {
     try {
         const response = await apiClient('/usuarios');
         return response.data;
     } catch (error) {
-        throw new Error(`Error al obtener los usuarios`);   
+        throw new Error(`Error al obtener los usuarios`);
     }
 }
 
@@ -191,7 +193,7 @@ const getEjerciciosResultadosUsuario = async (usuarioId) => {
 }
 
 // Ejercicio
-const postEjercicio = async(body) => {
+const postEjercicio = async (body) => {
     try {
         const response = await apiClient.post(`/ejercicios-resultados`, body);
         return response;
@@ -200,7 +202,7 @@ const postEjercicio = async(body) => {
     }
 }
 
-const postEjercicioResultado = async(body) => {
+const postEjercicioResultado = async (body) => {
     try {
         const response = await apiClient.post("/historicoEjercicio", body);
         return response.data;
@@ -209,17 +211,17 @@ const postEjercicioResultado = async(body) => {
     }
 }
 
-const deleteEjercicio = async(ejercicioId) => {
+const deleteEjercicio = async (ejercicioId) => {
     try {
         const response = await apiClient.delete(`/ejercicios-resultados/${ejercicioId}`);
         return response.data;
     } catch (err) {
         throw new Error("Error en el servicio postEjercicio");
-    } 
+    }
 }
 
 // Admin dashboard
-const getKPIs = async() => {
+const getKPIs = async () => {
     try {
         const response = await apiClient.get("/admin/dashboard");
         return response.data;

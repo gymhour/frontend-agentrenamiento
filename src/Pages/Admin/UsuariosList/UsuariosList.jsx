@@ -11,8 +11,9 @@ import { useNavigate } from 'react-router-dom';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast } from "react-toastify";
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
+import { FaChevronDown, FaChevronUp, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const UsuariosList = () => {
+const UsuariosList = ({fromAdmin, fromEntrenador}) => {
   // Estados para datos, filtros y paginación
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,8 @@ const UsuariosList = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true); // para saber si existe siguiente página
   const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
-  const opcionesTipo = ['Cliente', 'Entrenador', 'Admin'];
+  const opcionesTipo = fromAdmin ? ['Cliente', 'Entrenador', 'Admin'] : ['Cliente'];
+  const [showFilters, setShowFilters] = useState(false)
 
   const fetchUsuarios = async () => {
     setLoading(true);
@@ -42,10 +44,9 @@ const UsuariosList = () => {
 
       const response = await apiClient.get('/usuarios', { params });
       const lista = response.data.data || [];
+      const listaUsuariosClientes = lista.filter(u => u.tipo === "cliente")
 
-      setUsuarios(lista);
-      // Si la respuesta trae menos registros que el tamaño de página esperado,
-      // podemos asumir que no hay más páginas. Ajusta según tu backend.
+      setUsuarios(fromAdmin ? lista : listaUsuariosClientes);
       const pageSize = lista.length; 
       setHasMore(pageSize > 0); 
       setLoading(false);
@@ -124,71 +125,80 @@ const UsuariosList = () => {
   return (
     <div className='page-layout'>
       {loading && <LoaderFullScreen />}
-      <SidebarMenu isAdmin={true} />
+      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador}/>
       <div className='content-layout'>
-        <h2 style={{ marginBottom: '30px' }}>Lista de usuarios</h2>
+        <h2 style={{ marginBottom: '20px' }}>Lista de usuarios</h2>
 
-        {/* Formulario de filtros */}
-        <form className="filtros-form" onSubmit={aplicarFiltros} style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          {/* Select de tipo */}
-          <div className='usuarios-filtros-form-inputs-ctn'>
-            <label htmlFor="tipo">Tipo:</label>
-            <CustomDropdown
-              id="tipo"
-              name="tipo"
-              value={filtros.tipo}
-              onChange={handleChangeFiltro}
-              options={opcionesTipo}
-              placeholderOption="— Todos —"
-            />
-          </div>
-          {/* Input nombre */}
-          <div className='usuarios-filtros-form-inputs-ctn'>
-            <label htmlFor="nombre">Nombre:</label>
-            <input
-              type="text"
-              id="nombre"
-              name="nombre"
-              value={filtros.nombre}
-              onChange={handleChangeFiltro}
-              placeholder="Ej: Luis"
-            />
-          </div>
+        <div style={{ margin: '30px 0px' }}>
+            <button
+              className='toggle-filters-button'
+              onClick={() => setShowFilters(prev => !prev)}
+            >
+              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+        </div>
 
-          {/* Input apellido */}
-          <div className='usuarios-filtros-form-inputs-ctn'>
-            <label htmlFor="apellido">Apellido:</label>
-            <input
-              type="text"
-              id="apellido"
-              name="apellido"
-              value={filtros.apellido}
-              onChange={handleChangeFiltro}
-              placeholder="Ej: Carvi"
-            />
-          </div>
+        {
+          showFilters &&
+            <form className="filtros-form" onSubmit={aplicarFiltros} style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {/* Select de tipo */}
+              <div className='usuarios-filtros-form-inputs-ctn'>
+                <label htmlFor="tipo">Tipo:</label>
+                <CustomDropdown
+                  id="tipo"
+                  name="tipo"
+                  value={filtros.tipo}
+                  onChange={handleChangeFiltro}
+                  options={opcionesTipo}
+                  placeholderOption="— Todos —"
+                />
+              </div>
+              {/* Input nombre */}
+              <div className='usuarios-filtros-form-inputs-ctn'>
+                <label htmlFor="nombre">Nombre:</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  name="nombre"
+                  value={filtros.nombre}
+                  onChange={handleChangeFiltro}
+                  placeholder="Ej: Luis"
+                />
+              </div>
 
-          {/* Input email */}
-          <div className='usuarios-filtros-form-inputs-ctn'>
-            <label htmlFor="email">Email:</label>
-            <input
-              type="text"
-              id="email"
-              name="email"
-              value={filtros.email}
-              onChange={handleChangeFiltro}
-              placeholder="Ej: vdev@gmail.com"
-            />
-          </div>
+              {/* Input apellido */}
+              <div className='usuarios-filtros-form-inputs-ctn'>
+                <label htmlFor="apellido">Apellido:</label>
+                <input
+                  type="text"
+                  id="apellido"
+                  name="apellido"
+                  value={filtros.apellido}
+                  onChange={handleChangeFiltro}
+                  placeholder="Ej: Carvi"
+                />
+              </div>
 
-          {/* Botón para aplicar filtros */}
-          <div style={{ alignSelf: 'flex-end' }}>
-            <PrimaryButton  onClick={fetchUsuarios} text="Aplicar filtros" />
-            {/* <button type="submit" className="btn-aplicar-filtros">
-              Aplicar filtros
-            </button> */}
-          </div>
-        </form>
+              {/* Input email */}
+              <div className='usuarios-filtros-form-inputs-ctn'>
+                <label htmlFor="email">Email:</label>
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={filtros.email}
+                  onChange={handleChangeFiltro}
+                  placeholder="Ej: vdev@gmail.com"
+                />
+              </div>
+
+              {/* Botón para aplicar filtros */}
+              <div style={{ alignSelf: 'flex-end' }}>
+                <PrimaryButton  onClick={fetchUsuarios} text="Aplicar filtros" />
+              </div>
+            </form>
+        }
+
 
         {/* Tabla de usuarios o mensaje si no hay */}
         {usuarios.length === 0 ? (
@@ -201,7 +211,7 @@ const UsuariosList = () => {
                 <th>Email</th>
                 <th>Tipo</th>
                 <th>Fecha de Registro</th>
-                <th>Acciones</th>
+                {fromAdmin && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -226,18 +236,21 @@ const UsuariosList = () => {
                   <td>
                     {new Date(usuario.fechaRegistro).toLocaleDateString()}
                   </td>
-                  <td style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '20px' }}>
-                    <PrimaryButton
-                      text="Editar usuario"
-                      linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
-                    />
-                    {usuario.tipo !== "admin" && (
-                      <SecondaryButton
-                        text="Eliminar usuario"
-                        onClick={() => handleDeleteClick(usuario.ID_Usuario)}
+                  {
+                    fromAdmin &&
+                    <td style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '20px' }}>
+                      <PrimaryButton
+                        text="Editar usuario"
+                        linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
                       />
-                    )}
-                  </td>
+                      {usuario.tipo !== "admin" && (
+                        <SecondaryButton
+                          text="Eliminar usuario"
+                          onClick={() => handleDeleteClick(usuario.ID_Usuario)}
+                        />
+                      )}
+                    </td>
+                  }
                 </tr>
               ))}
             </tbody>
@@ -251,7 +264,7 @@ const UsuariosList = () => {
             disabled={page === 1}
             className="btn-page"
           >
-            Anterior
+            <FaChevronLeft/>
           </button>
           <span>Página {page}</span>
           <button
@@ -259,7 +272,7 @@ const UsuariosList = () => {
             disabled={!hasMore}
             className="btn-page"
           >
-            Siguiente
+            <FaChevronRight/>
           </button>
         </div>
       </div>

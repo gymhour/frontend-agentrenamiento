@@ -69,7 +69,7 @@ const MiRutina = () => {
 
   return (
     <div className='page-layout'>
-      { loading && <LoaderFullScreen/> }
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
@@ -89,8 +89,8 @@ const MiRutina = () => {
                 <div className='rutina-header'>
                   <h3>{rutina.nombre}</h3>
                   <div className="rutina-header-acciones">
-                    <button onClick={() => handlePopUpOpen(rutina.ID_Rutina)}  className='mi-rutina-eliminar-btn'>
-                      <DeleteIcon width={20} height={20}/>
+                    <button onClick={() => handlePopUpOpen(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
+                      <DeleteIcon width={20} height={20} />
                     </button>
                     {/* <button className='mi-rutina-eliminar-btn'>
                       <EditIcon width={20} height={20}/>
@@ -100,8 +100,15 @@ const MiRutina = () => {
 
                 <div className="rutina-data">
                   {/* Aca deberia ir categoria y duración también */}
-                  <p> Día de la semana: {rutina.dayOfWeek}</p>
+                  <p> Día de la semana:   {rutina.DiasRutina.map(d => d.dia).join(", ")}                  </p>
                 </div>
+
+                {rutina.Entrenador && (
+                  <p>
+                    Asignada por:&nbsp;
+                    {rutina.Entrenador.nombre} {rutina.Entrenador.apellido}
+                  </p>
+                )}
 
                 {rutina.Bloques && rutina.Bloques.length > 0 && (
                   <div className="bloques-list">
@@ -109,7 +116,7 @@ const MiRutina = () => {
                       <div key={bloque.ID_Bloque} className="bloque-card">
                         {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
-                          <div> 
+                          <div>
                             <p>
                               {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
                             </p>
@@ -119,7 +126,7 @@ const MiRutina = () => {
                                 {`${ej.reps} ${ej.setRepWeight}`}
                               </p>
                             ))}
-                          {/* </ul> */}
+                            {/* </ul> */}
                           </div>
                         )}
 
@@ -141,7 +148,7 @@ const MiRutina = () => {
                             </ul>
 
                             {bloque.descansoRonda != null && (
-                              <p style={{color: "rgba(255,255,255,0.6)"}}>{`con ${bloque.descansoRonda} segs de descanso`}</p>
+                              <p style={{ color: "rgba(255,255,255,0.6)" }}>{`con ${bloque.descansoRonda} segs de descanso`}</p>
                             )}
                           </>
                         )}

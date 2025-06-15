@@ -33,6 +33,7 @@ import ResetPassword from './Pages/Auth/ResetPassword/ResetPassword';
 import ChangePassword from './Pages/Auth/ChangePassword/ChangePassword';
 import Cuotas from './Pages/Alumno/Cuotas/Cuotas';
 import InicioEntrenador from './Pages/Entrenador/InicioEntrenador/InicioEntrenador';
+import RutinasAsignadas from './Pages/Entrenador/RutinasAsignadas/RutinasAsignadas';
 
 function App() {
   return (
@@ -56,7 +57,7 @@ function App() {
         <Route path="/admin/clases-actividades" 
           element={
             <ProtectedRoute>
-              <ClasesActividadesAdmin />
+              <ClasesActividadesAdmin fromAdmin={true} />
             </ProtectedRoute>
           } 
         />  
@@ -64,28 +65,28 @@ function App() {
           path="/admin/clases-actividades/:id" 
           element={
             <ProtectedRoute>
-              <ClasesActividadesAdminDetalle/>
+              <ClasesActividadesAdminDetalle fromAdmin={true}/>
             </ProtectedRoute>
           } 
         />   
         <Route path="/admin/agregar-clase" 
           element={
             <ProtectedRoute>
-              <ClasesActividadesForm isEditing={false}/>
+              <ClasesActividadesForm isEditing={false} fromAdmin={true}/>
             </ProtectedRoute>
           } 
         />  
         <Route path="/admin/editar-clase/:id" 
           element={
             <ProtectedRoute>
-              <ClasesActividadesForm isEditing={true} />
+              <ClasesActividadesForm isEditing={true} fromAdmin={true} />
             </ProtectedRoute>
           } 
         />    
         <Route path="/admin/usuarios" 
           element={
             <ProtectedRoute>
-              <UsuariosList />
+              <UsuariosList fromAdmin={true}/>
             </ProtectedRoute>
           } 
         />  
@@ -150,6 +151,43 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route path="/entrenador/rutinas-asignadas" 
+          element={
+            <ProtectedRoute>
+              <RutinasAsignadas />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/entrenador/usuarios" 
+          element={
+            <ProtectedRoute>
+              <UsuariosList fromEntrenador={true} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/entrenador/clases-actividades" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdmin fromEntrenador={true} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/entrenador/clases-actividades/:id" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdminDetalle fromEntrenador={true}/>
+            </ProtectedRoute>
+          } 
+        />  
+        <Route 
+          path="/entrenador/editar-clase/:id" 
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesForm isEditing={true} fromEntrenador={true}/>
+            </ProtectedRoute>
+          } 
+        />  
         {/* Alumno */}
         <Route path="/alumno/inicio" 
           element={

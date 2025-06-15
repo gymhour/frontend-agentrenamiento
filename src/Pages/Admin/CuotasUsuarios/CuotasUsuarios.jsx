@@ -13,6 +13,7 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
+import { FaChevronDown, FaChevronLeft, FaChevronRight, FaChevronUp } from 'react-icons/fa';
 
 const CuotasUsuarios = () => {
   // — Estados de datos y carga —
@@ -47,6 +48,7 @@ const CuotasUsuarios = () => {
   const [filterPlan, setFilterPlan]         = useState('');
   const [page, setPage]                     = useState(1);
   const [hasMore, setHasMore]               = useState(true);
+  const [showFilters, setShowFilters] = useState(false)
 
   // — Datos por defecto —
   const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
@@ -240,67 +242,79 @@ const CuotasUsuarios = () => {
           <PrimaryButton text="Nueva cuota" onClick={() => setShowModal(true)} />
         </div>
 
-        {/* — Sección de filtros — */}
-        <div className="filtros-section" style={{ margin: '20px 0', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          {/* Email */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label htmlFor="inputEmail">Email:</label>
-            <CustomInput
-              id="inputEmail"
-              type="text"
-              placeholder="Ej: valen2@example.com"
-              value={inputEmail}
-              onChange={e => setInputEmail(e.target.value)}
-              width='300px'
-            />
-          </div>
-
-          {/* Estado */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label htmlFor="inputEstado">Estado:</label>
-            <select
-              id="inputEstado"
-              value={inputEstado}
-              onChange={e => setInputEstado(e.target.value)}
-              style={{ padding: '8px', backgroundColor: '#2c2f36', color: '#fff', border: '1px solid #444', borderRadius: '4px' }}
+        <div style={{ margin: '30px 0px' }}>
+            <button
+              className='toggle-filters-button'
+              onClick={() => setShowFilters(prev => !prev)}
             >
-              <option value="">— Todos —</option>
-              <option value="true">Pagada</option>
-              <option value="false">Pendiente</option>
-            </select>
-          </div>
-
-          {/* Mes */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label>Mes:</label>
-            <ReactDatePicker
-              selected={inputMesDate}
-              onChange={date => setInputMesDate(date)}
-              dateFormat="MM/yyyy"
-              showMonthYearPicker
-              placeholderText="MM/AAAA"
-              className={datePickerClass}
-            />
-          </div>
-
-          {/* Plan */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <label htmlFor="inputPlan">Plan:</label>
-            <CustomDropdown
-              id="inputPlan"
-              options={['Plan Básico', 'Plan Intermedio', 'Plan Premium']}
-              placeholderOption="— Todos —"
-              value={inputPlan}
-              onChange={e => setInputPlan(e.target.value)}
-            />
-          </div>
-
-          {/* Botones de “Aplicar filtros” y “Limpiar filtros” */}
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <PrimaryButton onClick={applyFilters} text="Aplicar filtros" />
-            <SecondaryButton onClick={clearFilters} text="Limpiar filtros" />
-          </div>
+              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
         </div>
+
+        {
+          showFilters && 
+          <div className="filtros-section" style={{ margin: '20px 0', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            {/* Email */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label htmlFor="inputEmail">Email:</label>
+              <CustomInput
+                id="inputEmail"
+                type="text"
+                placeholder="Ej: valen2@example.com"
+                value={inputEmail}
+                onChange={e => setInputEmail(e.target.value)}
+                width='300px'
+              />
+            </div>
+
+            {/* Estado */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label htmlFor="inputEstado">Estado:</label>
+              <select
+                id="inputEstado"
+                value={inputEstado}
+                onChange={e => setInputEstado(e.target.value)}
+                style={{ padding: '8px', backgroundColor: '#2c2f36', color: '#fff', border: '1px solid #444', borderRadius: '4px' }}
+              >
+                <option value="">— Todos —</option>
+                <option value="true">Pagada</option>
+                <option value="false">Pendiente</option>
+              </select>
+            </div>
+
+            {/* Mes */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label>Mes:</label>
+              <ReactDatePicker
+                selected={inputMesDate}
+                onChange={date => setInputMesDate(date)}
+                dateFormat="MM/yyyy"
+                showMonthYearPicker
+                placeholderText="MM/AAAA"
+                className={datePickerClass}
+              />
+            </div>
+
+            {/* Plan */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <label htmlFor="inputPlan">Plan:</label>
+              <CustomDropdown
+                id="inputPlan"
+                options={['Plan Básico', 'Plan Intermedio', 'Plan Premium']}
+                placeholderOption="— Todos —"
+                value={inputPlan}
+                onChange={e => setInputPlan(e.target.value)}
+              />
+            </div>
+
+            {/* Botones de “Aplicar filtros” y “Limpiar filtros” */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <PrimaryButton onClick={applyFilters} text="Aplicar filtros" />
+              <SecondaryButton onClick={clearFilters} text="Limpiar filtros" />
+            </div>
+          </div>
+        }
+
 
         {/* — Tabla de cuotas — */}
         {loading ? (
@@ -371,7 +385,7 @@ const CuotasUsuarios = () => {
             disabled={page === 1}
             className="btn-page"
           >
-            Anterior
+            <FaChevronLeft/>
           </button>
           <span>Página {page}</span>
           <button
@@ -379,7 +393,7 @@ const CuotasUsuarios = () => {
             disabled={!hasMore}
             className="btn-page"
           >
-            Siguiente
+            <FaChevronRight/>
           </button>
         </div>
       </div>

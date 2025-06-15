@@ -6,6 +6,7 @@ import CustomInput from '../../../Components/utils/CustomInput/CustomInput.jsx';
 import './CrearRutina.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
 import apiService from '../../../services/apiService.js';
+import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
 
 const CrearRutinaAdmin = () => {
   const diasSemana = [
@@ -31,9 +32,11 @@ const CrearRutinaAdmin = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    diaSemana: '',
     hora: ''
   });
+
+  const [selectedDias, setSelectedDias] = useState([]);  
+  const [dropdownDiaValue, setDropdownDiaValue] = useState(""); 
 
   // Estados para step2
   const [blocks, setBlocks] = useState([]);
@@ -46,6 +49,17 @@ const CrearRutinaAdmin = () => {
     'EMOM': { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '' }] },
     'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '' }] },
     'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '' }] },
+  };
+
+
+  const handleSelectDia = (dia) => {
+    if (!selectedDias.includes(dia)) {
+      setSelectedDias(prev => [...prev, dia]);
+    }
+  };
+
+  const handleRemoveDia = (dia) => {
+    setSelectedDias(prev => prev.filter(d => d !== dia));
   };
 
   // --- STEP 1: Continuar ---
@@ -123,8 +137,12 @@ const CrearRutinaAdmin = () => {
     return {
       userId: localStorage.getItem("usuarioId"),
       nombre: formData.nombre,
-      descripcion: formData.descripcion,
-      dayOfWeek: formData.diaSemana,
+      desc: formData.descripcion,
+      dias: selectedDias,
+      //
+      grupoMuscularRutina: "General",
+      claseRutina: "Mantenimiento",
+      //
       bloques: blocks.map(block => {
         switch (block.type) {
           case 'Series y repeticiones':
@@ -262,13 +280,32 @@ const CrearRutinaAdmin = () => {
                 }
               />
               <CustomDropdown
-                placeholderOption="Dia de la semana"
+                id="dias"
+                name="dias"
+                placeholderOption="Seleccionar día"
                 options={diasSemana}
-                value={formData.diaSemana}
-                onChange={(e) =>
-                  setFormData({ ...formData, diaSemana: e.target.value })
-                }
+                value={dropdownDiaValue}
+                onChange={e => {
+                  handleSelectDia(e.target.value);
+                  setDropdownDiaValue("");
+                }}
               />
+              {
+                selectedDias.length > 0 &&
+                  <div className="selected-tags">
+                    {selectedDias.map(dia => (
+                      <div key={dia} className="tag">
+                        <span>{dia}</span>
+                        <CloseIcon
+                          className="tag-close"
+                          width={16}
+                          height={16}
+                          onClick={() => handleRemoveDia(dia)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+              }
               <CustomInput
                 placeholder="Hora (por ej. 10:00)"
                 value={formData.hora}

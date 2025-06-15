@@ -13,7 +13,7 @@ import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropd
 import { toast } from "react-toastify";
 import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
 
-const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
+const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fromEntrenador }) => {
   // ——————————————————————————————————————————
   // 1. Si te llega `classId` desde el padre, úsalo. Si no, cae en useParams().id.
   // ——————————————————————————————————————————
@@ -258,13 +258,13 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp }) => {
   return (
     <div className="page-layout">
       {isLoading && <LoaderFullScreen />}
-      <SidebarMenu isAdmin={true} />
+      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
       <div className="content-layout">
         <div className="clases-actividades-form-ctn">
           <div className="clases-actividades-form-title">
             <SecondaryButton
               text="Volver atrás"
-              linkTo="/admin/clases-actividades"
+              linkTo={fromAdmin ? "/admin/clases-actividades" : "/entrenador/clases-actividades"}
               icon={ArrowLeftIcon}
               reversed={true}
             />

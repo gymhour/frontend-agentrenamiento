@@ -56,3 +56,16 @@
   width: 150px;
   height: 48px;
 }
+
+.toggle-filters-button {
+  outline: none;
+  border: none;
+  background-color: transparent;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+  font-size: 15px;
+}

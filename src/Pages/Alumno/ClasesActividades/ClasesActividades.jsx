@@ -30,7 +30,7 @@ const ClasesActividades = () => {
     return (
         <div className='page-layout'>
             { loading && <LoaderFullScreen/> }
-            <SidebarMenu isAdmin={false} />
+            <SidebarMenu isAdmin={false} fromEntrenador={true} />
             <div className='content-layout'>
                 <h2>Clases y actividades</h2>
                 {error ? (

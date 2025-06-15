@@ -7,7 +7,7 @@ import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circl
 import { Link } from "react-router-dom";
 import apiClient from "../../../axiosConfig";
 
-const ClasesActividadesAdmin = () => {
+const ClasesActividadesAdmin = ({ fromAdmin, fromEntrenador }) => {
     const [clases, setClases] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -37,12 +37,15 @@ const ClasesActividadesAdmin = () => {
 
     return (
         <div className='page-layout'>
-            <SidebarMenu isAdmin={true} />
+            <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
             <div className='content-layout'>
                 <div className="clases-actividades-ctn">
                     <div className="create-clase-title">
                         <h2>Clases y actividades</h2>
-                        <SecondaryButton text="Agregar" linkTo="/admin/agregar-clase" icon={AddIconCircle}></SecondaryButton>
+                        {
+                            fromAdmin &&
+                            <SecondaryButton text="Agregar" linkTo="/admin/agregar-clase" icon={AddIconCircle}></SecondaryButton>
+                        }
                     </div>
                     {loading ? (
                         <p style={{ marginTop: '20px' }}>Cargando clases...</p>
@@ -54,12 +57,12 @@ const ClasesActividadesAdmin = () => {
                                 clases.map((clase) => (
                                     <Link
                                         key={clase.ID_Clase}
-                                        to={`/admin/clases-actividades/${clase.ID_Clase}`}
+                                        to={fromAdmin ? `/admin/clases-actividades/${clase.ID_Clase}` : `/entrenador/clases-actividades/${clase.ID_Clase}`}
                                         className="clase-link"
                                     >
                                         <div className="clase-item" style={{
                                             backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${clase.imagenClase != null
-                                                ?  clase.imagenClase
+                                                ? clase.imagenClase
                                                 : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dGhlJTIwZ3ltfGVufDB8fDB8fHww'})`
                                         }}>
                                             <h2>{clase.nombre}</h2>

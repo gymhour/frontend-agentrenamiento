@@ -11,6 +11,7 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import { useNavigate } from 'react-router-dom';
 // Importamos react-select para el dropdown de usuarios
 import Select from 'react-select';
+import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
 
 const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const diasSemana = [
@@ -36,9 +37,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    diaSemana: '',
     hora: ''
   });
+  // en lugar de formData.diaSemana
+  const [selectedDias, setSelectedDias] = useState([]); 
+  const [dropdownDiaValue, setDropdownDiaValue] = useState(""); 
 
   // Para fetch y selección de usuarios (sólo aplica a entrenador)
   const [users, setUsers] = useState([]);
@@ -61,8 +64,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   ];
 
   const navigate = useNavigate();
-  
-  const getRandomExercise = () => exampleExercises[Math.floor(Math.random() * exampleExercises.length)];  
+
+  const getRandomExercise = () => exampleExercises[Math.floor(Math.random() * exampleExercises.length)];
 
   // Objetos iniciales para cada tipo de bloque
   const initialBlockData = {
@@ -72,6 +75,17 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
     'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
   };
+
+  const handleSelectDia = (dia) => {
+    if (!selectedDias.includes(dia)) {
+      setSelectedDias(prev => [...prev, dia]);
+    }
+  };
+
+  const handleRemoveDia = (dia) => {
+    setSelectedDias(prev => prev.filter(d => d !== dia));
+  };
+
 
   // Si el componente se usa en modo entrenador, traemos los usuarios para seleccionarlos
   useEffect(() => {
@@ -183,11 +197,18 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       ? users.find(u => u.email === selectedEmail)?.ID_Usuario
       : localStorage.getItem("usuarioId");
 
+    const entrenadorId = fromEntrenador ?  Number(localStorage.getItem("usuarioId")) : null;
+
     return {
-      userId,
+      ID_Usuario: Number(userId),
+      ID_Entrenador: entrenadorId,
       nombre: formData.nombre,
-      descripcion: formData.descripcion,
-      dayOfWeek: formData.diaSemana,
+      desc: formData.descripcion,
+      dias: selectedDias,
+      //
+      grupoMuscularRutina: "General",
+      claseRutina: "Mantenimiento",
+      //
       bloques: blocks.map(block => {
         switch (block.type) {
           case 'Series y repeticiones':
@@ -292,9 +313,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
         setFormData({
           nombre: '',
           descripcion: '',
-          diaSemana: '',
           hora: ''
         });
+        setSelectedDias([])
         setSelectedEmail(null);
         setBlocks([]);
       } else {
@@ -340,14 +361,43 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                   setFormData({ ...formData, descripcion: e.target.value })
                 }
               />
-              <CustomDropdown
+              {/* <CustomDropdown
                 placeholderOption="Dia de la semana"
                 options={diasSemana}
                 value={formData.diaSemana}
                 onChange={(e) =>
                   setFormData({ ...formData, diaSemana: e.target.value })
                 }
+              /> */}
+              <CustomDropdown
+                id="dias"
+                name="dias"
+                placeholderOption="Seleccionar día"
+                options={diasSemana}
+                value={dropdownDiaValue}
+                onChange={e => {
+                  handleSelectDia(e.target.value);
+                  setDropdownDiaValue("");
+                }}
               />
+              {
+                selectedDias.length > 0 &&
+                  <div className="selected-tags">
+                    {selectedDias.map(dia => (
+                      <div key={dia} className="tag">
+                        <span>{dia}</span>
+                        <CloseIcon
+                          className="tag-close"
+                          width={16}
+                          height={16}
+                          onClick={() => handleRemoveDia(dia)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+              }
+
+
               <CustomInput
                 placeholder="Hora (por ej. 10:00)"
                 value={formData.hora}
@@ -359,18 +409,17 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
               {/* Si es entrenador, mostramos dropdown para buscar usuarios */}
               {fromEntrenador && (
                 <Select
-                  options={users.map(u => ({
+                  options={users.filter(u => u.tipo === "cliente").map(u => ({
                     label: `${u.nombre} ${u.apellido} (${u.email})`,
                     value: u.email
                   }))}
                   value={
                     selectedEmail
                       ? {
-                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${
-                            users.find(u => u.email === selectedEmail)?.apellido || ''
+                        label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''
                           } (${selectedEmail})`,
-                          value: selectedEmail
-                        }
+                        value: selectedEmail
+                      }
                       : null
                   }
                   onChange={option => setSelectedEmail(option.value)}

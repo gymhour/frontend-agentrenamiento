@@ -22,6 +22,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { toast } from 'react-toastify';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const AdminInicio = () => {
   const [loading, setLoading] = useState(false);
@@ -39,6 +40,8 @@ const AdminInicio = () => {
 
   // nombre para saludo
   const [nombreUsuario, setNombreUsuario] = useState("");
+
+  const [showFilters, setShowFilters] = useState(false)
 
   // --- Estados para los inputs de filtro de rango de fechas (mes/año) ---
   // Estas fechas no se aplican hasta que se hace clic en "Aplicar filtros"
@@ -211,41 +214,53 @@ const AdminInicio = () => {
         <div className='chart-section'>
           <h3>Ingresos Mensuales</h3>
 
-          {/* === Sección de filtros de fecha para el gráfico === */}
-          <div className='filters-container' style={{ marginTop: '30px', marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column',  gap: '8px' }}>
-              <label>Desde (Mes/Año):</label>
-              <ReactDatePicker
-                selected={inputStartDate}
-                onChange={date => setInputStartDate(date)}
-                dateFormat="MM/yyyy"
-                showMonthYearPicker
-                placeholderText="MM/AAAA"
-                className="custom-datepicker-mes"
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label>Hasta (Mes/Año):</label>
-              <ReactDatePicker
-                selected={inputEndDate}
-                onChange={date => setInputEndDate(date)}
-                dateFormat="MM/yyyy"
-                showMonthYearPicker
-                placeholderText="MM/AAAA"
-                className="custom-datepicker-mes"
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <PrimaryButton
-                onClick={applyFilters}
-                 text="Aplicar filtros"
-              />
-              <SecondaryButton
-                onClick={clearFilters}
-                text="Limpiar filtros"
-              />
-            </div>
+          <div style={{ margin: '30px 0px' }}>
+            <button
+              className='toggle-filters-button'
+              onClick={() => setShowFilters(prev => !prev)}
+            >
+              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
           </div>
+
+          {/* === Sección de filtros de fecha para el gráfico === */}
+          {showFilters && (
+            <div className='filters-container' style={{ marginTop: '20px', marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label>Desde (Mes/Año):</label>
+                <ReactDatePicker
+                  selected={inputStartDate}
+                  onChange={date => setInputStartDate(date)}
+                  dateFormat="MM/yyyy"
+                  showMonthYearPicker
+                  placeholderText="MM/AAAA"
+                  className='custom-datepicker-mes'
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label>Hasta (Mes/Año):</label>
+                <ReactDatePicker
+                  selected={inputEndDate}
+                  onChange={date => setInputEndDate(date)}
+                  dateFormat="MM/yyyy"
+                  showMonthYearPicker
+                  placeholderText="MM/AAAA"
+                  className='custom-datepicker-mes'
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <PrimaryButton
+                  onClick={applyFilters}
+                  text="Aplicar filtros"
+                />
+                <SecondaryButton
+                  onClick={clearFilters}
+                  text="Limpiar filtros"
+                />
+              </div>
+            </div>
+          )}
+
 
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
