@@ -34,8 +34,20 @@ import ChangePassword from './Pages/Auth/ChangePassword/ChangePassword';
 import Cuotas from './Pages/Alumno/Cuotas/Cuotas';
 import InicioEntrenador from './Pages/Entrenador/InicioEntrenador/InicioEntrenador';
 import RutinasAsignadas from './Pages/Entrenador/RutinasAsignadas/RutinasAsignadas';
+import { useLocation } from 'react-router-dom';
+import AsistenteChat from './Components/AsistenteChat/AsistenteChat';
 
 function App() {
+
+  const location = useLocation();
+
+  // Comprueba si el usuario está “logueado”.
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
+  // Define las rutas donde NO queremos el chat:
+  const hiddenPaths = ['/', '/sign-up', '/forgot-password', '/reset-password'];
+  // Sólo mostramos el chat si el usuario está logueado y la ruta actual NO está en hiddenPaths
+  const showChat = isLoggedIn && !hiddenPaths.includes(location.pathname);
+
   return (
     <>
       <Routes>
@@ -340,6 +352,8 @@ function App() {
         pauseOnHover
         theme="dark"
       />
+
+      {showChat && <AsistenteChat />}
     </>
   );
 }

@@ -1,0 +1,117 @@
+/* contenedor burbuja cerrado */
+.assistant-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #fff;
+    border: 2px solid #2e2198;
+    border-radius: 50px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  
+  .assistant-icon {
+    width: 36px;
+    height: 36px;
+    margin-right: 8px;
+  }
+  
+  .assistant-text {
+    font-size: 14px;
+    color: #2e2198;
+    white-space: nowrap;
+  }
+  
+  /* ventana de chat abierta */
+  .assistant-chat-window {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    height: 420px;
+    background: #f8f9fb;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+  }
+  
+  .assistant-header {
+    background: #2e2198;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .assistant-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .assistant-close {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .assistant-close img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .assistant-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .message {
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+  
+  .message.user {
+    background: #2e2198;
+    color: #fff;
+    align-self: flex-end;
+  }
+  
+  .message.bot {
+    background: #e0e2f5;
+    color: #333;
+    align-self: flex-start;
+  }
+  
+  .assistant-input {
+    display: flex;
+    padding: 8px;
+    border-top: 1px solid #ddd;
+  }
+  
+  .assistant-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+  }
+  
+  .send-button {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    margin-left: 8px;
+    cursor: pointer;
+    color: #2e2198;
+  }
+  
