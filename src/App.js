@@ -121,6 +121,14 @@ function App() {
           } 
         />  
         <Route 
+          path="/admin/editar-rutina/:rutinaId" 
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromAdmin={true}/>
+            </ProtectedRoute>
+          } 
+        />  
+        <Route 
           path="/admin/cuotas" 
           element={
             <ProtectedRoute>
@@ -151,6 +159,14 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/entrenador/editar-rutina/:rutinaId" 
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromEntrenador={true}/>
+            </ProtectedRoute>
+          } 
+        />  
         <Route path="/entrenador/rutinas-asignadas" 
           element={
             <ProtectedRoute>
@@ -242,6 +258,14 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/alumno/editar-rutina/:rutinaId" 
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromAdmin={false}/>
+            </ProtectedRoute>
+          } 
+        />  
         <Route 
           path="/alumno/medicion-resultados" 
           element={

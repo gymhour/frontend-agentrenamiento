@@ -7,11 +7,13 @@ import apiService from '../../../services/apiService.js';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import { useNavigate } from 'react-router-dom';
 
 
 const RutinasAdmin = () => {
   const [rutinas, setRutinas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate()
 
   useEffect(() => {
     let userId = localStorage.getItem("usuarioId")
@@ -43,7 +45,7 @@ const RutinasAdmin = () => {
 
   return (
     <div className='page-layout'>
-      { loading && <LoaderFullScreen/> }
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={true} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
@@ -64,10 +66,14 @@ const RutinasAdmin = () => {
                   <h3>{rutina.nombre}</h3>
                   <div className="rutina-header-acciones">
                     <button onClick={() => deleteRutina(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
-                      <DeleteIcon width={20} height={20}/>
+                      <DeleteIcon width={20} height={20} />
                     </button>
-                    <button className='mi-rutina-eliminar-btn'>
-                      <EditIcon width={20} height={20}/>
+                    <button
+                      onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)}
+                      className='mi-rutina-eliminar-btn'
+                      title='Editar rutina'
+                    >
+                      <EditIcon width={20} height={20} />
                     </button>
                   </div>
                 </div>
@@ -84,7 +90,7 @@ const RutinasAdmin = () => {
                       <div key={bloque.ID_Bloque} className="bloque-card">
                         {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
-                          <div> 
+                          <div>
                             <p>
                               {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
                             </p>
@@ -94,7 +100,7 @@ const RutinasAdmin = () => {
                                 {`${ej.reps} ${ej.setRepWeight}`}
                               </p>
                             ))}
-                          {/* </ul> */}
+                            {/* </ul> */}
                           </div>
                         )}
 

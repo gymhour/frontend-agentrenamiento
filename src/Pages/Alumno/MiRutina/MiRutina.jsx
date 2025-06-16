@@ -9,12 +9,14 @@ import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const MiRutina = () => {
   const [rutinas, setRutinas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRutinaId, setSelectedRutinaId] = useState(null);
+  const navigate = useNavigate()
 
   // useEffect para cargar rutinas al montar el componente
   useEffect(() => {
@@ -92,9 +94,13 @@ const MiRutina = () => {
                     <button onClick={() => handlePopUpOpen(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
                       <DeleteIcon width={20} height={20} />
                     </button>
-                    {/* <button className='mi-rutina-eliminar-btn'>
-                      <EditIcon width={20} height={20}/>
-                    </button> */}
+                    <button
+                      onClick={() => navigate(`/alumno/editar-rutina/${rutina.ID_Rutina}`)}
+                      className='mi-rutina-eliminar-btn'
+                      title='Editar rutina'
+                    >
+                      <EditIcon width={20} height={20} />
+                    </button>
                   </div>
                 </div>
 

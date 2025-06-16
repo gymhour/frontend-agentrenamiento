@@ -73,6 +73,15 @@ const getRutinas = async () => {
     }
 }
 
+const getRutinaById = async (rutinaId) => {
+    try {
+        const response = await apiClient.get(`/rutinas/${rutinaId}`);
+        return response.data.rutina;
+    } catch (error) {
+        throw new Error("Error en el service de getRutinas");
+    }
+}
+
 const getUserRutinas = async (id) => {
     try {
         const response = await apiClient.get(`/rutinas/usuario/${id}`);
@@ -91,12 +100,30 @@ const createRutina = async (data) => {
     }
 };
 
+const editRutina = async (idRutina, data) => {
+    try {
+        const response = await apiClient.put(`/rutinas/${idRutina}`, data);
+        return response.data
+    } catch (error) {
+        throw new Error("Error en el service de getRutinas");
+    }
+}
+
 const deleteRutina = async (id) => {
     try {
         const response = await apiClient.delete(`/rutinas/${id}`);
         return response.data;
     } catch (error) {
         throw new Error("Error al eliminar la rutina");
+    }
+}
+
+const getRutinasEntrenadores = async (idEntrenador) => {
+    try {
+        const response = await apiClient.get(`/rutinas/entrenador/${idEntrenador}`)
+        return response.data;
+    } catch (error) {
+        throw new Error("Error al traer las rutinas asignadas por el entrenador");
     }
 }
 
@@ -241,9 +268,12 @@ export default {
     deleteTurno,
     // Rutinas
     getRutinas,
+    getRutinaById,
     getUserRutinas,
     createRutina,
+    editRutina,
     deleteRutina,
+    getRutinasEntrenadores,
     // Entrenadores
     getEntrenadores,
     addEntrenadorToClase,

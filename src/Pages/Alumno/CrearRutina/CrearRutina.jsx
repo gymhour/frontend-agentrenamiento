@@ -8,12 +8,15 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import apiService from '../../../services/apiService';
 import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
-import { useNavigate } from 'react-router-dom';
-// Importamos react-select para el dropdown de usuarios
+import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
 
 const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
+  // Id de rutina si se esta editando
+  const { rutinaId } = useParams();
+  const isEditing = Boolean(rutinaId);
+
   const diasSemana = [
     "Lunes",
     "Martes",
@@ -23,6 +26,16 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     "Sabado",
     "Domingo"
   ];
+
+  // Helpers para mapear tipos API <-> UI
+  const apiToDisplayType = {
+    SETS_REPS: 'Series y repeticiones',
+    ROUNDS: 'Rondas',
+    EMOM: 'EMOM',
+    AMRAP: 'AMRAP',
+    LADDER: 'Escalera'
+  };
+
   const tiposDeSerie = [
     "Series y repeticiones",
     "Rondas",
@@ -40,8 +53,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     hora: ''
   });
   // en lugar de formData.diaSemana
-  const [selectedDias, setSelectedDias] = useState([]); 
-  const [dropdownDiaValue, setDropdownDiaValue] = useState(""); 
+  const [selectedDias, setSelectedDias] = useState([]);
+  const [dropdownDiaValue, setDropdownDiaValue] = useState("");
 
   // Para fetch y selección de usuarios (sólo aplica a entrenador)
   const [users, setUsers] = useState([]);
@@ -76,6 +89,63 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
   };
 
+  // Convertir bloque API a data interna
+  const convertApiBlockData = b => {
+    // Si es escalera, solo mapeamos ejercicios (no metemos el empty placeholder)
+    if (b.type === 'LADDER') {
+      return {
+        escaleraType: b.tipoEscalera || '',
+        setsReps: (b.ejercicios || []).map(e => ({
+          series: '',
+          exercise: e.setRepWeight,
+          placeholderExercise: ''
+        }))
+      };
+    }
+
+    // Para los demás tipos, mantenemos la lógica previa
+    const common = [];
+    if (b.nombreEj || b.setsReps !== undefined) {
+      common.push({
+        series: b.setsReps || '',
+        exercise: b.nombreEj || '',
+        placeholderExercise: ''
+      });
+    }
+    (b.ejercicios || []).forEach(e => {
+      common.push({
+        series: e.reps,
+        exercise: e.setRepWeight,
+        placeholderExercise: ''
+      });
+    });
+
+    switch (b.type) {
+      case 'SETS_REPS':
+        return { setsReps: common };
+      case 'ROUNDS':
+        return {
+          rounds: b.cantRondas || '',
+          descanso: b.descansoRonda || '',
+          setsReps: common
+        };
+      case 'EMOM':
+        return {
+          interval: '',
+          totalMinutes: b.durationMin || '',
+          setsReps: common
+        };
+      case 'AMRAP':
+        return {
+          duration: b.durationMin || '',
+          setsReps: common
+        };
+      default:
+        return { setsReps: common };
+    }
+  };
+
+
   const handleSelectDia = (dia) => {
     if (!selectedDias.includes(dia)) {
       setSelectedDias(prev => [...prev, dia]);
@@ -87,18 +157,49 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   };
 
 
-  // Si el componente se usa en modo entrenador, traemos los usuarios para seleccionarlos
+  // 1) Solo carga usuarios al montar (o al cambiar fromEntrenador)
   useEffect(() => {
     if (fromEntrenador) {
       apiService.getAllUsuarios()
-        .then(res => {
-          setUsers(res.data);
-        })
-        .catch(() => {
-          toast.error("No se pudieron cargar los usuarios");
-        });
+        .then(res => setUsers(res.data))
+        .catch(() => toast.error('No se pudieron cargar los usuarios'));
     }
   }, [fromEntrenador]);
+
+  // 2) Cuando esté listo el mundo (isEditing y usuarios cargados), fetchRoutine()
+  useEffect(() => {
+    if (isEditing && (!fromEntrenador || users.length > 0)) {
+      fetchRoutine();
+    }
+  }, [isEditing, fromEntrenador, users]);
+
+
+  // Fetch routine to edit
+  const fetchRoutine = async () => {
+    setLoading(true);
+    try {
+      const resp = await apiService.getRutinaById(rutinaId);
+      // step 1 data
+      setFormData({ nombre: resp.nombre, descripcion: resp.desc, hora: '' });
+      setSelectedDias(resp.DiasRutina.map(d => d.dia));
+      if (fromEntrenador) {
+        const user = users.find(u => u.ID_Usuario === resp.ID_Usuario);
+        setSelectedEmail(user?.email || null);
+      }
+      // step 2 blocks
+      const loaded = resp.Bloques.map(b => ({
+        id: b.ID_Bloque,
+        type: apiToDisplayType[b.type] || b.type,
+        data: convertApiBlockData(b)
+      }));
+      setBlocks(loaded);
+      setStep(1);
+    } catch {
+      toast.error('No se pudo cargar la rutina para editar');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // --- STEP 1: Continuar ---
   const handleContinue = (e) => {
@@ -197,7 +298,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       ? users.find(u => u.email === selectedEmail)?.ID_Usuario
       : localStorage.getItem("usuarioId");
 
-    const entrenadorId = fromEntrenador ?  Number(localStorage.getItem("usuarioId")) : null;
+    const entrenadorId = fromEntrenador ? Number(localStorage.getItem("usuarioId")) : null;
 
     return {
       ID_Usuario: Number(userId),
@@ -295,37 +396,28 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     };
   };
 
-  // --- Envío final de la rutina ---
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const rutinaData = prepareRutinaData();
-    console.log("Final data to send:", rutinaData);
-
+  // submit o update
+  const handleSubmit = async e => {
+    e.preventDefault(); setLoading(true);
+    const data = prepareRutinaData();
     try {
-      const response = await apiService.createRutina(rutinaData);
-      setLoading(false);
-      toast.success("Rutina creada correctamente.");
-      if (fromAdmin) {
-        navigate("/admin/rutinas");
-      } else if (fromEntrenador) {
-        setStep(1);
-        setFormData({
-          nombre: '',
-          descripcion: '',
-          hora: ''
-        });
-        setSelectedDias([])
-        setSelectedEmail(null);
-        setBlocks([]);
+      if (isEditing) {
+        console.log("Rutina a editar", rutinaId)
+        console.log("Data a editar", data)
+        await apiService.editRutina(rutinaId, data);
+        toast.success('Rutina actualizada correctamente');
       } else {
-        navigate("/alumno/mi-rutina");
+        await apiService.createRutina(data);
+        toast.success('Rutina creada correctamente');
       }
-    } catch (error) {
-      console.error("Error al crear rutina:", error);
-      setLoading(false);
-      toast.error("No se pudo crear la rutina");
-    }
+      if (fromAdmin) navigate('/admin/rutinas');
+      else if (fromEntrenador) {
+        if (!isEditing) setStep(1);
+        if (!isEditing) setFormData({ nombre: '', descripcion: '', hora: '' });
+      } else navigate('/alumno/mi-rutina');
+    } catch {
+      toast.error(isEditing ? 'Error actualizando rutina' : 'Error creando rutina');
+    } finally { setLoading(false); }
   };
 
   return (
@@ -334,10 +426,10 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
-          <h2>Crear Rutina</h2>
+          <h2>{isEditing ? 'Editar Rutina' : 'Crear Rutina'}</h2>
           {step === 2 && (
             <PrimaryButton
-              text="Crear rutina"
+              text={isEditing ? "Guardar cambios" : "Crear rutina"}
               linkTo="#"
               onClick={handleSubmit}
             />
@@ -382,19 +474,19 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
               />
               {
                 selectedDias.length > 0 &&
-                  <div className="selected-tags">
-                    {selectedDias.map(dia => (
-                      <div key={dia} className="tag">
-                        <span>{dia}</span>
-                        <CloseIcon
-                          className="tag-close"
-                          width={16}
-                          height={16}
-                          onClick={() => handleRemoveDia(dia)}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                <div className="selected-tags">
+                  {selectedDias.map(dia => (
+                    <div key={dia} className="tag">
+                      <span>{dia}</span>
+                      <CloseIcon
+                        className="tag-close"
+                        width={16}
+                        height={16}
+                        onClick={() => handleRemoveDia(dia)}
+                      />
+                    </div>
+                  ))}
+                </div>
               }
 
 
