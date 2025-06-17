@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './AsistenteChat.css';
 import { ReactComponent as CloseIcon } from '../../assets/icons/close.svg';
+import AsistenteIcon from "../../assets/asistente/asistente-icon.png"
 
 const AsistenteChat = () => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef(null);
 
-  // Cuando abrimos el chat, opcionalmente inyectamos un saludo inicial
+  // Saludo inicial
   useEffect(() => {
     if (open) {
       setMessages([{
@@ -21,7 +23,7 @@ const AsistenteChat = () => {
     }
   }, [open]);
 
-  // Scroll automático al final
+  // Scroll automático
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -30,22 +32,58 @@ const AsistenteChat = () => {
 
   const handleSend = async () => {
     const text = inputValue.trim();
-    if (!text) return;
-    // agrego mensaje del usuario
+    if (!text || isTyping) return;
+
+    // 1) Mensaje del usuario
     setMessages(ms => [...ms, { sender: 'user', text }]);
     setInputValue('');
+
+    // 2) Ponemos placeholder “Pensando…”
+    setIsTyping(true);
+    setMessages(ms => [...ms, { sender: 'bot', text: 'Pensando…' }]);
+
     try {
+      // 3) Llamada a la API
       const { data } = await axios.post(
         'http://localhost:5003/asistente/prompt',
         { question: text }
       );
-      setMessages(ms => [...ms, { sender: 'bot', text: data.response }]);
+
+      const fullResponse = data.response;
+      // 4) Animar escritura carácter a carácter
+      let idx = 0;
+      // Eliminamos el placeholder “Pensando…” y añadimos un mensaje vacío
+      setMessages(ms => {
+        const copy = [...ms];
+        copy.pop();
+        return [...copy, { sender: 'bot', text: '' }];
+      });
+
+      const typer = setInterval(() => {
+        idx++;
+        setMessages(ms => {
+          const copy = [...ms];
+          copy[copy.length - 1].text = fullResponse.slice(0, idx);
+          return copy;
+        });
+        if (idx >= fullResponse.length) {
+          clearInterval(typer);
+          setIsTyping(false);
+        }
+      }, 30); // 30ms por carácter (ajusta velocidad)
+
     } catch (err) {
-      setMessages(ms => [...ms, {
-        sender: 'bot',
-        text: 'Ups, hubo un error de conexión. Por favor, intentá de nuevo.'
-      }]);
+      // En caso de error, reemplazamos el placeholder con mensaje de error
+      setMessages(ms => {
+        const copy = [...ms];
+        copy.pop();
+        return [...copy, {
+          sender: 'bot',
+          text: 'Ups, hubo un error de conexión. Por favor, intentá de nuevo.'
+        }];
+      });
       console.error(err);
+      setIsTyping(false);
     }
   };
 
@@ -54,10 +92,9 @@ const AsistenteChat = () => {
       {open ? (
         <div className="assistant-chat-window">
           <div className="assistant-header">
-            {/* <img src={RobotIcon} alt="Asistente" className="assistant-avatar" /> */}
+            <p> Coach y soporte </p>
             <button className="assistant-close" onClick={toggleChat}>
-              {/* <img src={CloseIcon} alt="Cerrar" /> */}
-              <CloseIcon/>
+              <CloseIcon width={30}/>
             </button>
           </div>
           <div className="assistant-messages">
@@ -75,15 +112,22 @@ const AsistenteChat = () => {
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
+              disabled={isTyping}
             />
-            <button onClick={handleSend} className="send-button">➤</button>
+            <button
+              onClick={handleSend}
+              className="send-button"
+              disabled={isTyping}
+            >
+              ➤
+            </button>
           </div>
         </div>
       ) : (
         <div className="assistant-bubble" onClick={toggleChat}>
-          {/* <img src={RobotIcon} alt="Asistente" className="assistant-icon" /> */}
+          <img src={AsistenteIcon} alt="Asistente" className="assistant-icon" />
           <span className="assistant-text">
-            Realizar consultas del gimnasio, entrenamiento y nutrición
+            Consultas fitness y del gimnasio
           </span>
         </div>
       )}

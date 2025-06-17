@@ -62,26 +62,35 @@ const RutinasAsignadas = () => {
         }
     }
 
-    // Filtro por usuario seleccionado
     const handleSearch = async () => {
-        if (!selectedUser) return
-        setLoading(true)
+        if (!selectedUser) return;
+        setLoading(true);
         try {
-            // Obtener rutinas para el usuario
-            const data = await apiService.getUserRutinas(selectedUser.value)
-            const lista = data.rutinas || []
-            // Enriquecer cada rutina con el mismo usuario seleccionado
-            const userData = users.find(u => u.ID_Usuario === selectedUser.value)
-            const enriched = lista.map(rutina => ({ ...rutina, Usuario: userData }))
-            setRutinas(enriched)
+          // traigo todas las rutinas del usuario
+          const { rutinas = [] } = await apiService.getUserRutinas(selectedUser.value);
+          const entrenadorId = Number(localStorage.getItem('usuarioId'));
+      
+          // me quedo solo con las que asignó el entrenador
+          const asignadasPorMi = rutinas.filter(
+            rutina => Number(rutina.ID_Entrenador) === entrenadorId
+          );
+      
+          // busco solo las que el entrennador asigno
+          const userData = users.find(u => u.ID_Usuario === selectedUser.value);
+          const enriched = asignadasPorMi.map(rutina => ({
+            ...rutina,
+            Usuario: userData
+          }));
+      
+          setRutinas(enriched);
         } catch (error) {
-            console.error('Error filtrando rutinas:', error)
-            toast.error('No se pudieron filtrar las rutinas para ese usuario.')
+          console.error('Error filtrando rutinas asignadas:', error);
+          toast.error('No se pudieron filtrar las rutinas asignadas por el entrenador.');
         } finally {
-            setLoading(false)
+          setLoading(false);
         }
-    }
-
+      };
+      
     return (
         <div className='page-layout'>
             {loading && <LoaderFullScreen />}

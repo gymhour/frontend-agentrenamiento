@@ -60,6 +60,25 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [users, setUsers] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
 
+  // Desplegable de clases
+  const [clases, setClases] = useState([]);
+  const [selectedClase, setSelectedClase] = useState("");
+
+  // Grupos musculares
+  const gruposMusculares = [
+    "Pecho",
+    "Espalda",
+    "Piernas",
+    "Brazos",
+    "Hombros",
+    "Abdominales",
+    "Glúteos",
+    "Tren Superior",
+    "Tren Inferior",
+    "Full Body"
+  ];
+  const [selectedGrupoMuscular, setSelectedGrupoMuscular] = useState("");
+
   // Estados para step2
   const [blocks, setBlocks] = useState([]);
   const [showBlockTypeDropdown, setShowBlockTypeDropdown] = useState(false);
@@ -173,6 +192,12 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     }
   }, [isEditing, fromEntrenador, users]);
 
+  // Fetch clases para el dropdown
+  useEffect(() => {
+    apiService.getClases()
+      .then(res => setClases(res))
+      .catch(() => toast.error('No se pudieron cargar las clases'));
+  }, []);
 
   // Fetch routine to edit
   const fetchRoutine = async () => {
@@ -182,6 +207,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       // step 1 data
       setFormData({ nombre: resp.nombre, descripcion: resp.desc, hora: '' });
       setSelectedDias(resp.DiasRutina.map(d => d.dia));
+      setSelectedClase(resp.claseRutina || "");
+      setSelectedGrupoMuscular(resp.grupoMuscularRutina || "");
       if (fromEntrenador) {
         const user = users.find(u => u.ID_Usuario === resp.ID_Usuario);
         setSelectedEmail(user?.email || null);
@@ -307,8 +334,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       desc: formData.descripcion,
       dias: selectedDias,
       //
-      grupoMuscularRutina: "General",
-      claseRutina: "Mantenimiento",
+      grupoMuscularRutina: selectedGrupoMuscular,
+      claseRutina: selectedClase,
       //
       bloques: blocks.map(block => {
         switch (block.type) {
@@ -402,8 +429,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     const data = prepareRutinaData();
     try {
       if (isEditing) {
-        console.log("Rutina a editar", rutinaId)
-        console.log("Data a editar", data)
         await apiService.editRutina(rutinaId, data);
         toast.success('Rutina actualizada correctamente');
       } else {
@@ -491,11 +516,29 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
 
               <CustomInput
-                placeholder="Hora (por ej. 10:00)"
+                placeholder="Hora (ej. 10:00 - opcional)"
                 value={formData.hora}
                 onChange={(e) =>
                   setFormData({ ...formData, hora: e.target.value })
                 }
+              />
+
+              <CustomDropdown
+                id="claseRutina"
+                name="claseRutina"
+                placeholderOption="Seleccionar clase"
+                options={clases.map(c => c.nombre)}
+                value={selectedClase}
+                onChange={e => setSelectedClase(e.target.value)}
+              />
+
+              <CustomDropdown
+                id="grupoMuscular"
+                name="grupoMuscular"
+                placeholderOption="Seleccionar grupo muscular"
+                options={gruposMusculares}
+                value={selectedGrupoMuscular}
+                onChange={e => setSelectedGrupoMuscular(e.target.value)}
               />
 
               {/* Si es entrenador, mostramos dropdown para buscar usuarios */}
