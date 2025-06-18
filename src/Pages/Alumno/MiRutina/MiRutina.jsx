@@ -3,6 +3,7 @@ import '../../../App.css';
 import './MiRutina.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
+import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown.jsx';
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
@@ -10,52 +11,71 @@ import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const MiRutina = () => {
   const [rutinas, setRutinas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRutinaId, setSelectedRutinaId] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [selClase, setSelClase] = useState('');
+  const [selGrupo, setSelGrupo] = useState('');
+  const [selDia, setSelDia] = useState('');
+  const [fClase, setFClase] = useState('');
+  const [fGrupo, setFGrupo] = useState('');
+  const [fDia, setFDia] = useState('');
+  const [showFilters, setShowFilters] = useState(false)
 
-  // useEffect para cargar rutinas al montar el componente
   useEffect(() => {
-    let userId = localStorage.getItem("usuarioId")
-    const fetchRutinas = async () => {
-      try {
-        const data = await apiService.getUserRutinas(userId);
-        // En la respuesta que compartiste, el array viene en data.rutinas
-        setRutinas(data.rutinas);
-      } catch (error) {
-        console.error("Error al obtener rutinas:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRutinas();
+    const userId = localStorage.getItem('usuarioId');
+    apiService.getUserRutinas(userId)
+      .then(data => setRutinas(data.rutinas))
+      .catch(error => console.error('Error al obtener rutinas:', error))
+      .finally(() => setLoading(false));
   }, []);
 
+  // opciones únicas para los dropdowns
+  const clases = Array.from(new Set(rutinas.map(r => r.claseRutina)));
+  const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina)));
+  const dias   = Array.from(new Set(rutinas.flatMap(r => r.DiasRutina.map(d => d.dia))));
+
+  // rutinas filtradas según filtros aplicados
+  const filteredRutinas = rutinas.filter(r => (
+    (fClase === '' || r.claseRutina === fClase) &&
+    (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
+    (fDia   === '' || r.DiasRutina.some(d => d.dia === fDia))
+  ));
+
+  // manejadores de Buscar y Limpiar
+  const aplicarFiltro = () => {
+    setFClase(selClase);
+    setFGrupo(selGrupo);
+    setFDia(selDia);
+  };
+  const limpiarFiltro = () => {
+    setSelClase(''); setSelGrupo(''); setSelDia('');
+    setFClase('');  setFGrupo('');  setFDia('');
+  };
+
+  // eliminar rutina
   const deleteRutina = async (idRutina) => {
-    setLoading(true)
+    setLoading(true);
     try {
       await apiService.deleteRutina(idRutina);
-      setRutinas((prevRutinas) =>
-        prevRutinas.filter((rutina) => rutina.ID_Rutina !== idRutina)
-      );
-      toast.success("Rutina eliminada correctamente");
-      setLoading(false)
-    } catch (error) {
-      toast.error("La rutina no se pudo eliminar. Por favor, intente nuevamente.")
+      setRutinas(prev => prev.filter(r => r.ID_Rutina !== idRutina));
+      toast.success('Rutina eliminada correctamente');
+    } catch {
+      toast.error('La rutina no se pudo eliminar. Por favor, intente nuevamente.');
+    } finally {
       setLoading(false);
     }
   };
-
-  const handlePopUpOpen = (id) => {
+  const handlePopUpOpen = id => {
     setSelectedRutinaId(id);
     setIsPopupOpen(true);
   };
-
   const handlePopupConfirm = () => {
     setIsPopupOpen(false);
     if (selectedRutinaId) {
@@ -63,7 +83,6 @@ const MiRutina = () => {
       setSelectedRutinaId(null);
     }
   };
-
   const handlePopupClose = () => {
     setIsPopupOpen(false);
     setSelectedRutinaId(null);
@@ -74,24 +93,61 @@ const MiRutina = () => {
       {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
-        <div className="mi-rutina-title">
-          <div>
-            <h2>Mis rutinas</h2>
-            {/* <p>Creá tu rutina semanal y consultá la de tu clase o la asignada por tu entrenador personal.</p> */}
-          </div>
-          <PrimaryButton text="Crear rutina" linkTo="/alumno/crear-rutina" />
+
+        <div className='mi-rutina-title'>
+          <h2>Mis rutinas</h2>
+          <PrimaryButton text='Crear rutina' linkTo='/alumno/crear-rutina' />
         </div>
 
-        <div className="mis-rutinas-list">
-          {rutinas.length === 0 ? (
-            <p>No hay rutinas cargadas</p>
+        <div style={{ margin: '30px 0px' }}>
+            <button
+              className='toggle-filters-button'
+              onClick={() => setShowFilters(prev => !prev)}
+            >
+              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+        </div>
+
+        {/* —— FILTROS —— */}
+        {showFilters && 
+          <div className="filtros-section" style={{ margin: '20px 0', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+            <CustomDropdown
+              options={clases}
+              value={selClase}
+              onChange={e => setSelClase(e.target.value)}
+              placeholderOption='Todas las clases'
+            />
+            <CustomDropdown
+              options={grupos}
+              value={selGrupo}
+              onChange={e => setSelGrupo(e.target.value)}
+              placeholderOption='Todos los grupos musculares'
+            />
+            <CustomDropdown
+              options={dias}
+              value={selDia}
+              onChange={e => setSelDia(e.target.value)}
+              placeholderOption='Todos los días'
+            />
+            <PrimaryButton onClick={aplicarFiltro} text="Filtrar"/>
+            <SecondaryButton onClick={limpiarFiltro} text="Limpiar filtros"/>
+          </div>
+        }
+
+        {/* —— LISTADO DE RUTINAS —— */}
+        <div className='mis-rutinas-list'>
+          {filteredRutinas.length === 0 ? (
+            <p>No hay rutinas para estos filtros.</p>
           ) : (
-            rutinas.map((rutina) => (
-              <div key={rutina.ID_Rutina} className="rutina-card">
+            filteredRutinas.map(rutina => (
+              <div key={rutina.ID_Rutina} className='rutina-card'>
                 <div className='rutina-header'>
                   <h3>{rutina.nombre}</h3>
-                  <div className="rutina-header-acciones">
-                    <button onClick={() => handlePopUpOpen(rutina.ID_Rutina)} className='mi-rutina-eliminar-btn'>
+                  <div className='rutina-header-acciones'>
+                    <button
+                      onClick={() => handlePopUpOpen(rutina.ID_Rutina)}
+                      className='mi-rutina-eliminar-btn'
+                    >
                       <DeleteIcon width={20} height={20} />
                     </button>
                     <button
@@ -104,35 +160,32 @@ const MiRutina = () => {
                   </div>
                 </div>
 
-                <div className="rutina-data">
-                  {/* Aca deberia ir categoria y duración también */}
-                  <p> Día de la semana:   {rutina.DiasRutina.map(d => d.dia).join(", ")}                  </p>
+                <div className='rutina-data'>
+                  <p>Día de la semana: {rutina.DiasRutina.map(d => d.dia).join(', ')}</p>
                 </div>
 
                 {rutina.Entrenador && (
                   <p>
-                    Asignada por:&nbsp;
-                    {rutina.Entrenador.nombre} {rutina.Entrenador.apellido}
+                    Asignada por: {rutina.Entrenador.nombre} {rutina.Entrenador.apellido}
                   </p>
                 )}
 
                 {rutina.Bloques && rutina.Bloques.length > 0 && (
-                  <div className="bloques-list">
-                    {rutina.Bloques.map((bloque) => (
-                      <div key={bloque.ID_Bloque} className="bloque-card">
+                  <div className='bloques-list'>
+                    {rutina.Bloques.map(bloque => (
+                      <div key={bloque.ID_Bloque} className='bloque-card'>
+
                         {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
                           <div>
                             <p>
                               {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
                             </p>
-                            {/* <ul style={{ paddingLeft: '20px' }}> */}
-                            {bloque.ejercicios.map((ej) => (
+                            {bloque.ejercicios.map(ej => (
                               <p key={ej.ID_Ejercicio}>
                                 {`${ej.reps} ${ej.setRepWeight}`}
                               </p>
                             ))}
-                            {/* </ul> */}
                           </div>
                         )}
 
@@ -140,21 +193,20 @@ const MiRutina = () => {
                         {bloque.type === 'ROUNDS' && (
                           <>
                             <p>{`${bloque.cantRondas} rondas de:`}</p>
-
                             <ul style={{ paddingLeft: '20px' }}>
                               <li>
                                 {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
                               </li>
-
-                              {bloque.ejercicios.map((ej) => (
+                              {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
                                   {`${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
-
                             {bloque.descansoRonda != null && (
-                              <p style={{ color: "rgba(255,255,255,0.6)" }}>{`con ${bloque.descansoRonda} segs de descanso`}</p>
+                              <p style={{ color: 'rgba(255,255,255,0.6)' }}>
+                                {`con ${bloque.descansoRonda} segs de descanso`}
+                              </p>
                             )}
                           </>
                         )}
@@ -164,7 +216,7 @@ const MiRutina = () => {
                           <>
                             <p>{`AMRAP ${bloque.durationMin}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej) => (
+                              {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
                                   {`${ej.reps} ${ej.setRepWeight}`}
                                 </li>
@@ -192,12 +244,13 @@ const MiRutina = () => {
                           <>
                             <p>{bloque.tipoEscalera}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej) => (
+                              {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>{ej.setRepWeight}</li>
                               ))}
                             </ul>
                           </>
                         )}
+
                       </div>
                     ))}
                   </div>
@@ -206,13 +259,15 @@ const MiRutina = () => {
             ))
           )}
         </div>
+
+        <ConfirmationPopup
+          isOpen={isPopupOpen}
+          onClose={handlePopupClose}
+          onConfirm={handlePopupConfirm}
+          message='¿Estás seguro de que deseas eliminar esta rutina?'
+        />
+
       </div>
-      <ConfirmationPopup
-        isOpen={isPopupOpen}
-        onClose={handlePopupClose}
-        onConfirm={handlePopupConfirm}
-        message="¿Estás seguro de que deseas eliminar esta rutina?"
-      />
     </div>
   );
 };

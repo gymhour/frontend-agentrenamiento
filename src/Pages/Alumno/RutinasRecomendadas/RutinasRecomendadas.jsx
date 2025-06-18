@@ -1,119 +1,188 @@
 import React, { useEffect, useState } from 'react';
 import '../../../App.css';
-import '../MiRutina/MiRutina.css'
+import '../MiRutina/MiRutina.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
+import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown.jsx';
 import apiService from '../../../services/apiService';
-import LoaderSection from '../../../Components/utils/LoaderSection/LoaderSection.jsx';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const RutinasRecomendadas = () => {
-  // Estado para guardar las rutinas que traemos de la API
   const [rutinas, setRutinas] = useState([]);
-  // Estado para manejar el loading
   const [loading, setLoading] = useState(true);
 
-  // useEffect para cargar rutinas al montar el componente
+  // estados de dropdown (selección actual)
+  const [selClase, setSelClase] = useState('');
+  const [selGrupo, setSelGrupo] = useState('');
+  const [selDia, setSelDia]     = useState('');
+  // filtros aplicados (solo cambian al presionar Filtrar)
+  const [fClase, setFClase] = useState('');
+  const [fGrupo, setFGrupo] = useState('');
+  const [fDia,   setFDia]   = useState('');
+  // toggle de sección de filtros
+  const [showFilters, setShowFilters] = useState(false);
+
   useEffect(() => {
     const fetchRutinas = async () => {
       try {
-        const { rutinas } = await apiService.getRutinas();
-      
-        // Filtrar solo las rutinas de admin o entrenador
-        const rutinasFiltradas = rutinas.filter(rutina =>
-          rutina.User &&
-          (rutina.User.tipo === 'admin' || rutina.User.tipo === 'entrenador')
+        const { rutinas: allRutinas } = await apiService.getRutinas();
+        // solo admin o entrenador
+        const filtradas = allRutinas.filter(r =>
+          r.User && (r.User.tipo === 'admin' || r.User.tipo === 'entrenador')
         );
-  
-        setRutinas(rutinasFiltradas);
+        setRutinas(filtradas);
       } catch (error) {
-        console.error("Error al obtener rutinas:", error);
+        console.error('Error al obtener rutinas:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRutinas();
   }, []);
 
-  // Función para eliminar una rutina
-  const deleteRutina = async (idRutina) => {
-    try {
-      await apiService.deleteRutina(idRutina);
-      console.log("Rutina " + idRutina + " eliminada correctamente");
-      setRutinas((prevRutinas) =>
-        prevRutinas.filter((rutina) => rutina.ID_Rutina !== idRutina)
-      );
-    } catch (error) {
-      console.error("Error al eliminar rutina", error);
-    }
+  // opciones únicas para los dropdowns — sin valores null o vacíos
+  const clases = Array.from(new Set(
+    rutinas
+      .map(r => r.claseRutina)
+      .filter(c => c != null && c !== '')
+  ));
+
+  const grupos = Array.from(new Set(
+    rutinas
+      .map(r => r.grupoMuscularRutina)
+      .filter(g => g != null && g !== '')
+  ));
+
+  const dias = Array.from(new Set(
+    rutinas
+      .flatMap(r => r.DiasRutina.map(d => d.dia))
+      .filter(d => d != null && d !== '')
+  ));
+
+  // rutinas filtradas según filtros aplicados
+  const filteredRutinas = rutinas.filter(r => (
+    (fClase === '' || r.claseRutina === fClase) &&
+    (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
+    (fDia   === '' || r.DiasRutina.some(d => d.dia === fDia))
+  ));
+
+  // manejadores de Filtrar y Limpiar
+  const aplicarFiltro = () => {
+    setFClase(selClase);
+    setFGrupo(selGrupo);
+    setFDia(selDia);
   };
+  const limpiarFiltro = () => {
+    setSelClase(''); setSelGrupo(''); setSelDia('');
+    setFClase('');  setFGrupo('');  setFDia('');
+  };
+
+  if (loading) return <LoaderFullScreen />;
 
   return (
     <div className='page-layout'>
-      {loading && <LoaderFullScreen/> }
-      <SidebarMenu isAdmin={false}/>
+      <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
+
         <div className="mi-rutina-title">
           <h2>Rutinas Recomendadas</h2>
-          {/* <p>Explorá rutinas que pueden ayudarte a alcanzar tus objetivos.</p> */}
         </div>
 
-        {/* Si está cargando, muestra el LoaderSection */}
-          <div className="mis-rutinas-list">
-            {rutinas.length === 0 ? (
-              <p>No hay rutinas cargadas</p>
-            ) : (
-              rutinas.map((rutina) => (
-                <div key={rutina.ID_Rutina} className="rutina-card">
-                  <div className='rutina-header'>
-                    <h3>{rutina.nombre}</h3>
-                    {/* <button 
-                      onClick={() => deleteRutina(rutina.ID_Rutina)} 
-                      className='mi-rutina-eliminar-btn'
-                    >
-                      Eliminar
-                    </button> */}
-                  </div>
-                  {/* <p>{rutina.desc}</p> */}
-                  <div className="rutina-data">
-                  {/* Aca deberia ir categoria y duración también */}
-                  <p> Día de la semana: {rutina.dayOfWeek}</p>
+        <div style={{ margin: '20px 0' }}>
+          <button
+            className='toggle-filters-button'
+            onClick={() => setShowFilters(prev => !prev)}
+          >
+            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
+        </div>
+
+        {showFilters && (
+          <div
+            className="filtros-section"
+            style={{
+              margin: '10px 0',
+              display: 'flex',
+              gap: '15px',
+              flexWrap: 'wrap',
+              alignItems: 'flex-end'
+            }}
+          >
+            <CustomDropdown
+              options={clases}
+              value={selClase}
+              onChange={e => setSelClase(e.target.value)}
+              placeholderOption='Todas las clases'
+            />
+            <CustomDropdown
+              options={grupos}
+              value={selGrupo}
+              onChange={e => setSelGrupo(e.target.value)}
+              placeholderOption='Todos los grupos musculares'
+            />
+            <CustomDropdown
+              options={dias}
+              value={selDia}
+              onChange={e => setSelDia(e.target.value)}
+              placeholderOption='Todos los días'
+            />
+            <PrimaryButton onClick={aplicarFiltro} text="Filtrar" />
+            <SecondaryButton onClick={limpiarFiltro} text="Limpiar filtros" />
+          </div>
+        )}
+
+        <div className="mis-rutinas-list">
+          {filteredRutinas.length === 0 ? (
+            <p>No hay rutinas para estos filtros.</p>
+          ) : (
+            filteredRutinas.map(rutina => (
+              <div key={rutina.ID_Rutina} className="rutina-card">
+                <div className='rutina-header'>
+                  <h3>{rutina.nombre}</h3>
                 </div>
-                {rutina.Bloques && rutina.Bloques.length > 0 && (
+
+                <div className="rutina-data">
+                  <p>Clase: {rutina.claseRutina}</p>
+                  <p>Grupo muscular: {rutina.grupoMuscularRutina}</p>
+                  <p>Día(s): {rutina.DiasRutina.map(d => d.dia).join(', ')}</p>
+                </div>
+
+                {rutina.Bloques && (
                   <div className="bloques-list">
-                    {rutina.Bloques.map((bloque) => (
+                    {rutina.Bloques.map(bloque => (
                       <div key={bloque.ID_Bloque} className="bloque-card">
-                        {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
                           <p>
                             {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
                           </p>
                         )}
-
-                        {/* ROUNDS */}
                         {bloque.type === 'ROUNDS' && (
                           <>
                             <p>{`${bloque.cantRondas} rondas de:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej) => (
+                              <li>
+                                {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                              </li>
+                              {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
                                   {`${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
                             {bloque.descansoRonda != null && (
-                              <p>{`con ${bloque.descansoRonda} segs de descanso`}</p>
+                              <p style={{ color: 'rgba(255,255,255,0.6)' }}>
+                                {`con ${bloque.descansoRonda} segs de descanso`}
+                              </p>
                             )}
                           </>
                         )}
-
-                        {/* AMRAP */}
                         {bloque.type === 'AMRAP' && (
                           <>
                             <p>{`AMRAP ${bloque.durationMin}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej) => (
+                              {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
                                   {`${ej.reps} ${ej.setRepWeight}`}
                                 </li>
@@ -121,8 +190,6 @@ const RutinasRecomendadas = () => {
                             </ul>
                           </>
                         )}
-
-                        {/* EMOM */}
                         {bloque.type === 'EMOM' && (
                           <>
                             <p>{`EMOM ${bloque.durationMin}min:`}</p>
@@ -135,13 +202,11 @@ const RutinasRecomendadas = () => {
                             </ul>
                           </>
                         )}
-
-                        {/* LADDER */}
                         {bloque.type === 'LADDER' && (
                           <>
                             <p>{bloque.tipoEscalera}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej) => (
+                              {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>{ej.setRepWeight}</li>
                               ))}
                             </ul>
@@ -151,10 +216,10 @@ const RutinasRecomendadas = () => {
                     ))}
                   </div>
                 )}
-                </div>
-              ))
-            )}
-          </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
