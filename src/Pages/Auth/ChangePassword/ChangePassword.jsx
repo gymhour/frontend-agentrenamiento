@@ -8,7 +8,7 @@ import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import { toast } from 'react-toastify';
 
-const ChangePassword = ({fromAdmin}) => {
+const ChangePassword = ({fromAdmin, fromEntrenador}) => {
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         oldPassword: '',
@@ -46,7 +46,7 @@ const ChangePassword = ({fromAdmin}) => {
     return (
         <div className='page-layout'>
             {loading && <LoaderFullScreen />}
-            <SidebarMenu isAdmin={fromAdmin} />
+            <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
             <div className='content-layout'>
                 <div className="mi-rutina-title">
                     <h2>Cambiar contraseña</h2>

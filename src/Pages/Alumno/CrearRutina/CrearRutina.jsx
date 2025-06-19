@@ -50,7 +50,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    hora: ''
   });
   // en lugar de formData.diaSemana
   const [selectedDias, setSelectedDias] = useState([]);
@@ -205,7 +204,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     try {
       const resp = await apiService.getRutinaById(rutinaId);
       // step 1 data
-      setFormData({ nombre: resp.nombre, descripcion: resp.desc, hora: '' });
+      setFormData({ nombre: resp.nombre, descripcion: resp.desc });
       setSelectedDias(resp.DiasRutina.map(d => d.dia));
       setSelectedClase(resp.claseRutina || "");
       setSelectedGrupoMuscular(resp.grupoMuscularRutina || "");
@@ -438,7 +437,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       if (fromAdmin) navigate('/admin/rutinas');
       else if (fromEntrenador) {
         if (!isEditing) setStep(1);
-        if (!isEditing) setFormData({ nombre: '', descripcion: '', hora: '' });
+        if (!isEditing) setFormData({ nombre: '', descripcion: '' });
       } else navigate('/alumno/mi-rutina');
     } catch {
       toast.error(isEditing ? 'Error actualizando rutina' : 'Error creando rutina');
@@ -513,15 +512,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                   ))}
                 </div>
               }
-
-
-              <CustomInput
-                placeholder="Hora (ej. 10:00 - opcional)"
-                value={formData.hora}
-                onChange={(e) =>
-                  setFormData({ ...formData, hora: e.target.value })
-                }
-              />
 
               <CustomDropdown
                 id="claseRutina"

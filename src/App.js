@@ -216,6 +216,14 @@ function App() {
             </ProtectedRoute>
           } 
         />  
+        <Route 
+          path="/entrenador/cambiar-contrasena" 
+          element={
+            <ProtectedRoute>
+              <ChangePassword fromAdmin={false} fromEntrenador={true}/>
+            </ProtectedRoute>
+          } 
+        />
         {/* Alumno */}
         <Route path="/alumno/inicio" 
           element={

@@ -66,37 +66,37 @@ const RutinasAsignadas = () => {
         if (!selectedUser) return;
         setLoading(true);
         try {
-          // traigo todas las rutinas del usuario
-          const { rutinas = [] } = await apiService.getUserRutinas(selectedUser.value);
-          const entrenadorId = Number(localStorage.getItem('usuarioId'));
-      
-          // me quedo solo con las que asignó el entrenador
-          const asignadasPorMi = rutinas.filter(
-            rutina => Number(rutina.ID_Entrenador) === entrenadorId
-          );
-      
-          // busco solo las que el entrennador asigno
-          const userData = users.find(u => u.ID_Usuario === selectedUser.value);
-          const enriched = asignadasPorMi.map(rutina => ({
-            ...rutina,
-            Usuario: userData
-          }));
-      
-          setRutinas(enriched);
+            // traigo todas las rutinas del usuario
+            const { rutinas = [] } = await apiService.getUserRutinas(selectedUser.value);
+            const entrenadorId = Number(localStorage.getItem('usuarioId'));
+
+            // me quedo solo con las que asignó el entrenador
+            const asignadasPorMi = rutinas.filter(
+                rutina => Number(rutina.ID_Entrenador) === entrenadorId
+            );
+
+            // busco solo las que el entrennador asigno
+            const userData = users.find(u => u.ID_Usuario === selectedUser.value);
+            const enriched = asignadasPorMi.map(rutina => ({
+                ...rutina,
+                Usuario: userData
+            }));
+
+            setRutinas(enriched);
         } catch (error) {
-          console.error('Error filtrando rutinas asignadas:', error);
-          toast.error('No se pudieron filtrar las rutinas asignadas por el entrenador.');
+            console.error('Error filtrando rutinas asignadas:', error);
+            toast.error('No se pudieron filtrar las rutinas asignadas por el entrenador.');
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
-      
+    };
+
     return (
         <div className='page-layout'>
             {loading && <LoaderFullScreen />}
             <SidebarMenu isAdmin={false} isEntrenador={true} />
             <div className='content-layout mi-rutina-ctn'>
-                <div className='mi-rutina-title' style={{marginBottom: '20px'}}>
+                <div className='mi-rutina-title' style={{ marginBottom: '20px' }}>
                     <h2>Rutinas asignadas</h2>
                 </div>
 
@@ -125,13 +125,13 @@ const RutinasAsignadas = () => {
                         <div key={rutina.ID_Rutina} className='rutina-card'>
                             <div className='rutina-header'>
                                 <h3>{rutina.nombre}</h3>
-                                <div className="rutina-header-acciones">                   
+                                <div className="rutina-header-acciones">
                                     <button
-                                    onClick={() => navigate(`/entrenador/editar-rutina/${rutina.ID_Rutina}`)}
-                                    className='mi-rutina-eliminar-btn'
-                                    title='Editar rutina'
+                                        onClick={() => navigate(`/entrenador/editar-rutina/${rutina.ID_Rutina}`)}
+                                        className='mi-rutina-eliminar-btn'
+                                        title='Editar rutina'
                                     >
-                                    <EditIcon width={20} height={20} />
+                                        <EditIcon width={20} height={20} />
                                     </button>
                                 </div>
                             </div>
@@ -141,11 +141,6 @@ const RutinasAsignadas = () => {
                                 <p>
                                     <strong>Días:</strong> {rutina.DiasRutina?.map(d => d.dia).join(', ')}
                                 </p>
-                            </div>
-
-
-                            <div className="rutina-asignada">
-                                Asignado a <b> {rutina.Usuario && <span> {rutina.Usuario.nombre} {rutina.Usuario.apellido} </span>} </b>
                             </div>
 
                             {rutina.Bloques && rutina.Bloques.length > 0 && (
@@ -226,6 +221,15 @@ const RutinasAsignadas = () => {
                                     ))}
                                 </div>
                             )}
+
+                            <div className="rutina-asignada">
+                                Asignado a {rutina.Usuario &&
+                                    <div className='rutina-asignada-user-data'>
+                                        <img src={rutina.Usuario.avatarUrl ? rutina.Usuario.avatarUrl : rutina.Usuario.avatarUrlThumb } alt="Imagen de usuario" width={30} className='asignado-img-usuario' />
+                                        <span> {rutina.Usuario.nombre} {rutina.Usuario.apellido} </span>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     ))}
                 </div>

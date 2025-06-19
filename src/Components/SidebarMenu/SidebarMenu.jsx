@@ -40,7 +40,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
   };
   const handleLogoutCancel = () => setIsPopupOpen(false);
 
-  const changePasswordPath = isAdmin ? "/admin/cambiar-contrasena" : "/alumno/cambiar-contrasena";
+  const changePasswordPath = isAdmin ? "/admin/cambiar-contrasena" : (isEntrenador ? "/entrenador/cambiar-contrasena" : "/alumno/cambiar-contrasena");
 
   return (
     <>

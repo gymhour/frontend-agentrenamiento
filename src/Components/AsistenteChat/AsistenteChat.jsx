@@ -125,10 +125,10 @@ const AsistenteChat = () => {
         </div>
       ) : (
         <div className="assistant-bubble" onClick={toggleChat}>
-          <img src={AsistenteIcon} alt="Asistente" className="assistant-icon" />
           <span className="assistant-text">
-            Consultas fitness y del gimnasio
+            Consultas fitness
           </span>
+          <img src={AsistenteIcon} alt="Asistente" className="assistant-icon" width={100}/>
         </div>
       )}
     </>
