@@ -10,11 +10,6 @@ const getClases = async () => {
     }
 };
 
-// Poder asignarle un instructor a una clase. Ponerlo en la creación de clases.
-const postInstructorToClase = async () => {
-
-}
-
 // Turnos
 const getTurnos = async () => {
     try {
@@ -257,6 +252,90 @@ const getKPIs = async () => {
     }
 }
 
+// Admin planes
+const getPlanes = async() => {
+    try {
+        const response = await apiClient.get("/planes");
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el servicio de getPlanes")
+    }
+}
+
+const postPlanes = async(body) => {
+    try {
+        const response = await apiClient.post("/planes", body);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de postPlanes")
+    }
+}
+
+const deletePlanes = async(id) => {
+    try {
+        const response = await apiClient.delete(`/planes/${id}`);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de deletePlanes")
+    }
+}
+
+const putPlanes = async(id, body) => {
+    try {
+        const response = await apiClient.put(`/planes/${id}`, body)
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el servicio de putPlanes")
+    }
+}
+
+// Cuotas
+const postCuotasMasivas = async(body) => {
+    try {
+        const response = await apiClient.post("cuotas/generate-cuotas", body);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de postCuotasMasivas")
+    }
+}
+
+// Ejercicios
+const getEjercicios = async() => {
+    try {
+        const response = await apiClient.get("/ejercicios");
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el servicio de getEjercicios")
+    }
+}
+
+const postEjercicios = async(body) => {
+    try {
+        const response = await apiClient.post("/ejercicios", body);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de postEjercicios")
+    }
+}
+
+const deleteEjercicios = async(id) => {
+    try {
+        const response = await apiClient.delete(`/ejercicios/${id}`);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de deleteEjercicios")
+    }
+}
+
+const putEjercicios = async(id, body) => {
+    try {
+        const response = await apiClient.put(`/ejercicios/${id}`, body)
+        return response.data;
+    } catch (error) {
+        throw new Error("Error en el servicio de putEjercicios")
+    }
+}
+
 export default {
     // Clases
     getClases,
@@ -292,5 +371,17 @@ export default {
     deleteEjercicio,
     postEjercicioResultado,
     // Admin dashboard
-    getKPIs
+    getKPIs,
+    // Planes
+    getPlanes,
+    postPlanes,
+    deletePlanes,
+    putPlanes,
+    // Cuotas
+    postCuotasMasivas,
+    // Ejercicios
+    getEjercicios,
+    postEjercicio,
+    putEjercicios,
+    deleteEjercicios,
 };

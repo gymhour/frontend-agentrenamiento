@@ -36,6 +36,8 @@ import InicioEntrenador from './Pages/Entrenador/InicioEntrenador/InicioEntrenad
 import RutinasAsignadas from './Pages/Entrenador/RutinasAsignadas/RutinasAsignadas';
 import { useLocation } from 'react-router-dom';
 import AsistenteChat from './Components/AsistenteChat/AsistenteChat';
+import PlanesAdmin from './Pages/Admin/PlanesAdmin/PlanesAdmin';
+import EjerciciosAdmin from './Pages/Admin/EjerciciosAdmin/EjerciciosAdmin';
 
 function App() {
 
@@ -115,7 +117,15 @@ function App() {
               <EditarUsuario />
             </ProtectedRoute>
           } 
-        />    
+        />   
+        <Route 
+          path="/admin/ejercicios" 
+          element={
+            <ProtectedRoute>
+              <EjerciciosAdmin/>
+            </ProtectedRoute>
+          } 
+        /> 
         <Route 
           path="/admin/rutinas" 
           element={
@@ -137,6 +147,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CrearRutina fromAdmin={true}/>
+            </ProtectedRoute>
+          } 
+        />  
+        <Route 
+          path="/admin/planes" 
+          element={
+            <ProtectedRoute>
+              <PlanesAdmin/>
             </ProtectedRoute>
           } 
         />  

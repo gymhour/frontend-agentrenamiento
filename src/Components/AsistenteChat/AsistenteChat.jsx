@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './AsistenteChat.css';
 import { ReactComponent as CloseIcon } from '../../assets/icons/close.svg';
-import AsistenteIcon from "../../assets/asistente/asistente-icon.png"
+import { ReactComponent as ChatIcon } from '../../assets/asistente/message-circle.svg';
+import apiClient from '../../axiosConfig';
 
 const AsistenteChat = () => {
   const [open, setOpen] = useState(false);
@@ -44,8 +45,8 @@ const AsistenteChat = () => {
 
     try {
       // 3) Llamada a la API
-      const { data } = await axios.post(
-        'http://localhost:5003/asistente/prompt',
+      const { data } = await apiClient.post(
+        '/asistente/prompt',
         { question: text }
       );
 
@@ -125,10 +126,8 @@ const AsistenteChat = () => {
         </div>
       ) : (
         <div className="assistant-bubble" onClick={toggleChat}>
-          <span className="assistant-text">
-            Consultas fitness
-          </span>
-          <img src={AsistenteIcon} alt="Asistente" className="assistant-icon" width={100}/>
+          Consultas fitness
+          <ChatIcon color='#FAFAFA' width={16} height={16}/>
         </div>
       )}
     </>

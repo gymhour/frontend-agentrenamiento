@@ -222,7 +222,7 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
                     <div
                       className="usuarios-table-userimage"
                       style={{
-                        backgroundImage: `url(${usuario.avatarUrlThumb || defaultAvatar})`,
+                        backgroundImage: `url(${usuario.avatarUrl || defaultAvatar})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'

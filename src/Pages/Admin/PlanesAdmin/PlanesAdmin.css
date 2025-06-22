@@ -1,0 +1,70 @@
+.planes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.planes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.plan-card {
+    background: #303030;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.plan-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.plan-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.plan-id {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.plan-desc {
+    flex: 1;
+    font-size: 0.95rem;
+    color: #FAFAFA;
+    margin-bottom: 12px;
+}
+
+.plan-price {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #fafafa;
+    margin-bottom: 16px;
+}
+
+.plan-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.plan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}

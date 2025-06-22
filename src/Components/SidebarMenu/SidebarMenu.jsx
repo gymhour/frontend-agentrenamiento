@@ -12,15 +12,18 @@ import { ReactComponent as AgendarTurnoIcon } from '../../assets/icons/sidebar/a
 import { ReactComponent as AjustesIcon } from '../../assets/icons/sidebar/ajustes.svg';
 import { ReactComponent as CerrarSesionIcon } from '../../assets/icons/sidebar/cerrar-sesion.svg';
 import { ReactComponent as MedicionResultadosIcon } from '../../assets/icons/sidebar/medicion-resultados.svg';
-import { ReactComponent as MiRutinaIcon } from '../../assets/icons/sidebar/mi-rutina.svg';
+import { ReactComponent as MiRutinaIcon } from '../../assets/icons/sidebar/notebook.svg';
 import { ReactComponent as MisTurnosIcon } from '../../assets/icons/sidebar/mis-turnos.svg';
 import { ReactComponent as RutinasRecomendadasIcon } from '../../assets/icons/sidebar/rutinas-recomendadas.svg';
-import { ReactComponent as CrearUsuarioIcon } from '../../assets/icons/user-add.svg';
+import { ReactComponent as CrearUsuarioIcon } from '../../assets/icons/sidebar/user-plus.svg';
 import { ReactComponent as UsuariosIcon } from '../../assets/icons/users-icon.svg';
 import { ReactComponent as MenuHamburguesaIcon } from '../../assets/icons/sidebar/ic_menu_hamburguesa.svg';
 import { ReactComponent as CloseIcon } from '../../assets/icons/close.svg';
 import { ReactComponent as IngresosIcon } from '../../assets/icons/money-icon.svg';
 import { ReactComponent as EntrenadoresIcon } from '../../assets/icons/sidebar/entrenadores-icon.svg';
+import { ReactComponent as PlanesIcon } from '../../assets/icons/sidebar/admin-planes.svg';
+import { ReactComponent as DumbbellIcon } from '../../assets/icons/sidebar/dumbbell.svg';
+
 // Routing
 import { useNavigate, useLocation, Link } from "react-router-dom";
 // Componentes
@@ -153,6 +156,22 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   </li>
                 </Link>
                 <Link
+                  to="/admin/ejercicios"
+                  className={`menu-link ${
+                    location.pathname === "/admin/ejercicios"
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <DumbbellIcon
+                      className="icon"
+                      color="#A2A2A2"
+                    />{" "}
+                    Ejercicios
+                  </li>
+                </Link>
+                <Link
                   to="/admin/rutinas"
                   className={`menu-link ${
                     location.pathname === "/admin/rutinas"
@@ -163,9 +182,25 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <li className="menu-item">
                     <MiRutinaIcon
                       className="icon"
-                      fill="#A2A2A2"
+                      color="#A2A2A2"
                     />{" "}
                     Cargar rutinas
+                  </li>
+                </Link>
+                <Link
+                  to="/admin/planes"
+                  className={`menu-link ${
+                    location.pathname === "/admin/planes"
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  <li className="menu-item">
+                    <PlanesIcon
+                      className="icon"
+                      stroke="#A2A2A2"
+                    />{" "}
+                    Planes
                   </li>
                 </Link>
                 <Link
@@ -206,7 +241,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   }`}
                 >
                   <li className="menu-item">
-                    <MiRutinaIcon className="icon" fill="#A2A2A2" /> Asignar Rutinas
+                    <MiRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
                   </li>
                 </Link>
                 <Link
@@ -216,7 +251,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   }`}
                 >
                   <li className="menu-item">
-                    <MiRutinaIcon className="icon" fill="#A2A2A2" /> Rutinas asignadas
+                    <MiRutinaIcon className="icon" color="#A2A2A2" /> Rutinas asignadas
                   </li>
                 </Link>
                 <Link
@@ -308,7 +343,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   }`}
                 >
                   <li className="menu-item">
-                    <MiRutinaIcon className="icon" fill="#A2A2A2" /> Mi
+                    <MiRutinaIcon className="icon" color="#A2A2A2" /> Mi
                     rutina
                   </li>
                 </Link>

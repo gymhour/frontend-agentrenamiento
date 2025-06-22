@@ -3,6 +3,13 @@
   border-collapse: collapse;
 }
 
+.generate-cuotas-btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
 .cuotas-table th,
 .cuotas-table td {
   padding: 18px 8px;
@@ -84,13 +91,22 @@
 .modal-content {
   background: #000;
   padding: 24px;
-  border-radius: 8px;
+  border-radius: 16px;
+  min-width: 360px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-content h3 {
   color: white;
   margin-top: 0;
   margin-bottom: 16px;
+}
+
+.form-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 /* Form del modal */
@@ -101,13 +117,22 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-.modal-form .custom-input,
+/* .modal-form .custom-input,
 .modal-form .custom-dropdown {
   margin-bottom: 12px;
+} */
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  gap: 8px;
 }
 
 /* Acciones del modal */
 .modal-actions {
+  width: 100%;
   display: flex;
   justify-content: flex-end;
   gap: 8px;

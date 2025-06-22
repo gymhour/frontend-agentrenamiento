@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
 import apiClient from '../../../axiosConfig';
+import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { useNavigate } from 'react-router-dom';
@@ -16,18 +17,33 @@ const CrearUsuario = () => {
     profesion: '',
     direc: '',
     tel: '',
-    tipo: 'cliente',
+    tipo: '',
     fechaCumple: '',
+    plan: '',
     estado: true,
   };
 
   const [formData, setFormData] = useState(initialFormData);
   const [avatarFile, setAvatarFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate()
+  const [planOptions, setPlanOptions] = useState([]);
+  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  useEffect(() => {
+    const fetchPlanes = async () => {
+      try {
+        const data = await apiService.getPlanes();
+        setPlanOptions(data.map(p => ({ label: p.nombre, value: p.ID_Plan })))
+      } catch (error) {
+        console.error('Error al cargar planes:', error);
+        toast.error('No se pudieron cargar los planes disponibles');
+      }
+    };
+    fetchPlanes();
+  }, []);
+
+  const handleChange = (eOrVal) => {
+    const { name, value, type, checked } = eOrVal.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -50,6 +66,8 @@ const CrearUsuario = () => {
         ? new Date(formData.fechaCumple).toISOString()
         : '';
 
+      const selectedPlan = planOptions.find(p => p.label === formData.plan);
+
       const payload = new FormData();
       payload.append('email', formData.email);
       payload.append('password', formData.password);
@@ -59,6 +77,7 @@ const CrearUsuario = () => {
       payload.append('tel', formData.tel);
       payload.append('tipo', formData.tipo.toLowerCase());
       payload.append('fechaCumple', isoFecha);
+      // payload.append('ID_Plan', selectedPlan.value);
       // payload.append('estado', String(formData.estado));
 
       if (formData.tipo === 'Entrenador' && formData.profesion) {
@@ -88,7 +107,7 @@ const CrearUsuario = () => {
 
   return (
     <div className="page-layout">
-      {isLoading && <LoaderFullScreen/>}
+      {isLoading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={true} />
       <div className="content-layout">
         <h2>Crear usuario</h2>
@@ -157,6 +176,24 @@ const CrearUsuario = () => {
             name="tipo"
             id="tipo"
           />
+
+          {formData.tipo === 'Cliente' && (
+            <>
+              <label htmlFor="plan">Plan:</label>
+              <CustomDropdown
+                options={planOptions.map(p => p.label)}
+                value={formData.plan}
+                onChange={e =>
+                  setFormData(f => ({
+                    ...f,
+                    plan: e.target.value
+                  }))
+                }
+                name="plan"
+                id="plan"
+              />
+            </>
+          )}
 
           {formData.tipo === 'Entrenador' && (
             <>
@@ -227,7 +264,7 @@ const CrearUsuario = () => {
             onChange={handleFileChange}
           />
 
-          <PrimaryButton text="Crear usuario" type="submit" onClick={handleSubmit}/>
+          <PrimaryButton text="Crear usuario" type="submit" onClick={handleSubmit} />
         </form>
       </div>
     </div>

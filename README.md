@@ -8,7 +8,7 @@ El frontend del proyecto está programado en React y utiliza las siguientes libr
 
 # Estructura pagina nueva
 
-1. Importar App.css y SidebarMenu.
+1. Importar SidebarMenu.
 
 2. Copiar y pegar
 <div className='page-layout'>

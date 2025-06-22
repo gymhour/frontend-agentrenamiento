@@ -9,45 +9,48 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import apiClient from '../../../axiosConfig';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { FaChevronDown, FaChevronLeft, FaChevronRight, FaChevronUp } from 'react-icons/fa';
+import apiService from '../../../services/apiService';
 
 const CuotasUsuarios = () => {
   // — Estados de datos y carga —
-  const [cuotas, setCuotas]           = useState([]);
-  const [users, setUsers]             = useState([]); // Para crear nuevas cuotas
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState(null);
+  const [cuotas, setCuotas] = useState([]);
+  const [users, setUsers] = useState([]); // Para crear nuevas cuotas
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // — Estados de popup de crear/eliminar/pagar cuota —
-  const [showModal, setShowModal]     = useState(false);
-  const [popupOpen, setPopupOpen]     = useState(false);
-  const [actionType, setActionType]   = useState(''); // 'pay' | 'delete'
+  const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [actionType, setActionType] = useState(''); // 'pay' | 'delete'
   const [selectedCuota, setSelectedCuota] = useState(null);
 
   // — Estados del formulario “Nueva cuota” —
   const [selectedEmail, setSelectedEmail] = useState('');
-  const [mesDate, setMesDate]             = useState(null);
-  const [importe, setImporte]             = useState('');
-  const [plan, setPlan]                   = useState('');
-  const [formaPago, setFormaPago]         = useState('');
+  const [mesDate, setMesDate] = useState(null);
+  const [importe, setImporte] = useState('');
+
+  // — Estados para carga masiva —
+  const [bulkMesDate, setBulkMesDate]     = useState(null);
+  const [bulkVenceDate, setBulkVenceDate] = useState(null);
 
   // — Estados para inputs de filtros (se aplican solo al clicar “Aplicar filtros”) —
-  const [inputEmail, setInputEmail]       = useState('');
-  const [inputEstado, setInputEstado]     = useState(''); // '' | 'true' | 'false'
-  const [inputMesDate, setInputMesDate]   = useState(null);
-  const [inputPlan, setInputPlan]         = useState('');
+  const [inputEmail, setInputEmail] = useState('');
+  const [inputEstado, setInputEstado] = useState(''); // '' | 'true' | 'false'
+  const [inputMesDate, setInputMesDate] = useState(null);
+  const [inputPlan, setInputPlan] = useState('');
 
   // — Estados para filtros “aplicados” y paginación —
-  const [filterEmail, setFilterEmail]       = useState('');
-  const [filterEstado, setFilterEstado]     = useState(''); // '' | 'true' | 'false'
-  const [filterMesDate, setFilterMesDate]   = useState(null);
-  const [filterPlan, setFilterPlan]         = useState('');
-  const [page, setPage]                     = useState(1);
-  const [hasMore, setHasMore]               = useState(true);
+  const [filterEmail, setFilterEmail] = useState('');
+  const [filterEstado, setFilterEstado] = useState(''); // '' | 'true' | 'false'
+  const [filterMesDate, setFilterMesDate] = useState(null);
+  const [filterPlan, setFilterPlan] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [showFilters, setShowFilters] = useState(false)
 
   // — Datos por defecto —
@@ -76,9 +79,9 @@ const CuotasUsuarios = () => {
     setLoading(true);
     try {
       const params = {};
-      if (filterEmail)   params.email = filterEmail;
-      if (filterEstado)  params.estado = filterEstado;
-      if (filterPlan)    params.plan = filterPlan;
+      if (filterEmail) params.email = filterEmail;
+      if (filterEstado) params.estado = filterEstado;
+      if (filterPlan) params.plan = filterPlan;
       if (filterMesDate) params.mes = buildMesString(filterMesDate);
       params.page = page;
 
@@ -167,8 +170,6 @@ const CuotasUsuarios = () => {
       mes: mesString,
       importe: Number(importe),
       vence,
-      plan,
-      formaPago
     };
 
     try {
@@ -176,13 +177,33 @@ const CuotasUsuarios = () => {
       setSelectedEmail('');
       setMesDate(null);
       setImporte('');
-      setPlan('');
-      setFormaPago('');
       // Reiniciar a página 1 y recargar cuotas con filtros actuales
       setPage(1);
     } catch (err) {
       console.error('Error al crear cuota:', err);
       alert('No se pudo crear la cuota.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Envio del formulario de Cuotas masivas
+  const handleBulkGenerate = async () => {
+    if (!bulkMesDate) { alert('Selecciona un mes válido.'); return; }
+    if (!bulkVenceDate) { alert('Selecciona fecha de vencimiento.'); return; }
+    setLoading(true);
+    const mesString = buildMesString(bulkMesDate);
+    const venceDate = new Date(bulkVenceDate);
+    venceDate.setHours(23, 59, 59, 0);
+    const payload = { mes: mesString, vence: venceDate.toISOString() };
+    try {
+      await apiService.postCuotasMasivas(payload);
+      setShowBulkModal(false);
+      setPage(1);
+      fetchCuotas();
+    } catch (err) {
+      console.error('Error al generar cuotas masivas:', err);
+      alert('No se pudieron generar las cuotas masivas.');
     } finally {
       setLoading(false);
     }
@@ -239,20 +260,23 @@ const CuotasUsuarios = () => {
         {/* Encabezado con botón nueva cuota */}
         <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>Cuotas de Usuarios</h2>
-          <PrimaryButton text="Nueva cuota" onClick={() => setShowModal(true)} />
+          <div className='generate-cuotas-btns'>
+          <PrimaryButton text="Generar cuotas de este mes" onClick={() => setShowBulkModal(true)} />
+          <SecondaryButton text="Nueva cuota" onClick={() => setShowModal(true)} />
+          </div>
         </div>
 
         <div style={{ margin: '30px 0px' }}>
-            <button
-              className='toggle-filters-button'
-              onClick={() => setShowFilters(prev => !prev)}
-            >
-              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
+          <button
+            className='toggle-filters-button'
+            onClick={() => setShowFilters(prev => !prev)}
+          >
+            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
         </div>
 
         {
-          showFilters && 
+          showFilters &&
           <div className="filtros-section" style={{ margin: '20px 0', display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
             {/* Email */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -385,7 +409,7 @@ const CuotasUsuarios = () => {
             disabled={page === 1}
             className="btn-page"
           >
-            <FaChevronLeft/>
+            <FaChevronLeft />
           </button>
           <span>Página {page}</span>
           <button
@@ -393,7 +417,7 @@ const CuotasUsuarios = () => {
             disabled={!hasMore}
             className="btn-page"
           >
-            <FaChevronRight/>
+            <FaChevronRight />
           </button>
         </div>
       </div>
@@ -410,9 +434,8 @@ const CuotasUsuarios = () => {
                 options={users.map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
                 value={
                   selectedEmail
-                    ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${
-                        users.find(u => u.email === selectedEmail)?.apellido || ''
-                      } (${selectedEmail})`
+                    ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''
+                    } (${selectedEmail})`
                     : ''
                 }
                 placeholderOption="Seleccioná un usuario"
@@ -447,26 +470,6 @@ const CuotasUsuarios = () => {
                 required
               />
 
-              {/* Plan */}
-              <label>Plan</label>
-              <CustomDropdown
-                options={['Plan Básico', 'Plan Intermedio', 'Plan Premium']}
-                value={plan}
-                onChange={e => setPlan(e.target.value)}
-                placeholderOption="Seleccioná un plan"
-                required
-              />
-
-              {/* Forma de pago */}
-              <label>Forma de pago</label>
-              <CustomDropdown
-                options={['Efectivo', 'Transferencia', 'Tarjeta']}
-                value={formaPago}
-                onChange={e => setFormaPago(e.target.value)}
-                placeholderOption="Seleccioná forma de pago"
-                required
-              />
-
               <div className="modal-actions">
                 <button
                   type="button"
@@ -480,6 +483,49 @@ const CuotasUsuarios = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showBulkModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Generar cuotas masivas</h3>
+            <div className="modal-form">
+              <label>Mes</label>
+              <ReactDatePicker
+                selected={bulkMesDate}
+                onChange={date => setBulkMesDate(date)}
+                dateFormat="MM/yyyy"
+                showMonthYearPicker
+                placeholderText="MM/AAAA"
+                className={datePickerClass}
+              />
+              <label>Vence</label>
+              <ReactDatePicker
+                selected={bulkVenceDate}
+                onChange={date => setBulkVenceDate(date)}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Seleccione fecha de vencimiento"
+                className={datePickerClass}
+              />
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="modal-secondary-button"
+                  onClick={() => setShowBulkModal(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="modal-primary-button"
+                  onClick={handleBulkGenerate}
+                >
+                  Generar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

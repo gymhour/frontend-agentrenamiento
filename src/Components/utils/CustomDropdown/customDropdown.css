@@ -1,6 +1,7 @@
 .custom-dropdown {
     background-color: #252525;
     border-radius: 12px;
+    width: 300px;
     min-width: 300px;
     padding: 16px 32px 16px 20px;
     border: none;
