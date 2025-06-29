@@ -29,16 +29,21 @@
   font-size: 0.85rem;
   font-weight: 500;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .badge.paid {
   background-color: #CDFFCD;
   color: #1E7E34;
+  width: 85px;
 }
 
 .badge.pending {
   background-color: #ffe9c6;
   color: #d27300;
+  width: 85px;
 }
 
 .text-error {
@@ -205,4 +210,11 @@
 
 .custom-datepicker-mes {
   width: 300px;
+}
+
+.form-input-ctn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: start;
 }

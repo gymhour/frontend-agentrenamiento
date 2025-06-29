@@ -14,13 +14,13 @@ const RutinasRecomendadas = () => {
   const [loading, setLoading] = useState(true);
 
   // estados de dropdown (selección actual)
-  const [selClase, setSelClase] = useState('');
-  const [selGrupo, setSelGrupo] = useState('');
-  const [selDia, setSelDia]     = useState('');
+  const [selClase, setSelClase]   = useState('');
+  const [selGrupo, setSelGrupo]   = useState('');
+  const [selDia, setSelDia]       = useState('');
   // filtros aplicados (solo cambian al presionar Filtrar)
-  const [fClase, setFClase] = useState('');
-  const [fGrupo, setFGrupo] = useState('');
-  const [fDia,   setFDia]   = useState('');
+  const [fClase, setFClase]       = useState('');
+  const [fGrupo, setFGrupo]       = useState('');
+  const [fDia, setFDia]           = useState('');
   // toggle de sección de filtros
   const [showFilters, setShowFilters] = useState(false);
 
@@ -28,10 +28,8 @@ const RutinasRecomendadas = () => {
     const fetchRutinas = async () => {
       try {
         const { rutinas: allRutinas } = await apiService.getRutinas();
-        // solo admin o entrenador
-        const filtradas = allRutinas.filter(r =>
-          r.User && (r.User.tipo === 'admin' || r.User.tipo === 'entrenador')
-        );
+        // solo rutinas creadas por un entrenador
+        const filtradas = allRutinas.filter(r => r.entrenador);
         setRutinas(filtradas);
       } catch (error) {
         console.error('Error al obtener rutinas:', error);
@@ -46,26 +44,26 @@ const RutinasRecomendadas = () => {
   const clases = Array.from(new Set(
     rutinas
       .map(r => r.claseRutina)
-      .filter(c => c != null && c !== '')
+      .filter(c => c)
   ));
 
   const grupos = Array.from(new Set(
     rutinas
       .map(r => r.grupoMuscularRutina)
-      .filter(g => g != null && g !== '')
+      .filter(g => g)
   ));
 
   const dias = Array.from(new Set(
     rutinas
-      .flatMap(r => r.DiasRutina.map(d => d.dia))
-      .filter(d => d != null && d !== '')
+      .flatMap(r => r.dias)
+      .filter(d => d)
   ));
 
   // rutinas filtradas según filtros aplicados
   const filteredRutinas = rutinas.filter(r => (
     (fClase === '' || r.claseRutina === fClase) &&
     (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
-    (fDia   === '' || r.DiasRutina.some(d => d.dia === fDia))
+    (fDia   === '' || r.dias.includes(fDia))
   ));
 
   // manejadores de Filtrar y Limpiar
@@ -100,16 +98,10 @@ const RutinasRecomendadas = () => {
         </div>
 
         {showFilters && (
-          <div
-            className="filtros-section"
-            style={{
-              margin: '10px 0',
-              display: 'flex',
-              gap: '15px',
-              flexWrap: 'wrap',
-              alignItems: 'flex-end'
-            }}
-          >
+          <div className="filtros-section" style={{
+              margin: '10px 0', display: 'flex', gap: '15px',
+              flexWrap: 'wrap', alignItems: 'flex-end'
+            }}>
             <CustomDropdown
               options={clases}
               value={selClase}
@@ -146,28 +138,35 @@ const RutinasRecomendadas = () => {
                 <div className="rutina-data">
                   <p>Clase: {rutina.claseRutina}</p>
                   <p>Grupo muscular: {rutina.grupoMuscularRutina}</p>
-                  <p>Día(s): {rutina.DiasRutina.map(d => d.dia).join(', ')}</p>
+                  <p>Día(s): {rutina.dias.join(', ')}</p>
                 </div>
 
-                {rutina.Bloques && (
+                {rutina.bloques && rutina.bloques.length > 0 && (
                   <div className="bloques-list">
-                    {rutina.Bloques.map(bloque => (
+                    {rutina.bloques.map(bloque => (
                       <div key={bloque.ID_Bloque} className="bloque-card">
                         {bloque.type === 'SETS_REPS' && (
-                          <p>
-                            {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
-                          </p>
+                          <>
+                            <p>
+                              {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
+                            </p>
+                            {bloque.ejercicios.map(ej => (
+                              <p key={ej.ID_Ejercicio}>
+                                {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
+                              </p>
+                            ))}
+                          </>
                         )}
                         {bloque.type === 'ROUNDS' && (
                           <>
                             <p>{`${bloque.cantRondas} rondas de:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
                               <li>
-                                {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                                {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
                               </li>
                               {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`${ej.reps} ${ej.setRepWeight}`}
+                                  {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
@@ -184,7 +183,7 @@ const RutinasRecomendadas = () => {
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`${ej.reps} ${ej.setRepWeight}`}
+                                  {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
@@ -196,7 +195,7 @@ const RutinasRecomendadas = () => {
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map((ej, idx) => (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`0-${idx}: ${ej.reps} ${ej.setRepWeight}`}
+                                  {`0-${idx}: ${ej.ejercicio.nombre || ''} ${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>

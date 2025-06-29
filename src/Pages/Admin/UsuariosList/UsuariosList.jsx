@@ -77,7 +77,7 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
   const deleteUsuario = async (idUsuario) => {
     setLoading(true);
     try {
-      await apiClient.delete(`/usuarios/${idUsuario}`);
+      await apiClient.put(`/usuarios/desactivate/${idUsuario}`);
       // Eliminación en la UI
       setUsuarios(prevUsuarios =>
         prevUsuarios.filter(usuario => usuario.ID_Usuario !== idUsuario)
@@ -211,6 +211,7 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
                 <th>Email</th>
                 <th>Tipo</th>
                 <th>Fecha de Registro</th>
+                <th>Estado</th>
                 {fromAdmin && <th>Acciones</th>}
               </tr>
             </thead>
@@ -235,6 +236,9 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
                   </td>
                   <td>
                     {new Date(usuario.fechaRegistro).toLocaleDateString()}
+                  </td>
+                  <td> 
+                    {usuario.estado === false ? "Inactivo" : "Activo"}
                   </td>
                   {
                     fromAdmin &&

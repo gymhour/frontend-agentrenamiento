@@ -26,7 +26,7 @@ const MiRutina = () => {
   const [fClase, setFClase] = useState('');
   const [fGrupo, setFGrupo] = useState('');
   const [fDia, setFDia] = useState('');
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem('usuarioId');
@@ -39,13 +39,13 @@ const MiRutina = () => {
   // opciones únicas para los dropdowns
   const clases = Array.from(new Set(rutinas.map(r => r.claseRutina)));
   const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina)));
-  const dias   = Array.from(new Set(rutinas.flatMap(r => r.DiasRutina.map(d => d.dia))));
+  const dias = Array.from(new Set(rutinas.flatMap(r => r.dias)));
 
   // rutinas filtradas según filtros aplicados
   const filteredRutinas = rutinas.filter(r => (
     (fClase === '' || r.claseRutina === fClase) &&
     (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
-    (fDia   === '' || r.DiasRutina.some(d => d.dia === fDia))
+    (fDia   === '' || r.dias.includes(fDia))
   ));
 
   // manejadores de Buscar y Limpiar
@@ -72,6 +72,7 @@ const MiRutina = () => {
       setLoading(false);
     }
   };
+
   const handlePopUpOpen = id => {
     setSelectedRutinaId(id);
     setIsPopupOpen(true);
@@ -100,12 +101,12 @@ const MiRutina = () => {
         </div>
 
         <div style={{ margin: '30px 0px' }}>
-            <button
-              className='toggle-filters-button'
-              onClick={() => setShowFilters(prev => !prev)}
-            >
-              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
+          <button
+            className='toggle-filters-button'
+            onClick={() => setShowFilters(prev => !prev)}
+          >
+            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
         </div>
 
         {/* —— FILTROS —— */}
@@ -161,29 +162,29 @@ const MiRutina = () => {
                 </div>
 
                 <div className='rutina-data'>
-                  <p>Día de la semana: {rutina.DiasRutina.map(d => d.dia).join(', ')}</p>
+                  <p>Día de la semana: {rutina.dias.join(', ')}</p>
                 </div>
 
-                {rutina.Entrenador && (
+                {rutina.entrenador && (
                   <p>
-                    Asignada por: {rutina.Entrenador.nombre} {rutina.Entrenador.apellido}
+                    Asignada por: {rutina.entrenador.nombre} {rutina.entrenador.apellido}
                   </p>
                 )}
 
-                {rutina.Bloques && rutina.Bloques.length > 0 && (
+                {rutina.bloques && rutina.bloques.length > 0 && (
                   <div className='bloques-list'>
-                    {rutina.Bloques.map(bloque => (
+                    {rutina.bloques.map(bloque => (
                       <div key={bloque.ID_Bloque} className='bloque-card'>
 
                         {/* SETS & REPS */}
                         {bloque.type === 'SETS_REPS' && (
                           <div>
                             <p>
-                              {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                              {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
                             </p>
                             {bloque.ejercicios.map(ej => (
                               <p key={ej.ID_Ejercicio}>
-                                {`${ej.reps} ${ej.setRepWeight}`}
+                                {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
                               </p>
                             ))}
                           </div>
@@ -191,15 +192,15 @@ const MiRutina = () => {
 
                         {/* ROUNDS */}
                         {bloque.type === 'ROUNDS' && (
-                          <>
+                          <> 
                             <p>{`${bloque.cantRondas} rondas de:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
                               <li>
-                                {`${bloque.setsReps} ${bloque.nombreEj} ${bloque.weight || ''}`.trim()}
+                                {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
                               </li>
                               {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`${ej.reps} ${ej.setRepWeight}`}
+                                  {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
@@ -218,7 +219,7 @@ const MiRutina = () => {
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map(ej => (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`${ej.reps} ${ej.setRepWeight}`}
+                                  {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>
@@ -232,7 +233,7 @@ const MiRutina = () => {
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map((ej, idx) => (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`0-${idx}: ${ej.reps} ${ej.setRepWeight}`}
+                                  {`0-${idx}: ${ej.ejercicio.nombre || ''} ${ej.reps} ${ej.setRepWeight}`}
                                 </li>
                               ))}
                             </ul>

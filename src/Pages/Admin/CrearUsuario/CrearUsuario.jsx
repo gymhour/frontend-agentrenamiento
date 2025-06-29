@@ -7,6 +7,7 @@ import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { useNavigate } from 'react-router-dom';
+import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 
 const CrearUsuario = () => {
   const initialFormData = {
@@ -20,7 +21,6 @@ const CrearUsuario = () => {
     tipo: '',
     fechaCumple: '',
     plan: '',
-    estado: true,
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -77,8 +77,7 @@ const CrearUsuario = () => {
       payload.append('tel', formData.tel);
       payload.append('tipo', formData.tipo.toLowerCase());
       payload.append('fechaCumple', isoFecha);
-      // payload.append('ID_Plan', selectedPlan.value);
-      // payload.append('estado', String(formData.estado));
+      payload.append('ID_Plan', selectedPlan.value);
 
       if (formData.tipo === 'Entrenador' && formData.profesion) {
         payload.append('profesion', formData.profesion);
@@ -103,7 +102,6 @@ const CrearUsuario = () => {
   };
 
   const tipos = ['Cliente', 'Entrenador', 'Admin'];
-  const opcionesEstado = ['Si', 'No'];
 
   return (
     <div className="page-layout">
@@ -133,15 +131,15 @@ const CrearUsuario = () => {
           />
 
           <label htmlFor="password">Contraseña:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            placeholder="Ingresa tu contraseña"
-          />
+          <CustomInput
+  type="password"
+  id="password"
+  name="password"
+  value={formData.password}
+  onChange={handleChange}
+  required
+  placeholder="Ingresa tu contraseña"
+/>
 
           <label htmlFor="nombre">Nombre:</label>
           <input
@@ -227,23 +225,6 @@ const CrearUsuario = () => {
             value={formData.tel}
             onChange={handleChange}
             placeholder="Ingresa el teléfono"
-          />
-
-          <label htmlFor="estado">Activo:</label>
-          <CustomDropdown
-            options={opcionesEstado}
-            value={formData.estado ? 'Si' : 'No'}
-            onChange={(val) =>
-              setFormData(f => ({
-                ...f,
-                estado:
-                  typeof val === 'string'
-                    ? val === 'Si'
-                    : val.target.value === 'Si',
-              }))
-            }
-            name="estado"
-            id="estado"
           />
 
           <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>

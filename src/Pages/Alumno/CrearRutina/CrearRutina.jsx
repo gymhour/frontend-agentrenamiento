@@ -82,6 +82,10 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [blocks, setBlocks] = useState([]);
   const [showBlockTypeDropdown, setShowBlockTypeDropdown] = useState(false);
 
+  // Desplegable de ejercicios
+  const [allExercises, setAllExercises] = useState([]);
+  const [suggestions, setSuggestions] = useState({});
+
   const [loading, setLoading] = useState(false);
 
   const exampleExercises = [
@@ -96,11 +100,20 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    apiService.getEjercicios()
+      .then(res => {
+        console.log("Res", res)
+        setAllExercises(res)
+      })
+      .catch(() => toast.error('No se pudieron cargar los ejercicios'));
+  }, []);
+
   const getRandomExercise = () => exampleExercises[Math.floor(Math.random() * exampleExercises.length)];
 
   // Objetos iniciales para cada tipo de bloque
   const initialBlockData = {
-    'Series y repeticiones': { setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
+    'Series y repeticiones': { setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
     'Rondas': { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
     'EMOM': { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
     'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
@@ -127,14 +140,16 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       common.push({
         series: b.setsReps || '',
         exercise: b.nombreEj || '',
-        placeholderExercise: ''
+        placeholderExercise: '',
+        exerciseId: null
       });
     }
     (b.ejercicios || []).forEach(e => {
       common.push({
         series: e.reps,
         exercise: e.setRepWeight,
-        placeholderExercise: ''
+        placeholderExercise: '',
+        exerciseId: null
       });
     });
 
@@ -242,6 +257,76 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   };
 
   // --- STEP 2: Agregar Bloque ---
+  // Ejercicios
+  // Cuando el usuario escribe en el ejercicio:
+  const handleExerciseInputChange = (blockId, idx, value) => {
+    // 1) Actualizo el valor en el estado blocks
+    setBlocks(blocks.map(block => {
+      if (block.id === blockId) {
+        const newSets = block.data.setsReps.map((setRep, i) => {
+          if (i === idx) {
+            return {
+              ...setRep,
+              exercise: value,
+              exerciseId: null   // reset si estaban seleccionadas antes
+            };
+          }
+          return setRep;
+        });
+        return { ...block, data: { ...block.data, setsReps: newSets } };
+      }
+      return block;
+    }));
+  
+    const key = `${blockId}-${idx}`;
+  
+    // Si el input está vacío (o sólo espacios), cierro el dropdown
+    if (value.trim() === '') {
+      setSuggestions(prev => ({
+        ...prev,
+        [key]: []
+      }));
+      return;
+    }
+  
+    // 2) Filtro sugerencias (case-insensitive, substring)
+    const lista = Array.isArray(allExercises) ? allExercises : [];
+    const filtered = lista
+      .filter(e => e.nombre.toLowerCase().includes(value.trim().toLowerCase()))
+      .slice(0, 5);
+  
+    setSuggestions(prev => ({
+      ...prev,
+      [key]: filtered
+    }));
+  };  
+
+  // Cuando el usuario hace click en una sugerencia:
+  const handleSelectSuggestion = (blockId, idx, exerciseObj) => {
+    setBlocks(blocks.map(block => {
+      if (block.id === blockId) {
+        const newSets = block.data.setsReps.map((setRep, i) => {
+          if (i === idx) {
+            return {
+              ...setRep,
+              exercise: exerciseObj.nombre,
+              exerciseId: exerciseObj.ID_Ejercicio
+            };
+          }
+          return setRep;
+        });
+        return { ...block, data: { ...block.data, setsReps: newSets } };
+      }
+      return block;
+    }));
+
+    // limpio las sugerencias para ese campo
+    setSuggestions({
+      ...suggestions,
+      [`${blockId}-${idx}`]: []
+    });
+  };
+
   const handleMostrarDropdown = () => {
     setShowBlockTypeDropdown(true);
   };
@@ -618,14 +703,31 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                               handleSetRepChange(block.id, idx, 'series', e.target.value)
                             }
                           />
-                          <CustomInput
-                            placeholder={setRep.placeholderExercise}
-                            width="350px"
-                            value={setRep.exercise}
-                            onChange={e =>
-                              handleSetRepChange(block.id, idx, 'exercise', e.target.value)
+                          <div style={{ position: 'relative', flex: 1 }}>
+                            <CustomInput
+                              placeholder={setRep.placeholderExercise}
+                              width="350px"
+                              value={setRep.exercise}
+                              onChange={e =>
+                                handleExerciseInputChange(block.id, idx, e.target.value)
+                              }
+                            />
+                            {
+                              (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                <ul className="suggestions-list">
+                                  {suggestions[`${block.id}-${idx}`].map(ex => (
+                                    <li
+                                      key={ex.ID_Ejercicio}
+                                      onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                    >
+                                      {ex.nombre}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )
                             }
-                          />
+                          </div>
+
                           <button
                             onClick={() => handleDeleteSetRep(block.id, idx)}
                             style={{
@@ -684,14 +786,31 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                                 handleSetRepChange(block.id, idx, 'series', e.target.value)
                               }
                             />
-                            <CustomInput
-                              placeholder={setRep.placeholderExercise}
-                              width="350px"
-                              value={setRep.exercise}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'exercise', e.target.value)
+                            <div style={{ position: 'relative', flex: 1 }}>
+                              <CustomInput
+                                placeholder={setRep.placeholderExercise}
+                                width="350px"
+                                value={setRep.exercise}
+                                onChange={e =>
+                                  handleExerciseInputChange(block.id, idx, e.target.value)
+                                }
+                              />
+                              {
+                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                  <ul className="suggestions-list">
+                                    {suggestions[`${block.id}-${idx}`].map(ex => (
+                                      <li
+                                        key={ex.ID_Ejercicio}
+                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                      >
+                                        {ex.nombre}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )
                               }
-                            />
+                            </div>
+
                             <button
                               onClick={() => handleDeleteSetRep(block.id, idx)}
                               style={{
@@ -760,14 +879,31 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                                 handleSetRepChange(block.id, idx, 'series', e.target.value)
                               }
                             />
-                            <CustomInput
-                              placeholder={setRep.placeholderExercise}
-                              width="350px"
-                              value={setRep.exercise}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'exercise', e.target.value)
+                            <div style={{ position: 'relative', flex: 1 }}>
+                              <CustomInput
+                                placeholder={setRep.placeholderExercise}
+                                width="350px"
+                                value={setRep.exercise}
+                                onChange={e =>
+                                  handleExerciseInputChange(block.id, idx, e.target.value)
+                                }
+                              />
+                              {
+                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                  <ul className="suggestions-list">
+                                    {suggestions[`${block.id}-${idx}`].map(ex => (
+                                      <li
+                                        key={ex.ID_Ejercicio}
+                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                      >
+                                        {ex.nombre}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )
                               }
-                            />
+                            </div>
+
                             <button
                               onClick={() => handleDeleteSetRep(block.id, idx)}
                               style={{
@@ -822,14 +958,31 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                                 handleSetRepChange(block.id, idx, 'series', e.target.value)
                               }
                             />
-                            <CustomInput
-                              placeholder={setRep.placeholderExercise}
-                              width="350px"
-                              value={setRep.exercise}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'exercise', e.target.value)
+                            <div style={{ position: 'relative', flex: 1 }}>
+                              <CustomInput
+                                placeholder={setRep.placeholderExercise}
+                                width="350px"
+                                value={setRep.exercise}
+                                onChange={e =>
+                                  handleExerciseInputChange(block.id, idx, e.target.value)
+                                }
+                              />
+                              {
+                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                  <ul className="suggestions-list">
+                                    {suggestions[`${block.id}-${idx}`].map(ex => (
+                                      <li
+                                        key={ex.ID_Ejercicio}
+                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                      >
+                                        {ex.nombre}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )
                               }
-                            />
+                            </div>
+
                             <button
                               onClick={() => handleDeleteSetRep(block.id, idx)}
                               style={{
@@ -870,14 +1023,31 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
                           <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
-                            <CustomInput
-                              placeholder={setRep.placeholderExercise}
-                              width="450px"
-                              value={setRep.exercise}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'exercise', e.target.value)
+                            <div style={{ position: 'relative', flex: 1 }}>
+                              <CustomInput
+                                placeholder={setRep.placeholderExercise}
+                                width="350px"
+                                value={setRep.exercise}
+                                onChange={e =>
+                                  handleExerciseInputChange(block.id, idx, e.target.value)
+                                }
+                              />
+                              {
+                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                  <ul className="suggestions-list">
+                                    {suggestions[`${block.id}-${idx}`].map(ex => (
+                                      <li
+                                        key={ex.ID_Ejercicio}
+                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                      >
+                                        {ex.nombre}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )
                               }
-                            />
+                            </div>
+
                             <button
                               onClick={() => handleDeleteSetRep(block.id, idx)}
                               style={{

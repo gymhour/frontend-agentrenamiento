@@ -19,6 +19,7 @@ const CuotasUsuarios = () => {
   // — Estados de datos y carga —
   const [cuotas, setCuotas] = useState([]);
   const [users, setUsers] = useState([]); // Para crear nuevas cuotas
+  const [planOptions, setPlanOptions] = useState([]); // Opciones dinámicas de planes
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -35,7 +36,7 @@ const CuotasUsuarios = () => {
   const [importe, setImporte] = useState('');
 
   // — Estados para carga masiva —
-  const [bulkMesDate, setBulkMesDate]     = useState(null);
+  const [bulkMesDate, setBulkMesDate] = useState(null);
   const [bulkVenceDate, setBulkVenceDate] = useState(null);
 
   // — Estados para inputs de filtros (se aplican solo al clicar “Aplicar filtros”) —
@@ -51,7 +52,25 @@ const CuotasUsuarios = () => {
   const [filterPlan, setFilterPlan] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Pagar
+  const [formaPago, setFormaPago] = useState('Efectivo');
+
+  // Definí solo las etiquetas que querés mostrar
+  const opcionesFiltroEstado = ['Todos —', 'Pendiente', 'Pagada'];
+
+  // Funciones de mapeo
+  const labelToEstado = label => {
+    if (label === 'Pagada') return 'true';
+    if (label === 'Pendiente') return 'false';
+    return '';
+  };
+  const estadoToLabel = estado => {
+    if (estado === 'true') return 'Pagada';
+    if (estado === 'false') return 'Pendiente';
+    return 'Todos —';
+  };
 
   // — Datos por defecto —
   const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
@@ -74,6 +93,16 @@ const CuotasUsuarios = () => {
     }
   };
 
+  // — Fetch de planes (para filtro dinámico) —
+  const fetchPlanes = async () => {
+    try {
+      const planesRes = await apiService.getPlanes();
+      setPlanOptions(planesRes || []);
+    } catch (err) {
+      console.error('Error obteniendo planes:', err);
+    }
+  };
+
   // — Fetch de cuotas según filtros “aplicados” y página —
   const fetchCuotas = async () => {
     setLoading(true);
@@ -87,6 +116,10 @@ const CuotasUsuarios = () => {
 
       const response = await apiClient.get('/cuotas', { params });
       const lista = response.data.data || [];
+
+      lista.sort((a, b) =>
+        new Date(b.mes + '-01') - new Date(a.mes + '-01')
+      );
 
       setCuotas(lista);
       setHasMore(lista.length > 0);
@@ -104,6 +137,7 @@ const CuotasUsuarios = () => {
   // — useEffect para cargar datos al montar —
   useEffect(() => {
     fetchUsuarios();
+    fetchPlanes();
   }, []);
 
   // — useEffect para recargar cuotas cuando cambian filtros “aplicados” o página —
@@ -116,8 +150,10 @@ const CuotasUsuarios = () => {
   const openConfirmation = (type, cuota) => {
     setActionType(type);
     setSelectedCuota(cuota);
+    if (type === 'pay') setFormaPago('Efectivo');
     setPopupOpen(true);
   };
+
   const closeConfirmation = () => {
     setPopupOpen(false);
     setActionType('');
@@ -130,16 +166,15 @@ const CuotasUsuarios = () => {
     setLoading(true);
     try {
       if (actionType === 'pay') {
-        await apiClient.put(`/cuotas/${selectedCuota.ID_Cuota}/pay`);
+        await apiClient.put(
+          `/cuotas/${selectedCuota.ID_Cuota}/pay`,
+          { formaPago }
+        );
       } else if (actionType === 'delete') {
         await apiClient.delete(`/cuotas/${selectedCuota.ID_Cuota}`);
       }
       closeConfirmation();
-      // Volver a cargar cuotas sin cambiar página
       fetchCuotas();
-    } catch (err) {
-      console.error(`Error al ${actionType} la cuota:`, err);
-      alert(`No se pudo ${actionType === 'pay' ? 'pagar' : 'eliminar'} la cuota.`);
     } finally {
       setLoading(false);
     }
@@ -241,8 +276,13 @@ const CuotasUsuarios = () => {
   };
 
   // — Formateos para la tabla —
-  const formatMonth = (m) =>
-    new Date(m + '-01').toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+  const formatMonth = (m) => {
+    if (!m) return '–';
+    const [year, month] = m.split('-').map(Number);
+    return new Date(year, month - 1, 1)
+      .toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+  };
+
   const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString('es-AR') : '–';
   const formatCurrency = (val) =>
@@ -261,8 +301,8 @@ const CuotasUsuarios = () => {
         <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>Cuotas de Usuarios</h2>
           <div className='generate-cuotas-btns'>
-          <PrimaryButton text="Generar cuotas de este mes" onClick={() => setShowBulkModal(true)} />
-          <SecondaryButton text="Nueva cuota" onClick={() => setShowModal(true)} />
+            <PrimaryButton text="Generar cuotas de este mes" onClick={() => setShowBulkModal(true)} />
+            <SecondaryButton text="Nueva cuota" onClick={() => setShowModal(true)} />
           </div>
         </div>
 
@@ -294,16 +334,14 @@ const CuotasUsuarios = () => {
             {/* Estado */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label htmlFor="inputEstado">Estado:</label>
-              <select
+              <CustomDropdown
                 id="inputEstado"
-                value={inputEstado}
-                onChange={e => setInputEstado(e.target.value)}
-                style={{ padding: '8px', backgroundColor: '#2c2f36', color: '#fff', border: '1px solid #444', borderRadius: '4px' }}
-              >
-                <option value="">— Todos —</option>
-                <option value="true">Pagada</option>
-                <option value="false">Pendiente</option>
-              </select>
+                options={opcionesFiltroEstado}
+                value={estadoToLabel(inputEstado)}
+                onChange={e => {
+                  setInputEstado(labelToEstado(e.target.value));
+                }}
+              />
             </div>
 
             {/* Mes */}
@@ -319,12 +357,12 @@ const CuotasUsuarios = () => {
               />
             </div>
 
-            {/* Plan */}
+            {/* Plan dinámico */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label htmlFor="inputPlan">Plan:</label>
               <CustomDropdown
                 id="inputPlan"
-                options={['Plan Básico', 'Plan Intermedio', 'Plan Premium']}
+                options={planOptions.map(p => p.nombre)}
                 placeholderOption="— Todos —"
                 value={inputPlan}
                 onChange={e => setInputPlan(e.target.value)}
@@ -338,7 +376,6 @@ const CuotasUsuarios = () => {
             </div>
           </div>
         }
-
 
         {/* — Tabla de cuotas — */}
         {loading ? (
@@ -373,7 +410,7 @@ const CuotasUsuarios = () => {
                   <td>{formatMonth(c.mes)}</td>
                   <td>{formatCurrency(c.importe)}</td>
                   <td>{formatDate(c.vence)}</td>
-                  <td>{c.plan}</td>
+                  <td>{c.User.plan.nombre}</td>
                   <td>
                     <span className={`badge ${c.pagada ? 'paid' : 'pending'}`}>
                       {c.pagada ? 'Pagada' : 'Pendiente'}
@@ -434,8 +471,7 @@ const CuotasUsuarios = () => {
                 options={users.map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
                 value={
                   selectedEmail
-                    ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''
-                    } (${selectedEmail})`
+                    ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`
                     : ''
                 }
                 placeholderOption="Seleccioná un usuario"
@@ -540,7 +576,19 @@ const CuotasUsuarios = () => {
             ? `¿Confirmar pago de la cuota ${selectedCuota?.ID_Cuota}?`
             : `¿Eliminar la cuota ${selectedCuota?.ID_Cuota}?`
         }
-      />
+      >
+        {actionType === 'pay' && (
+          <div className='form-input-ctn' style={{ margin: '1rem 0' }}>
+            <label htmlFor="formaPago">Forma de pago</label>
+            <CustomDropdown
+              id="formaPago"
+              value={formaPago}
+              onChange={e => setFormaPago(e.target.value)}
+              options={["Efectivo", "Tarjeta de crédito", "Tarjeta de débito"]}
+            />
+          </div>
+        )}
+      </ConfirmationPopup>
     </div>
   );
 };

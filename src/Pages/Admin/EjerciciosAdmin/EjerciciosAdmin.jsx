@@ -28,6 +28,8 @@ const EjerciciosAdmin = () => {
     const [nombre, setNombre] = useState('')
     const [descripcion, setDescripcion] = useState('')
     const [imageFile, setImageFile] = useState(null)
+    const [youtubeUrl, setYoutubeUrl] = useState('')
+    const [instrucciones, setInstrucciones] = useState('')
 
     // Buscador
     const [searchTerm, setSearchTerm] = useState('');
@@ -79,6 +81,8 @@ const EjerciciosAdmin = () => {
         setNombre('')
         setDescripcion('')
         setImageFile(null)
+        setYoutubeUrl('')
+        setInstrucciones('')
         setShowModal(true)
     }
 
@@ -86,6 +90,8 @@ const EjerciciosAdmin = () => {
         setEditingEjercicio(ejercicio)
         setNombre(ejercicio.nombre || '')
         setDescripcion(ejercicio.descripcion || '')
+        setYoutubeUrl(ejercicio.youtubeUrl || '')
+        setInstrucciones(ejercicio.instrucciones || '')
         setImageFile(null)
         setShowModal(true)
     }
@@ -104,6 +110,8 @@ const EjerciciosAdmin = () => {
             const payload = new FormData()
             payload.append('nombre', nombre)
             payload.append('descripcion', descripcion)
+            payload.append('youtubeUrl', youtubeUrl)
+            payload.append('instrucciones', instrucciones)
             if (imageFile) payload.append('imagen', imageFile)
 
             if (editingEjercicio) {
@@ -161,7 +169,6 @@ const EjerciciosAdmin = () => {
                     onChange={e => setSearchTerm(e.target.value)}
                     placeholder="Buscar ejercicios..."
                 />
-
 
                 <div className='ejercicios-list'>
                     {Object.keys(grouped)
@@ -236,6 +243,25 @@ const EjerciciosAdmin = () => {
                                     value={descripcion}
                                     onChange={e => setDescripcion(e.target.value)}
                                     placeholder='Descripción (opcional)'
+                                />
+                            </div>
+                            <div className='form-input-container'>
+                                <label>URL de YouTube</label>
+                                <CustomInput
+                                    type='text'
+                                    value={youtubeUrl}
+                                    onChange={e => setYoutubeUrl(e.target.value)}
+                                    placeholder='https://www.youtube.com/...'
+                                />
+                            </div>
+                            <div className='form-input-container'>
+                                <label>Instrucciones</label>
+                                <textarea
+                                    value={instrucciones}
+                                    onChange={e => setInstrucciones(e.target.value)}
+                                    placeholder='- Mantener la espalda recta\n- Bajar hasta que los muslos estén paralelos al suelo'
+                                    rows={4}
+                                    className='custom-textarea'
                                 />
                             </div>
                             <div className='form-input-container'>

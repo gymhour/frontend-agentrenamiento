@@ -9,7 +9,8 @@ const CustomInput = ({
   value,
   onChange,
   required = false,
-  width = '300px'
+  width = '300px',
+  ...rest
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -25,6 +26,7 @@ const CustomInput = ({
   return (
     <div className="custom-input-wrapper" style={{ width }}>
       <input
+        {...rest}  
         type={inputType}
         placeholder={placeholder}
         value={value}

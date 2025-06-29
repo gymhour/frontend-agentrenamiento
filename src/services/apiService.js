@@ -381,7 +381,7 @@ export default {
     postCuotasMasivas,
     // Ejercicios
     getEjercicios,
-    postEjercicio,
+    postEjercicios,
     putEjercicios,
     deleteEjercicios,
 };
