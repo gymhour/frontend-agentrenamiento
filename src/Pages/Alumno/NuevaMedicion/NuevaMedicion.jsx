@@ -7,8 +7,9 @@ import apiClient from '../../../axiosConfig';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 
 const NuevaMedicion = () => {
   const [nombre, setNombre] = useState('');
@@ -22,40 +23,40 @@ const NuevaMedicion = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     // Validar campos vacíos
     if (!nombre || !tipoMedicion || !cantidad || !fecha) {
       toast.error('Por favor completa todos los campos.');
       setLoading(false);
       return;
     }
-  
+
     try {
       const bodyEjercicio = {
         ID_Usuario: localStorage.getItem('usuarioId'),
         nombre: nombre,
         tipoMedicion: tipoMedicion,
       };
-  
+
       // 1. Crear el nuevo ejercicio
       const responseEjercicio = await apiService.postEjercicio(bodyEjercicio);
       // Supongamos que apiService usa axios y hace algo como axios.post('/ejercicios', data)
-  
+
       if (responseEjercicio.status !== 201) {
         throw new Error('Error al crear el ejercicio. Por favor, intente nuevamente.');
       }
-  
+
       // Obtenemos el objeto creado
       const nuevoEjercicio = responseEjercicio.data;
       const { ID_EjercicioMedicion } = nuevoEjercicio;
-  
+
       // 2. Crear el histórico inicial con la cantidad y fecha — usando Axios correctamente
       const historicoPayload = {
         ID_EjercicioMedicion: ID_EjercicioMedicion,
         Cantidad: parseFloat(cantidad),
         Fecha: fecha,
       };
-  
+
       const responseHistorico = await apiClient.post(
         '/historicoEjercicio',
         historicoPayload,
@@ -65,12 +66,12 @@ const NuevaMedicion = () => {
           },
         }
       );
-  
+
       if (responseHistorico.status !== 201 && responseHistorico.status !== 200) {
         // Ajusta según tu API (puede devolver 200 o 201)
         throw new Error('Error al registrar el histórico');
       }
-  
+
       // Mostrar mensaje de éxito y redireccionar
       toast.success('Se agregó el ejercicio correctamente.');
       navigate('/alumno/medicion-resultados');
@@ -84,10 +85,10 @@ const NuevaMedicion = () => {
 
   return (
     <div className="page-layout">
-      {loading && <LoaderFullScreen/>}
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className="content-layout nueva-medicion-container">
-        <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true}/>
+        <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true} />
         <h2>Agregar nuevo ejercicio</h2>
         <form className="nueva-medicion-form" onSubmit={handleSubmit}>
           <div className="form-group">
@@ -134,9 +135,7 @@ const NuevaMedicion = () => {
             />
           </div>
 
-          <button type="submit" className="btn-agregar">
-            Agregar
-          </button>
+          <PrimaryButton text="Agregar" onClick={handleSubmit} />
         </form>
       </div>
     </div>

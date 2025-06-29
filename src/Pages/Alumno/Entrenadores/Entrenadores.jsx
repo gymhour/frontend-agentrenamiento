@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiService from '../../../services/apiService';
 import '../../../App.css';
-import './Entrenadores.css'; 
+import './Entrenadores.css';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const Entrenadores = () => {
@@ -27,39 +27,35 @@ const Entrenadores = () => {
 
   return (
     <div className="page-layout">
-      {loading && <LoaderFullScreen/> }
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
-      
+
       <div className="content-layout">
         <h2>Entrenadores</h2>
-        <p style={{paddingTop: '12px'}}>Conocé a nuestros instructores en Wembley</p>
-
+        <p style={{ paddingTop: '12px' }}>Conocé a nuestros instructores en Wembley</p>
         <div className="trainers-grid">
           {!loading && !error && entrenadores.map((trainer) => (
-            <div>
+            <div
+              className="trainer-item"
+              key={trainer.ID_Usuario}
+            >
               <div
                 className="trainer-card"
-                key={trainer.ID_Usuario}
                 style={{
                   backgroundImage: `url(${trainer.avatarUrlThumb || defaultAvatar})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat'
                 }}
-              >
-              </div>
-              <p style={{paddingTop: '12px', textAlign: 'center'}}>
+              />
+              <p style={{ paddingTop: '12px', textAlign: 'center' }}>
                 <strong>
-                  {trainer.nombre ? trainer.nombre : 'Nombre'}, {' '}
-                  {/* {trainer.apellido ? trainer.apellido : 'Apellido'} , {' '}  */}
-                </strong>
-                <span className='profesion'>
-                  {trainer.profesion ? trainer.profesion : 'Profesión'}
+                  {trainer.nombre || 'Nombre'}
+                </strong>{' '}
+                <span className="profesion">
+                  {trainer.profesion || 'Profesión'}
                 </span>
-            </p>
-
-              
-
+              </p>
             </div>
           ))}
         </div>

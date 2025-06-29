@@ -23,3 +23,14 @@
         padding: 80px 12px;   
     }
 }
+
+@media (max-width: 768px) {
+    .Toastify__toast-container--top-right {
+      width: 70% !important;
+      top: 12px;
+      right: 20px !important;       /* separación del borde derecho */
+      left: auto !important;        /* ancla bien al right */
+      transform: none !important;   /* por si hubiera un translateX */
+    }
+  }
+  

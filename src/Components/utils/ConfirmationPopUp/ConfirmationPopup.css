@@ -64,3 +64,10 @@
 .popup-cancel-button:hover {
     color: rgba(255, 255, 255, 0.8);
 }
+
+@media screen and (max-width: 500px) {
+    .confirmation-popup {
+        padding: 20px 12px 15px 12px;
+        margin: 0px 16px;
+    }
+}

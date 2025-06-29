@@ -58,25 +58,28 @@ const Cuotas = () => {
 
         <div className="cuotas-datos-pagos">
           <h3>Datos de cuenta</h3>
-          <span style={{ fontWeight: '600' }}>
-            BRISA PRISCILA RAMOS <GaliciaIcon width="120" />
-          </span>
-          <span>
-            <b>ALIAS:</b> bpramos.gal
-          </span>
-          <span>
-            <b>CBU:</b> 00700238-30004046522411
-          </span>
-          <span>
-            <b>CUIL:</b> 27-44851911-8
-          </span>
-          <span>
-            <b>CTA:</b> 4046522-4 023-1
-          </span>
+          <div className='cuotas-datos-pagos-info'>
+            <span style={{ fontWeight: '600' }}>
+              BRISA PRISCILA RAMOS <GaliciaIcon width="120" />
+            </span>
+            <span>
+              <b>ALIAS:</b> bpramos.gal
+            </span>
+            <span>
+              <b>CBU:</b> 00700238-30004046522411
+            </span>
+            <span>
+              <b>CUIL:</b> 27-44851911-8
+            </span>
+            <span>
+              <b>CTA:</b> 4046522-4 023-1
+            </span>
+          </div>
         </div>
 
+        <h3> Historial de pagos</h3>
         {loading ? (
-          <p>Cargando cuotas...</p>
+          <p style={{marginTop: '20px'}}>Cargando cuotas...</p>
         ) : error ? (
           <p className="text-error">{error}</p>
         ) : cuotas.length === 0 ? (
@@ -100,7 +103,7 @@ const Cuotas = () => {
                   <td style={{textTransform: 'uppercase'}}>{formatMonth(c.mes)}</td>
                   <td>{formatCurrency(c.importe)}</td>
                   <td>{formatDate(c.vence)}</td>
-                  <td>{c.plan}</td>
+                  <td>{c.User.ID_Plan}</td>
                   <td>
                     <span
                       className={`badge ${c.pagada ? 'paid' : 'pending'}`}

@@ -98,10 +98,7 @@ const RutinasRecomendadas = () => {
         </div>
 
         {showFilters && (
-          <div className="filtros-section" style={{
-              margin: '10px 0', display: 'flex', gap: '15px',
-              flexWrap: 'wrap', alignItems: 'flex-end'
-            }}>
+          <div className="filtros-section">
             <CustomDropdown
               options={clases}
               value={selClase}
@@ -120,8 +117,10 @@ const RutinasRecomendadas = () => {
               onChange={e => setSelDia(e.target.value)}
               placeholderOption='Todos los días'
             />
-            <PrimaryButton onClick={aplicarFiltro} text="Filtrar" />
-            <SecondaryButton onClick={limpiarFiltro} text="Limpiar filtros" />
+            <div className='filtros-section-btns'> 
+              <PrimaryButton onClick={aplicarFiltro} text="Filtrar" />
+              <SecondaryButton onClick={limpiarFiltro} text="Limpiar filtros" />
+            </div>
           </div>
         )}
 

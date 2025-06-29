@@ -1,10 +1,18 @@
 .cuotas-datos-pagos {
-    padding-top: 20px;
+    padding: 30px 0px;
     display: flex;
     flex-direction: column;
     justify-content: start;
     align-items: start;
-    gap: 8px;
+    gap: 16px;
+}
+
+.cuotas-datos-pagos-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 8px; 
 }
 
 .cuotas-table-usuario {

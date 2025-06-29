@@ -14,9 +14,10 @@ import {
 } from 'recharts';
 import apiClient from '../../../axiosConfig';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
+import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams(); // ID del ejercicio en la ruta
@@ -164,15 +165,13 @@ const MedicionResultadosDetalle = () => {
         {/* Encabezado */}
         <div className="detalle-header">
           <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true} />
-          <h1>
-            {ejercicio.nombre} - {ejercicio.tipoMedicion}
-          </h1>
+          <h2> {ejercicio.nombre} - {ejercicio.tipoMedicion} </h2>
         </div>
 
         {/* Mini formulario para agregar un nuevo resultado */}
         <div className="detalle-form">
           <h3>Agregar nuevo resultado</h3>
-          <form onSubmit={handleAgregarResultado}>
+          <form>
             {error && <p className="error-message">{error}</p>}
 
             <div className="form-group">
@@ -194,9 +193,9 @@ const MedicionResultadosDetalle = () => {
               />
             </div>
 
-            <button type="submit" className="btn-agregar">
-              Agregar
-            </button>
+            <div className='nuevo-resultado-form-btns'>
+              <PrimaryButton text="Agregar" onClick={handleAgregarResultado}/>
+            </div>
           </form>
         </div>
 

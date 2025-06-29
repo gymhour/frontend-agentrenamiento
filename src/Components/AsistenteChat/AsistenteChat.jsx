@@ -95,7 +95,7 @@ const AsistenteChat = () => {
           <div className="assistant-header">
             <p> Coach y soporte </p>
             <button className="assistant-close" onClick={toggleChat}>
-              <CloseIcon width={30}/>
+              <CloseIcon width={30} />
             </button>
           </div>
           <div className="assistant-messages">
@@ -125,9 +125,11 @@ const AsistenteChat = () => {
           </div>
         </div>
       ) : (
-        <div className="assistant-bubble" onClick={toggleChat}>
-          Consultas fitness
-          <ChatIcon color='#FAFAFA' width={16} height={16}/>
+        <div class="bubble-wrapper">
+          <div className="assistant-bubble" onClick={toggleChat}>
+            Consultas fitness
+            <ChatIcon color='#FAFAFA' width={16} height={16} />
+          </div>
         </div>
       )}
     </>
