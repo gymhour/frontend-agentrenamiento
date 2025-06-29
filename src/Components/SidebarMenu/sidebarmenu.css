@@ -1,206 +1,228 @@
-.sidebar {
-  position: sticky;
-  top: 0;
-  width: 320px;
-  min-height: 100vh;
-  background-color: #101010;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-  color: #FAFAFA;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px 25px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-logo {
-  margin-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-
-.logo {
-  max-width: 120px;
-  width: 100px;
-}
-
-.menu-divider {
-  height: 1.5px;
-  width: 280px;
-  background-color: #303030;
-}
-
-.sidebar-menu {
-  flex-grow: 1;
-}
-
-.menu-title,
-.profile-title {
-  font-size: 12px;
-  color: #aaa;
-  margin-bottom: 10px;
-}
-
-.menu-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 10px;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.menu-item:hover {
-  background-color: #333;
-}
-
-.menu-item.logout {
-  color: #CC8889;
-}
-
-.profile-section {
-  margin-top: 20px;
-}
-
-.sidebar-footer {
-  margin-top: 50px;
-  text-align: center;
-}
-
-.sidebar-footer img {
-  max-width: 150px;
-  width: 140px;
-}
-
-.menu-item i {
-  width: 12px;
-  height: 12px;
-  background-color: #555;
-  display: inline-block;
-  border-radius: 50%;
-}
-
-.icon {
-  width: 20px;
-  height: 20px;
-}
-
-.menu-list a {
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.menu-link.active {
-  color: white;
-  font-weight: 500;
-}
-
-.menu-link.active .icon {
-  /* fill: white; */
-  stroke: #FAFAFA;
-}
-
-/* MOBILE */
-/* Botón hamburguesa: oculto por defecto */
-.hamburger-btn {
-  display: block;
-  position: fixed;
-  bottom: 16px;
-  /* en lugar de top */
-  top: auto;
-  left: 16px;
-  padding: 12px;
-  border-radius: 50px;
-  color: white;
-  z-index: 1001;
-  height: 30px;
-}
-
-
-/* Overlay semitransparente */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1000;
-}
-
-/* Botón cerrar en sidebar */
-.close-btn {
-  display: none;
-  background: none;
-  border: none;
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  cursor: pointer;
-}
-
-/* botón oculto por defecto en desktop */
-.hamburger-btn {
-  display: none;
-  position: fixed;
-  bottom: 16px;
-  left: 16px;
-  top: auto;
-  padding: 12px;
-  border-radius: 50px;
-  color: white;
-  z-index: 1001;
-  height: 30px;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  .hamburger-btn {
-    display: block;
-    bottom: 16px;
-    left: 16px;
-    top: auto;
-    background-color: white;
-    height: 60px;
-    width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* resto de tus reglas mobile */
-  .sidebar {
-    position: fixed;
+/* ============================
+   BASE SIDEBAR (desktop + mobile)
+   ============================ */
+   .sidebar {
+    position: sticky;
     top: 0;
-    left: 0;
-    width: 80%;
-    height: 100%;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 1002;
+    width: 320px;
+    min-height: 100vh;
+    background-color: #101010;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FAFAFA;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 25px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   }
+  
+  .sidebar-logo {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .logo {
+    max-width: 120px;
+    width: 100px;
+  }
+  
+  .menu-divider {
+    height: 1.5px;
+    width: 280px;
+    background-color: #303030;
+  }
+  
   .sidebar-menu {
     flex-grow: 1;
-    overflow-y: auto;
-    padding-right: 8px;      /* opcional, para evitar overlay scrollbar */
   }
-  .sidebar.open {
-    height: 100%;
-    transform: translateX(0);
+  
+  .menu-title,
+  .profile-title {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 10px;
   }
+  
+  .menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .menu-item:hover {
+    background-color: #333;
+  }
+  
+  .menu-item.logout {
+    color: #CC8889;
+  }
+  
+  .profile-section {
+    margin-top: 20px;
+  }
+  
+  .sidebar-footer {
+    margin-top: 50px;
+    text-align: center;
+  }
+  
+  .sidebar-footer img {
+    max-width: 150px;
+    width: 140px;
+  }
+  
+  .menu-item i {
+    width: 12px;
+    height: 12px;
+    background-color: #555;
+    display: inline-block;
+    border-radius: 50%;
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .menu-list a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .menu-link.active {
+    color: #FFFFFF;
+    font-weight: 500;
+  }
+  
+  .menu-link.active .icon {
+    stroke: #FAFAFA;
+  }
+  
+  /* ============================
+     HAMBURGER BUTTON (base)
+     ============================ */
+  .hamburger-btn {
+    display: none;      /* sólo en mobile */
+    position: static;
+    margin: 0;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  /* ============================
+     OVERLAY & CLOSE BUTTON
+     ============================ */
+  /* overlay oculto por defecto */
+  .overlay {
+    display: none;
+  }
+  
   .close-btn {
-    display: block;
-    color: white;
+    display: none;      /* sólo en mobile */
+    background: none;
+    border: none;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
   }
-}
+  
+  /* ============================
+     MOBILE NAVBAR (fixed top)
+     ============================ */
+  .mobile-navbar {
+    display: none;      /* oculto en desktop */
+  }
+  
+  @media (max-width: 768px) {
+    /* 1) Navbar superior con hamburguesa y logo centrado */
+    .mobile-navbar {
+      display: flex;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      padding: 0 16px;
+      background-color: #101010;
+      z-index: 1003;
+    }
+    .mobile-logo {
+      height: 55px;
+      margin: 0 auto; /* centra el logo */
+    }
+    .hamburger-btn {
+      display: block;
+      flex-shrink: 0;
+    }
+  
+    /* 2) Ocultar logo dentro del sidebar */
+    .sidebar-logo {
+      display: none;
+    }
+  
+    /* 3) Sidebar por debajo del navbar */
+    .sidebar {
+      position: fixed;
+      top: 60px; /* empuja abajo del navbar */
+      left: 0;
+      width: 100%;
+      height: calc(100% - 60px);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 1002;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+  
+    /* 4) Ajustes internos del sidebar en mobile */
+    .sidebar-menu {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+  
+    /* 5) Mostrar overlay sólo en mobile, debajo del navbar */
+    .overlay {
+      display: block;
+      top: 60px;
+      height: calc(100% - 60px);
+      z-index: 1001;
+    }
+  
+    /* 6) Mostrar botón “cerrar” (con hamburguesa invertida) */
+    .close-btn {
+      display: block;
+      color: #FAFAFA;
+    }
+  }
+  
+  /* ============================
+     DESKTOP OVERRIDE
+     ============================ */
+  @media (min-width: 769px) {
+    /* Asegura que al volver a desktop no quede overlay */
+    .overlay {
+      display: none !important;
+    }
+  }
+  

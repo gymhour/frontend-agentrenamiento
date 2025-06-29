@@ -3,6 +3,7 @@ import '../../../App.css'
 import './RutinasAdmin.css'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx'
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx'
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp'
 import apiService from '../../../services/apiService.js'
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx'
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
@@ -12,6 +13,8 @@ import { useNavigate } from 'react-router-dom'
 const RutinasAdmin = () => {
   const [rutinas, setRutinas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [selectedRutinaId, setSelectedRutinaId] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -29,14 +32,27 @@ const RutinasAdmin = () => {
     fetchRutinas()
   }, [])
 
-  const deleteRutina = async idRutina => {
-    try {
-      await apiService.deleteRutina(idRutina)
-      setRutinas(prev =>
-        prev.filter(r => r.ID_Rutina !== idRutina)
-      )
-    } catch (error) {
-      console.error('Error al eliminar rutina', error)
+  const openDeletePopup = id => {
+    setSelectedRutinaId(id)
+    setIsPopupOpen(true)
+  }
+
+  const closePopup = () => {
+    setIsPopupOpen(false)
+    setSelectedRutinaId(null)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (selectedRutinaId) {
+      try {
+        await apiService.deleteRutina(selectedRutinaId)
+        setRutinas(prev =>
+          prev.filter(r => r.ID_Rutina !== selectedRutinaId)
+        )
+      } catch (error) {
+        console.error('Error al eliminar rutina', error)
+      }
+      closePopup()
     }
   }
 
@@ -62,7 +78,7 @@ const RutinasAdmin = () => {
                 <h3>{rutina.nombre}</h3>
                 <div className="rutina-header-acciones">
                   <button
-                    onClick={() => deleteRutina(rutina.ID_Rutina)}
+                    onClick={() => openDeletePopup(rutina.ID_Rutina)}
                     className='mi-rutina-eliminar-btn'
                   >
                     <DeleteIcon width={20} height={20} />
@@ -174,6 +190,13 @@ const RutinasAdmin = () => {
             </div>
           ))}
         </div>
+
+        <ConfirmationPopup
+          isOpen={isPopupOpen}
+          message="¿Estás seguro que deseas eliminar esta rutina?"
+          onClose={closePopup}
+          onConfirm={handleConfirmDelete}
+        />
       </div>
     </div>
   )

@@ -48,7 +48,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
   return (
     <>
       {/* Botón “Abrir” en mobile */}
-      <button
+      {/* <button
         className="hamburger-btn"
         onClick={() => setIsSidebarOpen(true)}
       >
@@ -56,7 +56,25 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
             className="icon"
             fill="#000000"
         />{" "}
-      </button>
+      </button> */}
+
+      {/* MOBILE NAVBAR: hamburguesa a la izquierda + logo centrado */}
+      <header className="mobile-navbar">
+        <button
+          className="hamburger-btn"
+          onClick={() => setIsSidebarOpen(prev => !prev)}
+        >
+          {isSidebarOpen
+            ? <CloseIcon fill="#FAFAFA" width={35} height={35} />
+            : <MenuHamburguesaIcon fill="#FAFAFA" width={20} height={20} />
+          }
+        </button>
+        <img
+          src={ClientLogo}
+          alt="Wembley Logo"
+          className="mobile-logo"
+        />
+      </header>
 
       {/* Overlay semitransparente */}
       {isSidebarOpen && (
@@ -68,12 +86,12 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
 
       <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`}>
         {/* Botón “Cerrar” en mobile */}
-        <button
+        {/* <button
           className="close-btn"
           onClick={() => setIsSidebarOpen(false)}
         >
           <CloseIcon width={40} height={40} fill="#FAFAFA" />
-        </button>
+        </button> */}
 
         {/* Logo cliente */}
         <div className="sidebar-logo">
@@ -90,318 +108,296 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
           <h3 className="menu-title">MENÚ</h3>
           <ul className="menu-list">
             {
-            // SIDEBAR ADMIN
-            isAdmin ? (
-              <>
-                <Link
-                  to="/admin/inicio"
-                  className={`menu-link ${
-                    location.pathname === "/admin/inicio"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <InicioIcon className="icon" fill="#A2A2A2" />{" "}
-                    Inicio
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/clases-actividades"
-                  className={`menu-link ${
-                    location.pathname ===
-                    "/admin/clases-actividades"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <ClasesActividadesIcon
-                      className="icon"
-                      fill="#A2A2A2"
-                    />{" "}
-                    Clases y actividades
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/usuarios"
-                  className={`menu-link ${
-                    location.pathname === "/admin/usuarios"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <UsuariosIcon
-                      className="icon"
-                      stroke="#A2A2A2"
-                    />{" "}
-                    Usuarios
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/crear-usuario"
-                  className={`menu-link ${
-                    location.pathname === "/admin/crear-usuario"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <CrearUsuarioIcon
-                      className="icon"
-                      stroke="#A2A2A2"
-                    />{" "}
-                    Crear usuario
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/ejercicios"
-                  className={`menu-link ${
-                    location.pathname === "/admin/ejercicios"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <DumbbellIcon
-                      className="icon"
-                      color="#A2A2A2"
-                    />{" "}
-                    Ejercicios
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/rutinas"
-                  className={`menu-link ${
-                    location.pathname === "/admin/rutinas"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <MiRutinaIcon
-                      className="icon"
-                      color="#A2A2A2"
-                    />{" "}
-                    Cargar rutinas
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/planes"
-                  className={`menu-link ${
-                    location.pathname === "/admin/planes"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <PlanesIcon
-                      className="icon"
-                      stroke="#A2A2A2"
-                    />{" "}
-                    Planes
-                  </li>
-                </Link>
-                <Link
-                  to="/admin/cuotas"
-                  className={`menu-link ${
-                    location.pathname === "/admin/cuotas"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <IngresosIcon
-                      className="icon"
-                      stroke="#A2A2A2"
-                    />{" "}
-                    Cuotas
-                  </li>
-                </Link>
-              </>
-            )
-            // SIDEBAR ENTRENADOR 
-            : isEntrenador ? (
-              <>
-                <Link
-                  to="/entrenador/inicio"
-                  className={`menu-link ${
-                    location.pathname === "/entrenador/inicio" ? "active" : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <InicioIcon className="icon" fill="#A2A2A2" /> Inicio
-                  </li>
-                </Link>
-                <Link
-                  to="/entrenador/asignar-rutinas"
-                  className={`menu-link ${
-                    location.pathname === "/entrenador/asignar-rutinas" ? "active" : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <MiRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
-                  </li>
-                </Link>
-                <Link
-                  to="/entrenador/rutinas-asignadas"
-                  className={`menu-link ${
-                    location.pathname === "/entrenador/rutinas-asignadas" ? "active" : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <MiRutinaIcon className="icon" color="#A2A2A2" /> Rutinas asignadas
-                  </li>
-                </Link>
-                <Link
-                  to="/entrenador/usuarios"
-                  className={`menu-link ${
-                    location.pathname === "/entrenador/usuarios" ? "active" : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <UsuariosIcon className="icon" fill="#A2A2A2" /> Usuarios
-                  </li>
-                </Link>
-                <Link
-                  to="/entrenador/clases-actividades"
-                  className={`menu-link ${
-                    location.pathname === "/entrenador/clases-actividades" ? "active" : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <ClasesActividadesIcon className="icon" fill="#A2A2A2" /> Clases y actividades
-                  </li>
-                </Link>
-              </>
-            ) 
-            // SIDEBAR ALUMNO
-            : (
-              <>
-                <Link
-                  to="/alumno/inicio"
-                  className={`menu-link ${
-                    location.pathname === "/alumno/inicio"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <InicioIcon className="icon" fill="#A2A2A2" />{" "}
-                    Inicio
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/turnos"
-                  className={`menu-link ${
-                    location.pathname === "/alumno/turnos"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <MisTurnosIcon className="icon" /> Mis turnos
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/agendar-turno"
-                  className={`menu-link ${
-                    location.pathname ===
-                    "/alumno/agendar-turno"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <AgendarTurnoIcon className="icon" /> Agendar turno
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/clases-actividades"
-                  className={`menu-link ${
-                    location.pathname ===
-                    "/alumno/clases-actividades"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <ClasesActividadesIcon
-                      className="icon"
-                      fill="#A2A2A2"
-                    />{" "}
-                    Clases y actividades
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/mi-rutina"
-                  className={`menu-link ${
-                    location.pathname === "/alumno/mi-rutina"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <MiRutinaIcon className="icon" color="#A2A2A2" /> Mi
-                    rutina
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/medicion-resultados"
-                  className={`menu-link ${
-                    location.pathname ===
-                    "/alumno/medicion-resultados"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <MedicionResultadosIcon className="icon" /> Medición
-                    de ejercicios
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/entrenadores"
-                  className={`menu-link ${
-                    location.pathname === "/alumno/entrenadores"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <EntrenadoresIcon className="icon" /> Entrenadores
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/rutinas-recomendadas"
-                  className={`menu-link ${
-                    location.pathname ===
-                    "/alumno/rutinas-recomendadas"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <RutinasRecomendadasIcon className="icon" /> Rutinas
-                    recomendadas
-                  </li>
-                </Link>
-                <Link
-                  to="/alumno/cuotas"
-                  className={`menu-link ${
-                    location.pathname ===
-                    "/alumno/cuotas"
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  <li className="menu-item">
-                    <IngresosIcon className="icon" /> Cuotas
-                  </li>
-                </Link>
-              </>
-            )}
+              // SIDEBAR ADMIN
+              isAdmin ? (
+                <>
+                  <Link
+                    to="/admin/inicio"
+                    className={`menu-link ${location.pathname === "/admin/inicio"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <InicioIcon className="icon" fill="#A2A2A2" />{" "}
+                      Inicio
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/clases-actividades"
+                    className={`menu-link ${location.pathname ===
+                        "/admin/clases-actividades"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <ClasesActividadesIcon
+                        className="icon"
+                        fill="#A2A2A2"
+                      />{" "}
+                      Clases y actividades
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/usuarios"
+                    className={`menu-link ${location.pathname === "/admin/usuarios"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <UsuariosIcon
+                        className="icon"
+                        stroke="#A2A2A2"
+                      />{" "}
+                      Usuarios
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/crear-usuario"
+                    className={`menu-link ${location.pathname === "/admin/crear-usuario"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <CrearUsuarioIcon
+                        className="icon"
+                        stroke="#A2A2A2"
+                      />{" "}
+                      Crear usuario
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/ejercicios"
+                    className={`menu-link ${location.pathname === "/admin/ejercicios"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <DumbbellIcon
+                        className="icon"
+                        color="#A2A2A2"
+                      />{" "}
+                      Ejercicios
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/rutinas"
+                    className={`menu-link ${location.pathname === "/admin/rutinas"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <MiRutinaIcon
+                        className="icon"
+                        color="#A2A2A2"
+                      />{" "}
+                      Cargar rutinas
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/planes"
+                    className={`menu-link ${location.pathname === "/admin/planes"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <PlanesIcon
+                        className="icon"
+                        stroke="#A2A2A2"
+                      />{" "}
+                      Planes
+                    </li>
+                  </Link>
+                  <Link
+                    to="/admin/cuotas"
+                    className={`menu-link ${location.pathname === "/admin/cuotas"
+                        ? "active"
+                        : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <IngresosIcon
+                        className="icon"
+                        stroke="#A2A2A2"
+                      />{" "}
+                      Cuotas
+                    </li>
+                  </Link>
+                </>
+              )
+                // SIDEBAR ENTRENADOR 
+                : isEntrenador ? (
+                  <>
+                    <Link
+                      to="/entrenador/inicio"
+                      className={`menu-link ${location.pathname === "/entrenador/inicio" ? "active" : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <InicioIcon className="icon" fill="#A2A2A2" /> Inicio
+                      </li>
+                    </Link>
+                    <Link
+                      to="/entrenador/asignar-rutinas"
+                      className={`menu-link ${location.pathname === "/entrenador/asignar-rutinas" ? "active" : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <MiRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                      </li>
+                    </Link>
+                    <Link
+                      to="/entrenador/rutinas-asignadas"
+                      className={`menu-link ${location.pathname === "/entrenador/rutinas-asignadas" ? "active" : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <MiRutinaIcon className="icon" color="#A2A2A2" /> Rutinas asignadas
+                      </li>
+                    </Link>
+                    <Link
+                      to="/entrenador/usuarios"
+                      className={`menu-link ${location.pathname === "/entrenador/usuarios" ? "active" : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <UsuariosIcon className="icon" fill="#A2A2A2" /> Usuarios
+                      </li>
+                    </Link>
+                    <Link
+                      to="/entrenador/clases-actividades"
+                      className={`menu-link ${location.pathname === "/entrenador/clases-actividades" ? "active" : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <ClasesActividadesIcon className="icon" fill="#A2A2A2" /> Clases y actividades
+                      </li>
+                    </Link>
+                  </>
+                )
+                  // SIDEBAR ALUMNO
+                  : (
+                    <>
+                      <Link
+                        to="/alumno/inicio"
+                        className={`menu-link ${location.pathname === "/alumno/inicio"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <InicioIcon className="icon" fill="#A2A2A2" />{" "}
+                          Inicio
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/turnos"
+                        className={`menu-link ${location.pathname === "/alumno/turnos"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <MisTurnosIcon className="icon" /> Mis turnos
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/agendar-turno"
+                        className={`menu-link ${location.pathname ===
+                            "/alumno/agendar-turno"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <AgendarTurnoIcon className="icon" /> Agendar turno
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/clases-actividades"
+                        className={`menu-link ${location.pathname ===
+                            "/alumno/clases-actividades"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <ClasesActividadesIcon
+                            className="icon"
+                            fill="#A2A2A2"
+                          />{" "}
+                          Clases y actividades
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/mi-rutina"
+                        className={`menu-link ${location.pathname === "/alumno/mi-rutina"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <MiRutinaIcon className="icon" color="#A2A2A2" /> Mi
+                          rutina
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/medicion-resultados"
+                        className={`menu-link ${location.pathname ===
+                            "/alumno/medicion-resultados"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <MedicionResultadosIcon className="icon" /> Medición
+                          de ejercicios
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/entrenadores"
+                        className={`menu-link ${location.pathname === "/alumno/entrenadores"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <EntrenadoresIcon className="icon" /> Entrenadores
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/rutinas-recomendadas"
+                        className={`menu-link ${location.pathname ===
+                            "/alumno/rutinas-recomendadas"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <RutinasRecomendadasIcon className="icon" /> Rutinas
+                          recomendadas
+                        </li>
+                      </Link>
+                      <Link
+                        to="/alumno/cuotas"
+                        className={`menu-link ${location.pathname ===
+                            "/alumno/cuotas"
+                            ? "active"
+                            : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <IngresosIcon className="icon" /> Cuotas
+                        </li>
+                      </Link>
+                    </>
+                  )}
           </ul>
 
           <div className="profile-section">
@@ -409,9 +405,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
             <ul className="menu-list">
               <Link
                 to={changePasswordPath}
-                className={`menu-link ${
-                  location.pathname === changePasswordPath ? "active" : ""
-                }`}
+                className={`menu-link ${location.pathname === changePasswordPath ? "active" : ""
+                  }`}
               >
                 <li className="menu-item">
                   <AjustesIcon className="icon" fill="#A2A2A2" /> Cambiar contraseña
