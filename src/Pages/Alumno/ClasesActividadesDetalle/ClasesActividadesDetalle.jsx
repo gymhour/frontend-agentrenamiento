@@ -60,11 +60,11 @@ const ClasesActividadesDetalle = () => {
                     </div>
                     <div className="clases-actividades-detalle-info">
                         <div className="clases-actividades-item clases-actividades-detalle-info-descripcion">
-                            <h2> Descripción </h2>
+                            <h3> Descripción </h3>
                             <p> {claseDetalle.descripcion}</p>
                         </div>
                         <div className="clases-actividades-item clases-actividades-detalle-info-horario">
-                            <h2> Horarios </h2>
+                            <h3> Horarios </h3>
                             {claseDetalle.HorariosClase.length > 0 ? (
                                 <ul>
                                     {claseDetalle.HorariosClase.map((horario) => (
@@ -80,7 +80,7 @@ const ClasesActividadesDetalle = () => {
 
                         {/* Instructores */}
                         <div className="clases-actividades-item clases-actividades-detalle-info-instructores">
-                            <h2>Instructores</h2>
+                            <h3>Instructores</h3>
                             {claseDetalle.Entrenadores && claseDetalle.Entrenadores.length > 0 ? (
                                 <ul className='listado-entrenadores'>
                                     {claseDetalle.Entrenadores.map(ent => (

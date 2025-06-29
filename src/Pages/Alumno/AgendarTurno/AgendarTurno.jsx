@@ -164,7 +164,7 @@ const AgendarTurno = () => {
       <div className='content-layout'>
         {/* Toast en modo oscuro */}
         <ToastContainer theme="dark" />
-        <h2>Agendar turno</h2>
+        <h2 className='agendar-turno-title'>Agendar turno</h2>
         <div className="agendar-turno-ctn">
           {!loading && (
             <CustomDropdown

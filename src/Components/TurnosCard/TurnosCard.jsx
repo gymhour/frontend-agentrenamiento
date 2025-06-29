@@ -1,6 +1,8 @@
 import React from 'react';
 import './turnosCard.css';
-import { ReactComponent as TurnoIcon } from '../../assets/icons/turno-icon.svg';
+// import { ReactComponent as TurnoIcon } from '../../assets/icons/turno-icon.svg';
+import { ReactComponent as TurnoCancelIcon } from '../../assets/icons/turno_cancel.svg';
+import { ReactComponent as TurnoDoneIcon } from '../../assets/icons/turno_done.svg';
 
 const TurnosCard = ({ id, nombreTurno, fechaTurno, onCancelTurno }) => {
   const formatDate = (isoString) => {
@@ -18,23 +20,28 @@ const TurnosCard = ({ id, nombreTurno, fechaTurno, onCancelTurno }) => {
 
   return (
     <div className='turnos-card-ctn'>
-      <div className="turno-icon">
+      {/* <div className="turno-icon">
         <TurnoIcon className='icon' />
-      </div>
+      </div> */}
       <div className="turno-name">
-        <p>{nombreTurno ?? "Nombre no disponible"}</p>
+        <b>{nombreTurno ?? "Nombre no disponible"}</b>
       </div>
       <div className="turno-date">
         <p>{formattedDate}</p>
       </div>
       <div className="turno-cancel">
-        <button 
-          className="cancel-button" 
-          onClick={() => onCancelTurno(id)}
-          style={{ visibility: showCancelButton ? 'visible' : 'hidden' }}
-        >
-          Cancelar turno
-        </button>
+        {showCancelButton ? (
+          <button 
+            className="cancel-button" 
+            onClick={() => onCancelTurno(id)}
+          >
+            <TurnoCancelIcon className='icon' />
+          </button>
+        ) : (
+          <span className="clase-realizada">
+            <TurnoDoneIcon className='icon' />
+          </span>
+        )}
       </div>
     </div>
   );

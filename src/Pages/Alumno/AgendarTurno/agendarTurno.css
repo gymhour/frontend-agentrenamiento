@@ -110,3 +110,19 @@
     color: #aaa; /* Color diferente para el placeholder en estado deshabilitado */
   }
   
+  @media screen and (max-width: 500px) {
+    .agendar-turno-title {
+        text-align: center;
+    }
+    .agendar-turno-ctn {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .react-datepicker {
+        width: 100% !important;
+    }
+    .datepicker-container {
+        width: 100% !important;
+    }
+  }

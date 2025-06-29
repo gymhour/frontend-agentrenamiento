@@ -32,3 +32,8 @@
     color: #FAFAFA;
 }
 
+@media screen and (max-width: 550px) {
+    .proximos-turnos-ctn, .historial-turnos-ctn {
+        width: auto;
+    }
+}

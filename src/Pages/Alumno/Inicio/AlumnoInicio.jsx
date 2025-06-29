@@ -76,7 +76,9 @@ const AlumnoInicio = () => {
                             <p>No tienes ningún turno</p>
                         )}
                     </div>
-                    <PrimaryButton linkTo="/alumno/agendar-turno" text="Agregar nuevo" icon={AddIconCircle} />
+                    <div className='turnos-ctn-btn-agendar-nuevo'>
+                        <PrimaryButton linkTo="/alumno/agendar-turno" text="Agendar nuevo" icon={AddIconCircle} />
+                    </div>
                 </div>
                 <div className="inicio-clases-act-ctn">
                     <div className="inicio-clases-act-title">
