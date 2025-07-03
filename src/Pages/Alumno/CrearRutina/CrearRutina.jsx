@@ -220,7 +220,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       const resp = await apiService.getRutinaById(rutinaId);
       // step 1 data
       setFormData({ nombre: resp.nombre, descripcion: resp.desc });
-      setSelectedDias(resp.DiasRutina.map(d => d.dia));
+      setSelectedDias(resp.DiasRutina);
       setSelectedClase(resp.claseRutina || "");
       setSelectedGrupoMuscular(resp.grupoMuscularRutina || "");
       if (fromEntrenador) {

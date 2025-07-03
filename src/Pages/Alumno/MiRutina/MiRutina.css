@@ -80,7 +80,7 @@
 
 @media screen and (max-width: 500px) {
     .mi-rutina-ctn {
-        width: auto;
+        width: 100%;
     }
 
     .mi-rutina-title {

@@ -104,6 +104,19 @@ const AgendarTurno = () => {
     return [ localStart ];
   };  
 
+  // al principio del archivo
+  const formatLocalISO = (date) => {
+    const pad = n => String(n).padStart(2,'0');
+    return [
+      date.getFullYear(),
+      '-', pad(date.getMonth()+1),
+      '-', pad(date.getDate()),
+      'T', pad(date.getHours()),
+      ':', pad(date.getMinutes()),
+      ':', pad(date.getSeconds())
+    ].join('');
+  };
+
   const manejarSeleccionClase = (e) => {
     const nombreClaseSeleccionada = e.target.value;
     setSelectedClase(nombreClaseSeleccionada);
@@ -140,12 +153,15 @@ const AgendarTurno = () => {
     const body = {
       ID_Usuario: parseInt(usuarioId, 10),
       ID_HorarioClase: scheduleForDay.ID_HorarioClase,
-      fecha: selectedDateTime.toISOString(),
+      fecha: formatLocalISO(selectedDateTime),
     };
 
     setIsAgendando(true);
     try {
+      console.log("body que envio", body)
       const respuesta = await apiService.postTurno(body);
+      setSelectedClase('');
+      setSelectedDateTime(null);
       setLoading(false);
       toast.success("Turno agendado exitosamente.");
     } catch (err) {

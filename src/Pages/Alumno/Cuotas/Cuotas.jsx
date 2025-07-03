@@ -1,14 +1,28 @@
-// src/pages/Cuotas/Cuotas.jsx
 import React, { useEffect, useState } from 'react';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import './Cuotas.css';
 import axios from 'axios';
 import { ReactComponent as GaliciaIcon } from '../../../assets/icons/galicia_logo.svg';
+import { ReactComponent as CopyIcon } from '../../../assets/icons/copy.svg';
+import { toast } from 'react-toastify';
 
 const Cuotas = () => {
   const [cuotas, setCuotas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const alias = 'bpramos.gal';
+  const cbu = '00700238-30004046522411';
+
+  const handleCopy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success('Copiado al portapapeles');
+    } catch (err) {
+      console.error('Error copiando al portapapeles', err);
+      toast.error('No se pudo copiar');
+    }
+  };
 
   const formatMonth = (m) =>
     m
@@ -18,11 +32,9 @@ const Cuotas = () => {
         })
       : '–';
 
-  // Helper: formatea ISO a DD/MM/AAAA en es-AR
   const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString('es-AR') : '–';
 
-  // Helper: formatea número a ARS
   const formatCurrency = (val) =>
     new Intl.NumberFormat('es-AR', {
       style: 'currency',
@@ -58,15 +70,27 @@ const Cuotas = () => {
 
         <div className="cuotas-datos-pagos">
           <h3>Datos de cuenta</h3>
-          <div className='cuotas-datos-pagos-info'>
+          <div className="cuotas-datos-pagos-info">
             <span style={{ fontWeight: '600' }}>
               BRISA PRISCILA RAMOS <GaliciaIcon width="120" />
             </span>
             <span>
-              <b>ALIAS:</b> bpramos.gal
+              <b>ALIAS:</b> {alias}{' '}
+              <button
+                className="copy-button"
+                onClick={() => handleCopy(alias)}
+              >
+                <CopyIcon width={16} height={16}/>
+              </button>
             </span>
             <span>
-              <b>CBU:</b> 00700238-30004046522411
+              <b>CBU:</b> {cbu}{' '}
+              <button
+                className="copy-button"
+                onClick={() => handleCopy(cbu)}
+              >
+                <CopyIcon width={16} height={16}/>
+              </button>
             </span>
             <span>
               <b>CUIL:</b> 27-44851911-8
@@ -77,15 +101,15 @@ const Cuotas = () => {
           </div>
         </div>
 
-        <h3> Historial de pagos</h3>
+        <h3>Historial de pagos</h3>
         {loading ? (
-          <p style={{marginTop: '20px'}}>Cargando cuotas...</p>
+          <p style={{ marginTop: '20px' }}>Cargando cuotas...</p>
         ) : error ? (
           <p className="text-error">{error}</p>
         ) : cuotas.length === 0 ? (
           <p>No hay cuotas para mostrar.</p>
         ) : (
-          <table className="cuotas-table cuotas-table-usuario" >
+          <table className="cuotas-table cuotas-table-usuario">
             <thead>
               <tr>
                 <th>Mes</th>
@@ -100,7 +124,9 @@ const Cuotas = () => {
             <tbody>
               {cuotas.map((c) => (
                 <tr key={c.ID_Cuota}>
-                  <td style={{textTransform: 'uppercase'}}>{formatMonth(c.mes)}</td>
+                  <td style={{ textTransform: 'uppercase' }}>
+                    {formatMonth(c.mes)}
+                  </td>
                   <td>{formatCurrency(c.importe)}</td>
                   <td>{formatDate(c.vence)}</td>
                   <td>{c.User.ID_Plan}</td>

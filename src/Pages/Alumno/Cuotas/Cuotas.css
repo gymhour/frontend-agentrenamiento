@@ -18,3 +18,19 @@
 .cuotas-table-usuario {
     margin-top: 20px;
 }
+
+.copy-button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 5px;
+    position: relative;
+    top: 4px;
+    transition: all ease-in-out 150ms;
+}
+
+.copy-button:hover {
+    color: rgba(255, 255, 255, 0.5);
+}
