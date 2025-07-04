@@ -116,4 +116,10 @@
     .crear-rutina-step1{
         width: 100%;
     }
+    .css-b62m3t-container {
+        width: 100% !important;
+    }
+    .css-13cymwt-control, #root > div.page-layout > div > div.crear-rutina-step1 > div > div.css-b62m3t-container > div {
+        width: 100% !important;
+    }
   }

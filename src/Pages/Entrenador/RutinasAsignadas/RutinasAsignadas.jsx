@@ -52,16 +52,20 @@ const RutinasAsignadas = () => {
   // Filtrar por usuario seleccionado
   const handleSearch = () => {
     if (!selectedUser) {
-      // Si limpio el select, muestro todo
-      setRutinas(allRutinas)
-    } else {
-      const filtrado = allRutinas.filter(r => 
-        // Asumo que rutina.alumno tiene el campo ID_Usuario
-        Number(r.alumno.ID_Usuario) === Number(selectedUser.value)
-      )
-      setRutinas(filtrado)
+      // si no hay usuario seleccionado, muestro todas
+      setRutinas(allRutinas);
+      return;
     }
-  }
+
+    const userId = Number(selectedUser.value);
+    const filtrado = allRutinas.filter(rutina =>
+      // comparo el ID del alumno con el ID seleccionado
+      Number(rutina.alumno.ID_Usuario) === userId
+    );
+
+    setRutinas(filtrado);
+  };
+
 
   if (loading) return <LoaderFullScreen />
 

@@ -35,3 +35,15 @@
     border: none;
     cursor: pointer;
 }
+
+@media screen and (max-width: 500px) {
+    .usuarios-filtros-form-inputs-ctn {
+        width: 100%;
+    }
+    .usuarios-filtros-form-inputs-ctn input {
+        width: 100%;
+    }
+    .filtros-form {
+        justify-content: center;
+    }
+}

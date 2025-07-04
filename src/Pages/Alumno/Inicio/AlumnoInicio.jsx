@@ -4,25 +4,30 @@ import './alumnoInicio.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import TurnosCard from '../../../Components/TurnosCard/TurnosCard';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import apiService from '../../../services/apiService';
 import ClasesActividadesCard from '../ClasesActividadesCard/ClasesActividadesCard';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AlumnoInicio = () => {
     const [clases, setClases] = useState([]);
     const [turnos, setTurnos] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [nombreUsuario, setNombreUsuario] = useState("");
+    const [error, setError] = useState('');
+    const [nombreUsuario, setNombreUsuario] = useState('');
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [turnoToCancel, setTurnoToCancel] = useState(null);
 
     useEffect(() => {
         const fetchAll = async () => {
             setLoading(true);
             try {
-                const usuarioId = localStorage.getItem("usuarioId");
+                const usuarioId = localStorage.getItem('usuarioId');
                 const [clasesData, turnosData, usuarioData] = await Promise.all([
                     apiService.getClases(),
                     apiService.getTurnosUsuario(usuarioId),
@@ -30,11 +35,12 @@ const AlumnoInicio = () => {
                 ]);
                 setClases(clasesData);
                 setTurnos(turnosData);
-                setNombreUsuario(usuarioData.nombre + " " + usuarioData.apellido)
-                console.log("Info usuario", usuarioData);
-                setError("");
-            } catch {
-                setError("Error al cargar los datos. Intente nuevamente.");
+                setNombreUsuario(`${usuarioData.nombre} ${usuarioData.apellido}`);
+                setError('');
+            } catch (err) {
+                console.error(err);
+                setError('Error al cargar los datos. Intente nuevamente.');
+                toast.error('Error al cargar los datos. Intente nuevamente.');
             } finally {
                 setLoading(false);
             }
@@ -43,15 +49,45 @@ const AlumnoInicio = () => {
         fetchAll();
     }, []);
 
+    // Abrir confirmation popup
+    const handleOpenCancelPopup = (id) => {
+        setTurnoToCancel(id);
+        setIsPopupOpen(true);
+    };
+
+    // Confirmar cancelación
+    const handleConfirmCancellation = async () => {
+        setIsPopupOpen(false);
+        setLoading(true);
+        try {
+            await apiService.deleteTurno(turnoToCancel);
+            setTurnos((prev) => prev.filter((t) => t.id_turno !== turnoToCancel));
+            toast.success('Turno cancelado exitosamente.');
+            setError('');
+        } catch (err) {
+            console.error(err);
+            setError('Error al cancelar el turno. Por favor, inténtalo nuevamente.');
+            toast.error('Error al cancelar el turno. Por favor, inténtalo nuevamente.');
+        } finally {
+            setLoading(false);
+            setTurnoToCancel(null);
+        }
+    };
+
+    const handleClosePopup = () => {
+        setIsPopupOpen(false);
+        setTurnoToCancel(null);
+    };
+
     const latestTurnos = [...turnos]
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .slice(0, 3);
 
     return (
-        <div className='page-layout'>
+        <div className="page-layout">
             {loading && <LoaderFullScreen />}
             <SidebarMenu isAdmin={false} />
-            <div className='content-layout'>
+            <div className="content-layout">
                 <div className="inicio-bienvenida-ctn">
                     <h2> ¡Hola, {nombreUsuario}! </h2>
                 </div>
@@ -66,17 +102,19 @@ const AlumnoInicio = () => {
                         ) : latestTurnos.length > 0 ? (
                             latestTurnos.map((turno, index) => (
                                 <TurnosCard
-                                    key={`${turno.ID_Turno}_${index}`}
+                                    key={`${turno.id_turno}_${index}`}
+                                    id={turno.id_turno}
                                     nombreTurno={turno.HorarioClase.Clase.nombre}
                                     fechaTurno={turno.fecha}
                                     horaTurno={turno.hora}
+                                    onCancelTurno={() => handleOpenCancelPopup(turno.id_turno)}
                                 />
                             ))
                         ) : (
                             <p>No tienes ningún turno</p>
                         )}
                     </div>
-                    <div className='turnos-ctn-btn-agendar-nuevo'>
+                    <div className="turnos-ctn-btn-agendar-nuevo">
                         <PrimaryButton linkTo="/alumno/agendar-turno" text="Agendar nuevo" icon={AddIconCircle} />
                     </div>
                 </div>
@@ -90,7 +128,7 @@ const AlumnoInicio = () => {
                     ) : (
                         <div className="clases-list">
                             {clases.length > 0 ? (
-                                clases.slice(0, 3).map((clase, index) => (  // Limitar a 3 clases
+                                clases.slice(0, 3).map((clase, index) => (
                                     <ClasesActividadesCard key={`${clase.ID_Clase}_${index}`} clase={clase} />
                                 ))
                             ) : (
@@ -100,8 +138,16 @@ const AlumnoInicio = () => {
                     )}
                 </div>
             </div>
+
+            <ConfirmationPopup
+                isOpen={isPopupOpen}
+                onClose={handleClosePopup}
+                onConfirm={handleConfirmCancellation}
+                message="¿Estás seguro de que deseas cancelar este turno?"
+            />
+            <ToastContainer theme="dark" />
         </div>
     );
-}
+};
 
 export default AlumnoInicio;

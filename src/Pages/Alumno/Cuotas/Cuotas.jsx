@@ -129,7 +129,7 @@ const Cuotas = () => {
                   </td>
                   <td>{formatCurrency(c.importe)}</td>
                   <td>{formatDate(c.vence)}</td>
-                  <td>{c.User.ID_Plan}</td>
+                  <td>{c.User.plan.nombre}</td>
                   <td>
                     <span
                       className={`badge ${c.pagada ? 'paid' : 'pending'}`}

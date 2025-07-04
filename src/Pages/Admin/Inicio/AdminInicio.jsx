@@ -226,7 +226,7 @@ const AdminInicio = () => {
           {/* === Sección de filtros de fecha para el gráfico === */}
           {showFilters && (
             <div className='filters-container' style={{ marginTop: '20px', marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className='admin-inicio-filtros-inputs-ctn' style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label>Desde (Mes/Año):</label>
                 <ReactDatePicker
                   selected={inputStartDate}
@@ -237,7 +237,7 @@ const AdminInicio = () => {
                   className='custom-datepicker-mes'
                 />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className='admin-inicio-filtros-inputs-ctn' style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label>Hasta (Mes/Año):</label>
                 <ReactDatePicker
                   selected={inputEndDate}
@@ -248,7 +248,7 @@ const AdminInicio = () => {
                   className='custom-datepicker-mes'
                 />
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className='admin-inicio-filtros-btns-ctn' style={{ display: 'flex', gap: '10px' }}>
                 <PrimaryButton
                   onClick={applyFilters}
                   text="Aplicar filtros"

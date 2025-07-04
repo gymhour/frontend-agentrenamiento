@@ -1,35 +1,27 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../../App.css';
-import React from 'react';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiClient from '../../../axiosConfig';
 import './usuariosList.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { useNavigate } from 'react-router-dom';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast } from "react-toastify";
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
 import { FaChevronDown, FaChevronUp, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const UsuariosList = ({fromAdmin, fromEntrenador}) => {
-  // Estados para datos, filtros y paginación
+const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
-  const [filtros, setFiltros] = useState({
-    tipo: '',
-    nombre: '',
-    apellido: '',
-    email: ''
-  });
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [filtros, setFiltros] = useState({ tipo: '', nombre: '', apellido: '', email: '' });
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true); // para saber si existe siguiente página
-  const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGh5WFH8TOIfRKxUrIgJZoDCs1yvQ4hIcppw&s";
+  const [hasMore, setHasMore] = useState(true);
+  const defaultAvatar = "https://..."; // tu URL
   const opcionesTipo = fromAdmin ? ['Cliente', 'Entrenador', 'Admin'] : ['Cliente'];
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchUsuarios = async () => {
     setLoading(true);
@@ -47,8 +39,8 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
       const listaUsuariosClientes = lista.filter(u => u.tipo === "cliente")
 
       setUsuarios(fromAdmin ? lista : listaUsuariosClientes);
-      const pageSize = lista.length; 
-      setHasMore(pageSize > 0); 
+      const pageSize = lista.length;
+      setHasMore(pageSize > 0);
       setLoading(false);
     } catch (error) {
       console.error('Error al obtener los usuarios:', error);
@@ -56,205 +48,180 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
     }
   };
 
-  useEffect(() => {
-    fetchUsuarios();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  useEffect(() => { fetchUsuarios(); }, [page]);
 
-  // Función que se llama al enviar el formulario de filtros
-  const aplicarFiltros = (e) => {
-    e.preventDefault();
-    setPage(1);
-    fetchUsuarios();
-  };
+  const handleChangeFiltro = e =>
+    setFiltros(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const aplicarFiltros = e => { e.preventDefault(); setPage(1); fetchUsuarios(); };
 
-  // Manejo de cambios en cada campo de filtro
-  const handleChangeFiltro = (e) => {
-    const { name, value } = e.target;
-    setFiltros(prev => ({ ...prev, [name]: value }));
-  };
-
-  const deleteUsuario = async (idUsuario) => {
+  // 2) Actualizar estado localmente y en backend
+  const updateUsuarioEstado = async (id, nuevoEstado) => {
     setLoading(true);
     try {
-      await apiClient.put(`/usuarios/desactivate/${idUsuario}`);
-      // Eliminación en la UI
-      setUsuarios(prevUsuarios =>
-        prevUsuarios.filter(usuario => usuario.ID_Usuario !== idUsuario)
+      // llamada al endpoint
+      await apiClient.put(`/usuarios/estado/${id}`, { estado: nuevoEstado });
+
+      // actualizamos el array sin recargar toda la página
+      setUsuarios(prev =>
+        prev.map(u =>
+          u.ID_Usuario === id
+            ? { ...u, estado: nuevoEstado }
+            : u
+        )
       );
-      setLoading(false);
-      toast.success("Usuario eliminado correctamente");
-    } catch (error) {
-      toast.error('Error al eliminar el usuario. Por favor, intente nuevamente.');
+
+      toast.success(`Usuario ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`);
+    } catch {
+      toast.error('Error al actualizar estado');
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteClick = (idUsuario) => {
-    setUserToDelete(idUsuario);
+  // 3) Abrir / cerrar popup
+  const openEstadoPopup = id => {
+    setSelectedUserId(id);
     setIsPopupOpen(true);
   };
-
-  const handlePopupConfirm = () => {
-    if (userToDelete !== null) {
-      deleteUsuario(userToDelete);
-      setUserToDelete(null);
-    }
+  const closePopup = () => {
     setIsPopupOpen(false);
+    setSelectedUserId(null);
   };
 
-  const handlePopupClose = () => {
-    setIsPopupOpen(false);
-    setUserToDelete(null);
-  };
-
-  // Paginación: retrocede una página (si no es la 1)
-  const goPrevPage = () => {
-    if (page > 1) {
-      setPage(prev => prev - 1);
+  // 4) Confirmación del popup nos da booleano
+  const handlePopupConfirm = estadoBool => {
+    if (selectedUserId !== null) {
+      updateUsuarioEstado(selectedUserId, estadoBool);
     }
+    closePopup();
   };
 
-  // Paginación: avanza a siguiente página (si hay más)
-  const goNextPage = () => {
-    if (hasMore) {
-      setPage(prev => prev + 1);
-    }
-  };
+  // Paginación
+  const goPrevPage = () => page > 1 && setPage(p => p - 1);
+  const goNextPage = () => hasMore && setPage(p => p + 1);
 
   return (
     <div className='page-layout'>
       {loading && <LoaderFullScreen />}
-      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador}/>
+      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
+
       <div className='content-layout'>
-        <h2 style={{ marginBottom: '20px' }}>Lista de usuarios</h2>
+        <h2>Lista de usuarios</h2>
 
         <div style={{ margin: '30px 0px' }}>
-            <button
-              className='toggle-filters-button'
-              onClick={() => setShowFilters(prev => !prev)}
-            >
-              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
-            </button>
+          <button
+            className='toggle-filters-button'
+            onClick={() => setShowFilters(prev => !prev)}
+          >
+            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
         </div>
 
         {
           showFilters &&
-            <form className="filtros-form" onSubmit={aplicarFiltros} style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              {/* Select de tipo */}
-              <div className='usuarios-filtros-form-inputs-ctn'>
-                <label htmlFor="tipo">Tipo:</label>
-                <CustomDropdown
-                  id="tipo"
-                  name="tipo"
-                  value={filtros.tipo}
-                  onChange={handleChangeFiltro}
-                  options={opcionesTipo}
-                  placeholderOption="— Todos —"
-                />
-              </div>
-              {/* Input nombre */}
-              <div className='usuarios-filtros-form-inputs-ctn'>
-                <label htmlFor="nombre">Nombre:</label>
-                <input
-                  type="text"
-                  id="nombre"
-                  name="nombre"
-                  value={filtros.nombre}
-                  onChange={handleChangeFiltro}
-                  placeholder="Ej: Luis"
-                />
-              </div>
+          <form className="filtros-form" onSubmit={aplicarFiltros} style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            {/* Select de tipo */}
+            <div className='usuarios-filtros-form-inputs-ctn'>
+              <label htmlFor="tipo">Tipo:</label>
+              <CustomDropdown
+                id="tipo"
+                name="tipo"
+                value={filtros.tipo}
+                onChange={handleChangeFiltro}
+                options={opcionesTipo}
+                placeholderOption="— Todos —"
+              />
+            </div>
+            {/* Input nombre */}
+            <div className='usuarios-filtros-form-inputs-ctn'>
+              <label htmlFor="nombre">Nombre:</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value={filtros.nombre}
+                onChange={handleChangeFiltro}
+                placeholder="Ej: Luis"
+              />
+            </div>
 
-              {/* Input apellido */}
-              <div className='usuarios-filtros-form-inputs-ctn'>
-                <label htmlFor="apellido">Apellido:</label>
-                <input
-                  type="text"
-                  id="apellido"
-                  name="apellido"
-                  value={filtros.apellido}
-                  onChange={handleChangeFiltro}
-                  placeholder="Ej: Carvi"
-                />
-              </div>
+            {/* Input apellido */}
+            <div className='usuarios-filtros-form-inputs-ctn'>
+              <label htmlFor="apellido">Apellido:</label>
+              <input
+                type="text"
+                id="apellido"
+                name="apellido"
+                value={filtros.apellido}
+                onChange={handleChangeFiltro}
+                placeholder="Ej: Carvi"
+              />
+            </div>
 
-              {/* Input email */}
-              <div className='usuarios-filtros-form-inputs-ctn'>
-                <label htmlFor="email">Email:</label>
-                <input
-                  type="text"
-                  id="email"
-                  name="email"
-                  value={filtros.email}
-                  onChange={handleChangeFiltro}
-                  placeholder="Ej: vdev@gmail.com"
-                />
-              </div>
+            {/* Input email */}
+            <div className='usuarios-filtros-form-inputs-ctn'>
+              <label htmlFor="email">Email:</label>
+              <input
+                type="text"
+                id="email"
+                name="email"
+                value={filtros.email}
+                onChange={handleChangeFiltro}
+                placeholder="Ej: vdev@gmail.com"
+              />
+            </div>
 
-              {/* Botón para aplicar filtros */}
-              <div style={{ alignSelf: 'flex-end' }}>
-                <PrimaryButton  onClick={fetchUsuarios} text="Aplicar filtros" />
-              </div>
-            </form>
+            {/* Botón para aplicar filtros */}
+            <div style={{ alignSelf: 'flex-end' }}>
+              <PrimaryButton onClick={fetchUsuarios} text="Aplicar filtros" />
+            </div>
+          </form>
         }
 
 
-        {/* Tabla de usuarios o mensaje si no hay */}
         {usuarios.length === 0 ? (
           <p>No hay usuarios para mostrar.</p>
         ) : (
           <table className='usuarios-table'>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Email</th>
-                <th>Tipo</th>
-                <th>Fecha de Registro</th>
-                <th>Estado</th>
+                <th>ID</th><th>Email</th><th>Tipo</th><th>Registro</th><th>Estado</th>
                 {fromAdmin && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
-              {usuarios.map((usuario) => (
-                <tr key={usuario.ID_Usuario}>
-                  <td>{usuario.ID_Usuario}</td>
-                  <td style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {usuarios.map(u => (
+                <tr key={u.ID_Usuario}>
+                  <td>{u.ID_Usuario}</td>
+                  <td style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <div
                       className="usuarios-table-userimage"
                       style={{
-                        backgroundImage: `url(${usuario.avatarUrl || defaultAvatar})`,
+                        backgroundImage: `url(${u.avatarUrl || defaultAvatar})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat'
                       }}
-                    ></div>
-                    {usuario.email}
+                    />
+                    {u.email}
                   </td>
-                  <td style={{ textTransform: 'capitalize' }}>
-                    {usuario.tipo || 'N/A'}
-                  </td>
-                  <td>
-                    {new Date(usuario.fechaRegistro).toLocaleDateString()}
-                  </td>
-                  <td> 
-                    {usuario.estado === false ? "Inactivo" : "Activo"}
-                  </td>
-                  {
-                    fromAdmin &&
-                    <td style={{ display: 'flex', justifyContent: 'start', alignItems: 'center', gap: '20px' }}>
+                  <td style={{ textTransform: 'capitalize' }}>{u.tipo}</td>
+                  <td>{new Date(u.fechaRegistro).toLocaleDateString()}</td>
+                  <td>{u.estado ? 'Activo' : 'Inactivo'}</td>
+                  {fromAdmin && (
+                    <td style={{ display: 'flex', gap: '10px' }}>
                       <PrimaryButton
-                        text="Editar usuario"
-                        linkTo={`/admin/editar-usuario/${usuario.ID_Usuario}`}
+                        text="Editar"
+                        linkTo={`/admin/editar-usuario/${u.ID_Usuario}`}
                       />
-                      {usuario.tipo !== "admin" && (
+                      {u.tipo !== 'admin' && (
                         <SecondaryButton
-                          text="Eliminar usuario"
-                          onClick={() => handleDeleteClick(usuario.ID_Usuario)}
+                          text="Cambiar estado"
+                          onClick={() => openEstadoPopup(u.ID_Usuario)}
                         />
                       )}
                     </td>
-                  }
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -268,7 +235,7 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
             disabled={page === 1}
             className="btn-page"
           >
-            <FaChevronLeft/>
+            <FaChevronLeft />
           </button>
           <span>Página {page}</span>
           <button
@@ -276,18 +243,22 @@ const UsuariosList = ({fromAdmin, fromEntrenador}) => {
             disabled={!hasMore}
             className="btn-page"
           >
-            <FaChevronRight/>
+            <FaChevronRight />
           </button>
         </div>
-      </div>
 
-      {/* Popup de confirmación para eliminar */}
-      <ConfirmationPopup
-        isOpen={isPopupOpen}
-        onClose={handlePopupClose}
-        onConfirm={handlePopupConfirm}
-        message="¿Estás seguro de que deseas eliminar este usuario?"
-      />
+        {/* Popup sólo para admins */}
+        {fromAdmin && (
+          <ConfirmationPopup
+            isOpen={isPopupOpen}
+            onClose={closePopup}
+            onConfirm={handlePopupConfirm}
+            message="¿Qué acción deseas realizar?"
+            options={["Activar", "Desactivar"]}
+            placeholderOption="Elige estado"
+          />
+        )}
+      </div>
     </div>
   );
 };

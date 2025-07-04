@@ -6,7 +6,7 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-right.svg';
+import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const EditarUsuario = () => {

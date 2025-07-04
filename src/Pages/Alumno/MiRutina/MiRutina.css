@@ -94,6 +94,7 @@
 
     .rutina-card {
         width: 100%;
+        max-width: none;
         min-width: auto;
         max-width: auto;
         margin-bottom: 20px;

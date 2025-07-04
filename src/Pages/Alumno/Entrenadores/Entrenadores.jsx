@@ -42,7 +42,7 @@ const Entrenadores = () => {
               <div
                 className="trainer-card"
                 style={{
-                  backgroundImage: `url(${trainer.avatarUrlThumb || defaultAvatar})`,
+                  backgroundImage: `url(${trainer.avatarUrl || defaultAvatar})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat'
@@ -50,7 +50,7 @@ const Entrenadores = () => {
               />
               <p style={{ paddingTop: '12px', textAlign: 'center' }}>
                 <strong>
-                  {trainer.nombre || 'Nombre'}
+                  {trainer.nombre || 'Nombre'},
                 </strong>{' '}
                 <span className="profesion">
                   {trainer.profesion || 'Profesión'}
