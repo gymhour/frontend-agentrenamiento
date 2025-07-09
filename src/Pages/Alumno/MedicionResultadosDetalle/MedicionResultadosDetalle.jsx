@@ -86,7 +86,7 @@ const MedicionResultadosDetalle = () => {
     setError(null);
 
     if (!nuevaCantidad || !nuevaFecha) {
-      setError('Por favor completa todos los campos para agregar un nuevo resultado.');
+      toast.error('Por favor completa todos los campos para agregar un nuevo resultado.');
       return;
     }
 
@@ -121,7 +121,7 @@ const MedicionResultadosDetalle = () => {
       setNuevaFecha('');
       toast.success("Medición cargada correctamente.")
     } catch (err) {
-      setError(err.message);
+      toast.error(err.message);
     }
   };
 

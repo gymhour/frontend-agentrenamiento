@@ -37,6 +37,7 @@ import { useLocation } from 'react-router-dom';
 import AsistenteChat from './Components/AsistenteChat/AsistenteChat';
 import PlanesAdmin from './Pages/Admin/PlanesAdmin/PlanesAdmin';
 import EjerciciosAdmin from './Pages/Admin/EjerciciosAdmin/EjerciciosAdmin';
+import TurnosAdmin from './Pages/Admin/TurnosAdmin/TurnosAdmin';
 
 function App() {
 
@@ -71,6 +72,13 @@ function App() {
           element={
             <ProtectedRoute>
               <ClasesActividadesAdmin fromAdmin={true} />
+            </ProtectedRoute>
+          } 
+        />  
+        <Route path="/admin/turnos" 
+          element={
+            <ProtectedRoute>
+              <TurnosAdmin/>
             </ProtectedRoute>
           } 
         />  

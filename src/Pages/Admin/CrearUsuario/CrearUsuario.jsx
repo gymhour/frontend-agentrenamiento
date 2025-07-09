@@ -25,6 +25,7 @@ const CrearUsuario = () => {
 
   const [formData, setFormData] = useState(initialFormData);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [planOptions, setPlanOptions] = useState([]);
   const navigate = useNavigate();
@@ -51,8 +52,10 @@ const CrearUsuario = () => {
   };
 
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setAvatarFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
     }
   };
 
@@ -132,14 +135,14 @@ const CrearUsuario = () => {
 
           <label htmlFor="password">Contraseña:</label>
           <CustomInput
-  type="password"
-  id="password"
-  name="password"
-  value={formData.password}
-  onChange={handleChange}
-  required
-  placeholder="Ingresa tu contraseña"
-/>
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            placeholder="Ingresa tu contraseña"
+          />
 
           <label htmlFor="nombre">Nombre:</label>
           <input
@@ -244,7 +247,16 @@ const CrearUsuario = () => {
             accept="image/*"
             onChange={handleFileChange}
           />
-
+          {avatarPreview && (
+            <div className="preview-container">
+              <img
+                src={avatarPreview}
+                alt="Preview clase"
+                className="preview-img"
+                width={300}
+              />
+            </div>
+          )}
           <PrimaryButton text="Crear usuario" type="submit" onClick={handleSubmit} />
         </form>
       </div>

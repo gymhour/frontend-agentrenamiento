@@ -69,7 +69,8 @@ const ClasesActividadesDetalle = () => {
                                 <ul>
                                     {claseDetalle.HorariosClase.map((horario) => (
                                         <li key={horario.ID_HorarioClase}>
-                                            {horario.diaSemana} de {new Date(horario.horaIni).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} a {new Date(horario.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {horario.diaSemana} de{' '}
+                                            {horario.horaIni.slice(11, 16)} a {horario.horaFin.slice(11, 16)}
                                         </li>
                                     ))}
                                 </ul>
@@ -85,12 +86,12 @@ const ClasesActividadesDetalle = () => {
                                 <ul className='listado-entrenadores'>
                                     {claseDetalle.Entrenadores.map(ent => (
                                         <li key={ent.ID_Usuario}>
-                                             <div className="usuarios-table-userimage" style={{
-                                                    backgroundImage: `url(${ent.imagenUsuario ? ent.imagenUsuario : defaultAvatar})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center',
-                                                    backgroundRepeat: 'no-repeat'
-                                                }}></div>
+                                            <div className="usuarios-table-userimage" style={{
+                                                backgroundImage: `url(${ent.imagenUsuario ? ent.imagenUsuario : defaultAvatar})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center',
+                                                backgroundRepeat: 'no-repeat'
+                                            }}></div>
                                             {ent.nombre} {ent.apellido} {ent.profesion && `– ${ent.profesion}`}
                                         </li>
                                     ))}

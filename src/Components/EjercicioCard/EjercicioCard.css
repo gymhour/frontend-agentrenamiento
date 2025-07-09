@@ -1,0 +1,73 @@
+.exercise-card {
+    background-color: #000;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    margin: 20px 10px;
+    max-width: 300px;
+}
+
+.exercise-card__media {
+    width: 100%;
+    height: 200px;
+    background: #111;
+}
+
+.media__img,
+.media__iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.exercise-card__info {
+    padding: 16px;
+}
+
+.info__title {
+    margin: 0 0 8px;
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.info__desc {
+    margin: 0;
+    font-size: 14px;
+    color: #ccc;
+    text-transform: capitalize;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: lowercase;
+  }
+
+  .info__desc::first-letter {
+    text-transform: uppercase;
+  }
+
+.exercise-card__actions {
+    display: flex;
+    gap: 16px;
+    padding: 12px 16px 16px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.action-btn.edit {
+    color: #fff;
+}
+
+.action-btn.delete {
+    color: #e74c3c;
+}

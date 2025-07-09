@@ -408,105 +408,83 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     const userId = fromEntrenador
       ? users.find(u => u.email === selectedEmail)?.ID_Usuario
       : localStorage.getItem("usuarioId");
-
-    const entrenadorId = fromEntrenador ? Number(localStorage.getItem("usuarioId")) : null;
-
+  
+    const entrenadorId = fromEntrenador
+      ? Number(localStorage.getItem("usuarioId"))
+      : null;
+  
+    // Mapeamos cada bloque con su lista de bloqueEjercicios
+    const bloques = blocks.map(block => {
+      // Armar array de ejercicios para este bloque
+      const bloqueEjercicios = block.data.setsReps.map(setRep => {
+        if (setRep.exerciseId) {
+          // Ejercicio existente
+          return {
+            ejercicioId: setRep.exerciseId,
+            reps: setRep.series,
+            setRepWeight: setRep.exercise
+          };
+        } else {
+          // Ejercicio nuevo (solo nombre)
+          return {
+            nuevoEjercicio: { nombre: setRep.exercise },
+            reps: setRep.series,
+            setRepWeight: null
+          };
+        }
+      });
+  
+      // Construir objeto del bloque según su tipo
+      switch (block.type) {
+        case 'Series y repeticiones':
+          return {
+            type: "SETS_REPS",
+            setsReps: block.data.setsReps[0]?.series || null,
+            bloqueEjercicios
+          };
+        case 'Rondas':
+          return {
+            type: "ROUNDS",
+            rounds: parseInt(block.data.rounds, 10) || null,
+            descanso: parseInt(block.data.descanso, 10) || null,
+            bloqueEjercicios
+          };
+        case 'EMOM':
+          return {
+            type: "EMOM",
+            durationMin: parseInt(block.data.totalMinutes, 10) || null,
+            bloqueEjercicios
+          };
+        case 'AMRAP':
+          return {
+            type: "AMRAP",
+            durationMin: parseInt(block.data.duration, 10) || null,
+            bloqueEjercicios
+          };
+        case 'Escalera':
+          return {
+            type: "LADDER",
+            tipoEscalera: block.data.escaleraType || null,
+            bloqueEjercicios
+          };
+        default:
+          return {};
+      }
+    });
+  
+    // Devolver el objeto completo listo para enviar al endpoint
     return {
       ID_Usuario: Number(userId),
       ID_Entrenador: entrenadorId,
       nombre: formData.nombre,
       desc: formData.descripcion,
-      dias: selectedDias,
-      //
-      grupoMuscularRutina: selectedGrupoMuscular,
       claseRutina: selectedClase,
-      //
-      bloques: blocks.map(block => {
-        switch (block.type) {
-          case 'Series y repeticiones':
-            return {
-              type: "SETS_REPS",
-              setsReps: block.data.setsReps[0]?.series || null,
-              nombreEj: block.data.setsReps[0]?.exercise || null,
-              weight: null,
-              descansoRonda: null,
-              cantRondas: null,
-              durationMin: null,
-              tipoEscalera: null,
-              ejercicios: block.data.setsReps.slice(1).map(item => ({
-                reps: item.series,
-                setRepWeight: item.exercise
-              }))
-            };
-          case 'Rondas':
-            return {
-              type: "ROUNDS",
-              setsReps: block.data.setsReps[0]?.series || null,
-              nombreEj: block.data.setsReps[0]?.exercise || null,
-              weight: null,
-              descansoRonda: parseInt(block.data.descanso, 10) || null,
-              cantRondas: parseInt(block.data.rounds, 10) || null,
-              durationMin: null,
-              tipoEscalera: null,
-              ejercicios: block.data.setsReps.slice(1).map(item => ({
-                reps: item.series,
-                setRepWeight: item.exercise
-              }))
-            };
-          case 'EMOM':
-            return {
-              type: "EMOM",
-              setsReps: null,
-              nombreEj: null,
-              weight: null,
-              descansoRonda: null,
-              cantRondas: null,
-              durationMin: block.data.totalMinutes
-                ? parseInt(block.data.totalMinutes, 10)
-                : null,
-              tipoEscalera: null,
-              ejercicios: block.data.setsReps.map(item => ({
-                reps: item.series,
-                setRepWeight: item.exercise
-              }))
-            };
-          case 'AMRAP':
-            return {
-              type: "AMRAP",
-              setsReps: null,
-              nombreEj: null,
-              weight: null,
-              descansoRonda: null,
-              cantRondas: null,
-              durationMin: parseInt(block.data.duration, 10) || null,
-              tipoEscalera: null,
-              ejercicios: block.data.setsReps.map(item => ({
-                reps: item.series,
-                setRepWeight: item.exercise
-              }))
-            };
-          case 'Escalera':
-            return {
-              type: "LADDER",
-              setsReps: null,
-              nombreEj: null,
-              weight: null,
-              descansoRonda: null,
-              cantRondas: null,
-              durationMin: null,
-              tipoEscalera: block.data.escaleraType || null,
-              ejercicios: block.data.setsReps.map(item => ({
-                reps: null,
-                setRepWeight: item.exercise
-              }))
-            };
-          default:
-            return {};
-        }
-      })
+      grupoMuscularRutina: selectedGrupoMuscular,
+      dias: selectedDias,
+      bloques
     };
   };
-
+  
   // submit o update
   const handleSubmit = async e => {
     e.preventDefault(); setLoading(true);
