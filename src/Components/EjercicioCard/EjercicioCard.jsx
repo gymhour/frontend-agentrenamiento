@@ -1,13 +1,29 @@
-// EjercicioCard.jsx
 import React from 'react';
 import './EjercicioCard.css';
 
-const EjercicioCard = ({ ejercicio, defaultImage, onEdit, onDelete }) => {
+const EjercicioCard = ({
+  ejercicio,
+  defaultImage,
+  onClick,
+  onEdit,
+  onDelete
+}) => {
   const { nombre, descripcion, mediaUrl, youtubeUrl } = ejercicio;
   const thumbnail = mediaUrl || defaultImage;
 
+  // Extrae el ID de YouTube para el embed
+  function extractVideoId(url) {
+    const reg = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]+)/;
+    const m = url.match(reg);
+    return m ? m[1] : '';
+  }
+
   return (
-    <div className="exercise-card">
+    <div
+      className="exercise-card"
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <div className="exercise-card__media">
         {youtubeUrl ? (
           <iframe
@@ -34,30 +50,36 @@ const EjercicioCard = ({ ejercicio, defaultImage, onEdit, onDelete }) => {
         </p>
       </div>
 
-      <div className="exercise-card__actions">
-        <button
-            type='button'
-          className="action-btn edit"
-          onClick={() => onEdit(ejercicio)}
-        >
-          Editar
-        </button>
-        <button
-        type='button'
-          className="action-btn delete"
-          onClick={() => onDelete(ejercicio)}
-        >
-          Eliminar
-        </button>
-      </div>
+      {(onEdit || onDelete) && (
+        <div className="exercise-card__actions">
+          {onEdit && (
+            <button
+              type="button"
+              className="action-btn edit"
+              onClick={e => {
+                e.stopPropagation();
+                onEdit(ejercicio);
+              }}
+            >
+              Editar
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              className="action-btn delete"
+              onClick={e => {
+                e.stopPropagation();
+                onDelete(ejercicio);
+              }}
+            >
+              Eliminar
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
-
-function extractVideoId(url) {
-  const reg = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]+)/;
-  const m = url.match(reg);
-  return m ? m[1] : '';
-}
 
 export default EjercicioCard;

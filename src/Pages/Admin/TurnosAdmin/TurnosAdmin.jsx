@@ -53,31 +53,51 @@ const TurnosAdmin = () => {
     ).sort()
   }, [rawTurnos])
 
-  // construir eventos (solo filtro por clase)
+  const parseLocalISO = isoString => {
+    const d = new Date(isoString)
+    return new Date(d.getTime() + d.getTimezoneOffset() * 60000)
+  }
+  
   const events = useMemo(() => {
+    // 1) filtramos
     const filtrados = rawTurnos.filter(t =>
       selectedClass === '' || t.HorarioClase.Clase.nombre === selectedClass
     )
-
+  
+    // 2) reducimos a un objeto de grupos
     const grupos = filtrados.reduce((acc, t) => {
-      const start = new Date(t.fecha)
+      // fecha base (día correcto)
+      const fecha = new Date(t.fecha)
+  
+      // parseo de horaIni/horaFin en local
+      const horaIni = parseLocalISO(t.HorarioClase.horaIni)
+      const horaFin = parseLocalISO(t.HorarioClase.horaFin)
+  
+      // inyecto la horaIni en la fecha
+      fecha.setHours(horaIni.getHours(), horaIni.getMinutes(), horaIni.getSeconds())
+      const start = fecha
+  
+      // clono y le pongo horaFin
+      const end = new Date(fecha)
+      end.setHours(horaFin.getHours(), horaFin.getMinutes(), horaFin.getSeconds())
+  
       const key = `${start.toISOString()}__${t.HorarioClase.Clase.nombre}`
-
+  
       if (!acc[key]) {
         acc[key] = {
-          id: key,
+          id:    key,
           title: t.HorarioClase.Clase.nombre,
           start,
-          end: new Date(start.getTime() + 60 * 60 * 1000),
+          end,
           users: []
         }
       }
       acc[key].users.push(`${t.User.nombre} ${t.User.apellido}`)
       return acc
     }, {})
-
+  
     return Object.values(grupos)
-  }, [rawTurnos, selectedClass])
+  }, [rawTurnos, selectedClass])  
 
   const handleSelectEvent = ev => {
     setSelectedEvent(ev)

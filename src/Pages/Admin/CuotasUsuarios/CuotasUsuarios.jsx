@@ -58,17 +58,19 @@ const CuotasUsuarios = () => {
   const [formaPago, setFormaPago] = useState('Efectivo');
 
   // Definí solo las etiquetas que querés mostrar
-  const opcionesFiltroEstado = ['Todos —', 'Pendiente', 'Pagada'];
+  const opcionesFiltroEstado = ['Todos —', 'Pendiente', 'Pagada', 'Vencida'];
 
   // Funciones de mapeo
   const labelToEstado = label => {
-    if (label === 'Pagada') return 'true';
+    if (label === 'Pagada')  return 'true';
     if (label === 'Pendiente') return 'false';
+    if (label === 'Vencida')  return 'vencida';
     return '';
   };
   const estadoToLabel = estado => {
-    if (estado === 'true') return 'Pagada';
-    if (estado === 'false') return 'Pendiente';
+    if (estado === 'true')    return 'Pagada';
+    if (estado === 'false')   return 'Pendiente';
+    if (estado === 'vencida') return 'Vencida';
     return 'Todos —';
   };
 
@@ -109,6 +111,7 @@ const CuotasUsuarios = () => {
     try {
       const params = {};
       if (filterEmail) params.email = filterEmail;
+      // Revisar esto - filtros en la API
       if (filterEstado) params.estado = filterEstado;
       if (filterPlan) params.plan = filterPlan;
       if (filterMesDate) params.mes = buildMesString(filterMesDate);
@@ -407,16 +410,23 @@ const CuotasUsuarios = () => {
                       ? `${c.User.nombre} ${c.User.apellido}`
                       : '–'}
                   </td>
-                  <td>{formatMonth(c.mes)}</td>
+                  <td className='cuotas-usuario-mes-col'>{formatMonth(c.mes)}</td>
                   <td>{formatCurrency(c.importe)}</td>
                   <td>{formatDate(c.vence)}</td>
                   <td>{c.User.plan.nombre}</td>
                   <td>
-                    <span className={`badge ${c.pagada ? 'paid' : 'pending'}`}>
-                      {c.pagada ? 'Pagada' : 'Pendiente'}
+                    <span
+                      className={`badge ${c.vencida ? 'expired' : c.pagada ? 'paid' : 'pending'
+                        }`}
+                    >
+                      {c.vencida
+                        ? 'Vencida'
+                        : c.pagada
+                          ? 'Pagada'
+                          : 'Pendiente'}
                     </span>
                   </td>
-                  <td>{c.formaPago}</td>
+                  <td>{c.formaPago ? c.formaPago : '-'}</td>
                   <td>{formatDate(c.fechaPago)}</td>
                   <td className="acciones-cell">
                     <button

@@ -140,6 +140,14 @@ const addEntrenadorToClase = async (idClase, idEntrenador) => {
     }
 }
 
+const removeEntrenadorFromClase = async (idClase, idEntrenador) => {
+    try {
+        const response = await apiClient.delete(`/clase/${idClase}/entrenador/${idEntrenador}`)
+    } catch (error) {
+        throw new Error("Error al asignar entrenador a una clase");
+    }
+}
+
 const getAllUsuarios = async () => {
     try {
         const response = await apiClient('/usuarios');
@@ -309,6 +317,16 @@ const getEjercicios = async() => {
     }
 }
 
+// Ejercicios
+const getEjercicioById = async(id) => {
+    try {
+        const response = await apiClient.get(`/ejercicios/${id}`);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de getEjercicios")
+    }
+}
+
 const postEjercicios = async(body) => {
     try {
         const response = await apiClient.post("/ejercicios", body);
@@ -356,6 +374,7 @@ export default {
     // Entrenadores
     getEntrenadores,
     addEntrenadorToClase,
+    removeEntrenadorFromClase,
     // Usuario
     getAllUsuarios,
     getUserById,
@@ -381,6 +400,7 @@ export default {
     postCuotasMasivas,
     // Ejercicios
     getEjercicios,
+    getEjercicioById,
     postEjercicios,
     putEjercicios,
     deleteEjercicios,

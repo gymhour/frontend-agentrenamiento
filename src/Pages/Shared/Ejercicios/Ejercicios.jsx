@@ -8,29 +8,27 @@ import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/Confi
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import './EjerciciosAdmin.css';
+import './Ejercicios.css';
 import EjercicioCard from '../../../Components/EjercicioCard/EjercicioCard';
+import { useNavigate } from 'react-router-dom';
 
-const EjerciciosAdmin = () => {
+const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   const defaultImage =
     'https://coffective.com/wp-content/uploads/2018/06/default-featured-image.png.jpg';
-
+  const navigate = useNavigate()
+  
   const [loading, setLoading] = useState(false);
   const [ejercicios, setEjercicios] = useState([]);
-
-  // Modal y selección
   const [showModal, setShowModal] = useState(false);
   const [editingEjercicio, setEditingEjercicio] = useState(null);
   const [toDelete, setToDelete] = useState(null);
 
-  // Campos del formulario
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [instrucciones, setInstrucciones] = useState('');
 
-  // Buscador
   const [searchTerm, setSearchTerm] = useState('');
   const filteredEjercicios = useMemo(() => {
     if (!searchTerm) return ejercicios;
@@ -40,7 +38,7 @@ const EjerciciosAdmin = () => {
     );
   }, [ejercicios, searchTerm]);
 
-  // --- Fetch y orden alfabético ---
+  // Fetch y orden alfabético
   const fetchEjercicios = async () => {
     setLoading(true);
     try {
@@ -61,7 +59,7 @@ const EjerciciosAdmin = () => {
     fetchEjercicios();
   }, []);
 
-  // --- Agrupar por letra inicial ---
+  // Agrupar por letra inicial
   const grouped = useMemo(() => {
     return filteredEjercicios.reduce((acc, e) => {
       const letter = (e.nombre || '')[0]?.toUpperCase() || '';
@@ -71,7 +69,7 @@ const EjerciciosAdmin = () => {
     }, {});
   }, [filteredEjercicios]);
 
-  // --- Handlers modal / CRUD ---
+  // Handlers CRUD
   const handleCreate = () => {
     setEditingEjercicio(null);
     setNombre('');
@@ -141,7 +139,6 @@ const EjerciciosAdmin = () => {
       toast.success(`Ejercicio "${toDelete.nombre}" eliminado.`);
       await fetchEjercicios();
     } catch (err) {
-      closeDeletePopup();
       console.error(err);
       toast.error('Error al eliminar ejercicio.');
     } finally {
@@ -149,15 +146,31 @@ const EjerciciosAdmin = () => {
     }
   };
 
+  // link del ejercicio dependiendo de donde se llame
+  const basePath = fromAdmin
+    ? '/admin/ejercicios'
+    : fromEntrenador
+      ? '/entrenador/ejercicios'
+      : '/alumno/ejercicios';
+
   return (
     <div className='page-layout'>
-      <SidebarMenu isAdmin={true} />
+      {/* Sidebar dinámico */}
+      <SidebarMenu
+        isAdmin={fromAdmin}
+        isEntrenador={fromEntrenador}
+        isAlumno={fromAlumno}
+      />
+
       {loading && <LoaderFullScreen />}
 
       <div className='content-layout'>
         <div className='exercises-header'>
           <h2>Listado de Ejercicios</h2>
-          <PrimaryButton text='Nuevo ejercicio' onClick={handleCreate} />
+          {/* Solo Admin y Entrenador pueden crear */}
+          {(fromAdmin || fromEntrenador) && (
+            <PrimaryButton text='Nuevo ejercicio' onClick={handleCreate} />
+          )}
         </div>
 
         <CustomInput
@@ -179,8 +192,11 @@ const EjerciciosAdmin = () => {
                       key={e.ID_Ejercicio}
                       ejercicio={e}
                       defaultImage={defaultImage}
-                      onEdit={handleEdit}
-                      onDelete={openDeletePopup}
+                      onClick={() => navigate(`${basePath}/${e.ID_Ejercicio}`)}
+                      {...((fromAdmin || fromEntrenador) && {
+                        onEdit: handleEdit,
+                        onDelete: openDeletePopup
+                      })}
                     />
                   ))}
                 </div>
@@ -189,14 +205,15 @@ const EjerciciosAdmin = () => {
         </div>
       </div>
 
-      {/* Modal Crear/Editar */}
-      {showModal && (
+      {/* Modal Crear/Editar: Admin y Entrenador */}
+      {(fromAdmin || fromEntrenador) && showModal && (
         <div className='modal-overlay'>
           <div className='modal-content'>
             <h2 style={{ color: '#FAFAFA', marginBottom: '20px' }}>
               {editingEjercicio ? 'Editar Ejercicio' : 'Nuevo Ejercicio'}
             </h2>
             <form className='plan-form'>
+              {/* Campos... */}
               <div className='form-input-container'>
                 <label>Nombre</label>
                 <CustomInput
@@ -241,7 +258,7 @@ const EjerciciosAdmin = () => {
                   type='file'
                   accept='image/*'
                   onChange={handleFileChange}
-                  style={{maxWidth: '300px'}}
+                  style={{ maxWidth: '300px' }}
                 />
               </div>
               <div className='modal-actions'>
@@ -249,19 +266,14 @@ const EjerciciosAdmin = () => {
                   text='Cancelar'
                   onClick={() => setShowModal(false)}
                 />
-                <PrimaryButton
-                  onClick={handleSubmit}
-                  text={editingEjercicio ? 'Actualizar' : 'Crear'}
-                  type='submit'
-                />
+                <PrimaryButton text={editingEjercicio ? 'Actualizar' : 'Crear'} type='submit' onClick={handleSubmit} />
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Popup Confirmación */}
-      {toDelete && (
+      {(fromAdmin || fromEntrenador) && toDelete && (
         <ConfirmationPopup
           isOpen={!!toDelete}
           message={`¿Está seguro que quiere eliminar el ejercicio "${toDelete.nombre}"?`}
@@ -273,4 +285,4 @@ const EjerciciosAdmin = () => {
   );
 };
 
-export default EjerciciosAdmin;
+export default Ejercicios;

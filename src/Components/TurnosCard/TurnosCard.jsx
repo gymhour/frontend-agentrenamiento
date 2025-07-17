@@ -1,8 +1,8 @@
 import React from 'react';
 import './turnosCard.css';
 // import { ReactComponent as TurnoIcon } from '../../assets/icons/turno-icon.svg';
-import { ReactComponent as TurnoCancelIcon } from '../../assets/icons/turno_cancel.svg';
-import { ReactComponent as TurnoDoneIcon } from '../../assets/icons/turno_done.svg';
+import { ReactComponent as TurnoCancelIcon } from '../../assets/icons/circle-x.svg';
+import { ReactComponent as TurnoDoneIcon } from '../../assets/icons/check.svg';
 
 const TurnosCard = ({ id, nombreTurno, fechaTurno, onCancelTurno }) => {
   const formatDate = (isoString) => {

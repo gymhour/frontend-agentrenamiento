@@ -185,7 +185,12 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
           <table className='usuarios-table'>
             <thead>
               <tr>
-                <th>ID</th><th>Email</th><th>Tipo</th><th>Registro</th><th>Estado</th>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Tipo</th>
+                <th>Plan</th>
+                <th>Registro</th>
+                <th>Estado</th>
                 {fromAdmin && <th>Acciones</th>}
               </tr>
             </thead>
@@ -206,6 +211,9 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
                     {u.email}
                   </td>
                   <td style={{ textTransform: 'capitalize' }}>{u.tipo}</td>
+                  <td style={{ textTransform: 'capitalize' }}>
+                    {u.plan?.nombre || '—'}
+                  </td>
                   <td>{new Date(u.fechaRegistro).toLocaleDateString()}</td>
                   <td>{u.estado ? 'Activo' : 'Inactivo'}</td>
                   {fromAdmin && (

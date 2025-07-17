@@ -6,8 +6,12 @@
     display: flex;
     flex-direction: column;
     color: #fff;
-    margin: 20px 10px;
+    margin: 10px;
     max-width: 300px;
+    transition: all ease-in-out 150ms;
+}
+.exercise-card:hover {
+    background-color: #202020;
 }
 
 .exercise-card__media {

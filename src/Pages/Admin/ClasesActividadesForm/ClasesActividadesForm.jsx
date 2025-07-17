@@ -12,17 +12,21 @@ import apiService from "../../../services/apiService";
 import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropdown";
 import { toast } from "react-toastify";
 import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
+import { useNavigate } from "react-router-dom";
 
 const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fromEntrenador }) => {
+
+  const navigate = useNavigate();
+
   // ——————————————————————————————————————————
-  // 1. Si te llega `classId` desde el padre, úsalo. Si no, cae en useParams().id.
+  // 1. Determinar classId
   // ——————————————————————————————————————————
   const { id: classIdParam } = useParams();
   const classId = isEditing ? classIdProp ?? classIdParam : null;
-  // Nota: si llamas a este componente desde una ruta con `/:id`, usa `classIdProp = undefined`
-  // y el parámetro vendrá por useParams().id. Si en cambio pasas <ClasesActividadesForm isEditing={true} classId={42} />,
-  // entonces usará ese 42.
 
+  // ——————————————————————————————————————————
+  //  Estado local
+  // ——————————————————————————————————————————
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [image, setImage] = useState(null);
@@ -31,40 +35,34 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     { diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null }
   ]);
   const [entrenadores, setEntrenadores] = useState([]);
+  const [initialEntrenadores, setInitialEntrenadores] = useState([]);    // 🆕 para diff
   const [selectedEntrenadores, setSelectedEntrenadores] = useState([]);
   const [dropdownValue, setDropdownValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Genera los time slots de 30 en 30 minutos (formato "HH:mm")
+  // Genera los time slots de 30 en 30 minutos
   const generateTimeSlots = () => {
     const slots = [];
     for (let time = 0; time < 24 * 60; time += 30) {
-      const hours = String(Math.floor(time / 60)).padStart(2, "0");
-      const minutes = String(time % 60).padStart(2, "0");
-      slots.push(`${hours}:${minutes}`);
+      const h = String(Math.floor(time / 60)).padStart(2, "0");
+      const m = String(time % 60).padStart(2, "0");
+      slots.push(`${h}:${m}`);
     }
     return slots;
   };
   const timeSlots = generateTimeSlots();
 
   // ——————————————————————————————————————————
-  // 2. Cargar todos los entrenadores en el dropdown
+  // 2. Cargar todos los entrenadores
   // ——————————————————————————————————————————
   useEffect(() => {
-    const fetchEntrenadores = async () => {
-      try {
-        const resp = await apiService.getEntrenadores();
-        // Dependiendo de cómo venga la respuesta, resp.data o resp
-        setEntrenadores(resp.data ?? resp);
-      } catch (error) {
-        console.error("Error al obtener los entrenadores", error);
-      }
-    };
-    fetchEntrenadores();
+    apiService.getEntrenadores()
+      .then((resp) => setEntrenadores(resp.data ?? resp))
+      .catch((err) => console.error("Error al obtener los entrenadores", err));
   }, []);
 
   // ——————————————————————————————————————————
-  // 3. Si estamos editando, cargar los datos de la clase
+  // 3. Si editando, cargar datos de la clase
   // ——————————————————————————————————————————
   useEffect(() => {
     if (!isEditing || !classId) return;
@@ -84,15 +82,9 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
         setNombre(nombreAPI);
         setDescripcion(descripcionAPI);
 
-        // ——————————————————————————————————————————
-        // 3.1 Formatear horarios exactamente al formato "HH:mm" que usamos en los <select>
-        //     No usamos `new Date(...).toISOString()` porque puede desfasar por la zona horaria.
-        //     Basta con extraer la subcadena de la ISO original.
-        // ——————————————————————————————————————————
+        // Formatear horarios a "HH:mm"
         const formatted = HorariosClase.map((h) => ({
           diaSemana: h.diaSemana,
-          // La hora viene como "2024-01-03T06:00:00.000Z".
-          // Extraemos directamente substring(11,5) de h.horaIni:
           horaIni: h.horaIni.substr(11, 5),
           horaFin: h.horaFin.substr(11, 5),
           cupos: h.cupos,
@@ -104,15 +96,13 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
             : [{ diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null }]
         );
 
-        // Preview de la imagen existente
         setImagePreview(imagenClase);
         setImage(null);
 
-        // ——————————————————————————————————————————
-        // 3.2 Preseleccionar los entrenadores que ya están asignados a esta clase
-        //     Suponemos que `entrenadoresIniciales` viene como arreglo de objetos { ID_Usuario, nombre, … }.
-        // ——————————————————————————————————————————
-        setSelectedEntrenadores(entrenadoresIniciales ?? []);
+        // Preseleccionar entrenadores y guardar estado inicial
+        const init = entrenadoresIniciales ?? [];
+        setSelectedEntrenadores(init);
+        setInitialEntrenadores(init);
       } catch (error) {
         console.error("Error al obtener los detalles de la clase:", error);
         toast.error("Error al obtener información de la clase. Intenta nuevamente.");
@@ -125,10 +115,10 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   }, [isEditing, classId]);
 
   // ——————————————————————————————————————————
-  // 4. Funciones para manejar selección o remo del entrenador
+  // 4. Select / Remove desde UI (solo estado local)
   // ——————————————————————————————————————————
-  const handleSelectEntrenador = (nombre) => {
-    const ent = entrenadores.find((e) => e.nombre === nombre);
+  const handleSelectEntrenador = (nombreCompleto) => {
+    const ent = entrenadores.find((e) => `${e.nombre} ${e.apellido}` === nombreCompleto);
     if (!ent) return;
     if (!selectedEntrenadores.some((s) => s.ID_Usuario === ent.ID_Usuario)) {
       setSelectedEntrenadores((prev) => [...prev, ent]);
@@ -140,7 +130,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   };
 
   // ——————————————————————————————————————————
-  // 5. Cuando cambias el input file
+  // 5. Imagen
   // ——————————————————————————————————————————
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -151,7 +141,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   };
 
   // ——————————————————————————————————————————
-  // 6. Agregar o quitar filas de horarios
+  // 6. Filas de horarios
   // ——————————————————————————————————————————
   const handleAddHorario = () => {
     setHorarios((prev) => [
@@ -159,86 +149,99 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
       { diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null }
     ]);
   };
-
-  const handleRemoveHorario = (index) => {
-    setHorarios((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveHorario = (idx) => {
+    setHorarios((prev) => prev.filter((_, i) => i !== idx));
   };
-
-  const handleHorarioChange = (e, index) => {
+  const handleHorarioChange = (e, idx) => {
     const { name, value } = e.target;
     setHorarios((prev) => {
-      const arr = [...prev];
-      arr[index] = { ...arr[index], [name]: value };
-      return arr;
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], [name]: value };
+      return copy;
     });
   };
 
   // ——————————————————————————————————————————
-  // 7. Al enviar el formulario (crear o editar)
+  // 7. Submit (crear o editar)
   // ——————————————————————————————————————————
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // 7.1 Convertimos cada horario a ISO concatenando la fecha fija + valor "HH:mm"
-    //      (Tu backend espera algo como "2024-01-03T06:00:00Z").
+    // Transformar horarios a ISO
     const transformedHorarios = horarios.map((h) => ({
       ...h,
-      horaIni: `2024-01-03T${h.horaIni}:00.000Z`, // probamos aca
+      horaIni: `2024-01-03T${h.horaIni}:00.000Z`,
       horaFin: `2024-01-03T${h.horaFin}:00.000Z`,
       cupos: Number(h.cupos)
     }));
 
-    console.log("horarios", transformedHorarios);
-    console.log("hora ini", transformedHorarios.horaIni)
-    const formData = new FormData();
-    formData.append("nombre", nombre);
-    formData.append("descripcion", descripcion);
-    if (image) formData.append("image", image);
-    formData.append("horarios", JSON.stringify(transformedHorarios));
+    const dataForm = new FormData();
+    dataForm.append("nombre", nombre);
+    dataForm.append("descripcion", descripcion);
+    if (image) dataForm.append("image", image);
+    dataForm.append("horarios", JSON.stringify(transformedHorarios));
 
     const entrenadorIds = selectedEntrenadores.map((e) => e.ID_Usuario);
-    formData.append("entrenadores", JSON.stringify(entrenadorIds));
+    dataForm.append("entrenadores", JSON.stringify(entrenadorIds));
 
     if (isEditing) {
+      // — Edición: primero actualizamos clase y horarios, luego diff de entrenadores
       apiClient
-        .put(`/clase/horario/${classId}`, formData, {
+        .put(`/clase/horario/${classId}`, dataForm, {
           headers: { "Content-Type": "multipart/form-data" }
         })
-        .then(() => {
-          toast.success("Clase actualizada exitosamente.");
+        .then(async ({ data }) => {
+          const origIds = initialEntrenadores.map((e) => e.ID_Usuario);
+          const newIds  = entrenadorIds;
+
+          const toAdd    = newIds.filter((id) => !origIds.includes(id));
+          const toRemove = origIds.filter((id) => !newIds.includes(id));
+
+          await Promise.all([
+            ...toAdd.map((id) => apiService.addEntrenadorToClase(classId, id)),
+            ...toRemove.map((id) => apiService.removeEntrenadorFromClase(classId, id))
+          ]);
+
+          if (fromAdmin) {
+            navigate("/admin/clases-actividades")
+          } else if (fromEntrenador) {
+            navigate("/entrenador/clases-actividades")
+          }
+          toast.success("Clase y asignaciones actualizadas exitosamente.");
         })
         .catch((error) => {
-          // Si el servidor responde con 413, es probable que axios NO tenga response.status.
-
           if (error.code === "ERR_NETWORK") {
-            toast.error("La foto es muy grande. Intente con una imagen de menor tamaño.");
+            toast.error("La foto es muy grande. Intenta con una imagen más pequeña.");
           } else {
-            toast.error("Error actualizando clase");
+            toast.error("Error actualizando la clase.");
           }
         })
         .finally(() => setIsLoading(false));
     } else {
+      // — Creación: crear clase y luego asignar entrenadores
       apiClient
-        .post("/clase/horario", formData, {
+        .post("/clase/horario", dataForm, {
           headers: { "Content-Type": "multipart/form-data" }
         })
-        .then((response) => {
-          const idNuevaClase = response.data.clase.ID_Clase;
-          // Asignamos entrenadores uno a uno
-          return Promise.all(
-            entrenadorIds.map((idEntr) => apiService.addEntrenadorToClase(idNuevaClase, idEntr))
+        .then(async ({ data }) => {
+          const idNuevaClase = data.clase.ID_Clase;
+          await Promise.all(
+            entrenadorIds.map((id) => apiService.addEntrenadorToClase(idNuevaClase, id))
           );
-        })
-        .then(() => {
+          if (fromAdmin) {
+            navigate("/admin/clases-actividades")
+          } else if (fromEntrenador) {
+            navigate("/entrenador/clases-actividades")
+          }
           toast.success("Clase creada y entrenadores asignados exitosamente.");
           resetForm();
         })
         .catch((error) => {
           if (error.code === "ERR_NETWORK") {
-            toast.error("La foto es muy grande. Intente con una imagen de menor tamaño.");
+            toast.error("La foto es muy grande. Intenta con una imagen más pequeña.");
           } else {
-            toast.error("Hubo un error en la creación o asignación.");
+            toast.error("Error al crear la clase o asignar entrenadores.");
           }
         })
         .finally(() => setIsLoading(false));
@@ -317,7 +320,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                 <CustomDropdown
                   id="entrenadores"
                   name="entrenadores"
-                  options={entrenadores.map((e) => e.nombre)}
+                  options={entrenadores.filter(e => e.estado).map((e) => `${e.nombre} ${e.apellido}`)}
                   placeholderOption="Seleccionar entrenador"
                   value={dropdownValue}
                   onChange={(e) => {
@@ -328,7 +331,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                 <div className="selected-tags">
                   {selectedEntrenadores.map((ent) => (
                     <div key={ent.ID_Usuario} className="tag">
-                      <span>{ent.nombre}</span>
+                      <span>{`${ent.nombre} ${ent.apellido}`}</span>
                       <CloseIcon
                         className="tag-close"
                         width={20}
@@ -344,10 +347,8 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
               <div className="form-input-horarios">
                 <label>Horarios:</label>
                 {horarios.map((horario, idx) => (
-                  <div
-                    key={horario.idHorarioClase ?? idx}
-                    className="horario-item"
-                  >
+                  <div key={horario.idHorarioClase ?? idx} className="horario-item">
+                    {/* Día */}
                     <div className="form-input-ctn-horario">
                       <label>Dia de la semana</label>
                       <select
@@ -357,15 +358,12 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                         required
                       >
                         <option value="">Seleccionar día</option>
-                        <option value="Lunes">Lunes</option>
-                        <option value="Martes">Martes</option>
-                        <option value="Miércoles">Miércoles</option>
-                        <option value="Jueves">Jueves</option>
-                        <option value="Viernes">Viernes</option>
-                        <option value="Sábado">Sábado</option>
-                        <option value="Domingo">Domingo</option>
+                        {["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"].map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
                       </select>
                     </div>
+                    {/* Inicio */}
                     <div className="form-input-ctn-horario">
                       <label>Horario de inicio</label>
                       <select
@@ -375,13 +373,12 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                         required
                       >
                         <option value="">Seleccionar horario</option>
-                        {timeSlots.map((time) => (
-                          <option key={time} value={time}>
-                            {time}
-                          </option>
+                        {timeSlots.map((t) => (
+                          <option key={t} value={t}>{t}</option>
                         ))}
                       </select>
                     </div>
+                    {/* Fin */}
                     <div className="form-input-ctn-horario">
                       <label>Horario de fin</label>
                       <select
@@ -391,13 +388,12 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                         required
                       >
                         <option value="">Seleccionar horario</option>
-                        {timeSlots.map((time) => (
-                          <option key={time} value={time}>
-                            {time}
-                          </option>
+                        {timeSlots.map((t) => (
+                          <option key={t} value={t}>{t}</option>
                         ))}
                       </select>
                     </div>
+                    {/* Cupos */}
                     <div className="form-input-ctn-horario">
                       <label>Cupos disponibles</label>
                       <input
@@ -424,11 +420,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
               </div>
 
               {/* Submit */}
-              <button
-                type="submit"
-                className="submit-btn"
-                disabled={isLoading}
-              >
+              <button type="submit" className="submit-btn" disabled={isLoading}>
                 {isEditing ? "Guardar cambios" : "Crear Clase"}
               </button>
             </form>

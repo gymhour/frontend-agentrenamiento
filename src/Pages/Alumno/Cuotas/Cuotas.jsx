@@ -26,10 +26,11 @@ const Cuotas = () => {
 
   const formatMonth = (m) =>
     m
-      ? new Date(m + '-01').toLocaleString('es-AR', {
-          month: 'long',
-          year: 'numeric',
-        })
+      ? new Date(m).toLocaleString('es-AR', {
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'UTC'
+      })
       : '–';
 
   const formatDate = (iso) =>
@@ -132,9 +133,18 @@ const Cuotas = () => {
                   <td>{c.User.plan.nombre}</td>
                   <td>
                     <span
-                      className={`badge ${c.pagada ? 'paid' : 'pending'}`}
+                      className={`badge ${c.vencida
+                          ? 'expired'
+                          : c.pagada
+                            ? 'paid'
+                            : 'pending'
+                        }`}
                     >
-                      {c.pagada ? 'Pagada' : 'Pendiente'}
+                      {c.vencida
+                        ? 'Vencida'
+                        : c.pagada
+                          ? 'Pagada'
+                          : 'Pendiente'}
                     </span>
                   </td>
                   <td>{c.formaPago || '–'}</td>

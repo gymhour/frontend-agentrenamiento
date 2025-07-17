@@ -23,6 +23,8 @@ import { ReactComponent as IngresosIcon } from '../../assets/icons/money-icon.sv
 import { ReactComponent as EntrenadoresIcon } from '../../assets/icons/sidebar/entrenadores-icon.svg';
 import { ReactComponent as PlanesIcon } from '../../assets/icons/sidebar/admin-planes.svg';
 import { ReactComponent as DumbbellIcon } from '../../assets/icons/sidebar/dumbbell.svg';
+import { ReactComponent as AsignarRutinaIcon } from '../../assets/icons/sidebar/square-pen.svg';
+
 
 // Routing
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -114,8 +116,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/inicio"
                     className={`menu-link ${location.pathname === "/admin/inicio"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -126,9 +128,9 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/turnos"
                     className={`menu-link ${location.pathname ===
-                        "/admin/turnos"
-                        ? "active"
-                        : ""
+                      "/admin/turnos"
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -142,9 +144,9 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/clases-actividades"
                     className={`menu-link ${location.pathname ===
-                        "/admin/clases-actividades"
-                        ? "active"
-                        : ""
+                      "/admin/clases-actividades"
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -158,8 +160,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/usuarios"
                     className={`menu-link ${location.pathname === "/admin/usuarios"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -173,8 +175,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/crear-usuario"
                     className={`menu-link ${location.pathname === "/admin/crear-usuario"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -188,8 +190,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/ejercicios"
                     className={`menu-link ${location.pathname === "/admin/ejercicios"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -203,8 +205,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/rutinas"
                     className={`menu-link ${location.pathname === "/admin/rutinas"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -218,8 +220,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/planes"
                     className={`menu-link ${location.pathname === "/admin/planes"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -233,8 +235,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   <Link
                     to="/admin/cuotas"
                     className={`menu-link ${location.pathname === "/admin/cuotas"
-                        ? "active"
-                        : ""
+                      ? "active"
+                      : ""
                       }`}
                   >
                     <li className="menu-item">
@@ -265,7 +267,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <MiRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                        <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
                       </li>
                     </Link>
                     <Link
@@ -275,6 +277,21 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                     >
                       <li className="menu-item">
                         <MiRutinaIcon className="icon" color="#A2A2A2" /> Rutinas asignadas
+                      </li>
+                    </Link>
+                    <Link
+                      to="/entrenador/ejercicios"
+                      className={`menu-link ${location.pathname === "/entrenador/ejercicios"
+                        ? "active"
+                        : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <DumbbellIcon
+                          className="icon"
+                          color="#A2A2A2"
+                        />{" "}
+                        Ejercicios
                       </li>
                     </Link>
                     <Link
@@ -303,8 +320,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/inicio"
                         className={`menu-link ${location.pathname === "/alumno/inicio"
-                            ? "active"
-                            : ""
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -315,8 +332,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/turnos"
                         className={`menu-link ${location.pathname === "/alumno/turnos"
-                            ? "active"
-                            : ""
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -326,9 +343,9 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/agendar-turno"
                         className={`menu-link ${location.pathname ===
-                            "/alumno/agendar-turno"
-                            ? "active"
-                            : ""
+                          "/alumno/agendar-turno"
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -338,9 +355,9 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/clases-actividades"
                         className={`menu-link ${location.pathname ===
-                            "/alumno/clases-actividades"
-                            ? "active"
-                            : ""
+                          "/alumno/clases-actividades"
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -354,8 +371,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/mi-rutina"
                         className={`menu-link ${location.pathname === "/alumno/mi-rutina"
-                            ? "active"
-                            : ""
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -364,11 +381,26 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         </li>
                       </Link>
                       <Link
+                        to="/alumno/ejercicios"
+                        className={`menu-link ${location.pathname === "/alumno/ejercicios"
+                          ? "active"
+                          : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <DumbbellIcon
+                            className="icon"
+                            color="#A2A2A2"
+                          />{" "}
+                          Ejercicios
+                        </li>
+                      </Link>
+                      <Link
                         to="/alumno/medicion-resultados"
                         className={`menu-link ${location.pathname ===
-                            "/alumno/medicion-resultados"
-                            ? "active"
-                            : ""
+                          "/alumno/medicion-resultados"
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -379,8 +411,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/entrenadores"
                         className={`menu-link ${location.pathname === "/alumno/entrenadores"
-                            ? "active"
-                            : ""
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -390,9 +422,9 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/rutinas-recomendadas"
                         className={`menu-link ${location.pathname ===
-                            "/alumno/rutinas-recomendadas"
-                            ? "active"
-                            : ""
+                          "/alumno/rutinas-recomendadas"
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">
@@ -403,9 +435,9 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       <Link
                         to="/alumno/cuotas"
                         className={`menu-link ${location.pathname ===
-                            "/alumno/cuotas"
-                            ? "active"
-                            : ""
+                          "/alumno/cuotas"
+                          ? "active"
+                          : ""
                           }`}
                       >
                         <li className="menu-item">

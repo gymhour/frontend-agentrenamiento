@@ -246,7 +246,25 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const handleContinue = (e) => {
     e.preventDefault();
 
-    // Si es entrenador, nos aseguramos de que haya seleccionado un usuario
+    // 1) Nombre (requerido)
+    if (!formData.nombre.trim()) {
+      toast.error("Por favor, ingresa un nombre para la rutina");
+      return;
+    }
+
+    // 2) Días de la semana (al menos uno)
+    if (selectedDias.length === 0) {
+      toast.error("Por favor, selecciona al menos un día de la semana");
+      return;
+    }
+
+    // 3) Clase (requerida)
+    if (!selectedClase) {
+      toast.error("Por favor, selecciona una clase");
+      return;
+    }
+
+    // 4) Usuario (sólo si viene fromEntrenador)
     if (fromEntrenador && !selectedEmail) {
       toast.error("Por favor, selecciona un usuario antes de continuar");
       return;
@@ -277,9 +295,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       }
       return block;
     }));
-  
+
     const key = `${blockId}-${idx}`;
-  
+
     // Si el input está vacío (o sólo espacios), cierro el dropdown
     if (value.trim() === '') {
       setSuggestions(prev => ({
@@ -288,18 +306,18 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       }));
       return;
     }
-  
+
     // 2) Filtro sugerencias (case-insensitive, substring)
     const lista = Array.isArray(allExercises) ? allExercises : [];
     const filtered = lista
       .filter(e => e.nombre.toLowerCase().includes(value.trim().toLowerCase()))
       .slice(0, 5);
-  
+
     setSuggestions(prev => ({
       ...prev,
       [key]: filtered
     }));
-  };  
+  };
 
   // Cuando el usuario hace click en una sugerencia:
   const handleSelectSuggestion = (blockId, idx, exerciseObj) => {
@@ -408,11 +426,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     const userId = fromEntrenador
       ? users.find(u => u.email === selectedEmail)?.ID_Usuario
       : localStorage.getItem("usuarioId");
-  
+
     const entrenadorId = fromEntrenador
       ? Number(localStorage.getItem("usuarioId"))
       : null;
-  
+
     // Mapeamos cada bloque con su lista de bloqueEjercicios
     const bloques = blocks.map(block => {
       // Armar array de ejercicios para este bloque
@@ -433,7 +451,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
           };
         }
       });
-  
+
       // Construir objeto del bloque según su tipo
       switch (block.type) {
         case 'Series y repeticiones':
@@ -445,8 +463,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
         case 'Rondas':
           return {
             type: "ROUNDS",
-            rounds: parseInt(block.data.rounds, 10) || null,
-            descanso: parseInt(block.data.descanso, 10) || null,
+            cantRondas: parseInt(block.data.rounds, 10) || null,
+            descansoRonda: parseInt(block.data.descanso, 10) || null,
             bloqueEjercicios
           };
         case 'EMOM':
@@ -471,7 +489,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
           return {};
       }
     });
-  
+
     // Devolver el objeto completo listo para enviar al endpoint
     return {
       ID_Usuario: Number(userId),
@@ -484,11 +502,12 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       bloques
     };
   };
-  
+
   // submit o update
   const handleSubmit = async e => {
     e.preventDefault(); setLoading(true);
     const data = prepareRutinaData();
+    console.log("body", data)
     try {
       if (isEditing) {
         await apiService.editRutina(rutinaId, data);

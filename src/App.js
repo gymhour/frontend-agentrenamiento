@@ -1,7 +1,6 @@
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify'; // Importa el ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Importa los estilos de Toastify
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Pages/Auth/Login/Login';
 import SignUp from './Pages/Auth/SignUp/SignUp';
@@ -36,8 +35,9 @@ import RutinasAsignadas from './Pages/Entrenador/RutinasAsignadas/RutinasAsignad
 import { useLocation } from 'react-router-dom';
 import AsistenteChat from './Components/AsistenteChat/AsistenteChat';
 import PlanesAdmin from './Pages/Admin/PlanesAdmin/PlanesAdmin';
-import EjerciciosAdmin from './Pages/Admin/EjerciciosAdmin/EjerciciosAdmin';
 import TurnosAdmin from './Pages/Admin/TurnosAdmin/TurnosAdmin';
+import Ejercicios from './Pages/Shared/Ejercicios/Ejercicios';
+import EjercicioDetail from './Pages/Shared/EjercicioDetail/EjercicioDetail';
 
 function App() {
 
@@ -129,7 +129,15 @@ function App() {
           path="/admin/ejercicios" 
           element={
             <ProtectedRoute>
-              <EjerciciosAdmin/>
+              <Ejercicios fromAdmin={true}/>
+            </ProtectedRoute>
+          } 
+        /> 
+        <Route 
+          path="/admin/ejercicios/:id" 
+          element={
+            <ProtectedRoute>
+              <EjercicioDetail fromAdmin={true}/>
             </ProtectedRoute>
           } 
         /> 
@@ -211,6 +219,22 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/entrenador/ejercicios" 
+          element={
+            <ProtectedRoute>
+              <Ejercicios fromEntrenador={true}/>
+            </ProtectedRoute>
+          } 
+        /> 
+          <Route 
+          path="/entrenador/ejercicios/:id" 
+          element={
+            <ProtectedRoute>
+              <EjercicioDetail fromEntrenador={true}/>
+            </ProtectedRoute>
+          } 
+        /> 
         <Route path="/entrenador/usuarios" 
           element={
             <ProtectedRoute>
@@ -311,6 +335,22 @@ function App() {
             </ProtectedRoute>
           } 
         />  
+        <Route 
+          path="/alumno/ejercicios" 
+          element={
+            <ProtectedRoute>
+              <Ejercicios fromAlumno={true}/>
+            </ProtectedRoute>
+          } 
+        /> 
+        <Route 
+          path="/alumno/ejercicios/:id" 
+          element={
+            <ProtectedRoute>
+              <EjercicioDetail fromAlumno={true}/>
+            </ProtectedRoute>
+          } 
+        /> 
         <Route 
           path="/alumno/medicion-resultados" 
           element={

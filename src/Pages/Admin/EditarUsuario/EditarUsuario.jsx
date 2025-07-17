@@ -21,16 +21,31 @@ const EditarUsuario = () => {
     tel: '',
     tipo: 'Cliente',
     fechaCumple: '',
+    plan: '',
     estado: true,
   };
 
   const [formData, setFormData] = useState(initialFormData);
   const [avatarFile, setAvatarFile] = useState(null);
+  const [planOptions, setPlanOptions] = useState([]);
 
   const tipos = ['Cliente', 'Entrenador', 'Admin'];
   const opcionesEstado = ['Si', 'No'];
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPlanes = async () => {
+      try {
+        const data = await apiService.getPlanes();
+        setPlanOptions(data.map(p => ({ label: p.nombre, value: p.ID_Plan })))
+      } catch (error) {
+        console.error('Error al cargar planes:', error);
+        toast.error('No se pudieron cargar los planes disponibles');
+      }
+    };
+    fetchPlanes();
+  }, []);
 
   useEffect(() => {
     setIsLoading(true)
@@ -44,7 +59,7 @@ const EditarUsuario = () => {
         const tipoCapitalizado = rawTipo
           ? rawTipo.charAt(0).toUpperCase() + rawTipo.slice(1)
           : 'Cliente';
-
+        
         setFormData({
           email:      user.email    || '',
           nombre:     user.nombre   || '',
@@ -55,6 +70,7 @@ const EditarUsuario = () => {
           tipo:       tipoCapitalizado,
           fechaCumple: fechaISO,
           estado:     !!user.estado,
+          plan: user.plan.nombre
         });
         setIsLoading(false)
       } catch (err) {
@@ -101,6 +117,8 @@ const EditarUsuario = () => {
         ? new Date(formData.fechaCumple).toISOString()
         : '';
 
+      const selectedPlan = planOptions.find(p => p.label === formData.plan);
+      
       const payload = new FormData();
       payload.append('email', formData.email);
       payload.append('nombre', formData.nombre);
@@ -109,7 +127,10 @@ const EditarUsuario = () => {
       payload.append('tel', formData.tel);
       payload.append('tipo', formData.tipo.toLowerCase());
       payload.append('fechaCumple', isoFecha);
-      // payload.append('estado', formData.estado);
+
+      if (formData.tipo === 'Cliente' && selectedPlan) {
+        payload.append('ID_Plan', selectedPlan.value);
+      }
 
       if (formData.tipo === 'Entrenador' && formData.profesion) {
         payload.append('profesion', formData.profesion);
@@ -228,6 +249,24 @@ const EditarUsuario = () => {
               />
             </div>
 
+            {formData.tipo === 'Cliente' && (
+            <div className="form-field">
+              <label htmlFor="plan">Plan:</label>
+              <CustomDropdown
+                options={planOptions.map(p => p.label)}
+                value={formData.plan}
+                onChange={e =>
+                  setFormData(f => ({
+                    ...f,
+                    plan: e.target.value
+                  }))
+                }
+                name="plan"
+                id="plan"
+              />
+            </div>
+          )}
+
             {formData.tipo === 'Entrenador' && (
               <div className="form-field">
                 <label htmlFor="profesion">Profesión:</label>
@@ -266,7 +305,7 @@ const EditarUsuario = () => {
               />
             </div>
 
-            <div className="form-field">
+            {/* <div className="form-field">
               <label htmlFor="estado">Activo:</label>
               <CustomDropdown
                 options={opcionesEstado}
@@ -275,7 +314,7 @@ const EditarUsuario = () => {
                 name="estado"
                 id="estado"
               />
-            </div>
+            </div> */}
 
             <div className="form-field">
               <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>

@@ -4,9 +4,10 @@
 }
 
 .mis-rutinas-list {
-    column-width: 400px;
-    column-gap: 40px;
     padding-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .filtros-section {
@@ -17,6 +18,10 @@
     align-items: flex-end;
 }
 
+.filtros-section label {
+    margin-bottom: 8px;
+}
+
 .rutina-card {
     display: inline-block;
     margin-bottom: 40px;
@@ -24,11 +29,12 @@
     -moz-column-break-inside: avoid;
     column-break-inside: avoid;
     padding: 20px;
-    width: 400px;
-    min-width: 400px;
-    max-width: 400px;
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
     border-radius: 8px;
     background-color: #202020;
+    height: 100%;
 }
 
 .rutina-header {

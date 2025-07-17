@@ -23,6 +23,7 @@
     justify-content: start;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .form-input-container label{

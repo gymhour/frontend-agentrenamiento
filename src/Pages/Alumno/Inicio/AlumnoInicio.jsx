@@ -12,7 +12,6 @@ import ClasesActividadesCard from '../ClasesActividadesCard/ClasesActividadesCar
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 const AlumnoInicio = () => {
     const [clases, setClases] = useState([]);

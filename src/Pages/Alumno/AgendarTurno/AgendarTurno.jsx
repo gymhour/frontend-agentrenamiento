@@ -9,7 +9,6 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 // Mapeo de días en español a índices de Date.getDay()
 const mapping = {
@@ -35,7 +34,6 @@ const AgendarTurno = () => {
       try {
         const clasesApi = await apiService.getClases();
         setClases(clasesApi);
-        console.log("Clases API:", clasesApi);
       } catch (err) {
         toast.error("Error al cargar las clases. Intente nuevamente.");
       } finally {
@@ -50,19 +48,52 @@ const AgendarTurno = () => {
 
   // Filtra las fechas permitidas: solo entre hoy y +7 días y días permitidos según la clase
   const filterDate = (date) => {
-    const today = new Date();
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 7);
-    if (date < today || date > maxDate) return false;
-    if (selectedClase) {
-      const claseSeleccionada = clases.find((clase) => clase.nombre === selectedClase);
-      if (claseSeleccionada) {
-        const allowedDays = claseSeleccionada.HorariosClase.map(h => mapping[h.diaSemana]);
-        return allowedDays.includes(date.getDay());
-      }
+    const now = new Date();
+  
+    const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const maxDateRaw = new Date();
+    maxDateRaw.setDate(now.getDate() + 7);
+    const maxDateOnly = new Date(
+      maxDateRaw.getFullYear(),
+      maxDateRaw.getMonth(),
+      maxDateRaw.getDate()
+    );
+  
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  
+    if (dateOnly < todayOnly || dateOnly > maxDateOnly) {
+      return false;
     }
+  
+    if (selectedClase) {
+      const clase = clases.find(c => c.nombre === selectedClase);
+      if (!clase) return false;
+  
+      const allowedDays = clase.HorariosClase.map(h => mapping[h.diaSemana]);
+      if (!allowedDays.includes(date.getDay())) {
+        return false;
+      }
+  
+      if (dateOnly.getTime() === todayOnly.getTime()) {
+        const hasFutureSlot = clase.HorariosClase.some(h => {
+          const utcInicio = new Date(h.horaIni);
+          const localStart = new Date(dateOnly);
+          localStart.setHours(
+            utcInicio.getUTCHours(),
+            utcInicio.getUTCMinutes(),
+            0, 0
+          );
+          return localStart > now;
+        });
+        return hasFutureSlot;
+      }
+  
+      return true;
+    }
+  
     return true;
   };
+  
 
   // Filtra las horas disponibles según el horario de la clase para el día seleccionado
   const filterTime = (time) => {

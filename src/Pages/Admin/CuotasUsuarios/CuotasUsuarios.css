@@ -46,6 +46,12 @@
   width: 85px;
 }
 
+.badge.expired {
+  background-color: #ffbfbf;
+  color: #da311e;
+  width: 85px;
+}
+
 .text-error {
   color: #c00;
 }
@@ -56,7 +62,7 @@
 }
 
 .accion-button {
-  background-color: #000;
+  background-color: #101010;
   border: none;
   outline: none;
   cursor: pointer;
@@ -64,7 +70,7 @@
 }
 
 .accion-button.delete {
-  background-color: #000;
+  background-color: #101010;
   border: none;
   outline: none;
   cursor: pointer;
@@ -217,4 +223,16 @@
   flex-direction: column;
   gap: 8px;
   align-items: start;
+}
+
+.cuotas-table th, .cuotas-table td {
+  min-height: 72.5px;
+}
+
+.cuotas-usuario-mes-col {
+  text-transform: lowercase;
+}
+
+.cuotas-usuario-mes-col::first-letter {
+  text-transform: uppercase;
 }

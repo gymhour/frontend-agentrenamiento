@@ -16,6 +16,7 @@
 
 .custom-date-picker-input {
     width: 100%;
+    max-width: 300px;
 }
 
 .react-datepicker__triangle {
