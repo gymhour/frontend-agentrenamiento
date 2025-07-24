@@ -9,6 +9,7 @@ import OurLogo from '../../../assets/gymhour/logo_gymhour.png'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import apiClient from '../../../axiosConfig';
+import { authClient } from '../../../axiosConfig';
 import { jwtDecode } from 'jwt-decode';
 // Componentes
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';

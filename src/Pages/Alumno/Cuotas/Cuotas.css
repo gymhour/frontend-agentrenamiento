@@ -34,3 +34,20 @@
 .copy-button:hover {
     color: rgba(255, 255, 255, 0.5);
 }
+
+.cuotas-wsp-btn {
+    background-color: #25D366;
+    color: white;
+    border-radius: 8px;
+    padding: 12px 24px;
+    outline: none;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all ease-in-out 150ms;
+}
+
+.cuotas-wsp-btn:hover {
+    background-color: #26b85c;
+}

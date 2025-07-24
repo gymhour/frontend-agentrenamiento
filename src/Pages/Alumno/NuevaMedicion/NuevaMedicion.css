@@ -3,7 +3,7 @@
 /* Título de la sección */
 .nueva-medicion-container h2 {
   margin-top: 10px;
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
   color: #ffffff;
 }
 
@@ -16,38 +16,14 @@
 .nueva-medicion-form {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
   max-width: 400px;
 }
 
-.form-group {
+.nueva-medicion-input-ctn {
   display: flex;
   flex-direction: column;
-}
-
-.form-group label {
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-  color: #cccccc;
-}
-
-.form-group input {
-  background-color: #252525;
-  border-radius: 12px;
-  padding: 16px 12px 16px 12px;
-  border: 1.5px solid #252525;
-  outline: none;
-  color: #FAFAFA;
-  font-size: 16px;
-  transition: all ease-in-out 150ms;
-}
-
-.form-group input::placeholder {
-  color: #777;
-}
-
-.form-group input:focus {
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  gap: 8px;
 }
 
 /* Botón Agregar */

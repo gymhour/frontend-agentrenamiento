@@ -45,6 +45,16 @@ const MedicionResultados = () => {
     );
   };
 
+  // Función para obtener la última cantidad registrada
+  const getLastCantidad = (historico) => {
+    if (!historico || historico.length === 0) return 0;
+    // Ordeno de más reciente a más antiguo
+    const sorted = [...historico].sort(
+      (a, b) => new Date(b.Fecha) - new Date(a.Fecha)
+    );
+    return sorted[0].Cantidad;
+  };
+
   // Abre el popup y almacena el ID del ejercicio a eliminar
   const handlePopupOpen = (id) => {
     setSelectedEjercicioId(id);
@@ -59,16 +69,16 @@ const MedicionResultados = () => {
     setLoading(true);
     try {
       await apiService.deleteEjercicio(selectedEjercicioId);
-      // Filtramos la lista en el estado para remover el ejercicio borrado
+      toast.success("Ejercicio eliminado correctamente.");
       setEjercicios((prev) =>
         prev.filter((e) => e.ID_EjercicioMedicion !== selectedEjercicioId)
       );
-      toast.success("Ejercicio eliminado correctamente.");
+      setLoading(false);
     } catch (err) {
       toast.error("No se pudo eliminar el ejercicio. Inténtalo nuevamente.");
       console.error("Error al eliminar ejercicio:", err);
-    } finally {
       setLoading(false);
+    } finally {
       setSelectedEjercicioId(null);
     }
   };
@@ -116,7 +126,8 @@ const MedicionResultados = () => {
               </p>
             ) : (
               ejercicios.map((ejercicio) => {
-                const maxCantidad = getMaxCantidad(ejercicio.HistoricoEjercicios);
+                // const maxCantidad = getMaxCantidad(ejercicio.HistoricoEjercicios);
+                const lastCantidad = getLastCantidad(ejercicio.HistoricoEjercicios);
                 return (
                   <Link
                     key={ejercicio.ID_EjercicioMedicion}
@@ -126,7 +137,7 @@ const MedicionResultados = () => {
                     <div className="med-resultados-card-content">
                       <div className="med-resultados-card-header">
                         <h3>
-                          {maxCantidad}{" "}
+                          {lastCantidad}{" "}
                           {ejercicio.tipoMedicion === "Cantidad" ? "rps" : "kg"}
                         </h3>
                         <span>{ejercicio.tipoMedicion}</span>

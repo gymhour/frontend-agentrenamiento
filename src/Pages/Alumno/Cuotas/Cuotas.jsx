@@ -100,6 +100,9 @@ const Cuotas = () => {
               <b>CTA:</b> 4046522-4 023-1
             </span>
           </div>
+          <a href="">
+            <button className='cuotas-wsp-btn'> Enviar comprobante por WhatsApp </button>
+          </a>
         </div>
 
         <h3>Historial de pagos</h3>

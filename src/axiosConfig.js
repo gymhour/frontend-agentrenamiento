@@ -1,8 +1,16 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
+const BASE_URL = 'https://gym-backend-rust.vercel.app';
+
+// Cliente para login / register / cambiar contraseña (sin interceptores)
+export const authClient = axios.create({
+  baseURL: BASE_URL,
+});
+
+// Cliente general con interceptor de token
 const apiClient = axios.create({
-  baseURL: 'https://gym-backend-rust.vercel.app',
+  baseURL: BASE_URL,
 });
 
 apiClient.interceptors.request.use(config => {

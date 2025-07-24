@@ -238,7 +238,9 @@ const MiRutina = () => {
                             <p>{bloque.tipoEscalera}</p>
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map(ej => (
-                                <li key={ej.ID_Ejercicio}>{ej.setRepWeight}</li>
+                                <li key={ej.ID_Ejercicio}>
+                                  {ej.setRepWeight ?? ej.ejercicio.nombre}
+                                </li>
                               ))}
                             </ul>
                           </>

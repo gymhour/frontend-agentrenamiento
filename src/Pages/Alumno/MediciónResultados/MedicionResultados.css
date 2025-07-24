@@ -22,6 +22,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  max-width: 300px;
 }
 
 .med-resultados-ejercicios-header h2 {
@@ -48,27 +49,33 @@
 
 /* Listado de tarjetas (ejercicios) */
 .med-resultados-ejercicios-list {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .med-resultados-card {
-  background-color: #202020;
+  background-color: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   padding: 1.5rem;
   color: #ffffff;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  /* transition: transform 0.2s, box-shadow 0.2s; */
+  transition: all ease-in-out 150ms;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-width: 300px;
 }
 
 .med-resultados-card:hover {
-  transform: scale(1.03);
+  /* transform: scale(1.03); */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  background-color: #202020;
 }
 
 .med-resultados-card-content {
@@ -104,18 +111,30 @@
   border: none;
   outline: none;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 500;
 }
 
 @media screen and (max-width: 500px) {
+
+  .med-resultados-card {
+    min-width: 100%;
+  }
+
   .medicion-resultados-title {
     justify-content: center;
     align-self: center;
     margin-bottom: 14px;
   }
-  .medicion-resultados-title h2, .medicion-resultados-title p {
+
+  .med-resultados-ejercicios-header {
+    max-width: 100%;
+  }
+
+  .medicion-resultados-title h2,
+  .medicion-resultados-title p {
     text-align: center;
   }
+
   .medicion-resultados-title p {
     margin-bottom: 0px;
   }

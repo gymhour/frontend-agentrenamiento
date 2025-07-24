@@ -77,10 +77,9 @@ const RutinasRecomendadas = () => {
     setFClase('');  setFGrupo('');  setFDia('');
   };
 
-  if (loading) return <LoaderFullScreen />;
-
   return (
     <div className='page-layout'>
+      {loading && <LoaderFullScreen/>}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
 

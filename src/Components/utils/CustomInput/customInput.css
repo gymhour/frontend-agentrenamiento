@@ -64,3 +64,28 @@ input:-webkit-autofill:active {
     align-items: center;
   }
 }
+
+/* Estilos CSS campos de tipo file */
+input[type="file"] {
+  position: relative;
+  width: 100%;
+  border: 1.5px dashed rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 12px;
+  padding: 16px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+input[type="file"]::file-selector-button {
+  margin-right: 1em; 
+  border: none;
+  border-radius: 4px; 
+  background-color: transparent;  
+  color: white;     
+  font-weight: medium;   
+  cursor: pointer;   
+}

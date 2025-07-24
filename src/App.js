@@ -52,368 +52,8 @@ function App() {
 
   return (
     <>
-      <Routes>
-        {/* Rutas públicas */}
-        <Route path="/" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path='/forgot-password' element={<ForgotPassword/>}/>
-        <Route path='/reset-password' element={<ResetPassword/>}/>
-
-        {/* Rutas protegidas */}
-        {/* Admin */}
-        <Route path="/admin/inicio" 
-          element={
-            <ProtectedRoute>
-              <AdminInicio />
-            </ProtectedRoute>
-          } 
-        />     
-        <Route path="/admin/clases-actividades" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesAdmin fromAdmin={true} />
-            </ProtectedRoute>
-          } 
-        />  
-        <Route path="/admin/turnos" 
-          element={
-            <ProtectedRoute>
-              <TurnosAdmin/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/admin/clases-actividades/:id" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesAdminDetalle fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        />   
-        <Route path="/admin/agregar-clase" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesForm isEditing={false} fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route path="/admin/editar-clase/:id" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesForm isEditing={true} fromAdmin={true} />
-            </ProtectedRoute>
-          } 
-        />    
-        <Route path="/admin/usuarios" 
-          element={
-            <ProtectedRoute>
-              <UsuariosList fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route path="/admin/crear-usuario" 
-          element={
-            <ProtectedRoute>
-              <CrearUsuario />
-            </ProtectedRoute>
-          } 
-        />      
-        <Route path="/admin/editar-usuario/:id" 
-          element={
-            <ProtectedRoute>
-              <EditarUsuario />
-            </ProtectedRoute>
-          } 
-        />   
-        <Route 
-          path="/admin/ejercicios" 
-          element={
-            <ProtectedRoute>
-              <Ejercicios fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        /> 
-        <Route 
-          path="/admin/ejercicios/:id" 
-          element={
-            <ProtectedRoute>
-              <EjercicioDetail fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        /> 
-        <Route 
-          path="/admin/rutinas" 
-          element={
-            <ProtectedRoute>
-              <RutinasAdmin/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/crear-rutina" 
-          element={
-            <ProtectedRoute>
-              <CrearRutina fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/admin/editar-rutina/:rutinaId" 
-          element={
-            <ProtectedRoute>
-              <CrearRutina fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/admin/planes" 
-          element={
-            <ProtectedRoute>
-              <PlanesAdmin/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/admin/cuotas" 
-          element={
-            <ProtectedRoute>
-              <CuotasUsuarios/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/admin/cambiar-contrasena" 
-          element={
-            <ProtectedRoute>
-              <ChangePassword fromAdmin={true}/>
-            </ProtectedRoute>
-          } 
-        />
-        {/* Entrenador */}
-        <Route path="/entrenador/inicio" 
-          element={
-            <ProtectedRoute>
-              <InicioEntrenador />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/entrenador/asignar-rutinas" 
-          element={
-            <ProtectedRoute>
-              <CrearRutina fromEntrenador={true} />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/entrenador/editar-rutina/:rutinaId" 
-          element={
-            <ProtectedRoute>
-              <CrearRutina fromEntrenador={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route path="/entrenador/rutinas-asignadas" 
-          element={
-            <ProtectedRoute>
-              <RutinasAsignadas />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/entrenador/ejercicios" 
-          element={
-            <ProtectedRoute>
-              <Ejercicios fromEntrenador={true}/>
-            </ProtectedRoute>
-          } 
-        /> 
-          <Route 
-          path="/entrenador/ejercicios/:id" 
-          element={
-            <ProtectedRoute>
-              <EjercicioDetail fromEntrenador={true}/>
-            </ProtectedRoute>
-          } 
-        /> 
-        <Route path="/entrenador/usuarios" 
-          element={
-            <ProtectedRoute>
-              <UsuariosList fromEntrenador={true} />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/entrenador/clases-actividades" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesAdmin fromEntrenador={true} />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/entrenador/clases-actividades/:id" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesAdminDetalle fromEntrenador={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/entrenador/editar-clase/:id" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesForm isEditing={true} fromEntrenador={true}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/entrenador/cambiar-contrasena" 
-          element={
-            <ProtectedRoute>
-              <ChangePassword fromAdmin={false} fromEntrenador={true}/>
-            </ProtectedRoute>
-          } 
-        />
-        {/* Alumno */}
-        <Route path="/alumno/inicio" 
-          element={
-            <ProtectedRoute>
-              <AlumnoInicio />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/alumno/turnos" 
-          element={
-            <ProtectedRoute>
-              <MisTurnos />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/alumno/agendar-turno" 
-          element={
-            <ProtectedRoute>
-              <AgendarTurno/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/clases-actividades" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividades/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/clases-actividades/:id" 
-          element={
-            <ProtectedRoute>
-              <ClasesActividadesDetalle/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/mi-rutina" 
-          element={
-            <ProtectedRoute>
-              <MiRutina/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/crear-rutina" 
-          element={
-            <ProtectedRoute>
-              <CrearRutina fromAdmin={false}/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/editar-rutina/:rutinaId" 
-          element={
-            <ProtectedRoute>
-              <CrearRutina fromAdmin={false}/>
-            </ProtectedRoute>
-          } 
-        />  
-        <Route 
-          path="/alumno/ejercicios" 
-          element={
-            <ProtectedRoute>
-              <Ejercicios fromAlumno={true}/>
-            </ProtectedRoute>
-          } 
-        /> 
-        <Route 
-          path="/alumno/ejercicios/:id" 
-          element={
-            <ProtectedRoute>
-              <EjercicioDetail fromAlumno={true}/>
-            </ProtectedRoute>
-          } 
-        /> 
-        <Route 
-          path="/alumno/medicion-resultados" 
-          element={
-            <ProtectedRoute>
-              <MedicionResultados/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/medicion-resultados/nueva-medicion" 
-          element={
-            <ProtectedRoute>
-              <NuevaMedicion/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/medicion-resultados/ejercicio/:id" 
-          element={
-            <ProtectedRoute>
-              <MedicionResultadosDetalle/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/entrenadores" 
-          element={
-            <ProtectedRoute>
-              <Entrenadores/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/rutinas-recomendadas" 
-          element={
-            <ProtectedRoute>
-              <RutinasRecomendadas/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/cuotas" 
-          element={
-            <ProtectedRoute>
-              <Cuotas/>
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/alumno/cambiar-contrasena" 
-          element={
-            <ProtectedRoute>
-              <ChangePassword fromAdmin={false}/>
-            </ProtectedRoute>
-          } 
-        />
-
-        {/* Ruta de error */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      
       {/* ToastContainer Global */}
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={1500}
         hideProgressBar={false}
@@ -425,6 +65,365 @@ function App() {
         pauseOnHover
         theme="dark"
       />
+      <Routes>
+        {/* Rutas públicas */}
+        <Route path="/" element={<Login />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
+        <Route path='/reset-password' element={<ResetPassword />} />
+
+        {/* Rutas protegidas */}
+        {/* Admin */}
+        <Route path="/admin/inicio"
+          element={
+            <ProtectedRoute>
+              <AdminInicio />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/clases-actividades"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdmin fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/turnos"
+          element={
+            <ProtectedRoute>
+              <TurnosAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/clases-actividades/:id"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdminDetalle fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/agregar-clase"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesForm isEditing={false} fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/editar-clase/:id"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesForm isEditing={true} fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/usuarios"
+          element={
+            <ProtectedRoute>
+              <UsuariosList fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/crear-usuario"
+          element={
+            <ProtectedRoute>
+              <CrearUsuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/editar-usuario/:id"
+          element={
+            <ProtectedRoute>
+              <EditarUsuario />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/ejercicios"
+          element={
+            <ProtectedRoute>
+              <Ejercicios fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/ejercicios/:id"
+          element={
+            <ProtectedRoute>
+              <EjercicioDetail fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/rutinas"
+          element={
+            <ProtectedRoute>
+              <RutinasAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/crear-rutina"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/editar-rutina/:rutinaId"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/planes"
+          element={
+            <ProtectedRoute>
+              <PlanesAdmin />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/cuotas"
+          element={
+            <ProtectedRoute>
+              <CuotasUsuarios />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/cambiar-contrasena"
+          element={
+            <ProtectedRoute>
+              <ChangePassword fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        {/* Entrenador */}
+        <Route path="/entrenador/inicio"
+          element={
+            <ProtectedRoute>
+              <InicioEntrenador />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/entrenador/asignar-rutinas"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/editar-rutina/:rutinaId"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/entrenador/rutinas-asignadas"
+          element={
+            <ProtectedRoute>
+              <RutinasAsignadas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/ejercicios"
+          element={
+            <ProtectedRoute>
+              <Ejercicios fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/ejercicios/:id"
+          element={
+            <ProtectedRoute>
+              <EjercicioDetail fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/entrenador/usuarios"
+          element={
+            <ProtectedRoute>
+              <UsuariosList fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/entrenador/clases-actividades"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdmin fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/clases-actividades/:id"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesAdminDetalle fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/editar-clase/:id"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesForm isEditing={true} fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/cambiar-contrasena"
+          element={
+            <ProtectedRoute>
+              <ChangePassword fromAdmin={false} fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        {/* Alumno */}
+        <Route path="/alumno/inicio"
+          element={
+            <ProtectedRoute>
+              <AlumnoInicio />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/alumno/turnos"
+          element={
+            <ProtectedRoute>
+              <MisTurnos />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/alumno/agendar-turno"
+          element={
+            <ProtectedRoute>
+              <AgendarTurno />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/clases-actividades"
+          element={
+            <ProtectedRoute>
+              <ClasesActividades />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/clases-actividades/:id"
+          element={
+            <ProtectedRoute>
+              <ClasesActividadesDetalle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/mi-rutina"
+          element={
+            <ProtectedRoute>
+              <MiRutina />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/crear-rutina"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromAdmin={false} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/editar-rutina/:rutinaId"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromAdmin={false} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/ejercicios"
+          element={
+            <ProtectedRoute>
+              <Ejercicios fromAlumno={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/ejercicios/:id"
+          element={
+            <ProtectedRoute>
+              <EjercicioDetail fromAlumno={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/medicion-resultados"
+          element={
+            <ProtectedRoute>
+              <MedicionResultados />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/medicion-resultados/nueva-medicion"
+          element={
+            <ProtectedRoute>
+              <NuevaMedicion />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/medicion-resultados/ejercicio/:id"
+          element={
+            <ProtectedRoute>
+              <MedicionResultadosDetalle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/entrenadores"
+          element={
+            <ProtectedRoute>
+              <Entrenadores />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/rutinas-recomendadas"
+          element={
+            <ProtectedRoute>
+              <RutinasRecomendadas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/cuotas"
+          element={
+            <ProtectedRoute>
+              <Cuotas />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/cambiar-contrasena"
+          element={
+            <ProtectedRoute>
+              <ChangePassword fromAdmin={false} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Ruta de error */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
 
       {showChat && <AsistenteChat />}
     </>

@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 
 const NuevaMedicion = () => {
@@ -40,7 +41,6 @@ const NuevaMedicion = () => {
 
       // 1. Crear el nuevo ejercicio
       const responseEjercicio = await apiService.postEjercicio(bodyEjercicio);
-      // Supongamos que apiService usa axios y hace algo como axios.post('/ejercicios', data)
 
       if (responseEjercicio.status !== 201) {
         throw new Error('Error al crear el ejercicio. Por favor, intente nuevamente.');
@@ -91,45 +91,41 @@ const NuevaMedicion = () => {
         <SecondaryButton linkTo="/alumno/medicion-resultados" text="Volver atrás" icon={ArrowLeftIcon} reversed={true} />
         <h2>Agregar nuevo ejercicio</h2>
         <form className="nueva-medicion-form" onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="nueva-medicion-input-ctn">
             <label>Nombre del ejercicio</label>
-            <input
-              type="text"
+            <CustomInput
+              width='320px'
               placeholder="Ej. Press Banca"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
-            {/* <CustomInput
-              placeholder="ej. Press Banca"
-              width="350px"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            /> */}
           </div>
-          <div className="form-group">
+          <div className="nueva-medicion-input-ctn">
             <label>Medida (1RM, 3RM, Repeticiones, etc.)</label>
-            <input
-              type="text"
+            <CustomInput
+              width='320px'
               placeholder="Ej. 1RM, 5RM, Cantidad, etc."
               value={tipoMedicion}
               onChange={(e) => setTipoMedicion(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
+          <div className="nueva-medicion-input-ctn">
             <label>Cantidad máxima actual</label>
-            <input
-              type="number"
+            <CustomInput
+              type='number'
+              width='320px'
               placeholder="Ej. 100 (kg) o 20 (reps)"
               value={cantidad}
               onChange={(e) => setCantidad(e.target.value)}
             />
           </div>
 
-          <div className="form-group">
+          <div className="nueva-medicion-input-ctn">
             <label>Día</label>
-            <input
-              type="date"
+            <CustomInput
+              type='date'
+              width='320px'
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
             />

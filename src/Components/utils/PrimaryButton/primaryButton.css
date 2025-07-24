@@ -13,6 +13,11 @@
     width: fit-content;
     font-size: 14px;
     border-radius: 8px;
+    transition: all ease-in-out 150ms;
+}
+
+.primary-button:hover {
+    background-color: var(--primary-color-hover) ;
 }
 
 .icon {

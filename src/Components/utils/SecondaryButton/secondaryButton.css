@@ -9,6 +9,12 @@
     text-decoration: none;
     width: fit-content;
     font-size: 14px;
+    transition: all ease-in-out 150ms;
+}
+
+.secondary-button:hover {
+    color: #858585;
+    /* text-decoration: underline; */
 }
 
 .icon {

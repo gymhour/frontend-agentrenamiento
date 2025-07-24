@@ -125,7 +125,7 @@ const AsistenteChat = () => {
           </div>
         </div>
       ) : (
-        <div class="bubble-wrapper">
+        <div className="bubble-wrapper">
           <div className="assistant-bubble" onClick={toggleChat}>
             Consultas fitness
             <ChatIcon color='#FAFAFA' width={16} height={16} />
