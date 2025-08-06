@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
@@ -71,15 +71,13 @@ const EjercicioDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                 {/* Datos principales */}
                 <div className="ejercicio-detail__header">
                     <h1 className="header__title">{ejercicio.nombre}</h1>
-                    {/* <span className="header__tag">Tracción Horizontal</span> */}
                 </div>
 
                 {/* Descripción */}
                 <section className="ejercicio-detail__section">
                     <h2>Descripción</h2>
                     <p>
-                        {ejercicio.descripcion ||
-                            'No hay descripción disponible.'}
+                        {ejercicio.descripcion || 'No hay descripción disponible.'}
                     </p>
                 </section>
 
@@ -96,6 +94,35 @@ const EjercicioDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                         <p>No hay instrucciones disponibles.</p>
                     )}
                 </section>
+
+                {/* Músculos */}
+                <section className="ejercicio-detail__section">
+                    <h2>Músculos</h2>
+                    {ejercicio.musculos ? (
+                        <ul>
+                            {ejercicio.musculos.split('-').filter(item => item.trim()).map((m, i) => (
+                                <li key={i}>{m.trim()}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No hay músculos listados.</p>
+                    )}
+                </section>
+
+                {/* Equipamiento */}
+                <section className="ejercicio-detail__section">
+                    <h2>Equipamiento</h2>
+                    {ejercicio.equipamiento ? (
+                        <ul>
+                            {ejercicio.equipamiento.split('-').filter(item => item.trim()).map((e, i) => (
+                                <li key={i}>{e.trim()}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No hay equipamiento listado.</p>
+                    )}
+                </section>
+
             </div>
         </div>
     );

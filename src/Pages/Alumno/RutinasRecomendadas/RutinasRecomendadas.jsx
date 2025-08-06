@@ -8,6 +8,7 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const RutinasRecomendadas = () => {
   const [rutinas, setRutinas] = useState([]);
@@ -28,9 +29,7 @@ const RutinasRecomendadas = () => {
     const fetchRutinas = async () => {
       try {
         const { rutinas: allRutinas } = await apiService.getRutinas();
-        // solo rutinas creadas por un entrenador
-        const filtradas = allRutinas.filter(r => r.entrenador);
-        setRutinas(filtradas);
+        setRutinas(allRutinas.filter(r => r.entrenador));
       } catch (error) {
         console.error('Error al obtener rutinas:', error);
       } finally {
@@ -40,46 +39,22 @@ const RutinasRecomendadas = () => {
     fetchRutinas();
   }, []);
 
-  // opciones únicas para los dropdowns — sin valores null o vacíos
-  const clases = Array.from(new Set(
-    rutinas
-      .map(r => r.claseRutina)
-      .filter(c => c)
-  ));
+  const clases = Array.from(new Set(rutinas.map(r => r.claseRutina).filter(c => c)));
+  const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina).filter(g => g)));
+  const dias   = Array.from(new Set(rutinas.flatMap(r => r.dias).filter(d => d)));
 
-  const grupos = Array.from(new Set(
-    rutinas
-      .map(r => r.grupoMuscularRutina)
-      .filter(g => g)
-  ));
-
-  const dias = Array.from(new Set(
-    rutinas
-      .flatMap(r => r.dias)
-      .filter(d => d)
-  ));
-
-  // rutinas filtradas según filtros aplicados
   const filteredRutinas = rutinas.filter(r => (
     (fClase === '' || r.claseRutina === fClase) &&
     (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
     (fDia   === '' || r.dias.includes(fDia))
   ));
 
-  // manejadores de Filtrar y Limpiar
-  const aplicarFiltro = () => {
-    setFClase(selClase);
-    setFGrupo(selGrupo);
-    setFDia(selDia);
-  };
-  const limpiarFiltro = () => {
-    setSelClase(''); setSelGrupo(''); setSelDia('');
-    setFClase('');  setFGrupo('');  setFDia('');
-  };
+  const aplicarFiltro = () => { setFClase(selClase); setFGrupo(selGrupo); setFDia(selDia); };
+  const limpiarFiltro  = () => { setSelClase(''); setSelGrupo(''); setSelDia(''); setFClase(''); setFGrupo(''); setFDia(''); };
 
   return (
     <div className='page-layout'>
-      {loading && <LoaderFullScreen/>}
+      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
 
@@ -98,24 +73,9 @@ const RutinasRecomendadas = () => {
 
         {showFilters && (
           <div className="filtros-section">
-            <CustomDropdown
-              options={clases}
-              value={selClase}
-              onChange={e => setSelClase(e.target.value)}
-              placeholderOption='Todas las clases'
-            />
-            <CustomDropdown
-              options={grupos}
-              value={selGrupo}
-              onChange={e => setSelGrupo(e.target.value)}
-              placeholderOption='Todos los grupos musculares'
-            />
-            <CustomDropdown
-              options={dias}
-              value={selDia}
-              onChange={e => setSelDia(e.target.value)}
-              placeholderOption='Todos los días'
-            />
+            <CustomDropdown options={clases} value={selClase} onChange={e => setSelClase(e.target.value)} placeholderOption='Todas las clases' />
+            <CustomDropdown options={grupos} value={selGrupo} onChange={e => setSelGrupo(e.target.value)} placeholderOption='Todos los grupos musculares' />
+            <CustomDropdown options={dias}   value={selDia}   onChange={e => setSelDia(e.target.value)}   placeholderOption='Todos los días' />
             <div className='filtros-section-btns'> 
               <PrimaryButton onClick={aplicarFiltro} text="Filtrar" />
               <SecondaryButton onClick={limpiarFiltro} text="Limpiar filtros" />
@@ -145,70 +105,118 @@ const RutinasRecomendadas = () => {
                       <div key={bloque.ID_Bloque} className="bloque-card">
                         {bloque.type === 'SETS_REPS' && (
                           <>
-                            <p>
-                              {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
-                            </p>
-                            {bloque.ejercicios.map(ej => (
-                              <p key={ej.ID_Ejercicio}>
-                                {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
-                              </p>
-                            ))}
+                            <p>{`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}</p>
+                            {bloque.ejercicios.map(ej => {
+                              const name = ej.ejercicio.nombre;
+                              const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                              return (
+                                <p key={ej.ID_Ejercicio}>
+                                  {hasDetail ? (
+                                    <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      {name}
+                                    </Link>
+                                  ) : (
+                                    name
+                                  )} {ej.reps} {ej.setRepWeight || ''}
+                                </p>
+                              );
+                            })}
                           </>
                         )}
+
                         {bloque.type === 'ROUNDS' && (
                           <>
                             <p>{`${bloque.cantRondas} rondas de:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              <li>
-                                {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
-                              </li>
-                              {bloque.ejercicios.map(ej => (
-                                <li key={ej.ID_Ejercicio}>
-                                  {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
-                                </li>
-                              ))}
+                              {bloque.ejercicios.map(ej => {
+                                const name = ej.ejercicio.nombre;
+                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                return (
+                                  <li key={ej.ID_Ejercicio}>
+                                    {hasDetail ? (
+                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                        {name}
+                                      </Link>
+                                    ) : (
+                                      name
+                                    )} {ej.reps} {ej.setRepWeight || ''}
+                                  </li>
+                                );
+                              })}
                             </ul>
-                            {bloque.descansoRonda != null && (
-                              <p style={{ color: 'rgba(255,255,255,0.6)' }}>
-                                {`con ${bloque.descansoRonda} segs de descanso`}
-                              </p>
-                            )}
                           </>
                         )}
+
                         {bloque.type === 'AMRAP' && (
                           <>
                             <p>{`AMRAP ${bloque.durationMin}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map(ej => (
-                                <li key={ej.ID_Ejercicio}>
-                                  {`${ej.ejercicio.nombre || ''}: ${ej.reps} ${ej.setRepWeight}`}
-                                </li>
-                              ))}
+                              {bloque.ejercicios.map(ej => {
+                                const name = ej.ejercicio.nombre;
+                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                return (
+                                  <li key={ej.ID_Ejercicio}>
+                                    {hasDetail ? (
+                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                        {name}
+                                      </Link>
+                                    ) : (
+                                      name
+                                    )} {ej.reps} {ej.setRepWeight || ''}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </>
                         )}
+
                         {bloque.type === 'EMOM' && (
                           <>
                             <p>{`EMOM ${bloque.durationMin}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej, idx) => (
-                                <li key={ej.ID_Ejercicio}>
-                                  {`0-${idx}: ${ej.ejercicio.nombre || ''} ${ej.reps} ${ej.setRepWeight}`}
-                                </li>
-                              ))}
+                              {bloque.ejercicios.map((ej, idx) => {
+                                const name = ej.ejercicio.nombre;
+                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                return (
+                                  <li key={ej.ID_Ejercicio}>
+                                    {`0-${idx}: `}
+                                    {hasDetail ? (
+                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                        {name}
+                                      </Link>
+                                    ) : (
+                                      name
+                                    )} {ej.reps} {ej.setRepWeight || ''}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </>
                         )}
+
                         {bloque.type === 'LADDER' && (
                           <>
                             <p>{bloque.tipoEscalera}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map(ej => (
-                                <li key={ej.ID_Ejercicio}>{ej.setRepWeight}</li>
-                              ))}
+                              {bloque.ejercicios.map(ej => {
+                                const label = ej.setRepWeight || ej.ejercicio.nombre;
+                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                return (
+                                  <li key={ej.ID_Ejercicio}>
+                                    {hasDetail ? (
+                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                        {label}
+                                      </Link>
+                                    ) : (
+                                      label
+                                    )}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </>
                         )}
+
                       </div>
                     ))}
                   </div>

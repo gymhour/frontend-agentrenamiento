@@ -222,6 +222,15 @@ const getEjerciciosResultadosUsuario = async (usuarioId) => {
     }
 }
 
+const deleteEjerciciosResultados = async (id) => {
+    try {
+        const response = await apiClient.delete(`/ejercicios-resultados/${id}`);
+        return response.data;
+    } catch (err) {
+        throw new Error("Error al traer ejercicios y resultados");
+    }
+}
+
 // Ejercicio
 const postEjercicio = async (body) => {
     try {
@@ -386,6 +395,7 @@ export default {
     // Medicion resultado
     getEjerciciosResultados,
     getEjerciciosResultadosUsuario,
+    deleteEjerciciosResultados,
     postEjercicio,
     deleteEjercicio,
     postEjercicioResultado,

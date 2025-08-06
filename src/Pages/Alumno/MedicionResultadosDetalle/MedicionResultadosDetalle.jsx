@@ -20,6 +20,7 @@ import { toast } from 'react-toastify';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams();
@@ -28,6 +29,9 @@ const MedicionResultadosDetalle = () => {
 
   const [nuevaCantidad, setNuevaCantidad] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
+
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const parseDateString = (dateStr) => {
     if (dateStr.includes('T')) dateStr = dateStr.split('T')[0];
@@ -106,6 +110,35 @@ const MedicionResultadosDetalle = () => {
     }
   };
 
+  const handleDeleteClick = (itemId) => {
+    setItemToDelete(itemId);
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+    setItemToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    setLoading(true);
+    try {
+      await apiService.deleteEjerciciosResultados(itemToDelete);
+      setEjercicio((prev) => ({
+        ...prev,
+        HistoricoEjercicios: prev.HistoricoEjercicios.filter(
+          (h) => h.ID_HistoricoEjercicio !== itemToDelete
+        )
+      }));
+      toast.success('Medición eliminada correctamente.');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+      closePopup();
+    }
+  };
+
   return (
     <div className="page-layout">
       <SidebarMenu isAdmin={false} />
@@ -127,7 +160,7 @@ const MedicionResultadosDetalle = () => {
 
         <div className="detalle-form">
           <h3>Agregar nuevo resultado</h3>
-          <form className="editar-medicion-form" onSubmit={handleAgregarResultado}>
+          <form className="editar-medicion-form">
             <div className="editar-medicion-input-ctn">
               <label>Cantidad</label>
               <CustomInput
@@ -146,7 +179,7 @@ const MedicionResultadosDetalle = () => {
               />
             </div>
             <div className="nuevo-resultado-form-btns">
-              <PrimaryButton text="Agregar" />
+              <PrimaryButton text="Agregar" onClick={handleAgregarResultado}/>
             </div>
           </form>
         </div>
@@ -206,6 +239,7 @@ const MedicionResultadosDetalle = () => {
               <tr>
                 <th>Fecha</th>
                 <th>{ejercicio?.tipoMedicion === 'Cantidad' ? 'Reps' : 'Kg'}</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -213,12 +247,31 @@ const MedicionResultadosDetalle = () => {
                 <tr key={item.ID_HistoricoEjercicio}>
                   <td>{formatAsLocalDate(item.Fecha)}</td>
                   <td>{item.Cantidad}</td>
+                  <td>
+                    <button
+                      onClick={() => handleDeleteClick(item.ID_HistoricoEjercicio)}
+                      className="btn-eliminar"
+                    >
+                      Eliminar
+                    </button>
+                    <button className="btn-editar" disabled>
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Popup de confirmación */}
+      <ConfirmationPopup
+        isOpen={isPopupOpen}
+        onClose={closePopup}
+        onConfirm={confirmDelete}
+        message="¿Estás seguro que deseas eliminar esta medición?"
+      />
     </div>
   );
 };

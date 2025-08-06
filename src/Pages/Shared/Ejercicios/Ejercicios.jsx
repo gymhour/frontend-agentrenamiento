@@ -1,35 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiService from '../../../services/apiService';
-import apiClient from '../../../axiosConfig';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
-import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import './Ejercicios.css';
 import EjercicioCard from '../../../Components/EjercicioCard/EjercicioCard';
-import { useNavigate } from 'react-router-dom';
 
 const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
+  const navigate = useNavigate();
   const defaultImage =
     'https://coffective.com/wp-content/uploads/2018/06/default-featured-image.png.jpg';
-  const navigate = useNavigate()
-  
+
   const [loading, setLoading] = useState(false);
   const [ejercicios, setEjercicios] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editingEjercicio, setEditingEjercicio] = useState(null);
   const [toDelete, setToDelete] = useState(null);
-
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [instrucciones, setInstrucciones] = useState('');
-
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Filtrado por búsqueda
   const filteredEjercicios = useMemo(() => {
     if (!searchTerm) return ejercicios;
     const term = searchTerm.toLowerCase();
@@ -38,7 +29,7 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     );
   }, [ejercicios, searchTerm]);
 
-  // Fetch y orden alfabético
+  // Obtener y ordenar ejercicios
   const fetchEjercicios = async () => {
     setLoading(true);
     try {
@@ -59,7 +50,7 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     fetchEjercicios();
   }, []);
 
-  // Agrupar por letra inicial
+  // Agrupar alfabéticamente
   const grouped = useMemo(() => {
     return filteredEjercicios.reduce((acc, e) => {
       const letter = (e.nombre || '')[0]?.toUpperCase() || '';
@@ -69,64 +60,7 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     }, {});
   }, [filteredEjercicios]);
 
-  // Handlers CRUD
-  const handleCreate = () => {
-    setEditingEjercicio(null);
-    setNombre('');
-    setDescripcion('');
-    setImageFile(null);
-    setYoutubeUrl('');
-    setInstrucciones('');
-    setShowModal(true);
-  };
-
-  const handleEdit = ejercicio => {
-    setEditingEjercicio(ejercicio);
-    setNombre(ejercicio.nombre || '');
-    setDescripcion(ejercicio.descripcion || '');
-    setYoutubeUrl(ejercicio.youtubeUrl || '');
-    setInstrucciones(ejercicio.instrucciones || '');
-    setImageFile(null);
-    setShowModal(true);
-  };
-
-  const handleFileChange = e => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async evt => {
-    evt.preventDefault();
-    setLoading(true);
-    try {
-      setShowModal(false);
-      const payload = new FormData();
-      payload.append('nombre', nombre);
-      payload.append('descripcion', descripcion);
-      payload.append('youtubeUrl', youtubeUrl);
-      payload.append('instrucciones', instrucciones);
-      if (imageFile) payload.append('imagen', imageFile);
-
-      if (editingEjercicio) {
-        await apiClient.put(
-          `/ejercicios/${editingEjercicio.ID_Ejercicio}`,
-          payload
-        );
-        toast.success('Ejercicio actualizado correctamente.');
-      } else {
-        await apiClient.post('/ejercicios', payload);
-        toast.success('Ejercicio creado correctamente.');
-      }
-      await fetchEjercicios();
-    } catch (err) {
-      console.error(err);
-      toast.error('Error al guardar ejercicio. Intente nuevamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Borrar ejercicio
   const openDeletePopup = ejercicio => setToDelete(ejercicio);
   const closeDeletePopup = () => setToDelete(null);
 
@@ -134,7 +68,6 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     if (!toDelete) return;
     setLoading(true);
     try {
-      closeDeletePopup();
       await apiService.deleteEjercicios(toDelete.ID_Ejercicio);
       toast.success(`Ejercicio "${toDelete.nombre}" eliminado.`);
       await fetchEjercicios();
@@ -143,19 +76,21 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       toast.error('Error al eliminar ejercicio.');
     } finally {
       setLoading(false);
+      closeDeletePopup();
     }
   };
 
-  // link del ejercicio dependiendo de donde se llame
+  // Base de rutas según rol
   const basePath = fromAdmin
     ? '/admin/ejercicios'
     : fromEntrenador
       ? '/entrenador/ejercicios'
-      : '/alumno/ejercicios';
+      : fromAlumno
+        ? '/alumno/ejercicios'
+        : '/ejercicios';
 
   return (
     <div className='page-layout'>
-      {/* Sidebar dinámico */}
       <SidebarMenu
         isAdmin={fromAdmin}
         isEntrenador={fromEntrenador}
@@ -167,9 +102,11 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       <div className='content-layout'>
         <div className='exercises-header'>
           <h2>Listado de Ejercicios</h2>
-          {/* Solo Admin y Entrenador pueden crear */}
           {(fromAdmin || fromEntrenador) && (
-            <PrimaryButton text='Nuevo ejercicio' onClick={handleCreate} />
+            <PrimaryButton
+              text='Nuevo ejercicio'
+              linkTo={`${basePath}/form`}
+            />
           )}
         </div>
 
@@ -193,10 +130,13 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                       ejercicio={e}
                       defaultImage={defaultImage}
                       onClick={() => navigate(`${basePath}/${e.ID_Ejercicio}`)}
-                      {...((fromAdmin || fromEntrenador) && {
-                        onEdit: handleEdit,
-                        onDelete: openDeletePopup
-                      })}
+                      {...(fromAdmin || fromEntrenador
+                        ? {
+                          onEdit: () => navigate(`${basePath}/form/${e.ID_Ejercicio}`),
+                          onDelete: () => openDeletePopup(e),
+                        }
+                        : {}
+                      )}
                     />
                   ))}
                 </div>
@@ -204,74 +144,6 @@ const Ejercicios = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
             ))}
         </div>
       </div>
-
-      {/* Modal Crear/Editar: Admin y Entrenador */}
-      {(fromAdmin || fromEntrenador) && showModal && (
-        <div className='modal-overlay'>
-          <div className='modal-content'>
-            <h2 style={{ color: '#FAFAFA', marginBottom: '20px' }}>
-              {editingEjercicio ? 'Editar Ejercicio' : 'Nuevo Ejercicio'}
-            </h2>
-            <form className='plan-form'>
-              {/* Campos... */}
-              <div className='form-input-container'>
-                <label>Nombre</label>
-                <CustomInput
-                  type='text'
-                  value={nombre}
-                  onChange={e => setNombre(e.target.value)}
-                  placeholder='Nombre del ejercicio'
-                  required
-                />
-              </div>
-              <div className='form-input-container'>
-                <label>Descripción</label>
-                <CustomInput
-                  type='text'
-                  value={descripcion}
-                  onChange={e => setDescripcion(e.target.value)}
-                  placeholder='Descripción (opcional)'
-                />
-              </div>
-              <div className='form-input-container'>
-                <label>URL de YouTube</label>
-                <CustomInput
-                  type='text'
-                  value={youtubeUrl}
-                  onChange={e => setYoutubeUrl(e.target.value)}
-                  placeholder='https://www.youtube.com/...'
-                />
-              </div>
-              <div className='form-input-container'>
-                <label>Instrucciones</label>
-                <textarea
-                  value={instrucciones}
-                  onChange={e => setInstrucciones(e.target.value)}
-                  placeholder='- Mantener la espalda recta - Bajar hasta el fondo.'
-                  rows={4}
-                  className='custom-textarea'
-                />
-              </div>
-              <div className='form-input-container'>
-                <label>Imagen</label>
-                <input
-                  type='file'
-                  accept='image/*'
-                  onChange={handleFileChange}
-                  style={{ maxWidth: '300px' }}
-                />
-              </div>
-              <div className='modal-actions'>
-                <SecondaryButton
-                  text='Cancelar'
-                  onClick={() => setShowModal(false)}
-                />
-                <PrimaryButton text={editingEjercicio ? 'Actualizar' : 'Crear'} type='submit' onClick={handleSubmit} />
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {(fromAdmin || fromEntrenador) && toDelete && (
         <ConfirmationPopup

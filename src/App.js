@@ -37,6 +37,7 @@ import AsistenteChat from './Components/AsistenteChat/AsistenteChat';
 import PlanesAdmin from './Pages/Admin/PlanesAdmin/PlanesAdmin';
 import TurnosAdmin from './Pages/Admin/TurnosAdmin/TurnosAdmin';
 import Ejercicios from './Pages/Shared/Ejercicios/Ejercicios';
+import EjercicioForm from './Pages/Shared/EjercicioForm/EjercicioForm';
 import EjercicioDetail from './Pages/Shared/EjercicioDetail/EjercicioDetail';
 
 function App() {
@@ -155,6 +156,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/ejercicios/form/:id?"
+          element={
+            <ProtectedRoute>
+              <EjercicioForm fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/rutinas"
           element={
             <ProtectedRoute>
@@ -245,6 +254,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EjercicioDetail fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/ejercicios/form/:id?"
+          element={
+            <ProtectedRoute>
+              <EjercicioForm fromEntrenador={true} />
             </ProtectedRoute>
           }
         />

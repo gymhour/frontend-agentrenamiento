@@ -63,6 +63,11 @@
     font-family: 'BebasNewu', Arial, Helvetica, sans-serif;
 }
 
+.exercise-link {
+    text-decoration: underline;
+    color: white;
+}
+
 .mi-rutina-eliminar-btn {
     color: rgb(243, 102, 102);
     background-color: #202020;
