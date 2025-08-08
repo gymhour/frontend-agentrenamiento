@@ -7,6 +7,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import './TurnosAdmin.css'
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen'
 import { toast } from 'react-toastify'
+import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown'
 
 moment.locale('es') 
 
@@ -118,39 +119,32 @@ const TurnosAdmin = () => {
         <h2>Turnos – {moment().month(selectedMonth).format('MMMM YYYY')}</h2>
 
         <div className='filters'>
-            <div className='filters-input-ctn'>
-                <label>
-                    Mes:{' '}
-                </label>
-                <select
-                    value={selectedMonth}
-                    onChange={e => setSelectedMonth(+e.target.value)}
-                    >
-                    {monthOptions.map(mo => (
-                        <option key={mo.value} value={mo.value}>
-                        {mo.label}
-                        </option>
-                    ))}
-                    </select>
-            </div>
-            <div className="filters-input-ctn">
-                <label>
-                    Clase:{' '}
-                </label>
-                <select
-                    value={selectedClass}
-                    onChange={e => setSelectedClass(e.target.value)}
-                    >
-                    <option value=''>— Todas —</option>
-                    {classOptions.map(cl => (
-                        <option key={cl} value={cl}>
-                        {cl}
-                        </option>
-                    ))}
-                    </select>
-            </div>
+  <div className='filters-input-ctn'>
+    <label>Mes: </label>
+    <CustomDropdown
+      options={monthOptions}                 // [{ value, label }]
+      value={String(selectedMonth ?? '')}    // controlado
+      onChange={e => setSelectedMonth(+e.target.value)}
+      name="month"
+      id="month"
+      placeholderOption={null}               // sin placeholder
+    />
+  </div>
 
-        </div>
+  <div className="filters-input-ctn">
+    <label>Clase: </label>
+    <CustomDropdown
+      options={classOptions}                 // ["Musculación", "Boxeo", ...]
+      value={selectedClass ?? ''}
+      onChange={e => setSelectedClass(e.target.value)}
+      name="class"
+      id="class"
+      placeholderOption="— Todas —"          // que se pueda elegir
+      placeholderDisabled={false}
+    />
+  </div>
+</div>
+
 
         <Calendar
           key={selectedMonth}

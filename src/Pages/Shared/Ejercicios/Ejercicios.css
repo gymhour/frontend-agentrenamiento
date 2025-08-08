@@ -35,9 +35,10 @@
     border-radius: 10px;
     border: none;
     padding: 8px;
-    max-width: 300px;
+    /* max-width: 300px; */
     font-size: 15px;
     color: white;
     font-family: sans-serif;
     outline: none;
+    width: 100%;
 }

@@ -1,7 +1,27 @@
 .exercise-form {
     max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 10px;
 }
 
 .ejercicio-form-title {
     margin-bottom: 16px;
+}
+
+.ejercicio-form-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+}
+
+@media screen and (max-width: 500px) {
+    .exercise-form, .form-input-ctn {
+        width: 100%;
+        max-width: none;
+    }
 }

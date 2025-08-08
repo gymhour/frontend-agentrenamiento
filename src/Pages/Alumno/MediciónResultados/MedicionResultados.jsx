@@ -137,8 +137,8 @@ const MedicionResultados = () => {
                     <div className="med-resultados-card-content">
                       <div className="med-resultados-card-header">
                         <h3>
-                          {lastCantidad}{" "}
-                          {ejercicio.tipoMedicion === "Cantidad" ? "rps" : "kg"}
+                          {lastCantidad}
+                          {/* {ejercicio.tipoMedicion === "Cantidad" ? "rps" : "kg"} */}
                         </h3>
                         <span>{ejercicio.tipoMedicion}</span>
                       </div>

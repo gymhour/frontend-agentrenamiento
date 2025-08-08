@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import '../../../App.css';
@@ -30,15 +31,22 @@ const MedicionResultadosDetalle = () => {
   const [nuevaCantidad, setNuevaCantidad] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
 
+  // Para eliminar mediciones
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+
+  // Para editar mediciones
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState(null);
+  const [editCantidad, setEditCantidad] = useState('');
+  const [editFecha, setEditFecha] = useState('');
 
   const parseDateString = (dateStr) => {
     if (dateStr.includes('T')) dateStr = dateStr.split('T')[0];
     const parts = dateStr.split('-').map(Number);
     let year, month, day;
     if (parts[0] > 31) [year, month, day] = parts;
-    else[day, month, year] = parts;
+    else [day, month, year] = parts;
     return new Date(year, month - 1, day);
   };
   const formatAsLocalDate = (d) => parseDateString(d).toLocaleDateString();
@@ -63,9 +71,7 @@ const MedicionResultadosDetalle = () => {
     fetchEjercicio();
   }, [id]);
 
-  // nunca null, para evitar errores si aún no llegó
   const historico = ejercicio?.HistoricoEjercicios ?? [];
-
   const sortedAsc = [...historico].sort(
     (a, b) => new Date(a.Fecha) - new Date(b.Fecha)
   );
@@ -114,12 +120,10 @@ const MedicionResultadosDetalle = () => {
     setItemToDelete(itemId);
     setIsPopupOpen(true);
   };
-
   const closePopup = () => {
     setIsPopupOpen(false);
     setItemToDelete(null);
   };
-
   const confirmDelete = async () => {
     setLoading(true);
     try {
@@ -139,10 +143,29 @@ const MedicionResultadosDetalle = () => {
     }
   };
 
+  const handleEditClick = (item) => {
+    setItemToEdit(item);
+    setEditCantidad(item.Cantidad);
+    const dateVal = item.Fecha.includes('T') ? item.Fecha.split('T')[0] : item.Fecha;
+    setEditFecha(dateVal);
+    setIsEditOpen(true);
+  };
+  const closeEditPopup = () => {
+    setIsEditOpen(false);
+    setItemToEdit(null);
+  };
+  const confirmEdit = () => {
+    console.log('Editar medición:', {
+      id: itemToEdit.ID_HistoricoEjercicio,
+      cantidad: editCantidad,
+      fecha: editFecha
+    });
+    closeEditPopup();
+  };
+
   return (
     <div className="page-layout">
       <SidebarMenu isAdmin={false} />
-
       {loading && <LoaderFullScreen />}
 
       <div className="content-layout detalle-container">
@@ -160,7 +183,7 @@ const MedicionResultadosDetalle = () => {
 
         <div className="detalle-form">
           <h3>Agregar nuevo resultado</h3>
-          <form className="editar-medicion-form">
+          <form className="editar-medicion-form" onSubmit={handleAgregarResultado}>
             <div className="editar-medicion-input-ctn">
               <label>Cantidad</label>
               <CustomInput
@@ -179,7 +202,7 @@ const MedicionResultadosDetalle = () => {
               />
             </div>
             <div className="nuevo-resultado-form-btns">
-              <PrimaryButton text="Agregar" onClick={handleAgregarResultado}/>
+              <PrimaryButton text="Agregar" />
             </div>
           </form>
         </div>
@@ -196,24 +219,15 @@ const MedicionResultadosDetalle = () => {
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false} stroke="#444" strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="fecha"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#aaa', fontSize: 12 }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#aaa', fontSize: 12 }}
-                />
+                <XAxis dataKey="fecha" axisLine={false} tickLine={false} tick={{ fill: '#aaa', fontSize: 12 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#aaa', fontSize: 12 }} />
                 <Tooltip
                   cursor={{ fill: 'rgba(0, 0, 0, 0.7)' }}
                   contentStyle={{
                     backgroundColor: '#000',
                     border: 'none',
                     borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
                   }}
                   labelStyle={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}
                   itemStyle={{ color: '#fff', fontSize: 12 }}
@@ -254,7 +268,10 @@ const MedicionResultadosDetalle = () => {
                     >
                       Eliminar
                     </button>
-                    <button className="btn-editar" disabled>
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      className="btn-editar"
+                    >
                       Editar
                     </button>
                   </td>
@@ -265,13 +282,48 @@ const MedicionResultadosDetalle = () => {
         </div>
       </div>
 
-      {/* Popup de confirmación */}
       <ConfirmationPopup
         isOpen={isPopupOpen}
         onClose={closePopup}
         onConfirm={confirmDelete}
         message="¿Estás seguro que deseas eliminar esta medición?"
       />
+
+      {isEditOpen &&
+        ReactDOM.createPortal(
+          <div className="edit-popup-overlay">
+            <div className="edit-popup">
+              <h3>Editar medición</h3>
+              <div className="edit-popup-fields">
+                <div className="field-ctn">
+                  <label>Cantidad</label>
+                  <CustomInput
+                    type="number"
+                    value={editCantidad}
+                    onChange={(e) => setEditCantidad(e.target.value)}
+                  />
+                </div>
+                <div className="field-ctn">
+                  <label>Fecha</label>
+                  <CustomInput
+                    type="date"
+                    value={editFecha}
+                    onChange={(e) => setEditFecha(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="edit-popup-buttons">
+                <button onClick={closeEditPopup} className="popup-cancel-button">
+                  Cancelar
+                </button>
+                <button onClick={confirmEdit} className="popup-confirm-button">
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

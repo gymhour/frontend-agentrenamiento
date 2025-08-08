@@ -81,7 +81,6 @@ const EjercicioDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     </p>
                 </section>
 
-                {/* Instrucciones */}
                 <section className="ejercicio-detail__section">
                     <h2>Instrucciones</h2>
                     {ejercicio.instrucciones ? (
@@ -95,29 +94,29 @@ const EjercicioDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     )}
                 </section>
 
-                {/* Músculos */}
                 <section className="ejercicio-detail__section">
                     <h2>Músculos</h2>
-                    {ejercicio.musculos ? (
-                        <ul>
-                            {ejercicio.musculos.split('-').filter(item => item.trim()).map((m, i) => (
-                                <li key={i}>{m.trim()}</li>
+                    <div className="chip-list">
+                        {ejercicio.musculos?.split('-')
+                            .filter(m => m.trim())
+                            .map((m, i) => (
+                                <span key={i} className="chip">{m.trim()}</span>
                             ))}
-                        </ul>
-                    ) : (
-                        <p>No hay músculos listados.</p>
-                    )}
+                    </div>
                 </section>
 
                 {/* Equipamiento */}
                 <section className="ejercicio-detail__section">
                     <h2>Equipamiento</h2>
                     {ejercicio.equipamiento ? (
-                        <ul>
-                            {ejercicio.equipamiento.split('-').filter(item => item.trim()).map((e, i) => (
-                                <li key={i}>{e.trim()}</li>
-                            ))}
-                        </ul>
+                        <div className="chip-list">
+                            {ejercicio.equipamiento
+                                .split('-')
+                                .filter(item => item.trim())
+                                .map((e, i) => (
+                                    <span key={i} className="chip">{e.trim()}</span>
+                                ))}
+                        </div>
                     ) : (
                         <p>No hay equipamiento listado.</p>
                     )}

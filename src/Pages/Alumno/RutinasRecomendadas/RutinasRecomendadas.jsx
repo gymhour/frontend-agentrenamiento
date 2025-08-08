@@ -15,13 +15,13 @@ const RutinasRecomendadas = () => {
   const [loading, setLoading] = useState(true);
 
   // estados de dropdown (selección actual)
-  const [selClase, setSelClase]   = useState('');
-  const [selGrupo, setSelGrupo]   = useState('');
-  const [selDia, setSelDia]       = useState('');
+  const [selClase, setSelClase] = useState('');
+  const [selGrupo, setSelGrupo] = useState('');
+  const [selDia, setSelDia] = useState('');
   // filtros aplicados (solo cambian al presionar Filtrar)
-  const [fClase, setFClase]       = useState('');
-  const [fGrupo, setFGrupo]       = useState('');
-  const [fDia, setFDia]           = useState('');
+  const [fClase, setFClase] = useState('');
+  const [fGrupo, setFGrupo] = useState('');
+  const [fDia, setFDia] = useState('');
   // toggle de sección de filtros
   const [showFilters, setShowFilters] = useState(false);
 
@@ -29,6 +29,7 @@ const RutinasRecomendadas = () => {
     const fetchRutinas = async () => {
       try {
         const { rutinas: allRutinas } = await apiService.getRutinas();
+        // Solo rutinas que tengan entrenador (recomendadas por alguien)
         setRutinas(allRutinas.filter(r => r.entrenador));
       } catch (error) {
         console.error('Error al obtener rutinas:', error);
@@ -39,18 +40,18 @@ const RutinasRecomendadas = () => {
     fetchRutinas();
   }, []);
 
-  const clases = Array.from(new Set(rutinas.map(r => r.claseRutina).filter(c => c)));
-  const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina).filter(g => g)));
-  const dias   = Array.from(new Set(rutinas.flatMap(r => r.dias).filter(d => d)));
+  const clases = Array.from(new Set(rutinas.map(r => r.claseRutina).filter(Boolean)));
+  const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina).filter(Boolean)));
+  const dias = Array.from(new Set(rutinas.flatMap(r => r.dias).filter(Boolean)));
 
   const filteredRutinas = rutinas.filter(r => (
     (fClase === '' || r.claseRutina === fClase) &&
     (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
-    (fDia   === '' || r.dias.includes(fDia))
+    (fDia === '' || r.dias.includes(fDia))
   ));
 
   const aplicarFiltro = () => { setFClase(selClase); setFGrupo(selGrupo); setFDia(selDia); };
-  const limpiarFiltro  = () => { setSelClase(''); setSelGrupo(''); setSelDia(''); setFClase(''); setFGrupo(''); setFDia(''); };
+  const limpiarFiltro = () => { setSelClase(''); setSelGrupo(''); setSelDia(''); setFClase(''); setFGrupo(''); setFDia(''); };
 
   return (
     <div className='page-layout'>
@@ -73,10 +74,25 @@ const RutinasRecomendadas = () => {
 
         {showFilters && (
           <div className="filtros-section">
-            <CustomDropdown options={clases} value={selClase} onChange={e => setSelClase(e.target.value)} placeholderOption='Todas las clases' />
-            <CustomDropdown options={grupos} value={selGrupo} onChange={e => setSelGrupo(e.target.value)} placeholderOption='Todos los grupos musculares' />
-            <CustomDropdown options={dias}   value={selDia}   onChange={e => setSelDia(e.target.value)}   placeholderOption='Todos los días' />
-            <div className='filtros-section-btns'> 
+            <CustomDropdown
+              options={clases}
+              value={selClase}
+              onChange={e => setSelClase(e.target.value)}
+              placeholderOption='Todas las clases'
+            />
+            <CustomDropdown
+              options={grupos}
+              value={selGrupo}
+              onChange={e => setSelGrupo(e.target.value)}
+              placeholderOption='Todos los grupos musculares'
+            />
+            <CustomDropdown
+              options={dias}
+              value={selDia}
+              onChange={e => setSelDia(e.target.value)}
+              placeholderOption='Todos los días'
+            />
+            <div className='filtros-section-btns'>
               <PrimaryButton onClick={aplicarFiltro} text="Filtrar" />
               <SecondaryButton onClick={limpiarFiltro} text="Limpiar filtros" />
             </div>
@@ -94,104 +110,114 @@ const RutinasRecomendadas = () => {
                 </div>
 
                 <div className="rutina-data">
-                  <p>Clase: {rutina.claseRutina}</p>
-                  <p>Grupo muscular: {rutina.grupoMuscularRutina}</p>
-                  <p>Día(s): {rutina.dias.join(', ')}</p>
+                  <p>Día de la semana: {rutina.dias.join(', ')}</p>
                 </div>
+
+                {rutina.entrenador && (
+                  <p>
+                    Asignada por: {rutina.entrenador.nombre} {rutina.entrenador.apellido}
+                  </p>
+                )}
 
                 {rutina.bloques && rutina.bloques.length > 0 && (
                   <div className="bloques-list">
                     {rutina.bloques.map(bloque => (
                       <div key={bloque.ID_Bloque} className="bloque-card">
+
                         {bloque.type === 'SETS_REPS' && (
-                          <>
-                            <p>{`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}</p>
+                          <div>
                             {bloque.ejercicios.map(ej => {
                               const name = ej.ejercicio.nombre;
-                              const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
                               return (
                                 <p key={ej.ID_Ejercicio}>
+                                  {bloque.setsReps}{' '}
                                   {hasDetail ? (
                                     <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                       {name}
                                     </Link>
                                   ) : (
                                     name
-                                  )} {ej.reps} {ej.setRepWeight || ''}
+                                  )}
                                 </p>
                               );
                             })}
-                          </>
+                          </div>
                         )}
 
                         {bloque.type === 'ROUNDS' && (
-                          <>
-                            <p>{`${bloque.cantRondas} rondas de:`}</p>
+                          <div>
+                            {(() => {
+                              const count = bloque.cantRondas ?? bloque.ejercicios[0]?.reps;
+                              return count ? <p>{`${count} rondas de:`}</p> : null;
+                            })()}
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map(ej => {
                                 const name = ej.ejercicio.nombre;
-                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
                                 return (
                                   <li key={ej.ID_Ejercicio}>
+                                    {ej.reps}{' '}
                                     {hasDetail ? (
                                       <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                         {name}
                                       </Link>
                                     ) : (
                                       name
-                                    )} {ej.reps} {ej.setRepWeight || ''}
+                                    )}
                                   </li>
                                 );
                               })}
                             </ul>
-                          </>
-                        )}
-
-                        {bloque.type === 'AMRAP' && (
-                          <>
-                            <p>{`AMRAP ${bloque.durationMin}min:`}</p>
-                            <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map(ej => {
-                                const name = ej.ejercicio.nombre;
-                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
-                                return (
-                                  <li key={ej.ID_Ejercicio}>
-                                    {hasDetail ? (
-                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
-                                        {name}
-                                      </Link>
-                                    ) : (
-                                      name
-                                    )} {ej.reps} {ej.setRepWeight || ''}
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </>
+                          </div>
                         )}
 
                         {bloque.type === 'EMOM' && (
-                          <>
+                          <div>
                             <p>{`EMOM ${bloque.durationMin}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map((ej, idx) => {
                                 const name = ej.ejercicio.nombre;
-                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
                                 return (
                                   <li key={ej.ID_Ejercicio}>
-                                    {`0-${idx}: `}
+                                    {`0-${idx}: ${ej.reps} `}
                                     {hasDetail ? (
                                       <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                         {name}
                                       </Link>
                                     ) : (
                                       name
-                                    )} {ej.reps} {ej.setRepWeight || ''}
+                                    )}
                                   </li>
                                 );
                               })}
                             </ul>
-                          </>
+                          </div>
+                        )}
+
+                        {bloque.type === 'AMRAP' && (
+                          <div>
+                            <p>{`AMRAP ${bloque.durationMin}min:`}</p>
+                            <ul style={{ paddingLeft: '20px' }}>
+                              {bloque.ejercicios.map(ej => {
+                                const name = ej.ejercicio.nombre;
+                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                return (
+                                  <li key={ej.ID_Ejercicio}>
+                                    {ej.reps}{' '}
+                                    {hasDetail ? (
+                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                        {name}
+                                      </Link>
+                                    ) : (
+                                      name
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
                         )}
 
                         {bloque.type === 'LADDER' && (
@@ -199,8 +225,8 @@ const RutinasRecomendadas = () => {
                             <p>{bloque.tipoEscalera}</p>
                             <ul style={{ paddingLeft: '20px' }}>
                               {bloque.ejercicios.map(ej => {
-                                const label = ej.setRepWeight || ej.ejercicio.nombre;
-                                const hasDetail = Boolean(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                                const label = ej.setRepWeight ?? ej.ejercicio.nombre;
+                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
                                 return (
                                   <li key={ej.ID_Ejercicio}>
                                     {hasDetail ? (

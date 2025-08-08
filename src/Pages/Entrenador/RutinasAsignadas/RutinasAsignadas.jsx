@@ -4,16 +4,16 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu'
 import apiService from '../../../services/apiService'
 import { toast } from 'react-toastify'
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen'
-import './RutinasAsignadas.css' // Usamos el mismo CSS que MiRutina
+import './RutinasAsignadas.css'
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton'
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 const RutinasAsignadas = () => {
   const [loading, setLoading] = useState(false)
-  const [allRutinas, setAllRutinas] = useState([])      // Guarda todas las rutinas
-  const [rutinas, setRutinas] = useState([])            // Rutinas a mostrar (posiblemente filtradas)
-  const [users, setUsers] = useState([])                // Lista de clientes para el filtro
+  const [allRutinas, setAllRutinas] = useState([])
+  const [rutinas, setRutinas] = useState([])
+  const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
   const navigate = useNavigate()
 
@@ -22,7 +22,6 @@ const RutinasAsignadas = () => {
     loadRutinasAsignadas()
   }, [])
 
-  // Traer todos los usuarios de tipo 'cliente'
   const fetchUsers = async () => {
     try {
       const { data } = await apiService.getAllUsuarios()
@@ -33,7 +32,6 @@ const RutinasAsignadas = () => {
     }
   }
 
-  // Cargar todas las rutinas asignadas por este entrenador
   const loadRutinasAsignadas = async () => {
     setLoading(true)
     const entrenadorId = localStorage.getItem('usuarioId')
@@ -49,23 +47,17 @@ const RutinasAsignadas = () => {
     }
   }
 
-  // Filtrar por usuario seleccionado
   const handleSearch = () => {
     if (!selectedUser) {
-      // si no hay usuario seleccionado, muestro todas
-      setRutinas(allRutinas);
-      return;
+      setRutinas(allRutinas)
+      return
     }
-
-    const userId = Number(selectedUser.value);
-    const filtrado = allRutinas.filter(rutina =>
-      // comparo el ID del alumno con el ID seleccionado
-      Number(rutina.alumno.ID_Usuario) === userId
-    );
-
-    setRutinas(filtrado);
-  };
-
+    const userId = Number(selectedUser.value)
+    const filtrado = allRutinas.filter(r =>
+      Number(r.alumno.ID_Usuario) === userId
+    )
+    setRutinas(filtrado)
+  }
 
   if (loading) return <LoaderFullScreen />
 
@@ -122,85 +114,160 @@ const RutinasAsignadas = () => {
                   {rutina.bloques.map(bloque => (
                     <div key={bloque.ID_Bloque} className='bloque-card'>
 
-                      {/* SETS & REPS */}
+                      {/* SETS & REPS (igual que MiRutina) */}
                       {bloque.type === 'SETS_REPS' && (
-                        <>
-                          <p>
-                            {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
-                          </p>
-                          {bloque.ejercicios.map(ej => (
-                            <p key={ej.ID_Ejercicio}>
-                              {`${ej.ejercicio.nombre}: ${ej.reps} ${ej.setRepWeight}`}
-                            </p>
-                          ))}
-                        </>
+                        <div>
+                          {bloque.ejercicios.map(ej => {
+                            const name = ej.ejercicio.nombre
+                            const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                            return (
+                              <p key={ej.ID_Ejercicio}>
+                                {bloque.setsReps}{' '}
+                                {hasDetail ? (
+                                  <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    {name}
+                                  </Link>
+                                ) : (
+                                  name
+                                )}
+                              </p>
+                            )
+                          })}
+                        </div>
                       )}
 
-                      {/* ROUNDS */}
+                      {/* ROUNDS (igual que MiRutina) */}
                       {bloque.type === 'ROUNDS' && (
-                        <>
-                          <p>{`${bloque.cantRondas} rondas de:`}</p>
+                        <div>
+                          {(() => {
+                            const count = bloque.cantRondas ?? bloque.ejercicios[0]?.reps
+                            return count ? <p>{`${count} rondas de:`}</p> : null
+                          })()}
                           <ul style={{ paddingLeft: '20px' }}>
-                            <li>
-                              {`${bloque.setsReps} ${bloque.nombreEj || ''} ${bloque.weight || ''}`.trim()}
-                            </li>
-                            {bloque.ejercicios.map(ej => (
-                              <li key={ej.ID_Ejercicio}>
-                                {`${ej.ejercicio.nombre}: ${ej.reps} ${ej.setRepWeight}`}
-                              </li>
-                            ))}
+                            {bloque.ejercicios.map(ej => {
+                              const name = ej.ejercicio.nombre
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                              return (
+                                <li key={ej.ID_Ejercicio}>
+                                  {ej.reps}{' '}
+                                  {hasDetail ? (
+                                    <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      {name}
+                                    </Link>
+                                  ) : (
+                                    name
+                                  )}
+                                </li>
+                              )
+                            })}
                           </ul>
                           {bloque.descansoRonda != null && (
                             <p style={{ color: 'rgba(255,255,255,0.6)' }}>
                               {`con ${bloque.descansoRonda} segs de descanso`}
                             </p>
                           )}
-                        </>
+                        </div>
                       )}
 
-                      {/* AMRAP */}
-                      {bloque.type === 'AMRAP' && (
-                        <>
-                          <p>{`AMRAP ${bloque.durationMin}min:`}</p>
-                          <ul style={{ paddingLeft: '20px' }}>
-                            {bloque.ejercicios.map(ej => (
-                              <li key={ej.ID_Ejercicio}>
-                                {`${ej.ejercicio.nombre}: ${ej.reps} ${ej.setRepWeight}`}
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-
-                      {/* EMOM */}
+                      {/* EMOM (igual que MiRutina) */}
                       {bloque.type === 'EMOM' && (
-                        <>
+                        <div>
                           <p>{`EMOM ${bloque.durationMin}min:`}</p>
                           <ul style={{ paddingLeft: '20px' }}>
-                            {bloque.ejercicios.map((ej, idx) => (
-                              <li key={ej.ID_Ejercicio}>
-                                {`0-${idx}: ${ej.ejercicio.nombre} ${ej.reps} ${ej.setRepWeight}`}
-                              </li>
-                            ))}
+                            {bloque.ejercicios.map((ej, idx) => {
+                              const name = ej.ejercicio.nombre
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                              return (
+                                <li key={ej.ID_Ejercicio}>
+                                  {`0-${idx}: ${ej.reps} `}
+                                  {hasDetail ? (
+                                    <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      {name}
+                                    </Link>
+                                  ) : (
+                                    name
+                                  )}
+                                </li>
+                              )
+                            })}
                           </ul>
-                        </>
+                        </div>
                       )}
 
-                      {/* LADDER */}
+                      {/* AMRAP (igual que MiRutina) */}
+                      {bloque.type === 'AMRAP' && (
+                        <div>
+                          <p>{`AMRAP ${bloque.durationMin}min:`}</p>
+                          <ul style={{ paddingLeft: '20px' }}>
+                            {bloque.ejercicios.map(ej => {
+                              const name = ej.ejercicio.nombre
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                              return (
+                                <li key={ej.ID_Ejercicio}>
+                                  {ej.reps}{' '}
+                                  {hasDetail ? (
+                                    <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      {name}
+                                    </Link>
+                                  ) : (
+                                    name
+                                  )}
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* LADDER (igual que MiRutina) */}
                       {bloque.type === 'LADDER' && (
                         <>
                           <p>{bloque.tipoEscalera}</p>
                           <ul style={{ paddingLeft: '20px' }}>
-                            {bloque.ejercicios.map(ej => (
-                              <li key={ej.ID_Ejercicio}>{ej.setRepWeight}</li>
-                            ))}
+                            {bloque.ejercicios.map(ej => {
+                              const label = ej.setRepWeight ?? ej.ejercicio.nombre
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                              return (
+                                <li key={ej.ID_Ejercicio}>
+                                  {hasDetail ? (
+                                    <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      {label}
+                                    </Link>
+                                  ) : (
+                                    label
+                                  )}
+                                </li>
+                              )
+                            })}
                           </ul>
                         </>
                       )}
 
-                      {/* TABATA */}
+                      {/* TABATA — mantenemos el estilo y agregamos lista linkeable */}
                       {bloque.type === 'TABATA' && (
-                        <p>{`TABATA ${bloque.durationMin}min`}</p>
+                        <div>
+                          <p>{`TABATA ${bloque.durationMin}min:`}</p>
+                          {bloque.ejercicios?.length > 0 && (
+                            <ul style={{ paddingLeft: '20px' }}>
+                              {bloque.ejercicios.map(ej => {
+                                const name = ej.ejercicio.nombre
+                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                                return (
+                                  <li key={ej.ID_Ejercicio}>
+                                    {ej.reps ? `${ej.reps} ` : ''}
+                                    {hasDetail ? (
+                                      <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                        {name}
+                                      </Link>
+                                    ) : (
+                                      name
+                                    )}
+                                  </li>
+                                )
+                              })}
+                            </ul>
+                          )}
+                        </div>
                       )}
 
                     </div>

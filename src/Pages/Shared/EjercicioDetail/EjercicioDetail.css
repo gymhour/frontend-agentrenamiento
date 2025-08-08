@@ -91,3 +91,66 @@
         flex-wrap: wrap;
     }
 }
+
+.ejercicio-detail__media {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.4s ease-in;
+}
+
+.ejercicio-detail__section.card {
+    padding: 16px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    animation: fadeInUp 0.4s ease-in-out;
+}
+
+.ejercicio-detail__section h2 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    /* color: var(--primary-color, #ff6f3c); */
+}
+
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    background: var(--primary-color, #ff6f3c);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.chip:hover {
+    background: var(--primary-dark, #e65c28);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
