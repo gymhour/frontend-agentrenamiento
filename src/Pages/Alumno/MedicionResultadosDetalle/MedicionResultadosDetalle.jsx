@@ -22,6 +22,8 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
+import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
+import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg'
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams();
@@ -262,18 +264,15 @@ const MedicionResultadosDetalle = () => {
                   <td>{formatAsLocalDate(item.Fecha)}</td>
                   <td>{item.Cantidad}</td>
                   <td>
-                    <button
-                      onClick={() => handleDeleteClick(item.ID_HistoricoEjercicio)}
-                      className="btn-eliminar"
-                    >
-                      Eliminar
-                    </button>
-                    <button
-                      onClick={() => handleEditClick(item)}
-                      className="btn-editar"
-                    >
-                      Editar
-                    </button>
+                    <div className="medicion-detalle-actions">
+                      <div onClick={() => handleEditClick(item)} style={{ cursor: 'pointer' }}>
+                        <EditIcon width={18} height={18} />
+                      </div>
+                      <div onClick={() => handleDeleteClick(item.ID_HistoricoEjercicio)} style={{ cursor: 'pointer' }}>
+                        <DeleteIcon width={18} height={18} />
+                      </div>
+                    </div>
+                    
                   </td>
                 </tr>
               ))}
@@ -313,12 +312,8 @@ const MedicionResultadosDetalle = () => {
                 </div>
               </div>
               <div className="edit-popup-buttons">
-                <button onClick={closeEditPopup} className="popup-cancel-button">
-                  Cancelar
-                </button>
-                <button onClick={confirmEdit} className="popup-confirm-button">
-                  Confirmar
-                </button>
+                <SecondaryButton onClick={closeEditPopup} text="Cancelar"/>
+                <PrimaryButton onClick={confirmEdit} text="Confirmar"/>
               </div>
             </div>
           </div>,
