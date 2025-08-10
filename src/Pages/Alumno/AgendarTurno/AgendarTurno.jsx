@@ -9,6 +9,10 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast, ToastContainer } from 'react-toastify';
+import { registerLocale } from 'react-datepicker';
+import es from 'date-fns/locale/es';
+import 'react-datepicker/dist/react-datepicker.css';
+registerLocale('es', es);
 
 // Mapeo de días en español a índices de Date.getDay()
 const mapping = {
@@ -49,7 +53,7 @@ const AgendarTurno = () => {
   // Filtra las fechas permitidas: solo entre hoy y +7 días y días permitidos según la clase
   const filterDate = (date) => {
     const now = new Date();
-  
+
     const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const maxDateRaw = new Date();
     maxDateRaw.setDate(now.getDate() + 7);
@@ -58,22 +62,22 @@ const AgendarTurno = () => {
       maxDateRaw.getMonth(),
       maxDateRaw.getDate()
     );
-  
+
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  
+
     if (dateOnly < todayOnly || dateOnly > maxDateOnly) {
       return false;
     }
-  
+
     if (selectedClase) {
       const clase = clases.find(c => c.nombre === selectedClase);
       if (!clase) return false;
-  
+
       const allowedDays = clase.HorariosClase.map(h => mapping[h.diaSemana]);
       if (!allowedDays.includes(date.getDay())) {
         return false;
       }
-  
+
       if (dateOnly.getTime() === todayOnly.getTime()) {
         const hasFutureSlot = clase.HorariosClase.some(h => {
           const utcInicio = new Date(h.horaIni);
@@ -87,13 +91,13 @@ const AgendarTurno = () => {
         });
         return hasFutureSlot;
       }
-  
+
       return true;
     }
-  
+
     return true;
   };
-  
+
 
   // Filtra las horas disponibles según el horario de la clase para el día seleccionado
   const filterTime = (time) => {
@@ -118,11 +122,11 @@ const AgendarTurno = () => {
     const dia = date.getDay();
     const clase = clases.find(c => c.nombre === selectedClase);
     if (!clase) return [];
-  
+
     const horario = clase.HorariosClase
       .find(h => mapping[h.diaSemana] === dia);
     if (!horario) return [];
-  
+
     // parse UTC y crear un Date local con la misma fecha + hora de inicio
     const utcInicio = new Date(horario.horaIni);
     const localStart = new Date(date);
@@ -131,16 +135,16 @@ const AgendarTurno = () => {
       utcInicio.getUTCMinutes(),
       0, 0
     );
-  
-    return [ localStart ];
-  };  
+
+    return [localStart];
+  };
 
   // al principio del archivo
   const formatLocalISO = (date) => {
-    const pad = n => String(n).padStart(2,'0');
+    const pad = n => String(n).padStart(2, '0');
     return [
       date.getFullYear(),
-      '-', pad(date.getMonth()+1),
+      '-', pad(date.getMonth() + 1),
       '-', pad(date.getDate()),
       'T', pad(date.getHours()),
       ':', pad(date.getMinutes()),
@@ -228,23 +232,21 @@ const AgendarTurno = () => {
               onChange={(date) => setSelectedDateTime(date)}
               showTimeSelect
               dateFormat="dd/MM/yyyy HH:mm"
+              locale="es"                 // 👈 clave
+              timeCaption="Hora"          // etiqueta del selector de hora
+              placeholderText="Selecciona fecha y hora"
               filterDate={filterDate}
               includeTimes={selectedDateTime ? getAllowedTimes(selectedDateTime) : []}
               minDate={new Date()}
-              maxDate={(() => {
-                const d = new Date();
-                d.setDate(d.getDate() + 7);
-                return d;
-              })()}
-              placeholderText="Selecciona fecha y hora"
+              maxDate={(() => { const d = new Date(); d.setDate(d.getDate() + 7); return d; })()}
               className="custom-date-picker-input"
               disabled={!selectedClase}
             />
           </div>
 
-          <PrimaryButton 
-            onClick={manejarAgendarTurno} 
-            text={isAgendando ? 'Agendando...' : 'Agendar turno'} 
+          <PrimaryButton
+            onClick={manejarAgendarTurno}
+            text={isAgendando ? 'Agendando...' : 'Agendar turno'}
           />
         </div>
       </div>

@@ -111,8 +111,13 @@ const CuotasUsuarios = () => {
     try {
       const params = {};
       if (filterEmail) params.email = filterEmail;
-      // Revisar esto - filtros en la API
-      if (filterEstado) params.estado = filterEstado;
+
+      if (filterEstado === 'vencida') {
+        params.vencida = true;
+      } else if (filterEstado) {
+        params.estado = filterEstado;
+      }
+
       if (filterPlan) params.plan = filterPlan;
       if (filterMesDate) params.mes = buildMesString(filterMesDate);
       params.page = page;
