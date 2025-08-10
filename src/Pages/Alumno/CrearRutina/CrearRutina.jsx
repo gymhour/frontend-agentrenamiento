@@ -114,69 +114,76 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   // Objetos iniciales para cada tipo de bloque
   const initialBlockData = {
     'Series y repeticiones': { setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
-    'Rondas': { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
-    'EMOM': { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
-    'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
-    'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise() }] },
+    'Rondas':  { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'EMOM':    { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'AMRAP':   { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'Escalera':{ escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
   };
 
   // Convertir bloque API a data interna
-  const convertApiBlockData = b => {
-    // Si es escalera, solo mapeamos ejercicios (no metemos el empty placeholder)
-    if (b.type === 'LADDER') {
+const convertApiBlockData = (b) => {
+  // Normalizamos la lista de ejercicios del bloque desde la API
+  const items = Array.isArray(b.bloqueEjercicios) ? b.bloqueEjercicios
+              : Array.isArray(b.ejercicios) ? b.ejercicios
+              : [];
+
+  // Mapeamos al formato interno que usás en el UI
+  const mappedSets = items.map((e) => {
+    const nombreEj = e.setRepWeight ?? e?.ejercicio?.nombre ?? e?.nombre ?? '';
+    const idEj     = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? null;
+    const reps     = e.reps ?? e.setsReps ?? ''; // por si en algún caso viene como setsReps
+
+    return {
+      series: reps,                 // tu input "ej. 3x12"
+      exercise: nombreEj,           // nombre visible
+      placeholderExercise: '',      // ya tenemos valor real
+      exerciseId: idEj,             // clave para enviar al guardar
+    };
+  });
+
+  switch (b.type) {
+    case 'SETS_REPS':
+      // En algunos backends venía nombreEj/setsReps al nivel del bloque
+      if (mappedSets.length === 0 && (b.nombreEj || b.setsReps)) {
+        mappedSets.push({
+          series: b.setsReps || '',
+          exercise: b.nombreEj || '',
+          placeholderExercise: '',
+          exerciseId: null
+        });
+      }
+      return { setsReps: mappedSets };
+
+    case 'ROUNDS':
       return {
-        escaleraType: b.tipoEscalera || '',
-        setsReps: (b.ejercicios || []).map(e => ({
-          series: '',
-          exercise: e.setRepWeight,
-          placeholderExercise: ''
-        }))
+        rounds: b.cantRondas ?? '',
+        descanso: b.descansoRonda ?? '',
+        setsReps: mappedSets,
       };
-    }
 
-    // Para los demás tipos, mantenemos la lógica previa
-    const common = [];
-    if (b.nombreEj || b.setsReps !== undefined) {
-      common.push({
-        series: b.setsReps || '',
-        exercise: b.nombreEj || '',
-        placeholderExercise: '',
-        exerciseId: null
-      });
-    }
-    (b.ejercicios || []).forEach(e => {
-      common.push({
-        series: e.reps,
-        exercise: e.setRepWeight,
-        placeholderExercise: '',
-        exerciseId: null
-      });
-    });
+    case 'EMOM':
+      return {
+        interval: '', // si tu backend no lo guarda, lo dejamos vacío
+        totalMinutes: b.durationMin ?? '',
+        setsReps: mappedSets,
+      };
 
-    switch (b.type) {
-      case 'SETS_REPS':
-        return { setsReps: common };
-      case 'ROUNDS':
-        return {
-          rounds: b.cantRondas || '',
-          descanso: b.descansoRonda || '',
-          setsReps: common
-        };
-      case 'EMOM':
-        return {
-          interval: '',
-          totalMinutes: b.durationMin || '',
-          setsReps: common
-        };
-      case 'AMRAP':
-        return {
-          duration: b.durationMin || '',
-          setsReps: common
-        };
-      default:
-        return { setsReps: common };
-    }
-  };
+    case 'AMRAP':
+      return {
+        duration: b.durationMin ?? '',
+        setsReps: mappedSets,
+      };
+
+    case 'LADDER':
+      return {
+        escaleraType: b.tipoEscalera ?? '',
+        setsReps: mappedSets,
+      };
+
+    default:
+      return { setsReps: mappedSets };
+  }
+};
 
 
   const handleSelectDia = (dia) => {
@@ -218,22 +225,48 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     setLoading(true);
     try {
       const resp = await apiService.getRutinaById(rutinaId);
-      // step 1 data
-      setFormData({ nombre: resp.nombre, descripcion: resp.desc });
-      setSelectedDias(resp.DiasRutina);
-      setSelectedClase(resp.claseRutina || "");
-      setSelectedGrupoMuscular(resp.grupoMuscularRutina || "");
+      const r = resp?.rutina ?? resp; // soporta ambas respuestas
+  
+      // Step 1
+      setFormData({ nombre: r.nombre || '', descripcion: r.desc || '' });
+      setSelectedDias(Array.isArray(r.DiasRutina) ? r.DiasRutina : []);
+      setSelectedClase(r.claseRutina || "");
+      setSelectedGrupoMuscular(r.grupoMuscularRutina || "");
+  
       if (fromEntrenador) {
-        const user = users.find(u => u.ID_Usuario === resp.ID_Usuario);
-        setSelectedEmail(user?.email || null);
+        // Intentamos tomar email directo si el backend lo provee
+        const alumnoEmail = r?.alumno?.email ?? r?.alumnoEmail ?? null;
+        const alumnoId    = r?.ID_Usuario ?? r?.alumno?.ID_Usuario ?? null;
+  
+        let selected = null;
+  
+        if (alumnoEmail) {
+          selected = alumnoEmail;
+        } else if (alumnoId) {
+          const u = users.find(u => u.ID_Usuario === alumnoId);
+          selected = u?.email ?? null;
+        } else if (r?.alumno?.nombre || r?.alumno?.apellido) {
+          // Fallback por nombre+apellido (no ideal, pero evita perderlo visualmente)
+          const full = `${r?.alumno?.nombre ?? ''}`.trim().toLowerCase() + '|' + `${r?.alumno?.apellido ?? ''}`.trim().toLowerCase();
+          const u = users.find(u => (`${u.nombre}`.trim().toLowerCase() + '|' + `${u.apellido}`.trim().toLowerCase()) === full && u.tipo === 'cliente');
+          selected = u?.email ?? null;
+        }
+  
+        setSelectedEmail(selected);
       }
-      // step 2 blocks
-      const loaded = resp.Bloques.map(b => ({
-        id: b.ID_Bloque,
-        type: apiToDisplayType[b.type] || b.type,
-        data: convertApiBlockData(b)
-      }));
+  
+      // Step 2 - Bloques
+      const loaded = Array.isArray(r.Bloques)
+        ? r.Bloques.map(b => ({
+            id: b.ID_Bloque,
+            type: apiToDisplayType[b.type] || b.type,
+            data: convertApiBlockData(b)
+          }))
+        : [];
+  
       setBlocks(loaded);
+  
+      // Volvemos al paso 1 para que el usuario vea los datos cargados
       setStep(1);
     } catch {
       toast.error('No se pudo cargar la rutina para editar');
@@ -241,6 +274,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       setLoading(false);
     }
   };
+  
 
   // --- STEP 1: Continuar ---
   const handleContinue = (e) => {
@@ -527,6 +561,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       if (isEditing) {
         await apiService.editRutina(rutinaId, data);
         toast.success('Rutina actualizada correctamente');
+  
+        if (fromEntrenador) {
+          navigate('/entrenador/rutinas-asignadas');
+        } 
+
       } else {
         await apiService.createRutina(data);
         toast.success('Rutina creada correctamente');
