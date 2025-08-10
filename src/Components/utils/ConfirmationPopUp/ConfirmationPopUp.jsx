@@ -9,7 +9,8 @@ const ConfirmationPopup = ({
   onConfirm,
   message,
   options = [],
-  placeholderOption = "Selecciona una opción"
+  placeholderOption = "Selecciona una opción",
+  children,
 }) => {
   const [selectedOption, setSelectedOption] = useState("");
 
@@ -17,20 +18,36 @@ const ConfirmationPopup = ({
     if (!isOpen) setSelectedOption("");
   }, [isOpen]);
 
+  // Cerrar con ESC
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleConfirm = () => {
     const estadoBool = selectedOption === "Activar";
-    onConfirm(estadoBool);
+    onConfirm?.(estadoBool);
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target.classList.contains("confirmation-popup-overlay")) {
+      onClose?.();
+    }
   };
 
   return ReactDOM.createPortal(
-    <div className="confirmation-popup-overlay">
-      <div className="confirmation-popup">
+    <div className="confirmation-popup-overlay" onClick={handleOverlayClick}>
+      <div className="confirmation-popup" role="dialog" aria-modal="true">
         <p>{message}</p>
 
         {options.length > 0 && (
-          <div className="confirmation-popup-dropdown" style={{margin: '16px 0px'}}>
+          <div className="confirmation-popup-dropdown" style={{ margin: "16px 0px" }}>
             <CustomDropdown
               options={options}
               value={selectedOption}
@@ -39,6 +56,8 @@ const ConfirmationPopup = ({
             />
           </div>
         )}
+
+        {children}
 
         <div className="confirmation-popup-buttons">
           <div className="popup-btns-ctn">

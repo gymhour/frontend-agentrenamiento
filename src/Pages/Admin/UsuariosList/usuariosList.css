@@ -1,7 +1,7 @@
-.usuarios-table {
+/* .usuarios-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* importante para que respete los anchos del colgroup */
+    table-layout: fixed; 
 }
 
 .usuarios-table tr {
@@ -10,9 +10,9 @@
 
 .usuarios-table th, .usuarios-table td {
     padding: 8px;
-    overflow: hidden;         /* evita que el contenido se desborde */
-    text-overflow: ellipsis;  /* muestra "..." si es muy largo */
-    white-space: nowrap;      /* evita que se corte en varias líneas */
+    overflow: hidden;     
+    text-overflow: ellipsis;  
+    white-space: nowrap;    
     font-size: 14px;
 }
 
@@ -52,4 +52,186 @@
     .filtros-form {
         justify-content: center;
     }
-}
+} */
+
+/* CONTENEDOR SCROLL HORIZONTAL EN VIEWPORTS CHICOS */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* TABLA BASE */
+  .usuarios-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* respeta colgroup */
+  }
+  
+  .usuarios-table tr {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .usuarios-table th,
+  .usuarios-table td {
+    padding: 8px;
+    overflow: hidden;         /* evita desborde */
+    text-overflow: ellipsis;  /* "..." */
+    white-space: nowrap;      /* 1 línea por celda en desktop */
+    font-size: 14px;
+    vertical-align: middle;
+  }
+  
+  .usuarios-table th {
+    background-color: rgba(52, 52, 52, 0.8);
+    text-align: left;
+  }
+  
+  .usuarios-table-userimage {
+    border-radius: 50px;
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+  }
+  
+  .usuarios-table-email {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .usuarios-table-email-text {
+    min-width: 0;           /* para que elipsis funcione dentro del flex */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .usuarios-table-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  /* FILTROS */
+  .usuarios-filtros-form-inputs-ctn {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .btn-page {
+    background-color: transparent;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* ====== RESPONSIVE ====== */
+  
+  /* 1) Ajustes suaves para tablets/phones: permitir 2 líneas en celdas largas */
+  @media screen and (max-width: 900px) {
+    .usuarios-table th,
+    .usuarios-table td {
+      white-space: nowrap;
+    }
+  
+    /* deja respirar la columna de email */
+    .usuarios-table-email-text {
+      max-width: 280px;
+    }
+  }
+  
+  /* 2) Card view debajo de ~700px: se apilan filas y se muestran labels con data-label */
+  @media screen and (max-width: 700px) {
+    /* Ocultamos el thead pero lo mantenemos accesible para lectores (opcional) */
+    .usuarios-table thead {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+    }
+  
+    .usuarios-table,
+    .usuarios-table tbody,
+    .usuarios-table tr,
+    .usuarios-table td {
+      display: block;
+      width: 100%;
+    }
+  
+    .usuarios-table tr {
+      margin: 0 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+    }
+  
+    .usuarios-table td {
+      /* permitimos varias líneas en mobile */
+      white-space: normal;
+      padding: 12px 12px 12px 44%;
+      position: relative;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      min-height: 44px;
+    }
+  
+    .usuarios-table td:last-child {
+      border-bottom: none;
+    }
+  
+    /* label a la izquierda de cada celda */
+    .usuarios-table td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      width: 40%;
+      font-weight: 600;
+      opacity: 0.85;
+      line-height: 1.2;
+    }
+  
+    /* email y avatar: acomodar dentro de card */
+    .usuarios-table-email {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  
+    .usuarios-table-userimage {
+      width: 32px;
+      height: 32px;
+    }
+  
+    /* acciones: que respiren y no se aprieten */
+    .usuarios-table-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+    }
+  
+    /* paginación touch-friendly */
+    .btn-page {
+      padding: 12px;
+    }
+  }
+  
+  /* 3) Ajustes de filtros en pantallas muy chicas */
+  @media screen and (max-width: 500px) {
+    .usuarios-filtros-form-inputs-ctn {
+      width: 100%;
+    }
+    .usuarios-filtros-form-inputs-ctn input {
+      width: 100%;
+    }
+    .filtros-form {
+      justify-content: center;
+    }
+  }  

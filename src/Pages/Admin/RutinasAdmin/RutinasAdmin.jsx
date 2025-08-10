@@ -115,7 +115,7 @@ const RutinasAdmin = () => {
                               <p key={ej.ID_Ejercicio}>
                                 {bloque.setsReps}{' '}
                                 {hasDetail ? (
-                                  <Link to={`/admin/ejercicio/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                  <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                     {name}
                                   </Link>
                                 ) : (
@@ -142,7 +142,7 @@ const RutinasAdmin = () => {
                                 <li key={ej.ID_Ejercicio}>
                                   {ej.reps}{' '}
                                   {hasDetail ? (
-                                    <Link to={`/admin/ejercicio/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                       {name}
                                     </Link>
                                   ) : (
@@ -172,7 +172,7 @@ const RutinasAdmin = () => {
                                 <li key={ej.ID_Ejercicio}>
                                   {`0-${idx}: ${ej.reps} `}
                                   {hasDetail ? (
-                                    <Link to={`/admin/ejercicio/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                       {name}
                                     </Link>
                                   ) : (
@@ -197,7 +197,7 @@ const RutinasAdmin = () => {
                                 <li key={ej.ID_Ejercicio}>
                                   {ej.reps}{' '}
                                   {hasDetail ? (
-                                    <Link to={`/admin/ejercicio/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                       {name}
                                     </Link>
                                   ) : (
@@ -221,7 +221,7 @@ const RutinasAdmin = () => {
                               return (
                                 <li key={ej.ID_Ejercicio}>
                                   {hasDetail ? (
-                                    <Link to={`/admin/ejercicio/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                       {label}
                                     </Link>
                                   ) : (
@@ -247,7 +247,7 @@ const RutinasAdmin = () => {
                                   <li key={ej.ID_Ejercicio}>
                                     {ej.reps ? `${ej.reps} ` : ''}
                                     {hasDetail ? (
-                                      <Link to={`/admin/ejercicio/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                         {name}
                                       </Link>
                                     ) : (

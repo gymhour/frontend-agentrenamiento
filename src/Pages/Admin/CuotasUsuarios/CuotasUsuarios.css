@@ -69,6 +69,10 @@
   color: #62BD66;
 }
 
+.accion-button:disabled {
+  color: #445345;
+}
+
 .accion-button.delete {
   background-color: #101010;
   border: none;
