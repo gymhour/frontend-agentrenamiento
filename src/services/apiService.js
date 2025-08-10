@@ -224,7 +224,16 @@ const getEjerciciosResultadosUsuario = async (usuarioId) => {
 
 const deleteEjerciciosResultados = async (id) => {
     try {
-        const response = await apiClient.delete(`/ejercicios-resultados/${id}`);
+        const response = await apiClient.delete(`/historicoEjercicio/${id}`);
+        return response.data;
+    } catch (err) {
+        throw new Error("Error al traer ejercicios y resultados");
+    }
+}
+
+const putEjercicioResultado = async (id, body) => {
+    try {
+        const response = await apiClient.put(`/historicoEjercicio/${id}`, body);
         return response.data;
     } catch (err) {
         throw new Error("Error al traer ejercicios y resultados");
@@ -396,6 +405,7 @@ export default {
     getEjerciciosResultados,
     getEjerciciosResultadosUsuario,
     deleteEjerciciosResultados,
+    putEjercicioResultado,
     postEjercicio,
     deleteEjercicio,
     postEjercicioResultado,

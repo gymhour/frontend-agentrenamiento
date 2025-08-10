@@ -28,9 +28,9 @@ const RutinasRecomendadas = () => {
   useEffect(() => {
     const fetchRutinas = async () => {
       try {
-        const { rutinas: allRutinas } = await apiService.getRutinas();
-        // Solo rutinas que tengan entrenador (recomendadas por alguien)
-        setRutinas(allRutinas.filter(r => r.entrenador));
+        const adminId = 18;
+        const { rutinas: allRutinas } = await apiService.getUserRutinas(adminId);
+        setRutinas(allRutinas || []);
       } catch (error) {
         console.error('Error al obtener rutinas:', error);
       } finally {

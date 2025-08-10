@@ -27,7 +27,7 @@ const Login = () => {
     setIsLoading(true);
   
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
+      const response = await authClient.post('/auth/login', { email, password });
       const token = response.data.token;
   
       // Almacena el token en localStorage

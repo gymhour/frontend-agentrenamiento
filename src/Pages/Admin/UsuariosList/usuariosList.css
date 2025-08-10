@@ -1,6 +1,7 @@
 .usuarios-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* importante para que respete los anchos del colgroup */
 }
 
 .usuarios-table tr {
@@ -9,6 +10,10 @@
 
 .usuarios-table th, .usuarios-table td {
     padding: 8px;
+    overflow: hidden;         /* evita que el contenido se desborde */
+    text-overflow: ellipsis;  /* muestra "..." si es muy largo */
+    white-space: nowrap;      /* evita que se corte en varias líneas */
+    font-size: 14px;
 }
 
 .usuarios-table th {
@@ -20,6 +25,7 @@
     border-radius: 50px;
     width: 35px;
     height: 35px;
+    flex-shrink: 0;
 }
 
 .usuarios-filtros-form-inputs-ctn {

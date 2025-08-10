@@ -14,15 +14,23 @@ const EjercicioCard = ({
   // Extrae el ID de YouTube para el embed
   function extractVideoId(url) {
     const reg = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]+)/;
-    const m = url.match(reg);
+    const m = url?.match?.(reg);
     return m ? m[1] : '';
   }
+
+  const handleView = (e) => {
+    e.stopPropagation();
+    onClick?.();
+  };
 
   return (
     <div
       className="exercise-card"
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => (e.key === 'Enter' ? onClick() : null) : undefined}
     >
       <div className="exercise-card__media">
         {youtubeUrl ? (
@@ -50,34 +58,41 @@ const EjercicioCard = ({
         </p>
       </div>
 
-      {(onEdit || onDelete) && (
-        <div className="exercise-card__actions">
-          {onEdit && (
-            <button
-              type="button"
-              className="action-btn edit"
-              onClick={e => {
-                e.stopPropagation();
-                onEdit(ejercicio);
-              }}
-            >
-              Editar
-            </button>
-          )}
-          {onDelete && (
-            <button
-              type="button"
-              className="action-btn delete"
-              onClick={e => {
-                e.stopPropagation();
-                onDelete(ejercicio);
-              }}
-            >
-              Eliminar
-            </button>
-          )}
-        </div>
-      )}
+      <div className="exercise-card__footer">
+        {onClick && (
+          <button
+            type="button"
+            className="action-btn view"
+            onClick={(e) => { e.stopPropagation(); onClick(); }}
+          >
+            Ver
+          </button>
+        )}
+
+        {(onEdit || onDelete) && (
+          <div className="exercise-card__actions">
+            {onEdit && (
+              <button
+                type="button"
+                className="action-btn edit"
+                onClick={(e) => { e.stopPropagation(); onEdit(ejercicio); }}
+              >
+                Editar
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                className="action-btn delete"
+                onClick={(e) => { e.stopPropagation(); onDelete(ejercicio); }}
+              >
+                Eliminar
+              </button>
+            )}
+          </div>
+        )}
+
+      </div>
     </div>
   );
 };

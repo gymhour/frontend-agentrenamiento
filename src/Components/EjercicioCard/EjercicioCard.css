@@ -1,3 +1,5 @@
+@import url(../../variables.css);
+
 .exercise-card {
     background-color: #000;
     border: 1px solid #333;
@@ -10,9 +12,9 @@
     max-width: 300px;
     transition: all ease-in-out 150ms;
 }
-.exercise-card:hover {
+/* .exercise-card:hover {
     background-color: #202020;
-}
+} */
 
 .exercise-card__media {
     width: 100%;
@@ -75,3 +77,33 @@
 .action-btn.delete {
     color: #e74c3c;
 }
+
+.exercise-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
+    padding: 0 12px 12px;
+  }
+  
+  .action-btn {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  
+  .action-btn.view {
+    font-weight: 500;
+    background: var(--primary-color); color: #fff; 
+  }
+  .action-btn.view:hover { opacity: 0.9; }
+  .exercise-card__actions {
+    display: flex;
+    gap: .5rem;
+  }
+  .action-btn.edit { background: var(--primary-color); color: #fff; }
+  .action-btn.delete { background: none; color: #fff; }
+  .action-btn.edit:hover, .action-btn.delete:hover { opacity: 0.9; }
+  

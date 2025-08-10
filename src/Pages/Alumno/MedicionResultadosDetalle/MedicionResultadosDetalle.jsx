@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
@@ -53,25 +53,26 @@ const MedicionResultadosDetalle = () => {
   };
   const formatAsLocalDate = (d) => parseDateString(d).toLocaleDateString();
 
-  useEffect(() => {
-    const fetchEjercicio = async () => {
-      setLoading(true);
-      try {
-        const res = await apiClient.get('/ejercicios-resultados');
-        const data = res.data;
-        const found = data.find(
-          (item) => item.ID_EjercicioMedicion === parseInt(id, 10)
-        );
-        if (!found) throw new Error('No se encontró el ejercicio');
-        setEjercicio(found);
-      } catch (err) {
-        toast.error(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEjercicio();
+  const fetchEjercicio = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await apiClient.get('/ejercicios-resultados');
+      const data = res.data;
+      const found = data.find(
+        (item) => item.ID_EjercicioMedicion === parseInt(id, 10)
+      );
+      if (!found) throw new Error('No se encontró el ejercicio');
+      setEjercicio(found);
+    } catch (err) {
+      toast.error(err.message || 'Error al obtener el ejercicio.');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    fetchEjercicio();
+  }, [fetchEjercicio]);
 
   const historico = ejercicio?.HistoricoEjercicios ?? [];
   const sortedAsc = [...historico].sort(
@@ -111,8 +112,9 @@ const MedicionResultadosDetalle = () => {
       setNuevaCantidad('');
       setNuevaFecha('');
       toast.success('Medición cargada correctamente.');
+      await fetchEjercicio();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || 'Error al agregar la medición.');
     } finally {
       setLoading(false);
     }
@@ -137,8 +139,10 @@ const MedicionResultadosDetalle = () => {
         )
       }));
       toast.success('Medición eliminada correctamente.');
+
+      await fetchEjercicio();
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || 'Error al eliminar la medición.');
     } finally {
       setLoading(false);
       closePopup();
@@ -156,13 +160,37 @@ const MedicionResultadosDetalle = () => {
     setIsEditOpen(false);
     setItemToEdit(null);
   };
-  const confirmEdit = () => {
-    console.log('Editar medición:', {
-      id: itemToEdit.ID_HistoricoEjercicio,
-      cantidad: editCantidad,
-      fecha: editFecha
-    });
-    closeEditPopup();
+
+  const confirmEdit = async () => {
+    if (!itemToEdit) return;
+
+    const body = {
+      Cantidad: Number(editCantidad),
+      Fecha: editFecha
+    };
+
+    setLoading(true);
+    try {
+      await apiService.putEjercicioResultado(itemToEdit.ID_HistoricoEjercicio, body);
+
+      setEjercicio((prev) => ({
+        ...prev,
+        HistoricoEjercicios: prev.HistoricoEjercicios.map(h =>
+          h.ID_HistoricoEjercicio === itemToEdit.ID_HistoricoEjercicio
+            ? { ...h, Cantidad: Number(editCantidad), Fecha: editFecha }
+            : h
+        )
+      }));
+
+      toast.success('Medición actualizada correctamente.');
+      closeEditPopup();
+
+      await fetchEjercicio();
+    } catch (err) {
+      toast.error(err.message || 'Error al actualizar la medición.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -170,7 +198,7 @@ const MedicionResultadosDetalle = () => {
       <SidebarMenu isAdmin={false} />
       {loading && <LoaderFullScreen />}
 
-      <div className="content-layout detalle-container">
+      <div className="content-layout detalle-container" aria-busy={loading}>
         <div className="detalle-header">
           <SecondaryButton
             linkTo="/alumno/medicion-resultados"
@@ -204,7 +232,7 @@ const MedicionResultadosDetalle = () => {
               />
             </div>
             <div className="nuevo-resultado-form-btns">
-              <PrimaryButton text="Agregar" />
+              <PrimaryButton text="Agregar" disabled={loading} />
             </div>
           </form>
         </div>
@@ -265,14 +293,25 @@ const MedicionResultadosDetalle = () => {
                   <td>{item.Cantidad}</td>
                   <td>
                     <div className="medicion-detalle-actions">
-                      <div onClick={() => handleEditClick(item)} style={{ cursor: 'pointer' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleEditClick(item)}
+                        style={{ cursor: 'pointer', background: 'transparent', border: 'none', padding: 0 }}
+                        title="Editar"
+                        disabled={loading}
+                      >
                         <EditIcon width={18} height={18} />
-                      </div>
-                      <div onClick={() => handleDeleteClick(item.ID_HistoricoEjercicio)} style={{ cursor: 'pointer' }}>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteClick(item.ID_HistoricoEjercicio)}
+                        style={{ cursor: 'pointer', background: 'transparent', border: 'none', padding: 0, marginLeft: 8 }}
+                        title="Eliminar"
+                        disabled={loading}
+                      >
                         <DeleteIcon width={18} height={18} />
-                      </div>
+                      </button>
                     </div>
-                    
                   </td>
                 </tr>
               ))}
@@ -312,8 +351,8 @@ const MedicionResultadosDetalle = () => {
                 </div>
               </div>
               <div className="edit-popup-buttons">
-                <SecondaryButton onClick={closeEditPopup} text="Cancelar"/>
-                <PrimaryButton onClick={confirmEdit} text="Confirmar"/>
+                <SecondaryButton onClick={closeEditPopup} text="Cancelar" />
+                <PrimaryButton onClick={confirmEdit} text="Confirmar" disabled={loading} />
               </div>
             </div>
           </div>,

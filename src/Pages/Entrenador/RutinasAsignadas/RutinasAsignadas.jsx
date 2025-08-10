@@ -8,6 +8,7 @@ import './RutinasAsignadas.css'
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton'
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
 import { useNavigate, Link } from 'react-router-dom'
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton'
 
 const RutinasAsignadas = () => {
   const [loading, setLoading] = useState(false)
@@ -59,6 +60,11 @@ const RutinasAsignadas = () => {
     setRutinas(filtrado)
   }
 
+  const limpiarFiltros = () => {
+    setSelectedUser(null);
+    setRutinas(allRutinas);
+  };
+  
   if (loading) return <LoaderFullScreen />
 
   return (
@@ -84,6 +90,7 @@ const RutinasAsignadas = () => {
             isSearchable
           />
           <PrimaryButton onClick={handleSearch} text="Buscar" />
+          <SecondaryButton onClick={limpiarFiltros} text="Limpiar filtros" />
         </div>
 
         {/* ——— Listado de rutinas ——— */}

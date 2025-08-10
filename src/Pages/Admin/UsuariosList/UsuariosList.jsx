@@ -22,8 +22,9 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
   const defaultAvatar = "https://..."; // tu URL
   const opcionesTipo = fromAdmin ? ['Cliente', 'Entrenador', 'Admin'] : ['Cliente'];
   const [showFilters, setShowFilters] = useState(false);
+  const [draftFiltros, setDraftFiltros] = useState(filtros); 
 
-  const fetchUsuarios = async () => {
+  const fetchUsuarios = React.useCallback(async () => {
     setLoading(true);
     try {
       // Armamos sólo los parámetros que tienen valor
@@ -34,25 +35,39 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
       if (filtros.email) params.email = filtros.email;
       params.page = page;
 
-      const response = await apiClient.get('/usuarios', { params });
-      const lista = response.data.data || [];
-      const listaUsuariosClientes = lista.filter(u => u.tipo === "cliente")
+      const { data } = await apiClient.get('/usuarios', { params });
+      const lista = data.data || [];
+      const listaUsuariosClientes = lista.filter(u => u.tipo === "cliente");
 
       setUsuarios(fromAdmin ? lista : listaUsuariosClientes);
-      const pageSize = lista.length;
-      setHasMore(pageSize > 0);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error al obtener los usuarios:', error);
+      setHasMore(lista.length > 0);
+    } catch (err) {
+      console.error('Error al obtener los usuarios:', err);
+    } finally {
       setLoading(false);
     }
+  }, [filtros, page, fromAdmin]);
+
+  useEffect(() => { fetchUsuarios(); }, [fetchUsuarios]);
+
+  const handleChangeDraft = (e) =>
+    setDraftFiltros(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const aplicarFiltros = (e) => {
+    e.preventDefault();
+    setPage(1);
+    setFiltros(draftFiltros);
   };
 
-  useEffect(() => { fetchUsuarios(); }, [page]);
+  const limpiarFiltros = () => {
+    const empty = { tipo: '', nombre: '', apellido: '', email: '' };
+    setDraftFiltros(empty);
+    setFiltros(empty);
+    setPage(1);
+  };
 
   const handleChangeFiltro = e =>
     setFiltros(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  const aplicarFiltros = e => { e.preventDefault(); setPage(1); fetchUsuarios(); };
 
   // 2) Actualizar estado localmente y en backend
   const updateUsuarioEstado = async (id, nuevoEstado) => {
@@ -119,15 +134,14 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
 
         {
           showFilters &&
-          <form className="filtros-form" onSubmit={aplicarFiltros} style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {/* Select de tipo */}
+          <form className="filtros-form" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <div className='usuarios-filtros-form-inputs-ctn'>
               <label htmlFor="tipo">Tipo:</label>
               <CustomDropdown
                 id="tipo"
                 name="tipo"
-                value={filtros.tipo}
-                onChange={handleChangeFiltro}
+                value={draftFiltros.tipo}
+                onChange={handleChangeDraft}
                 options={opcionesTipo}
                 placeholderOption="— Todos —"
               />
@@ -139,8 +153,8 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
                 type="text"
                 id="nombre"
                 name="nombre"
-                value={filtros.nombre}
-                onChange={handleChangeFiltro}
+                value={draftFiltros.nombre}
+                onChange={handleChangeDraft}
                 placeholder="Ej: Luis"
               />
             </div>
@@ -152,8 +166,8 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
                 type="text"
                 id="apellido"
                 name="apellido"
-                value={filtros.apellido}
-                onChange={handleChangeFiltro}
+                value={draftFiltros.apellido}
+                onChange={handleChangeDraft}
                 placeholder="Ej: Carvi"
               />
             </div>
@@ -165,15 +179,15 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
                 type="text"
                 id="email"
                 name="email"
-                value={filtros.email}
-                onChange={handleChangeFiltro}
+                value={draftFiltros.email}
+                onChange={handleChangeDraft}
                 placeholder="Ej: vdev@gmail.com"
               />
             </div>
 
-            {/* Botón para aplicar filtros */}
-            <div style={{ alignSelf: 'flex-end' }}>
-              <PrimaryButton onClick={fetchUsuarios} text="Aplicar filtros" />
+            <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px' }}>
+              <PrimaryButton onClick={aplicarFiltros} text="Aplicar filtros"/>
+              <SecondaryButton className="secondary-btn" onClick={limpiarFiltros} text="Limpiar filtros"/>
             </div>
           </form>
         }
@@ -183,9 +197,20 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
           <p>No hay usuarios para mostrar.</p>
         ) : (
           <table className='usuarios-table'>
+            <colgroup>
+              <col style={{ width: '5%' }} />   {/* ID */}
+              <col style={{ width: '14%' }} />  {/* Nombre y apellido */}
+              <col style={{ width: '28%' }} />  {/* Email */}
+              <col style={{ width: '10%' }} />  {/* Tipo */}
+              <col style={{ width: '10%' }} />  {/* Plan */}
+              <col style={{ width: '10%' }} />  {/* Registro */}
+              <col style={{ width: '8%' }} />  {/* Estado */}
+              {fromAdmin && <col style={{ width: '25%' }} />} {/* Acciones */}
+            </colgroup>
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Nombre y apellido</th>
                 <th>Email</th>
                 <th>Tipo</th>
                 <th>Plan</th>
@@ -198,6 +223,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
               {usuarios.map(u => (
                 <tr key={u.ID_Usuario}>
                   <td>{u.ID_Usuario}</td>
+                  <td style={{ textTransform: 'capitalize' }}>{u.nombre} {u.apellido}</td>
                   <td style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <div
                       className="usuarios-table-userimage"
@@ -217,7 +243,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
                   <td>{new Date(u.fechaRegistro).toLocaleDateString()}</td>
                   <td>{u.estado ? 'Activo' : 'Inactivo'}</td>
                   {fromAdmin && (
-                    <td style={{ display: 'flex', gap: '10px' }}>
+                    <td style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       <PrimaryButton
                         text="Editar"
                         linkTo={`/admin/editar-usuario/${u.ID_Usuario}`}

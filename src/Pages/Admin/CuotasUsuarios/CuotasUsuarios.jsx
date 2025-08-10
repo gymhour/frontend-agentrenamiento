@@ -478,7 +478,7 @@ const CuotasUsuarios = () => {
               {/* Usuario (dropdown que muestra “Nombre Apellido (email)”) */}
               <label>Usuario</label>
               <CustomDropdown
-                options={users.map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
+                options={users.filter(u => u.estado === true ).map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
                 value={
                   selectedEmail
                     ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`

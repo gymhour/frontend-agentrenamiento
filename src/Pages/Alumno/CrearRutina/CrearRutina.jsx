@@ -503,6 +503,21 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     };
   };
 
+  const resetForm = () => {
+    setStep(1);
+    setFormData({ nombre: '', descripcion: '' });
+    setSelectedDias([]);
+    setDropdownDiaValue("");
+    setSelectedClase("");
+    setSelectedGrupoMuscular("");
+    setSelectedEmail(null);
+    setBlocks([]);
+    setSuggestions({});
+    setShowBlockTypeDropdown(false);
+    // Opcional: scrollear al tope
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // submit o update
   const handleSubmit = async e => {
     e.preventDefault(); setLoading(true);
@@ -519,8 +534,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       if (fromAdmin) navigate('/admin/rutinas');
       else if (fromEntrenador) {
         if (!isEditing) setStep(1);
-        if (!isEditing) setFormData({ nombre: '', descripcion: '' });
-      } else navigate('/alumno/mi-rutina');
+        if (!isEditing) resetForm();
+      } 
+      else navigate('/alumno/mi-rutina');
     } catch {
       toast.error(isEditing ? 'Error actualizando rutina' : 'Error creando rutina');
     } finally { setLoading(false); }
