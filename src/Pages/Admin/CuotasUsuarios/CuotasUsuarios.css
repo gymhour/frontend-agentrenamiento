@@ -236,17 +236,30 @@
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  /* -webkit-overflow-scrolling: touch; */
 }
 
 /* Tabla base */
 .cuotas-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* evita saltos raros al elipsis */
+  /* table-layout: fixed; */
 }
 
 .cuotas-table th,
+.cuotas-table td {
+  padding: 18px 6px;
+  text-align: left;
+  font-size: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cuotas-table th {
+  background-color: rgba(52, 52, 52, 0.178);
+  font-weight: 400;
+}
+
+/* .cuotas-table th,
 .cuotas-table td {
   padding: 18px 8px;
   text-align: left;
@@ -254,7 +267,7 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; /* 1 línea en desktop */
+  white-space: nowrap;
   vertical-align: middle;
 }
 
@@ -265,7 +278,7 @@
 
 .cuotas-table th, .cuotas-table td {
   min-height: 50px;
-}
+} */
 
 /* Badges */
 .badge {
