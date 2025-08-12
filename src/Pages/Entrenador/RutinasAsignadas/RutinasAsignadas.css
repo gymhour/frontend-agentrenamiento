@@ -21,8 +21,29 @@
   gap: 8px;
 }
 
+.rutinas-asignadas-filtros-btns {
+  margin-top: 15px;
+  display: flex;
+}
+
 @media screen and (max-width: 500px) {
   #root > div.page-layout > div > div:nth-child(2) > div > div {
     width: 100% !important;
   }
+
+  .rutinas-asignadas-filtro-ctn {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .rutinas-asignadas-filtros-btns {
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+  }
+
 }

@@ -127,6 +127,13 @@
     border: none;
     cursor: pointer;
   }
+
+  .usuarios-filtros-form-ctn {
+    margin-top: 15px;
+    display: flex;
+    align-self: flex-end;
+    gap: 10px;
+  }
   
   /* ====== RESPONSIVE ====== */
   

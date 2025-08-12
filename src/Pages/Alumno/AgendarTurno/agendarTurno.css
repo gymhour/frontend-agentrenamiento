@@ -126,4 +126,7 @@
     .datepicker-container {
         width: 100% !important;
     }
+    .custom-date-picker-input {
+        max-width: none;
+    }
   }

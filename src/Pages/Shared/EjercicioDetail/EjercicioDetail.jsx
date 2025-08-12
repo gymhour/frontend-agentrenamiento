@@ -84,7 +84,7 @@ const EjercicioDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                 <section className="ejercicio-detail__section">
                     <h2>Instrucciones</h2>
                     {ejercicio.instrucciones ? (
-                        <ol>
+                        <ol className='ejercicio-instrucciones-ol'>
                             {ejercicio.instrucciones.split('\n').map((line, i) => (
                                 <li key={i}>{line}</li>
                             ))}
@@ -97,11 +97,16 @@ const EjercicioDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                 <section className="ejercicio-detail__section">
                     <h2>Músculos</h2>
                     <div className="chip-list">
-                        {ejercicio.musculos?.split('-')
-                            .filter(m => m.trim())
-                            .map((m, i) => (
-                                <span key={i} className="chip">{m.trim()}</span>
-                            ))}
+                        {ejercicio.musculos && ejercicio.musculos.split('-').filter(m => m.trim()).length > 0 ? (
+                            ejercicio.musculos
+                                .split('-')
+                                .filter(m => m.trim())
+                                .map((m, i) => (
+                                    <span key={i} className="chip">{m.trim()}</span>
+                                ))
+                        ) : (
+                            <p>No hay músculos listados.</p>
+                        )}
                     </div>
                 </section>
 

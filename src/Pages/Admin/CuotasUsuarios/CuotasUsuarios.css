@@ -491,4 +491,13 @@
 /* 3) Modales y filtros en teléfonos */
 @media (max-width: 480px) {
   .modal-content { min-width: auto; width: 92vw; }
+
+  .header-actions {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .generate-cuotas-btns {
+    margin-top: 15px;
+  }
 }

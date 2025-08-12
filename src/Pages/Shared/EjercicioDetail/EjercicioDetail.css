@@ -66,8 +66,8 @@
     margin: 0;
 }
 
-.ejercicio-detail__section ol {
-    padding-left: 15px;
+.ejercicio-instrucciones-ol {
+    padding-left: 16px;
 }
 
 /* Responsive */

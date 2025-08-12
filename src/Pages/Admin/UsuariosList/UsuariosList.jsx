@@ -471,7 +471,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
               />
             </div>
 
-            <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px' }}>
+            <div className='usuarios-filtros-form-ctn'>
               <PrimaryButton onClick={aplicarFiltros} text="Aplicar filtros" />
               <SecondaryButton className="secondary-btn" onClick={limpiarFiltros} text="Limpiar filtros" />
             </div>

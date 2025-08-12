@@ -27,20 +27,17 @@ const Cuotas = () => {
   const formatMonth = (m) =>
     m
       ? new Date(m).toLocaleString('es-AR', {
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'UTC'
-      })
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC'
+        })
       : '–';
 
   const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString('es-AR') : '–';
 
   const formatCurrency = (val) =>
-    new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-    }).format(val);
+    new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
 
   useEffect(() => {
     const fetchCuotas = async () => {
@@ -77,28 +74,18 @@ const Cuotas = () => {
             </span>
             <span>
               <b>ALIAS:</b> {alias}{' '}
-              <button
-                className="copy-button"
-                onClick={() => handleCopy(alias)}
-              >
+              <button className="copy-button" onClick={() => handleCopy(alias)}>
                 <CopyIcon width={16} height={16}/>
               </button>
             </span>
             <span>
               <b>CBU:</b> {cbu}{' '}
-              <button
-                className="copy-button"
-                onClick={() => handleCopy(cbu)}
-              >
+              <button className="copy-button" onClick={() => handleCopy(cbu)}>
                 <CopyIcon width={16} height={16}/>
               </button>
             </span>
-            <span>
-              <b>CUIL:</b> 27-44851911-8
-            </span>
-            <span>
-              <b>CTA:</b> 4046522-4 023-1
-            </span>
+            <span><b>CUIL:</b> 27-44851911-8</span>
+            <span><b>CTA:</b> 4046522-4 023-1</span>
           </div>
           <a href="">
             <button className='cuotas-wsp-btn'> Enviar comprobante por WhatsApp </button>
@@ -113,49 +100,50 @@ const Cuotas = () => {
         ) : cuotas.length === 0 ? (
           <p>No hay cuotas para mostrar.</p>
         ) : (
-          <table className="cuotas-table cuotas-table-usuario">
-            <thead>
-              <tr>
-                <th>Mes</th>
-                <th>Importe</th>
-                <th>Vence</th>
-                <th>Plan</th>
-                <th>Estado</th>
-                <th>Forma de Pago</th>
-                <th>Fecha Pago</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cuotas.map((c) => (
-                <tr key={c.ID_Cuota}>
-                  <td style={{ textTransform: 'uppercase' }}>
-                    {formatMonth(c.mes)}
-                  </td>
-                  <td>{formatCurrency(c.importe)}</td>
-                  <td>{formatDate(c.vence)}</td>
-                  <td>{c.User.plan.nombre}</td>
-                  <td>
-                    <span
-                      className={`badge ${c.vencida
-                          ? 'expired'
-                          : c.pagada
-                            ? 'paid'
-                            : 'pending'
-                        }`}
-                    >
-                      {c.vencida
-                        ? 'Vencida'
-                        : c.pagada
-                          ? 'Pagada'
-                          : 'Pendiente'}
-                    </span>
-                  </td>
-                  <td>{c.formaPago || '–'}</td>
-                  <td>{formatDate(c.fechaPago)}</td>
+          <div className="table-responsive">
+            <table className="cuotas-table cuotas-table-usuario">
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Importe</th>
+                  <th>Vence</th>
+                  <th>Plan</th>
+                  <th>Estado</th>
+                  <th>Forma de Pago</th>
+                  <th>Fecha Pago</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cuotas.map((c) => (
+                  <tr key={c.ID_Cuota}>
+                    <td data-label="Mes" style={{ textTransform: 'uppercase' }}>
+                      {formatMonth(c.mes)}
+                    </td>
+                    <td data-label="Importe" className="col-importe">
+                      {formatCurrency(c.importe)}
+                    </td>
+                    <td data-label="Vence" className="col-vence">
+                      {formatDate(c.vence)}
+                    </td>
+                    <td data-label="Plan" className="col-plan">
+                      {c.User?.plan?.nombre ?? '–'}
+                    </td>
+                    <td data-label="Estado" className="col-estado">
+                      <span className={`badge ${c.vencida ? 'expired' : c.pagada ? 'paid' : 'pending'}`}>
+                        {c.vencida ? 'Vencida' : c.pagada ? 'Pagada' : 'Pendiente'}
+                      </span>
+                    </td>
+                    <td data-label="Forma de Pago" className="col-forma">
+                      {c.formaPago || '–'}
+                    </td>
+                    <td data-label="Fecha Pago" className="col-fecha">
+                      {formatDate(c.fechaPago)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

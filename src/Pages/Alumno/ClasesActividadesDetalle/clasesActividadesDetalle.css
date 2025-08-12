@@ -69,13 +69,23 @@
 }
 
 @media screen and (max-width: 500px) {
-    .clases-actividades-detalle-ctn { 
+    .clases-actividades-detalle-ctn {
         width: 100%;
     }
+
     .clases-actividades-detalle-title-img {
         padding: 15px;
     }
+
     .clases-actividades-detalle-title-img h2 {
         font-size: 30px;
+    }
+
+    .clases-actividades-detalle-actions {
+        flex-wrap: wrap;
+    }
+    
+    .clases-actividades-detalle-actions-edit-delete {
+        margin-top: 12px;
     }
 }

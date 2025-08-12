@@ -115,7 +115,7 @@ const PlanesAdmin = () => {
       {loading && <LoaderFullScreen />}
       <div className="content-layout">
         <div className="planes-header">
-          <h1>Administración de Planes</h1>
+          <h2>Administración de Planes</h2>
           <PrimaryButton text='Nuevo plan' onClick={handleCreate} />
         </div>
 
@@ -148,7 +148,7 @@ const PlanesAdmin = () => {
             <div className="modal-content">
               <h2 style={{marginBottom: '20px'}}> {editingPlan ? 'Editar Plan' : 'Nuevo Plan'}</h2>
               <form onSubmit={handleSubmit} className="plan-form">
-                <div className="form-input-container">
+                <div className="plan-form-input-container">
                   <label>Nombre</label>
                   <CustomInput
                     type="text"
@@ -157,7 +157,7 @@ const PlanesAdmin = () => {
                     required
                   />
                 </div>
-                <div className="form-input-container">
+                <div className="plan-form-input-container">
                   <label>Precio</label>
                   <CustomInput
                     type="number"
@@ -166,7 +166,7 @@ const PlanesAdmin = () => {
                     required
                   />
                 </div>
-                <div className="form-input-container">
+                <div className="plan-form-input-container">
                   <label>Descripción</label>
                   <CustomInput
                         placeholder="Descripción (opcional)"

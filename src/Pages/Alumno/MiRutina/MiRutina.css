@@ -110,10 +110,11 @@
     .mi-rutina-title {
         width: 100%;
         justify-content: space-between;
+        max-width: none;
     }
 
     .mis-rutinas-list {
-        padding-top: 0px;
+        padding-top: 30px;
     }
 
     .rutina-card {

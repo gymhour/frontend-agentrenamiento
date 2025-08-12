@@ -77,7 +77,7 @@ const RutinasAsignadas = () => {
         </div>
 
         {/* ——— Filtro por usuario ——— */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+        <div className='rutinas-asignadas-filtro-ctn'>
           <Select
             options={users.map(u => ({
               label: `${u.nombre} ${u.apellido} (${u.email})`,
@@ -89,8 +89,10 @@ const RutinasAsignadas = () => {
             isClearable
             isSearchable
           />
-          <PrimaryButton onClick={handleSearch} text="Buscar" />
-          <SecondaryButton onClick={limpiarFiltros} text="Limpiar filtros" />
+          <div className="rutinas-asignadas-filtros-btns">
+            <PrimaryButton onClick={handleSearch} text="Buscar" />
+            <SecondaryButton onClick={limpiarFiltros} text="Limpiar" />
+          </div>
         </div>
 
         {/* ——— Listado de rutinas ——— */}

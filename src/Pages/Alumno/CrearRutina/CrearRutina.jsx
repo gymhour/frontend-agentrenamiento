@@ -691,11 +691,13 @@ const convertApiBlockData = (b) => {
                 />
               )}
 
-              <PrimaryButton
-                text="Continuar"
-                linkTo="#"
-                onClick={handleContinue}
-              />
+              <div className='crearRutina-s1-continuar-btn-ctn'>
+                <PrimaryButton
+                  text="Continuar"
+                  linkTo="#"
+                  onClick={handleContinue}
+                />
+              </div>
             </div>
           </div>
         )}

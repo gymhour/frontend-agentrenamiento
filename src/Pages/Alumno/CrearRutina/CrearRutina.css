@@ -122,4 +122,16 @@
     .css-13cymwt-control, #root > div.page-layout > div > div.crear-rutina-step1 > div > div.css-b62m3t-container > div {
         width: 100% !important;
     }
+    .crearRutina-s1-continuar-btn-ctn {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .agregar-bloque-ctn {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: start;
+    }
   }

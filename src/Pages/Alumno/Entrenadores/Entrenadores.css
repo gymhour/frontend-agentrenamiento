@@ -39,4 +39,7 @@
   .trainer-item {
     flex: 0 0 100%;
   }
+  .trainers-grid {
+    gap: 2.5rem;
+  }
 }
