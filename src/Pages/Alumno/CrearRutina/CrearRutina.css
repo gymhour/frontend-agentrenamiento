@@ -5,6 +5,8 @@
     justify-content: start;
     align-items: start;
     gap: 16px;
+    max-width: 600px;
+    width: 100%;
 }
 
 .crear-rutina-step-2-form {
@@ -14,14 +16,30 @@
     gap: 10px;
     justify-content: start;
     align-items: start;
+    max-width: 600px;
+    width: 100%;
+
 }
 
 .block-container {
-    margin-top: '8px';
-    border-top: '1px solid rgba(255,255,255,0.15)';
-    padding: '10px';
-    position: 'relative'; 
-    min-width: 500px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 10px;
+    position: relative;
+    min-width: 0;
+    /* permite que el grid se encoja bien */
+    width: 100%;
+}
+
+.delete-block-btn {
+    position: absolute;
+    top: 12px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: white;
 }
 
 .agregar-bloque-ctn {
@@ -37,101 +55,169 @@
     gap: 8px;
 }
 
-.sets-reps-subctn {
-    display: flex;
-    flex-direction: row;
+/* ====== FILA: series (80px) + ejercicio (flex) + borrar (auto) ====== */
+.sets-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 32px;
+    align-items: center;
     gap: 10px;
+    width: 100%;
 }
 
-.rondas-ctn {
+.sets-row--no-series {
+    grid-template-columns: 1fr 32px;
+    /* Escalera: sin columna de series */
+}
+
+.series-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: #fff;
+    border-radius: 6px;
+    outline: none;
+}
+
+.exercise-cell {
+    position: relative;
+    min-width: 0;
+    /* permite que el input shrinkee */
+}
+
+.exercise-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: #fff;
+    border-radius: 6px;
+    outline: none;
+}
+
+.series-input,
+.exercise-input {
+    background-color: #252525;
+    border-radius: 12px;
+    padding: 16px 12px;
+    border: 1.5px solid #252525;
+    outline: none;
+    color: #FAFAFA;
+    font-size: 16px;
+    transition: all ease-in-out 150ms;
+}
+
+.series-input:focus,
+.exercise-input:focus {
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+
+.delete-set-btn {
+    width: 32px;
+    height: 32px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid rgba(229, 85, 85, 0.4);
+    color: #e55;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Resto de contenedores */
+.sets-reps-subctn {
+    /* ya no se usa para layout, pero lo dejamos por compat */
+    display: contents;
+}
+
+.rondas-ctn,
+.emom-ctn,
+.amrap-ctn,
+.escalera-ctn {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
 
-.cantidad-rondas-descanso {
+.cantidad-rondas-descanso,
+.cantidad-emom-ctn,
+.cantidad-amrap-ctn,
+.cantidad-escalera-ctn {
     display: flex;
     justify-content: start;
     align-items: center;
     gap: 10px;
 }
 
-.emom-ctn {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.cantidad-emom-ctn {
-    display: flex;
-    gap: 10px;
-    justify-content: start !important;
-    align-items: center;
-}
-
-.amrap-ctn {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.cantidad-amrap-ctn {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 10px;
-}
-
-.escalera-ctn {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
+/* Autocomplete */
 .suggestions-list {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 6px);
     left: 0;
     right: 0;
     background: #101010;
     color: #fafafa;
-    max-height: 150px;
+    max-height: 180px;
     overflow-y: auto;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 6px;
     z-index: 10;
     list-style: none;
     margin: 0;
-    padding: 0;
-  }
-  .suggestions-list li {
-    padding: 8px;
+    padding: 4px 0;
+}
+
+.suggestions-list li {
+    padding: 8px 10px;
     cursor: pointer;
-  }
-  .suggestions-list li:hover {
+}
+
+.suggestions-list li:hover {
     background: #202020;
-  }
-  
-  @media screen and (max-width: 500px) {
-    .crear-rutina-step1{
+}
+
+/* Responsive */
+@media screen and (max-width: 500px) {
+    .crear-rutina-step1 {
         width: 100%;
     }
+
     .css-b62m3t-container {
         width: 100% !important;
     }
-    .css-13cymwt-control, #root > div.page-layout > div > div.crear-rutina-step1 > div > div.css-b62m3t-container > div {
+
+    .css-13cymwt-control,
+    #root>div.page-layout>div>div.crear-rutina-step1>div>div.css-b62m3t-container>div {
         width: 100% !important;
     }
+
     .crearRutina-s1-continuar-btn-ctn {
         margin-top: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
     }
+
     .agregar-bloque-ctn {
         display: flex;
         flex-direction: column;
         justify-content: start;
         align-items: start;
     }
-  }
+
+    /* En móvil mantenemos exactamente 80px / 1fr / botón chico */
+    .sets-row {
+        grid-template-columns: 80px 1fr 28px;
+        gap: 8px;
+    }
+
+    .delete-set-btn {
+        width: 28px;
+        height: 28px;
+        line-height: 24px;
+        font-size: 18px;
+    }
+}

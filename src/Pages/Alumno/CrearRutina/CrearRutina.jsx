@@ -11,23 +11,14 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
+import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
 
 const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
-  // Id de rutina si se esta editando
   const { rutinaId } = useParams();
   const isEditing = Boolean(rutinaId);
 
-  const diasSemana = [
-    "Lunes",
-    "Martes",
-    "Miercoles",
-    "Jueves",
-    "Viernes",
-    "Sabado",
-    "Domingo"
-  ];
+  const diasSemana = ["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"];
 
-  // Helpers para mapear tipos API <-> UI
   const apiToDisplayType = {
     SETS_REPS: 'Series y repeticiones',
     ROUNDS: 'Rondas',
@@ -36,82 +27,43 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     LADDER: 'Escalera'
   };
 
-  const tiposDeSerie = [
-    "Series y repeticiones",
-    "Rondas",
-    "EMOM",
-    "AMRAP",
-    "Escalera"
-  ];
+  const tiposDeSerie = ["Series y repeticiones","Rondas","EMOM","AMRAP","Escalera"];
 
   const [step, setStep] = useState(1);
 
-  // Datos del step1
-  const [formData, setFormData] = useState({
-    nombre: '',
-    descripcion: '',
-  });
-  // en lugar de formData.diaSemana
+  // Step 1
+  const [formData, setFormData] = useState({ nombre: '', descripcion: '' });
   const [selectedDias, setSelectedDias] = useState([]);
   const [dropdownDiaValue, setDropdownDiaValue] = useState("");
-
-  // Para fetch y selección de usuarios (sólo aplica a entrenador)
   const [users, setUsers] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
-
-  // Desplegable de clases
   const [clases, setClases] = useState([]);
   const [selectedClase, setSelectedClase] = useState("");
-
-  // Grupos musculares
-  const gruposMusculares = [
-    "Pecho",
-    "Espalda",
-    "Piernas",
-    "Brazos",
-    "Hombros",
-    "Abdominales",
-    "Glúteos",
-    "Tren Superior",
-    "Tren Inferior",
-    "Full Body"
-  ];
   const [selectedGrupoMuscular, setSelectedGrupoMuscular] = useState("");
+  const gruposMusculares = ["Pecho","Espalda","Piernas","Brazos","Hombros","Abdominales","Glúteos","Tren Superior","Tren Inferior","Full Body"];
 
-  // Estados para step2
+  // Step 2
   const [blocks, setBlocks] = useState([]);
   const [showBlockTypeDropdown, setShowBlockTypeDropdown] = useState(false);
-
-  // Desplegable de ejercicios
   const [allExercises, setAllExercises] = useState([]);
   const [suggestions, setSuggestions] = useState({});
-
   const [loading, setLoading] = useState(false);
 
   const exampleExercises = [
-    "Pecho plano 60kg",
-    "Flexiones de brazo",
-    "Press de hombro 60kg",
-    "Sentadillas con barra 80kg",
-    "Remo con mancuerna 40kg",
-    "Dominadas",
-    "Elevaciones laterales 8kg",
+    "Pecho plano 60kg","Flexiones de brazo","Press de hombro 60kg","Sentadillas con barra 80kg",
+    "Remo con mancuerna 40kg","Dominadas","Elevaciones laterales 8kg",
   ];
 
   const navigate = useNavigate();
 
   useEffect(() => {
     apiService.getEjercicios()
-      .then(res => {
-        console.log("Res", res)
-        setAllExercises(res)
-      })
+      .then(res => setAllExercises(res))
       .catch(() => toast.error('No se pudieron cargar los ejercicios'));
   }, []);
 
   const getRandomExercise = () => exampleExercises[Math.floor(Math.random() * exampleExercises.length)];
 
-  // Objetos iniciales para cada tipo de bloque
   const initialBlockData = {
     'Series y repeticiones': { setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
     'Rondas':  { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
@@ -120,84 +72,39 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     'Escalera':{ escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
   };
 
-  // Convertir bloque API a data interna
-const convertApiBlockData = (b) => {
-  // Normalizamos la lista de ejercicios del bloque desde la API
-  const items = Array.isArray(b.bloqueEjercicios) ? b.bloqueEjercicios
-              : Array.isArray(b.ejercicios) ? b.ejercicios
-              : [];
+  const convertApiBlockData = (b) => {
+    const items = Array.isArray(b.bloqueEjercicios) ? b.bloqueEjercicios
+              : Array.isArray(b.ejercicios) ? b.ejercicios : [];
 
-  // Mapeamos al formato interno que usás en el UI
-  const mappedSets = items.map((e) => {
-    const nombreEj = e.setRepWeight ?? e?.ejercicio?.nombre ?? e?.nombre ?? '';
-    const idEj     = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? null;
-    const reps     = e.reps ?? e.setsReps ?? ''; // por si en algún caso viene como setsReps
+    const mappedSets = items.map((e) => {
+      const nombreEj = e.setRepWeight ?? e?.ejercicio?.nombre ?? e?.nombre ?? '';
+      const idEj     = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? null;
+      const reps     = e.reps ?? e.setsReps ?? '';
+      return { series: reps, exercise: nombreEj, placeholderExercise: '', exerciseId: idEj };
+    });
 
-    return {
-      series: reps,                 // tu input "ej. 3x12"
-      exercise: nombreEj,           // nombre visible
-      placeholderExercise: '',      // ya tenemos valor real
-      exerciseId: idEj,             // clave para enviar al guardar
-    };
-  });
-
-  switch (b.type) {
-    case 'SETS_REPS':
-      // En algunos backends venía nombreEj/setsReps al nivel del bloque
-      if (mappedSets.length === 0 && (b.nombreEj || b.setsReps)) {
-        mappedSets.push({
-          series: b.setsReps || '',
-          exercise: b.nombreEj || '',
-          placeholderExercise: '',
-          exerciseId: null
-        });
-      }
-      return { setsReps: mappedSets };
-
-    case 'ROUNDS':
-      return {
-        rounds: b.cantRondas ?? '',
-        descanso: b.descansoRonda ?? '',
-        setsReps: mappedSets,
-      };
-
-    case 'EMOM':
-      return {
-        interval: '', // si tu backend no lo guarda, lo dejamos vacío
-        totalMinutes: b.durationMin ?? '',
-        setsReps: mappedSets,
-      };
-
-    case 'AMRAP':
-      return {
-        duration: b.durationMin ?? '',
-        setsReps: mappedSets,
-      };
-
-    case 'LADDER':
-      return {
-        escaleraType: b.tipoEscalera ?? '',
-        setsReps: mappedSets,
-      };
-
-    default:
-      return { setsReps: mappedSets };
-  }
-};
-
-
-  const handleSelectDia = (dia) => {
-    if (!selectedDias.includes(dia)) {
-      setSelectedDias(prev => [...prev, dia]);
+    switch (b.type) {
+      case 'SETS_REPS':
+        if (mappedSets.length === 0 && (b.nombreEj || b.setsReps)) {
+          mappedSets.push({ series: b.setsReps || '', exercise: b.nombreEj || '', placeholderExercise: '', exerciseId: null });
+        }
+        return { setsReps: mappedSets };
+      case 'ROUNDS':
+        return { rounds: b.cantRondas ?? '', descanso: b.descansoRonda ?? '', setsReps: mappedSets };
+      case 'EMOM':
+        return { interval: '', totalMinutes: b.durationMin ?? '', setsReps: mappedSets };
+      case 'AMRAP':
+        return { duration: b.durationMin ?? '', setsReps: mappedSets };
+      case 'LADDER':
+        return { escaleraType: b.tipoEscalera ?? '', setsReps: mappedSets };
+      default:
+        return { setsReps: mappedSets };
     }
   };
 
-  const handleRemoveDia = (dia) => {
-    setSelectedDias(prev => prev.filter(d => d !== dia));
-  };
+  const handleSelectDia = (dia) => { if (!selectedDias.includes(dia)) setSelectedDias(prev => [...prev, dia]); };
+  const handleRemoveDia = (dia) => setSelectedDias(prev => prev.filter(d => d !== dia));
 
-
-  // 1) Solo carga usuarios al montar (o al cambiar fromEntrenador)
   useEffect(() => {
     if (fromEntrenador) {
       apiService.getAllUsuarios()
@@ -206,254 +113,137 @@ const convertApiBlockData = (b) => {
     }
   }, [fromEntrenador]);
 
-  // 2) Cuando esté listo el mundo (isEditing y usuarios cargados), fetchRoutine()
   useEffect(() => {
     if (isEditing && (!fromEntrenador || users.length > 0)) {
       fetchRoutine();
     }
   }, [isEditing, fromEntrenador, users]);
 
-  // Fetch clases para el dropdown
   useEffect(() => {
     apiService.getClases()
       .then(res => setClases(res))
       .catch(() => toast.error('No se pudieron cargar las clases'));
   }, []);
 
-  // Fetch routine to edit
   const fetchRoutine = async () => {
     setLoading(true);
     try {
       const resp = await apiService.getRutinaById(rutinaId);
-      const r = resp?.rutina ?? resp; // soporta ambas respuestas
-  
-      // Step 1
+      const r = resp?.rutina ?? resp;
+
       setFormData({ nombre: r.nombre || '', descripcion: r.desc || '' });
       setSelectedDias(Array.isArray(r.DiasRutina) ? r.DiasRutina : []);
       setSelectedClase(r.claseRutina || "");
       setSelectedGrupoMuscular(r.grupoMuscularRutina || "");
-  
+
       if (fromEntrenador) {
-        // Intentamos tomar email directo si el backend lo provee
         const alumnoEmail = r?.alumno?.email ?? r?.alumnoEmail ?? null;
         const alumnoId    = r?.ID_Usuario ?? r?.alumno?.ID_Usuario ?? null;
-  
         let selected = null;
-  
-        if (alumnoEmail) {
-          selected = alumnoEmail;
-        } else if (alumnoId) {
+        if (alumnoEmail) selected = alumnoEmail;
+        else if (alumnoId) {
           const u = users.find(u => u.ID_Usuario === alumnoId);
           selected = u?.email ?? null;
         } else if (r?.alumno?.nombre || r?.alumno?.apellido) {
-          // Fallback por nombre+apellido (no ideal, pero evita perderlo visualmente)
           const full = `${r?.alumno?.nombre ?? ''}`.trim().toLowerCase() + '|' + `${r?.alumno?.apellido ?? ''}`.trim().toLowerCase();
           const u = users.find(u => (`${u.nombre}`.trim().toLowerCase() + '|' + `${u.apellido}`.trim().toLowerCase()) === full && u.tipo === 'cliente');
           selected = u?.email ?? null;
         }
-  
         setSelectedEmail(selected);
       }
-  
-      // Step 2 - Bloques
+
       const loaded = Array.isArray(r.Bloques)
-        ? r.Bloques.map(b => ({
-            id: b.ID_Bloque,
-            type: apiToDisplayType[b.type] || b.type,
-            data: convertApiBlockData(b)
-          }))
+        ? r.Bloques.map(b => ({ id: b.ID_Bloque, type: apiToDisplayType[b.type] || b.type, data: convertApiBlockData(b) }))
         : [];
-  
       setBlocks(loaded);
-  
-      // Volvemos al paso 1 para que el usuario vea los datos cargados
       setStep(1);
     } catch {
       toast.error('No se pudo cargar la rutina para editar');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
-  
 
-  // --- STEP 1: Continuar ---
   const handleContinue = (e) => {
     e.preventDefault();
-
-    // 1) Nombre (requerido)
-    if (!formData.nombre.trim()) {
-      toast.error("Por favor, ingresa un nombre para la rutina");
-      return;
-    }
-
-    // 2) Días de la semana (al menos uno)
-    if (selectedDias.length === 0) {
-      toast.error("Por favor, selecciona al menos un día de la semana");
-      return;
-    }
-
-    // 3) Clase (requerida)
-    if (!selectedClase) {
-      toast.error("Por favor, selecciona una clase");
-      return;
-    }
-
-    // 4) Usuario (sólo si viene fromEntrenador)
-    if (fromEntrenador && !selectedEmail) {
-      toast.error("Por favor, selecciona un usuario antes de continuar");
-      return;
-    }
-
-    console.log("Datos del step1:", formData, "Usuario seleccionado:", selectedEmail);
+    if (!formData.nombre.trim()) return toast.error("Por favor, ingresa un nombre para la rutina");
+    if (selectedDias.length === 0) return toast.error("Por favor, selecciona al menos un día de la semana");
+    if (!selectedClase) return toast.error("Por favor, selecciona una clase");
+    if (fromEntrenador && !selectedEmail) return toast.error("Por favor, selecciona un usuario antes de continuar");
     setStep(2);
   };
 
-  // --- STEP 2: Agregar Bloque ---
-  // Ejercicios
-  // Cuando el usuario escribe en el ejercicio:
+  // ---- Step 2 handlers ----
   const handleExerciseInputChange = (blockId, idx, value) => {
-    // 1) Actualizo el valor en el estado blocks
     setBlocks(blocks.map(block => {
       if (block.id === blockId) {
-        const newSets = block.data.setsReps.map((setRep, i) => {
-          if (i === idx) {
-            return {
-              ...setRep,
-              exercise: value,
-              exerciseId: null   // reset si estaban seleccionadas antes
-            };
-          }
-          return setRep;
-        });
+        const newSets = block.data.setsReps.map((sr, i) => i === idx ? { ...sr, exercise: value, exerciseId: null } : sr);
         return { ...block, data: { ...block.data, setsReps: newSets } };
       }
       return block;
     }));
 
     const key = `${blockId}-${idx}`;
-
-    // Si el input está vacío (o sólo espacios), cierro el dropdown
     if (value.trim() === '') {
-      setSuggestions(prev => ({
-        ...prev,
-        [key]: []
-      }));
+      setSuggestions(prev => ({ ...prev, [key]: [] }));
       return;
     }
-
-    // 2) Filtro sugerencias (case-insensitive, substring)
     const lista = Array.isArray(allExercises) ? allExercises : [];
     const filtered = lista
       .filter(e => e.nombre.toLowerCase().includes(value.trim().toLowerCase()))
       .slice(0, 5);
-
-    setSuggestions(prev => ({
-      ...prev,
-      [key]: filtered
-    }));
+    setSuggestions(prev => ({ ...prev, [key]: filtered }));
   };
 
-  // Cuando el usuario hace click en una sugerencia:
   const handleSelectSuggestion = (blockId, idx, exerciseObj) => {
     setBlocks(blocks.map(block => {
       if (block.id === blockId) {
-        const newSets = block.data.setsReps.map((setRep, i) => {
-          if (i === idx) {
-            return {
-              ...setRep,
-              exercise: exerciseObj.nombre,
-              exerciseId: exerciseObj.ID_Ejercicio
-            };
-          }
-          return setRep;
-        });
+        const newSets = block.data.setsReps.map((sr, i) =>
+          i === idx ? { ...sr, exercise: exerciseObj.nombre, exerciseId: exerciseObj.ID_Ejercicio } : sr
+        );
         return { ...block, data: { ...block.data, setsReps: newSets } };
       }
       return block;
     }));
-
-    // limpio las sugerencias para ese campo
-    setSuggestions({
-      ...suggestions,
-      [`${blockId}-${idx}`]: []
-    });
-  };
-
-  const handleMostrarDropdown = () => {
-    setShowBlockTypeDropdown(true);
+    setSuggestions({ ...suggestions, [`${blockId}-${idx}`]: [] });
   };
 
   const handleAddBlock = (e) => {
     const selectedType = e.target.value;
-    const newBlock = {
-      id: Date.now(), // para ejemplificar; en producción se usaría un id único
-      type: selectedType,
-      data: { ...initialBlockData[selectedType] }
-    };
+    const newBlock = { id: Date.now(), type: selectedType, data: { ...initialBlockData[selectedType] } };
     setBlocks([...blocks, newBlock]);
     setShowBlockTypeDropdown(false);
   };
 
-  // Función para eliminar un bloque
-  const handleDeleteBlock = (blockId) => {
-    setBlocks(blocks.filter(block => block.id !== blockId));
-  };
+  const handleDeleteBlock = (blockId) => setBlocks(blocks.filter(b => b.id !== blockId));
 
-  // Actualiza un campo “simple” del bloque (por ejemplo, rounds, descanso, interval, etc.)
   const handleBlockFieldChange = (blockId, field, value) => {
-    setBlocks(blocks.map(block => {
-      if (block.id === blockId) {
-        return { ...block, data: { ...block.data, [field]: value } };
-      }
-      return block;
-    }));
+    setBlocks(blocks.map(block => block.id === blockId
+      ? { ...block, data: { ...block.data, [field]: value } }
+      : block
+    ));
   };
 
-  // Actualiza los campos de un sub-bloque (sets-reps)
   const handleSetRepChange = (blockId, index, field, value) => {
     setBlocks(blocks.map(block => {
       if (block.id === blockId) {
-        const newSetsReps = block.data.setsReps.map((setRep, idx) => {
-          if (idx === index) {
-            return { ...setRep, [field]: value };
-          }
-          return setRep;
-        });
+        const newSetsReps = block.data.setsReps.map((sr, i) => i === index ? { ...sr, [field]: value } : sr);
         return { ...block, data: { ...block.data, setsReps: newSetsReps } };
       }
       return block;
     }));
   };
 
-  // Agrega un nuevo objeto de sets-reps al bloque
   const handleAddSetRep = (blockId) => {
-    setBlocks(blocks.map(block => {
-      if (block.id === blockId) {
-        return {
-          ...block,
-          data: {
-            ...block.data,
-            setsReps: [...block.data.setsReps, { series: '', exercise: '', placeholderExercise: getRandomExercise() }]
-          }
-        };
-      }
-      return block;
-    }));
+    setBlocks(blocks.map(block => block.id === blockId
+      ? { ...block, data: { ...block.data, setsReps: [...block.data.setsReps, { series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] } }
+      : block
+    ));
   };
 
   const handleDeleteSetRep = (blockId, index) => {
-    setBlocks(blocks.map(block => {
-      if (block.id === blockId) {
-        return {
-          ...block,
-          data: {
-            ...block.data,
-            setsReps: block.data.setsReps.filter((_, i) => i !== index)
-          }
-        };
-      }
-      return block;
-    }));
+    setBlocks(blocks.map(block => block.id === blockId
+      ? { ...block, data: { ...block.data, setsReps: block.data.setsReps.filter((_, i) => i !== index) } }
+      : block
+    ));
   };
 
   const prepareRutinaData = () => {
@@ -461,70 +251,33 @@ const convertApiBlockData = (b) => {
       ? users.find(u => u.email === selectedEmail)?.ID_Usuario
       : localStorage.getItem("usuarioId");
 
-    const entrenadorId = fromEntrenador
-      ? Number(localStorage.getItem("usuarioId"))
-      : null;
+    const entrenadorId = fromEntrenador ? Number(localStorage.getItem("usuarioId")) : null;
 
-    // Mapeamos cada bloque con su lista de bloqueEjercicios
     const bloques = blocks.map(block => {
-      // Armar array de ejercicios para este bloque
       const bloqueEjercicios = block.data.setsReps.map(setRep => {
         if (setRep.exerciseId) {
-          // Ejercicio existente
-          return {
-            ejercicioId: setRep.exerciseId,
-            reps: setRep.series,
-            setRepWeight: setRep.exercise
-          };
+          return { ejercicioId: setRep.exerciseId, reps: setRep.series, setRepWeight: setRep.exercise };
         } else {
-          // Ejercicio nuevo (solo nombre)
-          return {
-            nuevoEjercicio: { nombre: setRep.exercise },
-            reps: setRep.series,
-            setRepWeight: null
-          };
+          return { nuevoEjercicio: { nombre: setRep.exercise }, reps: setRep.series, setRepWeight: null };
         }
       });
 
-      // Construir objeto del bloque según su tipo
       switch (block.type) {
         case 'Series y repeticiones':
-          return {
-            type: "SETS_REPS",
-            setsReps: block.data.setsReps[0]?.series || null,
-            bloqueEjercicios
-          };
+          return { type: "SETS_REPS", setsReps: block.data.setsReps[0]?.series || null, bloqueEjercicios };
         case 'Rondas':
-          return {
-            type: "ROUNDS",
-            cantRondas: parseInt(block.data.rounds, 10) || null,
-            descansoRonda: parseInt(block.data.descanso, 10) || null,
-            bloqueEjercicios
-          };
+          return { type: "ROUNDS", cantRondas: parseInt(block.data.rounds,10) || null, descansoRonda: parseInt(block.data.descanso,10) || null, bloqueEjercicios };
         case 'EMOM':
-          return {
-            type: "EMOM",
-            durationMin: parseInt(block.data.totalMinutes, 10) || null,
-            bloqueEjercicios
-          };
+          return { type: "EMOM", durationMin: parseInt(block.data.totalMinutes,10) || null, bloqueEjercicios };
         case 'AMRAP':
-          return {
-            type: "AMRAP",
-            durationMin: parseInt(block.data.duration, 10) || null,
-            bloqueEjercicios
-          };
+          return { type: "AMRAP", durationMin: parseInt(block.data.duration,10) || null, bloqueEjercicios };
         case 'Escalera':
-          return {
-            type: "LADDER",
-            tipoEscalera: block.data.escaleraType || null,
-            bloqueEjercicios
-          };
+          return { type: "LADDER", tipoEscalera: block.data.escaleraType || null, bloqueEjercicios };
         default:
           return {};
       }
     });
 
-    // Devolver el objeto completo listo para enviar al endpoint
     return {
       ID_Usuario: Number(userId),
       ID_Entrenador: entrenadorId,
@@ -548,33 +301,23 @@ const convertApiBlockData = (b) => {
     setBlocks([]);
     setSuggestions({});
     setShowBlockTypeDropdown(false);
-    // Opcional: scrollear al tope
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // submit o update
   const handleSubmit = async e => {
     e.preventDefault(); setLoading(true);
     const data = prepareRutinaData();
-    console.log("body", data)
     try {
       if (isEditing) {
         await apiService.editRutina(rutinaId, data);
         toast.success('Rutina actualizada correctamente');
-  
-        if (fromEntrenador) {
-          navigate('/entrenador/rutinas-asignadas');
-        } 
-
+        if (fromEntrenador) navigate('/entrenador/rutinas-asignadas');
       } else {
         await apiService.createRutina(data);
         toast.success('Rutina creada correctamente');
       }
       if (fromAdmin) navigate('/admin/rutinas');
-      else if (fromEntrenador) {
-        if (!isEditing) setStep(1);
-        if (!isEditing) resetForm();
-      } 
+      else if (fromEntrenador) { if (!isEditing) { setStep(1); resetForm(); } }
       else navigate('/alumno/mi-rutina');
     } catch {
       toast.error(isEditing ? 'Error actualizando rutina' : 'Error creando rutina');
@@ -586,6 +329,7 @@ const convertApiBlockData = (b) => {
       {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
       <div className='content-layout mi-rutina-ctn'>
+
         <div className="mi-rutina-title">
           <h2>{isEditing ? 'Editar Rutina' : 'Crear Rutina'}</h2>
           {step === 2 && (
@@ -603,52 +347,33 @@ const convertApiBlockData = (b) => {
               <CustomInput
                 placeholder="Nombre de la rutina"
                 value={formData.nombre}
-                onChange={(e) =>
-                  setFormData({ ...formData, nombre: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
               />
               <CustomInput
                 placeholder="Descripción (opcional)"
                 value={formData.descripcion}
-                onChange={(e) =>
-                  setFormData({ ...formData, descripcion: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
               />
-              {/* <CustomDropdown
-                placeholderOption="Dia de la semana"
-                options={diasSemana}
-                value={formData.diaSemana}
-                onChange={(e) =>
-                  setFormData({ ...formData, diaSemana: e.target.value })
-                }
-              /> */}
+
               <CustomDropdown
                 id="dias"
                 name="dias"
                 placeholderOption="Seleccionar día"
                 options={diasSemana}
                 value={dropdownDiaValue}
-                onChange={e => {
-                  handleSelectDia(e.target.value);
-                  setDropdownDiaValue("");
-                }}
+                onChange={e => { handleSelectDia(e.target.value); setDropdownDiaValue(""); }}
               />
-              {
-                selectedDias.length > 0 &&
+
+              {selectedDias.length > 0 && (
                 <div className="selected-tags">
                   {selectedDias.map(dia => (
                     <div key={dia} className="tag">
                       <span>{dia}</span>
-                      <CloseIcon
-                        className="tag-close"
-                        width={16}
-                        height={16}
-                        onClick={() => handleRemoveDia(dia)}
-                      />
+                      <CloseIcon className="tag-close" width={16} height={16} onClick={() => handleRemoveDia(dia)} />
                     </div>
                   ))}
                 </div>
-              }
+              )}
 
               <CustomDropdown
                 id="claseRutina"
@@ -668,7 +393,6 @@ const convertApiBlockData = (b) => {
                 onChange={e => setSelectedGrupoMuscular(e.target.value)}
               />
 
-              {/* Si es entrenador, mostramos dropdown para buscar usuarios */}
               {fromEntrenador && (
                 <Select
                   options={users.filter(u => u.tipo === "cliente").map(u => ({
@@ -678,10 +402,9 @@ const convertApiBlockData = (b) => {
                   value={
                     selectedEmail
                       ? {
-                        label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''
-                          } (${selectedEmail})`,
-                        value: selectedEmail
-                      }
+                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
+                          value: selectedEmail
+                        }
                       : null
                   }
                   onChange={option => setSelectedEmail(option.value)}
@@ -692,11 +415,7 @@ const convertApiBlockData = (b) => {
               )}
 
               <div className='crearRutina-s1-continuar-btn-ctn'>
-                <PrimaryButton
-                  text="Continuar"
-                  linkTo="#"
-                  onClick={handleContinue}
-                />
+                <PrimaryButton text="Continuar" linkTo="#" onClick={handleContinue} />
               </div>
             </div>
           </div>
@@ -705,6 +424,13 @@ const convertApiBlockData = (b) => {
         {step === 2 && (
           <div className="crear-rutina-step2">
             <div className="crear-rutina-step-2-form">
+              <SecondaryButton
+                text="← Volver"
+                linkTo="#"
+                onClick={() => setStep(1)}
+                style={{ marginBottom: '16px' }}
+              />
+
               <div className='agregar-bloque-ctn'>
                 <p> Agregar bloque: </p>
                 <CustomDropdown
@@ -715,353 +441,195 @@ const convertApiBlockData = (b) => {
                 />
               </div>
 
-              {/* Renderizamos cada bloque agregado */}
               {blocks.map((block) => (
-                <div
-                  key={block.id}
-                  className="block-container"
-                  style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.15)', padding: '10px', position: 'relative' }}
-                >
-                  {/* Botón de eliminación */}
-                  <button
-                    onClick={() => handleDeleteBlock(block.id)}
-                    style={{
-                      position: 'absolute',
-                      top: '12px',
-                      right: '5px',
-                      background: 'transparent',
-                      border: 'none',
-                      fontSize: '16px',
-                      cursor: 'pointer',
-                      color: 'white'
-                    }}
-                    title="Eliminar bloque"
-                  >
-                    ✕
-                  </button>
-                  <h4 style={{ margin: '16px 0px' }} >{block.type}</h4>
+                <div key={block.id} className="block-container">
+                  <button onClick={() => handleDeleteBlock(block.id)} className="delete-block-btn" title="Eliminar bloque">✕</button>
+                  <h4 style={{ margin: '16px 0px' }}>{block.type}</h4>
 
+                  {/* SERIES Y REPETICIONES */}
                   {block.type === "Series y repeticiones" && (
                     <div className="sets-reps-ctn">
                       {block.data.setsReps.map((setRep, idx) => (
-                        <div
-                          key={idx}
-                          className='sets-reps-subctn'
-                          style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
-                        >
-                          <CustomInput
+                        <div key={idx} className="sets-row">
+                          <input
+                            type="text"
+                            className="series-input"
                             placeholder="ej. 3x12"
-                            width="80px"
                             value={setRep.series}
-                            onChange={e =>
-                              handleSetRepChange(block.id, idx, 'series', e.target.value)
-                            }
+                            onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
                           />
-                          <div style={{ position: 'relative', flex: 1 }}>
-                            <CustomInput
+                          <div className="exercise-cell">
+                            <input
+                              type="text"
+                              className="exercise-input"
                               placeholder={setRep.placeholderExercise}
-                              width="350px"
                               value={setRep.exercise}
-                              onChange={e =>
-                                handleExerciseInputChange(block.id, idx, e.target.value)
-                              }
+                              onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
                             />
-                            {
-                              (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
-                                <ul className="suggestions-list">
-                                  {suggestions[`${block.id}-${idx}`].map(ex => (
-                                    <li
-                                      key={ex.ID_Ejercicio}
-                                      onClick={() => handleSelectSuggestion(block.id, idx, ex)}
-                                    >
-                                      {ex.nombre}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )
-                            }
+                            {(suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                              <ul className="suggestions-list">
+                                {suggestions[`${block.id}-${idx}`].map(ex => (
+                                  <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                    {ex.nombre}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
                           </div>
-
                           <button
                             onClick={() => handleDeleteSetRep(block.id, idx)}
-                            style={{
-                              marginLeft: '8px',
-                              background: 'transparent',
-                              border: 'none',
-                              color: '#e55',
-                              fontSize: '20px',
-                              cursor: 'pointer'
-                            }}
+                            className="delete-set-btn"
                             title="Eliminar este set"
+                            aria-label="Eliminar set"
                           >
                             –
                           </button>
                         </div>
                       ))}
-
-                      <PrimaryButton
-                        text="+"
-                        linkTo="#"
-                        onClick={() => handleAddSetRep(block.id)}
-                      />
+                      <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
                     </div>
                   )}
 
+                  {/* RONDAS */}
                   {block.type === "Rondas" && (
                     <div className="rondas-ctn">
                       <div className="cantidad-rondas-descanso">
-                        <CustomInput
-                          placeholder="3"
-                          width="60px"
-                          value={block.data.rounds}
-                          onChange={(e) =>
-                            handleBlockFieldChange(block.id, 'rounds', e.target.value)
-                          }
-                        />
+                        <CustomInput placeholder="3" width="60px" value={block.data.rounds} onChange={(e) => handleBlockFieldChange(block.id, 'rounds', e.target.value)} />
                         <span> rondas con </span>
-                        <CustomInput
-                          placeholder="90"
-                          width="60px"
-                          value={block.data.descanso}
-                          onChange={(e) =>
-                            handleBlockFieldChange(block.id, 'descanso', e.target.value)
-                          }
-                        />
+                        <CustomInput placeholder="90" width="60px" value={block.data.descanso} onChange={(e) => handleBlockFieldChange(block.id, 'descanso', e.target.value)} />
                         <span> segundos de descanso </span>
                       </div>
+
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
-                            <CustomInput
+                          <div key={idx} className="sets-row">
+                            <input
+                              type="text"
+                              className="series-input"
                               placeholder="ej. 3x12"
-                              width="110px"
                               value={setRep.series}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'series', e.target.value)
-                              }
+                              onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
                             />
-                            <div style={{ position: 'relative', flex: 1 }}>
-                              <CustomInput
+                            <div className="exercise-cell">
+                              <input
+                                type="text"
+                                className="exercise-input"
                                 placeholder={setRep.placeholderExercise}
-                                width="350px"
                                 value={setRep.exercise}
-                                onChange={e =>
-                                  handleExerciseInputChange(block.id, idx, e.target.value)
-                                }
+                                onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
                               />
-                              {
-                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
-                                  <ul className="suggestions-list">
-                                    {suggestions[`${block.id}-${idx}`].map(ex => (
-                                      <li
-                                        key={ex.ID_Ejercicio}
-                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
-                                      >
-                                        {ex.nombre}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )
-                              }
+                              {(suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                <ul className="suggestions-list">
+                                  {suggestions[`${block.id}-${idx}`].map(ex => (
+                                    <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                      {ex.nombre}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </div>
-
-                            <button
-                              onClick={() => handleDeleteSetRep(block.id, idx)}
-                              style={{
-                                marginLeft: '8px',
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#e55',
-                                fontSize: '20px',
-                                cursor: 'pointer'
-                              }}
-                              title="Eliminar este set"
-                            >
-                              –
-                            </button>
+                            <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
                           </div>
                         ))}
-                        <PrimaryButton
-                          text="+"
-                          linkTo="#"
-                          onClick={() => handleAddSetRep(block.id)}
-                        />
+                        <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
                       </div>
                     </div>
                   )}
 
+                  {/* EMOM */}
                   {block.type === "EMOM" && (
                     <div className="emom-ctn">
                       <div className="cantidad-emom-ctn">
                         <span> Cada </span>
-                        <CustomInput
-                          placeholder="1"
-                          width="45px"
-                          value={block.data.interval}
-                          onChange={(e) =>
-                            handleBlockFieldChange(block.id, 'interval', e.target.value)
-                          }
-                        />
-                        <CustomInput
-                          placeholder="minuto"
-                          width="100px"
-                          disabled
-                        />
+                        <CustomInput placeholder="1" width="45px" value={block.data.interval} onChange={(e) => handleBlockFieldChange(block.id, 'interval', e.target.value)} />
+                        <CustomInput placeholder="minuto" width="100px" disabled />
                         <span> por </span>
-                        <CustomInput
-                          placeholder="20"
-                          width="45px"
-                          value={block.data.totalMinutes}
-                          onChange={(e) =>
-                            handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)
-                          }
-                        />
-                        <CustomInput
-                          placeholder="minutos"
-                          width="100px"
-                          disabled
-                        />
+                        <CustomInput placeholder="20" width="45px" value={block.data.totalMinutes} onChange={(e) => handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)} />
+                        <CustomInput placeholder="minutos" width="100px" disabled />
                       </div>
+
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
-                            <CustomInput
+                          <div key={idx} className="sets-row">
+                            <input
+                              type="text"
+                              className="series-input"
                               placeholder="ej. 3x12"
-                              width="110px"
                               value={setRep.series}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'series', e.target.value)
-                              }
+                              onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
                             />
-                            <div style={{ position: 'relative', flex: 1 }}>
-                              <CustomInput
+                            <div className="exercise-cell">
+                              <input
+                                type="text"
+                                className="exercise-input"
                                 placeholder={setRep.placeholderExercise}
-                                width="350px"
                                 value={setRep.exercise}
-                                onChange={e =>
-                                  handleExerciseInputChange(block.id, idx, e.target.value)
-                                }
+                                onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
                               />
-                              {
-                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
-                                  <ul className="suggestions-list">
-                                    {suggestions[`${block.id}-${idx}`].map(ex => (
-                                      <li
-                                        key={ex.ID_Ejercicio}
-                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
-                                      >
-                                        {ex.nombre}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )
-                              }
+                              {(suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                <ul className="suggestions-list">
+                                  {suggestions[`${block.id}-${idx}`].map(ex => (
+                                    <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                      {ex.nombre}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </div>
-
-                            <button
-                              onClick={() => handleDeleteSetRep(block.id, idx)}
-                              style={{
-                                marginLeft: '8px',
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#e55',
-                                fontSize: '20px',
-                                cursor: 'pointer'
-                              }}
-                              title="Eliminar este set"
-                            >
-                              –
-                            </button>
+                            <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
                           </div>
                         ))}
-                        <PrimaryButton
-                          text="+"
-                          linkTo="#"
-                          onClick={() => handleAddSetRep(block.id)}
-                        />
+                        <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
                       </div>
                     </div>
                   )}
 
+                  {/* AMRAP */}
                   {block.type === "AMRAP" && (
                     <div className="amrap-ctn">
                       <div className="cantidad-amrap-ctn">
                         <span> AMRAP de </span>
-                        <CustomInput
-                          placeholder="20"
-                          width="45px"
-                          value={block.data.duration}
-                          onChange={(e) =>
-                            handleBlockFieldChange(block.id, 'duration', e.target.value)
-                          }
-                        />
-                        <CustomInput
-                          placeholder="minutos"
-                          width="100px"
-                          disabled
-                        />
+                        <CustomInput placeholder="20" width="45px" value={block.data.duration} onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)} />
+                        <CustomInput placeholder="minutos" width="100px" disabled />
                       </div>
+
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
-                            <CustomInput
+                          <div key={idx} className="sets-row">
+                            <input
+                              type="text"
+                              className="series-input"
                               placeholder="ej. 3x12"
-                              width="110px"
                               value={setRep.series}
-                              onChange={(e) =>
-                                handleSetRepChange(block.id, idx, 'series', e.target.value)
-                              }
+                              onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
                             />
-                            <div style={{ position: 'relative', flex: 1 }}>
-                              <CustomInput
+                            <div className="exercise-cell">
+                              <input
+                                type="text"
+                                className="exercise-input"
                                 placeholder={setRep.placeholderExercise}
-                                width="350px"
                                 value={setRep.exercise}
-                                onChange={e =>
-                                  handleExerciseInputChange(block.id, idx, e.target.value)
-                                }
+                                onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
                               />
-                              {
-                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
-                                  <ul className="suggestions-list">
-                                    {suggestions[`${block.id}-${idx}`].map(ex => (
-                                      <li
-                                        key={ex.ID_Ejercicio}
-                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
-                                      >
-                                        {ex.nombre}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )
-                              }
+                              {(suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                <ul className="suggestions-list">
+                                  {suggestions[`${block.id}-${idx}`].map(ex => (
+                                    <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                      {ex.nombre}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </div>
-
-                            <button
-                              onClick={() => handleDeleteSetRep(block.id, idx)}
-                              style={{
-                                marginLeft: '8px',
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#e55',
-                                fontSize: '20px',
-                                cursor: 'pointer'
-                              }}
-                              title="Eliminar este set"
-                            >
-                              –
-                            </button>
+                            <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
                           </div>
                         ))}
-                        <PrimaryButton
-                          text="+"
-                          linkTo="#"
-                          onClick={() => handleAddSetRep(block.id)}
-                        />
+                        <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
                       </div>
                     </div>
                   )}
 
+                  {/* ESCALERA */}
                   {block.type === "Escalera" && (
                     <div className="escalera-ctn">
                       <div className="cantidad-escalera-ctn">
@@ -1069,60 +637,35 @@ const convertApiBlockData = (b) => {
                           placeholder="Ej. 21-15-9"
                           width="200px"
                           value={block.data.escaleraType}
-                          onChange={(e) =>
-                            handleBlockFieldChange(block.id, 'escaleraType', e.target.value)
-                          }
+                          onChange={(e) => handleBlockFieldChange(block.id, 'escaleraType', e.target.value)}
                         />
                       </div>
+
                       <div className="sets-reps-ctn">
                         {block.data.setsReps.map((setRep, idx) => (
-                          <div key={idx} className='sets-reps-subctn' style={{ display: 'flex', marginBottom: '8px' }}>
-                            <div style={{ position: 'relative', flex: 1 }}>
-                              <CustomInput
+                          <div key={idx} className="sets-row sets-row--no-series">
+                            <div className="exercise-cell">
+                              <input
+                                type="text"
+                                className="exercise-input"
                                 placeholder={setRep.placeholderExercise}
-                                width="350px"
                                 value={setRep.exercise}
-                                onChange={e =>
-                                  handleExerciseInputChange(block.id, idx, e.target.value)
-                                }
+                                onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
                               />
-                              {
-                                (suggestions[`${block.id}-${idx}`] || []).length > 0 && (
-                                  <ul className="suggestions-list">
-                                    {suggestions[`${block.id}-${idx}`].map(ex => (
-                                      <li
-                                        key={ex.ID_Ejercicio}
-                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
-                                      >
-                                        {ex.nombre}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )
-                              }
+                              {(suggestions[`${block.id}-${idx}`] || []).length > 0 && (
+                                <ul className="suggestions-list">
+                                  {suggestions[`${block.id}-${idx}`].map(ex => (
+                                    <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                      {ex.nombre}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
                             </div>
-
-                            <button
-                              onClick={() => handleDeleteSetRep(block.id, idx)}
-                              style={{
-                                marginLeft: '8px',
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#e55',
-                                fontSize: '20px',
-                                cursor: 'pointer'
-                              }}
-                              title="Eliminar este set"
-                            >
-                              –
-                            </button>
+                            <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
                           </div>
                         ))}
-                        <PrimaryButton
-                          text="+"
-                          linkTo="#"
-                          onClick={() => handleAddSetRep(block.id)}
-                        />
+                        <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
                       </div>
                     </div>
                   )}
@@ -1131,6 +674,7 @@ const convertApiBlockData = (b) => {
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
