@@ -17,7 +17,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const { rutinaId } = useParams();
   const isEditing = Boolean(rutinaId);
 
-  const diasSemana = ["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"];
+  const diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
 
   const apiToDisplayType = {
     SETS_REPS: 'Series y repeticiones',
@@ -27,7 +27,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     LADDER: 'Escalera'
   };
 
-  const tiposDeSerie = ["Series y repeticiones","Rondas","EMOM","AMRAP","Escalera"];
+  const tiposDeSerie = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera"];
 
   const [step, setStep] = useState(1);
 
@@ -40,7 +40,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [clases, setClases] = useState([]);
   const [selectedClase, setSelectedClase] = useState("");
   const [selectedGrupoMuscular, setSelectedGrupoMuscular] = useState("");
-  const gruposMusculares = ["Pecho","Espalda","Piernas","Brazos","Hombros","Abdominales","Glúteos","Tren Superior","Tren Inferior","Full Body"];
+  const gruposMusculares = ["Pecho", "Espalda", "Piernas", "Brazos", "Hombros", "Abdominales", "Glúteos", "Tren Superior", "Tren Inferior", "Full Body"];
 
   // Step 2
   const [blocks, setBlocks] = useState([]);
@@ -53,8 +53,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [dragOverBlockId, setDragOverBlockId] = useState(null);
 
   const exampleExercises = [
-    "Pecho plano 60kg","Flexiones de brazo","Press de hombro 60kg","Sentadillas con barra 80kg",
-    "Remo con mancuerna 40kg","Dominadas","Elevaciones laterales 8kg",
+    "Pecho plano 60kg", "Flexiones de brazo", "Press de hombro 60kg", "Sentadillas con barra 80kg",
+    "Remo con mancuerna 40kg", "Dominadas", "Elevaciones laterales 8kg",
   ];
 
   const navigate = useNavigate();
@@ -69,20 +69,20 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
   const initialBlockData = {
     'Series y repeticiones': { setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
-    'Rondas':  { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
-    'EMOM':    { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
-    'AMRAP':   { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
-    'Escalera':{ escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'Rondas': { rounds: '', descanso: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'EMOM': { interval: '', totalMinutes: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'AMRAP': { duration: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
+    'Escalera': { escaleraType: '', setsReps: [{ series: '', exercise: '', placeholderExercise: getRandomExercise(), exerciseId: null }] },
   };
 
   const convertApiBlockData = (b) => {
     const items = Array.isArray(b.bloqueEjercicios) ? b.bloqueEjercicios
-              : Array.isArray(b.ejercicios) ? b.ejercicios : [];
+      : Array.isArray(b.ejercicios) ? b.ejercicios : [];
 
     const mappedSets = items.map((e) => {
       const nombreEj = e.setRepWeight ?? e?.ejercicio?.nombre ?? e?.nombre ?? '';
-      const idEj     = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? null;
-      const reps     = e.reps ?? e.setsReps ?? '';
+      const idEj = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? null;
+      const reps = e.reps ?? e.setsReps ?? '';
       return { series: reps, exercise: nombreEj, placeholderExercise: '', exerciseId: idEj };
     });
 
@@ -141,7 +141,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
       if (fromEntrenador) {
         const alumnoEmail = r?.alumno?.email ?? r?.alumnoEmail ?? null;
-        const alumnoId    = r?.ID_Usuario ?? r?.alumno?.ID_Usuario ?? null;
+        const alumnoId = r?.ID_Usuario ?? r?.alumno?.ID_Usuario ?? null;
         let selected = null;
         if (alumnoEmail) selected = alumnoEmail;
         else if (alumnoId) {
@@ -268,11 +268,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
         case 'Series y repeticiones':
           return { type: "SETS_REPS", setsReps: block.data.setsReps[0]?.series || null, bloqueEjercicios };
         case 'Rondas':
-          return { type: "ROUNDS", cantRondas: parseInt(block.data.rounds,10) || null, descansoRonda: parseInt(block.data.descanso,10) || null, bloqueEjercicios };
+          return { type: "ROUNDS", cantRondas: parseInt(block.data.rounds, 10) || null, descansoRonda: parseInt(block.data.descanso, 10) || null, bloqueEjercicios };
         case 'EMOM':
-          return { type: "EMOM", durationMin: parseInt(block.data.totalMinutes,10) || null, bloqueEjercicios };
+          return { type: "EMOM", durationMin: parseInt(block.data.totalMinutes, 10) || null, bloqueEjercicios };
         case 'AMRAP':
-          return { type: "AMRAP", durationMin: parseInt(block.data.duration,10) || null, bloqueEjercicios };
+          return { type: "AMRAP", durationMin: parseInt(block.data.duration, 10) || null, bloqueEjercicios };
         case 'Escalera':
           return { type: "LADDER", tipoEscalera: block.data.escaleraType || null, bloqueEjercicios };
         default:
@@ -443,9 +443,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                   value={
                     selectedEmail
                       ? {
-                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
-                          value: selectedEmail
-                        }
+                        label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
+                        value: selectedEmail
+                      }
                       : null
                   }
                   onChange={option => setSelectedEmail(option.value)}
@@ -501,13 +501,15 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                         title="Arrastrar para reordenar"
                       >
                         {/* icono hamburguesa simple */}
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                           <path d="M4 7h16v2H4zM4 11h16v2H4zM4 15h16v2H4z"></path>
                         </svg>
                       </button>
 
                       {/* Delete */}
-                      <button onClick={() => handleDeleteBlock(block.id)} className="delete-block-btn" title="Eliminar bloque">✕</button>
+                      <button onClick={() => handleDeleteBlock(block.id)} className="delete-block-btn" title="Eliminar bloque"> 
+                          <CloseIcon width={32} height={32} />
+                      </button>
                     </div>
 
                     <h4 className="block-title">{block.type}</h4>
@@ -553,10 +555,14 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                     {block.type === "Rondas" && (
                       <div className="rondas-ctn">
                         <div className="cantidad-rondas-descanso">
-                          <CustomInput placeholder="3" width="60px" value={block.data.rounds} onChange={(e) => handleBlockFieldChange(block.id, 'rounds', e.target.value)} />
-                          <span> rondas con </span>
-                          <CustomInput placeholder="90" width="60px" value={block.data.descanso} onChange={(e) => handleBlockFieldChange(block.id, 'descanso', e.target.value)} />
-                          <span> segundos de descanso </span>
+                          <div className='cant-rondas-subctn'>
+                            <input className='cant-rondas-subctn-input-chico' placeholder="3" value={block.data.rounds} onChange={(e) => handleBlockFieldChange(block.id, 'rounds', e.target.value)} width={30} />
+                            <span> rondas con </span>
+                          </div>
+                          <div className='cant-rondas-subctn'>
+                            <input className='cant-rondas-subctn-input-chico' placeholder="90" value={block.data.descanso} onChange={(e) => handleBlockFieldChange(block.id, 'descanso', e.target.value)} />
+                            <span> segundos de descanso </span>
+                          </div>
                         </div>
 
                         <div className="sets-reps-ctn">
@@ -599,12 +605,16 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                     {block.type === "EMOM" && (
                       <div className="emom-ctn">
                         <div className="cantidad-emom-ctn">
-                          <span> Cada </span>
-                          <CustomInput placeholder="1" width="45px" value={block.data.interval} onChange={(e) => handleBlockFieldChange(block.id, 'interval', e.target.value)} />
-                          <CustomInput placeholder="minuto" width="100px" disabled />
-                          <span> por </span>
-                          <CustomInput placeholder="20" width="45px" value={block.data.totalMinutes} onChange={(e) => handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)} />
-                          <CustomInput placeholder="minutos" width="100px" disabled />
+                          <div className='cant-rondas-subctn'>
+                            <span> Cada </span>
+                            <input className='cant-rondas-subctn-input-chico' placeholder="1" width="45px" value={block.data.interval} onChange={(e) => handleBlockFieldChange(block.id, 'interval', e.target.value)} />
+                            <input className='cant-rondas-subctn-input-grande' placeholder="minuto" width="100px" disabled />
+                          </div>
+                          <div className='cant-rondas-subctn'>
+                            <span> por </span>
+                            <input className='cant-rondas-subctn-input-chico' placeholder="20" width="45px" value={block.data.totalMinutes} onChange={(e) => handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)} />
+                            <input className='cant-rondas-subctn-input-grande' placeholder="minutos" width="100px" disabled />
+                          </div>
                         </div>
 
                         <div className="sets-reps-ctn">
@@ -648,8 +658,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                       <div className="amrap-ctn">
                         <div className="cantidad-amrap-ctn">
                           <span> AMRAP de </span>
-                          <CustomInput placeholder="20" width="45px" value={block.data.duration} onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)} />
-                          <CustomInput placeholder="minutos" width="100px" disabled />
+                          <input className='cant-rondas-subctn-input-chico' placeholder="20" width="45px" value={block.data.duration} onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)} />
+                          <input className='cant-rondas-subctn-input-grande' placeholder="minutos" width="100px" disabled />
                         </div>
 
                         <div className="sets-reps-ctn">
@@ -692,9 +702,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                     {block.type === "Escalera" && (
                       <div className="escalera-ctn">
                         <div className="cantidad-escalera-ctn">
-                          <CustomInput
+                          <input
+                          className='cant-rondas-subctn-input-grande'
                             placeholder="Ej. 21-15-9"
-                            width="200px"
                             value={block.data.escaleraType}
                             onChange={(e) => handleBlockFieldChange(block.id, 'escaleraType', e.target.value)}
                           />
@@ -702,9 +712,10 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
                         <div className="sets-reps-ctn">
                           {block.data.setsReps.map((setRep, idx) => (
-                            <div key={idx} className="sets-row sets-row--no-series">
-                              <div className="exercise-cell">
+                            <div key={idx} className="sets-ladder sets-row--no-series">
+                              <div className="exercise-cell" style={{ width: '100%'}}>
                                 <input
+                                  style={{ width: '100%'}}
                                   type="text"
                                   className="exercise-input"
                                   placeholder={setRep.placeholderExercise}
