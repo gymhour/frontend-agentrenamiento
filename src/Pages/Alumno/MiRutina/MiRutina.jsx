@@ -20,6 +20,7 @@ const MiRutina = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRutinaId, setSelectedRutinaId] = useState(null);
   const navigate = useNavigate();
+  const [clasesApi, setClasesApi] = useState([]);
   const [selClase, setSelClase] = useState('');
   const [selGrupo, setSelGrupo] = useState('');
   const [selDia, setSelDia] = useState('');
@@ -34,12 +35,20 @@ const MiRutina = () => {
       .then(data => setRutinas(data.rutinas))
       .catch(error => console.error('Error al obtener rutinas:', error))
       .finally(() => setLoading(false));
+      apiService.getClases()
+      .then(data => setClasesApi(data)) 
+      .catch(error => console.error('Error al obtener clases:', error))
+      .finally(() => setLoading(false));
   }, []);
+  
+  const clases = Array.from(new Set(clasesApi.map(c => c.nombre)));
 
-  // opciones únicas para los dropdowns
-  const clases = Array.from(new Set(rutinas.map(r => r.claseRutina)));
-  const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina)));
-  const dias = Array.from(new Set(rutinas.flatMap(r => r.dias)));
+  // const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina)));
+  const grupos = ["Pecho", "Espalda", "Piernas", "Brazos", "Hombros", "Abdominales", "Glúteos", "Tren Superior", "Tren Inferior", "Full Body"];
+
+  // const dias = Array.from(new Set(rutinas.flatMap(r => r.dias)));
+  const dias = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+
 
   // rutinas filtradas según filtros aplicados
   const filteredRutinas = rutinas.filter(r => (
@@ -223,6 +232,12 @@ const MiRutina = () => {
                                 );
                               })}
                             </ul>
+
+                            {bloque.descansoRonda && (
+                              <p style={{ margin: '4px 0 8px', opacity: 0.8 }}>
+                                Descanso de {(bloque.descansoRonda)} segundos entre rondas
+                              </p>
+                            )}
                           </div>
                         )}
 

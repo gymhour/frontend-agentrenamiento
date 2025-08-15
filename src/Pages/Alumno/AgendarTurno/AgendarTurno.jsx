@@ -8,7 +8,8 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-import { toast, ToastContainer } from 'react-toastify';
+// ToastContainer
+import { toast } from 'react-toastify';
 import { registerLocale } from 'react-datepicker';
 import es from 'date-fns/locale/es';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -214,7 +215,7 @@ const AgendarTurno = () => {
       <SidebarMenu isAdmin={false} />
       <div className='content-layout'>
         {/* Toast en modo oscuro */}
-        <ToastContainer theme="dark" />
+        {/* <ToastContainer theme="dark" /> */}
         <h2 className='agendar-turno-title'>Agendar turno</h2>
         <div className="agendar-turno-ctn">
           {!loading && (

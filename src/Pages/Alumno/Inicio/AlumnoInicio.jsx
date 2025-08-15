@@ -11,7 +11,8 @@ import apiService from '../../../services/apiService';
 import ClasesActividadesCard from '../ClasesActividadesCard/ClasesActividadesCard';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { ToastContainer, toast } from 'react-toastify';
+// ToastContainer
+import { toast } from 'react-toastify';
 
 const AlumnoInicio = () => {
     const [clases, setClases] = useState([]);
@@ -144,7 +145,7 @@ const AlumnoInicio = () => {
                 onConfirm={handleConfirmCancellation}
                 message="¿Estás seguro de que deseas cancelar este turno?"
             />
-            <ToastContainer theme="dark" />
+            {/* <ToastContainer theme="dark" /> */}
         </div>
     );
 };

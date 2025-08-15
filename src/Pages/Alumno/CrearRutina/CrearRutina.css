@@ -263,4 +263,9 @@
         align-items: center;
         gap: 10px;
     }
+
+    .selected-tags {
+        display: flex;
+        flex-wrap: wrap;
+    }
 }

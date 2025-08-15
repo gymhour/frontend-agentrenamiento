@@ -213,7 +213,7 @@ const MedicionResultadosDetalle = () => {
 
         <div className="detalle-form">
           <h3>Agregar nuevo resultado</h3>
-          <form className="editar-medicion-form" onSubmit={handleAgregarResultado}>
+          <form className="editar-medicion-form">
             <div className="editar-medicion-input-ctn">
               <label>Cantidad</label>
               <CustomInput
@@ -232,7 +232,7 @@ const MedicionResultadosDetalle = () => {
               />
             </div>
             <div className="nuevo-resultado-form-btns">
-              <PrimaryButton text="Agregar" disabled={loading} />
+              <PrimaryButton text="Agregar" onClick={handleAgregarResultado} disabled={loading} />
             </div>
           </form>
         </div>

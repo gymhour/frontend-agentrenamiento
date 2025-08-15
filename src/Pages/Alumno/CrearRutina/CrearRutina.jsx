@@ -80,7 +80,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       : Array.isArray(b.ejercicios) ? b.ejercicios : [];
 
     const mappedSets = items.map((e) => {
-      const nombreEj = e.setRepWeight ?? e?.ejercicio?.nombre ?? e?.nombre ?? '';
+      const nombreEj = e?.ejercicio?.nombre ?? e.setRepWeight ?? e?.nombre ?? '';
       const idEj = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? null;
       const reps = e.reps ?? e.setsReps ?? '';
       return { series: reps, exercise: nombreEj, placeholderExercise: '', exerciseId: idEj };
@@ -169,7 +169,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     e.preventDefault();
     if (!formData.nombre.trim()) return toast.error("Por favor, ingresa un nombre para la rutina");
     if (selectedDias.length === 0) return toast.error("Por favor, selecciona al menos un día de la semana");
-    if (!selectedClase) return toast.error("Por favor, selecciona una clase");
+    // if (!selectedClase) return toast.error("Por favor, selecciona una clase");
     if (fromEntrenador && !selectedEmail) return toast.error("Por favor, selecciona un usuario antes de continuar");
     setStep(2);
   };
@@ -390,11 +390,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                 value={formData.nombre}
                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
               />
-              <CustomInput
-                placeholder="Descripción (opcional)"
-                value={formData.descripcion}
-                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-              />
 
               <CustomDropdown
                 id="dias"
@@ -419,7 +414,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
               <CustomDropdown
                 id="claseRutina"
                 name="claseRutina"
-                placeholderOption="Seleccionar clase"
+                placeholderOption="Seleccionar clase (opcional)"
                 options={clases.map(c => c.nombre)}
                 value={selectedClase}
                 onChange={e => setSelectedClase(e.target.value)}
@@ -428,10 +423,16 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
               <CustomDropdown
                 id="grupoMuscular"
                 name="grupoMuscular"
-                placeholderOption="Seleccionar grupo muscular"
+                placeholderOption="Seleccionar grupo muscular (opcional)"
                 options={gruposMusculares}
                 value={selectedGrupoMuscular}
                 onChange={e => setSelectedGrupoMuscular(e.target.value)}
+              />
+
+              <CustomInput
+                placeholder="Descripción (opcional)"
+                value={formData.descripcion}
+                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
               />
 
               {fromEntrenador && (

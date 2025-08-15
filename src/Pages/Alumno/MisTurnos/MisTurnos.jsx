@@ -8,7 +8,8 @@ import { ReactComponent as AddCircleIcon } from '../../../assets/icons/add-circl
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { ToastContainer, toast } from 'react-toastify';
+// ToastContainer
+import { toast } from 'react-toastify';
 
 const MisTurnos = () => {
     const [turnos, setTurnos] = useState([]);
@@ -136,7 +137,7 @@ const MisTurnos = () => {
                 onConfirm={handleConfirmCancellation}
                 message="¿Estás seguro de que deseas cancelar este turno?"
             />
-            <ToastContainer theme="dark" />
+            {/* <ToastContainer theme="dark" /> */}
         </div>
     );
 };
