@@ -175,6 +175,15 @@ const updateUserById = async (id, body) => {
     }
 }
 
+const getUsuariosAdmins = async () => {
+    try {
+        const response = await apiClient.get(`/usuarios/admins`);
+        return response.data;
+    } catch (error) {
+        throw new Error(`Error al traer los usuarios administradores`);
+    }
+}
+
 // Contraseñas
 const forgotPassword = async (body) => {
     try {
@@ -397,6 +406,7 @@ export default {
     getAllUsuarios,
     getUserById,
     updateUserById,
+    getUsuariosAdmins,
     // Contraseña
     forgotPassword,
     resetPassword,

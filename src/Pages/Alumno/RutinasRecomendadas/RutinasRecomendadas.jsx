@@ -25,19 +25,57 @@ const RutinasRecomendadas = () => {
   // toggle de sección de filtros
   const [showFilters, setShowFilters] = useState(false);
 
+  // Helper: deduplicar rutinas por ID
+  const dedupeRutinas = (arr = []) => {
+    const map = new Map();
+    for (const r of arr) {
+      const key = r?.ID_Rutina ?? r?.id ?? `${r?.nombre ?? ''}-${r?.createdAt ?? ''}`;
+      if (!map.has(key)) map.set(key, r);
+    }
+    return Array.from(map.values());
+  };
+
   useEffect(() => {
+    let cancelled = false;
+
     const fetchRutinas = async () => {
+      setLoading(true);
       try {
-        const adminId = 18;
-        const { rutinas: allRutinas } = await apiService.getUserRutinas(adminId);
-        setRutinas(allRutinas || []);
+        const admins = await apiService.getUsuariosAdmins();
+
+        const adminIds = (admins || [])
+          .filter(a => String(a?.tipo || '').toLowerCase() === 'admin' && a?.estado !== false)
+          .map(a => a.ID_Usuario)
+          .filter(Boolean);
+
+        if (adminIds.length === 0) {
+          if (!cancelled) setRutinas([]);
+          return;
+        }
+
+        // Traer rutinas de cada admin en paralelo
+        const results = await Promise.allSettled(
+          adminIds.map(id => apiService.getUserRutinas(id)) // debe devolver { rutinas: [...] }
+        );
+
+        // Juntar exitosas, deduplicar
+        const todas = results.flatMap(r =>
+          r.status === 'fulfilled' ? (r.value?.rutinas || []) : []
+        );
+
+        const unicas = dedupeRutinas(todas);
+
+        if (!cancelled) setRutinas(unicas);
       } catch (error) {
         console.error('Error al obtener rutinas:', error);
+        if (!cancelled) setRutinas([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
+
     fetchRutinas();
+    return () => { cancelled = true; };
   }, []);
 
   const clases = Array.from(new Set(rutinas.map(r => r.claseRutina).filter(Boolean)));
