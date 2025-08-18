@@ -65,8 +65,7 @@ const EjercicioForm = ({ fromAdmin, fromEntrenador }) => {
         setMusculosText(dashSeparatedToTextarea(data.musculos || ''));
         setEquipamientoText(dashSeparatedToTextarea(data.equipamiento || ''));
 
-        // Si tu API devolviera una URL de imagen actual, podrías setearla como preview acá
-        // setImagePreview(data.mediaUrl || null);
+        setImagePreview(data.mediaUrl || null);
       } catch (err) {
         console.error(err);
         toast.error('No se pudo cargar el ejercicio.');
@@ -75,6 +74,7 @@ const EjercicioForm = ({ fromAdmin, fromEntrenador }) => {
       }
     })();
   }, [id, isEditing]);
+
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -103,8 +103,8 @@ const EjercicioForm = ({ fromAdmin, fromEntrenador }) => {
     return fromAdmin
       ? '/admin/ejercicios'
       : fromEntrenador
-      ? '/entrenador/ejercicios'
-      : '/ejercicios';
+        ? '/entrenador/ejercicios'
+        : '/ejercicios';
   }, [fromAdmin, fromEntrenador]);
 
   const handleSubmit = async (evt) => {
@@ -161,7 +161,7 @@ const EjercicioForm = ({ fromAdmin, fromEntrenador }) => {
 
         <form className='exercise-form' encType="multipart/form-data">
           <div className='form-input-ctn'>
-            <label>Nombre <span style={{color: 'var(--danger)'}}>*</span></label>
+            <label>Nombre <span style={{ color: 'var(--danger)' }}>*</span></label>
             <CustomInput
               type='text'
               value={nombre}
@@ -265,9 +265,7 @@ const EjercicioForm = ({ fromAdmin, fromEntrenador }) => {
             {imagePreview && (
               <div className='image-preview-ctn'>
                 <img src={imagePreview} alt='preview' className='image-preview' />
-                <button type="button" className='clear-image-btn' onClick={clearImage} disabled={loading}>
-                  Quitar imagen
-                </button>
+                <SecondaryButton onClick={clearImage} text="Quitar imagen"/>
               </div>
             )}
           </div>

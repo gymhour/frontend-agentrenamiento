@@ -39,7 +39,7 @@
 
 /* CALENDARIO */
 
-.filters {
+.turnos-filters {
     padding: 20px 0px;
     display: flex;
     justify-content: start;
@@ -47,7 +47,7 @@
     gap: 20px;
 }
 
-.filters-input-ctn {
+.turnos-filters-input-ctn {
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -279,3 +279,30 @@ rbc-day-slot .rbc-event,
 .rbc-event:focus, .rbc-day-slot .rbc-background-event:focus {
     outline: none;
 }
+
+.calendar-wrapper { height: 75vh; margin: 24px 0; }
+
+@media (max-width: 850px) {
+  .calendar-wrapper { height: 68vh; }
+
+  .rbc-toolbar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+
+  .turnos-filters {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+  }
+
+  .turnos-filters-input-ctn {
+    width: 100%;
+  }
+}
+

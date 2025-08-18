@@ -110,7 +110,13 @@ const RutinasRecomendadas = () => {
                 </div>
 
                 <div className="rutina-data">
-                  <p>Día de la semana: {rutina.dias.join(', ')}</p>
+                  {/* <p>Día de la semana: {rutina.dias.join(', ')}</p> */}
+                  <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
+                  <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
+                  <p>
+                    <strong>Días:</strong>{' '}
+                    {rutina.dias && rutina.dias.length > 0 ? rutina.dias.join(', ') : '—'}
+                  </p>
                 </div>
 
                 {rutina.entrenador && (
@@ -179,11 +185,18 @@ const RutinasRecomendadas = () => {
                               {bloque.ejercicios.map((ej, idx) => {
                                 const name = ej.ejercicio.nombre;
                                 const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+
+                                const start = idx + 0;
+                                const end = idx + 1;
+
                                 return (
                                   <li key={ej.ID_Ejercicio}>
-                                    {`0-${idx}: ${ej.reps} `}
+                                    {`${start}-${end}: ${ej.reps} `}
                                     {hasDetail ? (
-                                      <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                      <Link
+                                        to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`}
+                                        className="exercise-link"
+                                      >
                                         {name}
                                       </Link>
                                     ) : (

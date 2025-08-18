@@ -4,7 +4,7 @@
     flex-direction: column;
     justify-content: start;
     align-items: start;
-    gap: 10px;
+    gap: 20px;
 }
 
 .ejercicio-form-title {
@@ -20,8 +20,49 @@
 }
 
 @media screen and (max-width: 500px) {
-    .exercise-form, .form-input-ctn {
+
+    .exercise-form,
+    .form-input-ctn {
         width: 100%;
         max-width: none;
+    }
+}
+
+.image-preview-ctn {
+    width: 100%;
+    max-width: 520px;
+    margin-top: 8px;
+}
+
+.image-preview {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
+    aspect-ratio: 16 / 9;
+}
+
+.clear-image-btn {
+    margin-top: 8px;
+}
+
+.youtube-preview {
+    width: 100%;
+    max-width: 640px;
+    aspect-ratio: 16 / 9;
+}
+
+.youtube-preview iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 600px) {
+
+    .image-preview-ctn,
+    .youtube-preview {
+        max-width: 100%;
     }
 }

@@ -13,6 +13,7 @@ import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropd
 import { toast } from "react-toastify";
 import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
 import { useNavigate } from "react-router-dom";
+import CustomInput from "../../../Components/utils/CustomInput/CustomInput";
 
 const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fromEntrenador }) => {
 
@@ -277,13 +278,13 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
             <form encType="multipart/form-data" onSubmit={handleSubmit}>
               {/* Nombre */}
               <div className="form-input-ctn">
-                <label htmlFor="nombre">Nombre:</label>
-                <input
-                  type="text"
+                <label>Nombre:</label>
+                <CustomInput
                   id="nombre"
+                  type="text"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  required
+                  required={true}
                 />
               </div>
 
@@ -395,7 +396,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                     </div>
                     {/* Cupos */}
                     <div className="form-input-ctn-horario">
-                      <label>Cupos disponibles</label>
+                      <label>Cupos</label>
                       <input
                         type="number"
                         min={1}
@@ -412,17 +413,21 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                     />
                   </div>
                 ))}
-                <SecondaryButton
-                  text="Agregar horario"
-                  icon={AddIconCircle}
-                  onClick={handleAddHorario}
-                />
+                <div className="clase-actividad-form-agg-horario-btn">
+                  <SecondaryButton
+                    text="Agregar horario"
+                    icon={AddIconCircle}
+                    onClick={handleAddHorario}
+                  />
+                </div>
               </div>
 
               {/* Submit */}
-              <button type="submit" className="submit-btn" disabled={isLoading}>
-                {isEditing ? "Guardar cambios" : "Crear Clase"}
-              </button>
+              <div className="clase-actividad-form-guardar-btn">
+                <button type="submit" className="submit-btn" disabled={isLoading}>
+                  {isEditing ? "Guardar cambios" : "Crear Clase"}
+                </button>
+              </div>
             </form>
           </div>
         </div>

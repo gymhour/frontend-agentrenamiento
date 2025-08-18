@@ -199,7 +199,7 @@ const changePassword = async (body) => {
         const response = await apiClient.put("/auth/change-password", body);
         return response.data;
     } catch (error) {
-        throw new Error('Error al cambiar contraseña');
+        return error
     }
 }
 

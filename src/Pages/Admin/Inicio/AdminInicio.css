@@ -35,6 +35,14 @@
   font-weight: 500;
 }
 
+.month-label {
+  font-size: 0.8rem;
+  font-weight: 400;
+  margin-left: 6px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: capitalize;
+}
+
 .card .value {
   margin: 0;
   font-size: 24px;

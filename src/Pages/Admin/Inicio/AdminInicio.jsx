@@ -1,4 +1,3 @@
-// src/pages/AdminInicio/AdminInicio.jsx
 import React, { useState, useEffect } from 'react';
 import '../../../App.css';
 import './AdminInicio.css';
@@ -152,6 +151,12 @@ const AdminInicio = () => {
   // Clase CSS para input de mes/año (puedes ajustar en AdminInicio.css)
   const datePickerClass = 'custom-datepicker-mes';
 
+  // Devuelve el nombre del mes actual
+  const currentMonthName = new Date().toLocaleDateString('es-ES', {
+    month: 'long',
+    year: 'numeric'
+  }).replace(' de', '');
+
   return (
     <div className='page-layout'>
       {loading && <LoaderFullScreen />}
@@ -182,7 +187,10 @@ const AdminInicio = () => {
                 fill='none'
                 style={{ color: "#bfbfbf" }}
               />
-              <h3>Cobros recibidos</h3>
+              <h3>
+                Cobros recibidos
+                <span className="month-label">({currentMonthName})</span>
+              </h3>
             </div>
             <p className='value'>
               {currencyFormatter(kpi.totalAmountPaidThisMonth)}
@@ -200,7 +208,10 @@ const AdminInicio = () => {
                 fill='none'
                 style={{ color: "#bfbfbf" }}
               />
-              <h3>Cobros pendientes</h3>
+              <h3>
+                Cobros pendientes
+                <span className="month-label">({currentMonthName})</span>
+              </h3>
             </div>
             <p className='value'>
               {currencyFormatter(kpi.totalAmountPendingThisMonth)}

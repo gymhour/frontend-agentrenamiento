@@ -166,24 +166,32 @@ const RutinasAdmin = () => {
                           <p>{`EMOM ${bloque.durationMin}min:`}</p>
                           <ul style={{ paddingLeft: '20px' }}>
                             {bloque.ejercicios.map((ej, idx) => {
-                              const name = ej.ejercicio.nombre
-                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                              const name = ej.ejercicio.nombre;
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+
+                              const start = idx + 0;
+                              const end = idx + 1;
+
                               return (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`0-${idx}: ${ej.reps} `}
+                                  {`${start}-${end}: ${ej.reps} `}
                                   {hasDetail ? (
-                                    <Link to={`/admin/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    <Link
+                                      to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`}
+                                      className="exercise-link"
+                                    >
                                       {name}
                                     </Link>
                                   ) : (
                                     name
                                   )}
                                 </li>
-                              )
+                              );
                             })}
                           </ul>
                         </div>
                       )}
+
 
                       {/* AMRAP — igual a MiRutina */}
                       {bloque.type === 'AMRAP' && (

@@ -5,19 +5,25 @@ import { Link } from 'react-router-dom';
 import './ForgotPassword.css'
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
+import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const body = { email: email}
 
+        setIsLoading(true)
+
         try {
             const response = await apiService.forgotPassword(body);
-            console.log("Response", response);
+            // console.log("Response", response);
+            setIsLoading(false)
             toast.success('Email enviado correctamente. Por favor, revise su correo.');
         } catch (error) {
+            setIsLoading(false)
             toast.error("Error al enviar mail de recuperación de contraseña.")
         }
     }
@@ -25,6 +31,7 @@ const ForgotPassword = () => {
     return (
         <>
             <div className='reset-container' style={{ backgroundImage: `url(${LoginBackgroundImage})` }}>
+                {isLoading && <LoaderFullScreen/>}
                 <div className="reset-subcontainer">
                     <div className='reset-subcontainer-title'>
                         <h4> Restablecer contraseña </h4>

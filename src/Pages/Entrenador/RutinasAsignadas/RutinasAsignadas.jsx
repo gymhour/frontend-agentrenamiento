@@ -7,8 +7,10 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import './RutinasAsignadas.css'
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton'
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
+import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg'
 import { useNavigate, Link } from 'react-router-dom'
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton'
+import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp'
 
 const RutinasAsignadas = () => {
   const [loading, setLoading] = useState(false)
@@ -16,6 +18,8 @@ const RutinasAsignadas = () => {
   const [rutinas, setRutinas] = useState([])
   const [users, setUsers] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
+  const [isPopupOpen, setIsPopupOpen] = useState(false)
+  const [selectedRutinaId, setSelectedRutinaId] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -64,7 +68,34 @@ const RutinasAsignadas = () => {
     setSelectedUser(null);
     setRutinas(allRutinas);
   };
-  
+
+  const openDeletePopup = id => {
+    setSelectedRutinaId(id)
+    setIsPopupOpen(true)
+  }
+
+  const closePopup = () => {
+    setIsPopupOpen(false)
+    setSelectedRutinaId(null)
+  }
+
+  const handleConfirmDelete = async () => {
+    setLoading(true)
+    if (selectedRutinaId) {
+      try {
+        await apiService.deleteRutina(selectedRutinaId)
+        setRutinas(prev => prev.filter(r => r.ID_Rutina !== selectedRutinaId))
+        toast.success("Rutina eliminada correctamente.")
+        setLoading(false)
+      } catch (error) {
+        toast.error("Error al eliminar la rutina");
+        console.error('Error al eliminar rutina', error)
+        setLoading(false)
+      }
+      closePopup()
+    }
+  }
+
   if (loading) return <LoaderFullScreen />
 
   return (
@@ -104,6 +135,12 @@ const RutinasAsignadas = () => {
               <div className='rutina-header'>
                 <h3>{rutina.nombre}</h3>
                 <div className="rutina-header-acciones">
+                <button
+                    onClick={() => openDeletePopup(rutina.ID_Rutina)}
+                    className='mi-rutina-eliminar-btn'
+                  >
+                    <DeleteIcon width={20} height={20} />
+                  </button>
                   <button
                     onClick={() => navigate(`/entrenador/editar-rutina/${rutina.ID_Rutina}`)}
                     className='mi-rutina-eliminar-btn'
@@ -115,7 +152,13 @@ const RutinasAsignadas = () => {
               </div>
 
               <div className='rutina-data'>
-                <p><strong>Días:</strong> {rutina.dias.join(', ')}</p>
+                <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
+                <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
+                <p>
+                  <strong>Días:</strong>{' '}
+                  {rutina.dias && rutina.dias.length > 0 ? rutina.dias.join(', ') : '—'}
+                </p>
+                {/* <p><strong>Días:</strong> {rutina.dias.join(', ')}</p> */}
               </div>
 
               {rutina.bloques && rutina.bloques.length > 0 && (
@@ -178,30 +221,38 @@ const RutinasAsignadas = () => {
                         </div>
                       )}
 
-                      {/* EMOM (igual que MiRutina) */}
+                      {/* EMOM - igual que MiRutina */}
                       {bloque.type === 'EMOM' && (
                         <div>
                           <p>{`EMOM ${bloque.durationMin}min:`}</p>
                           <ul style={{ paddingLeft: '20px' }}>
                             {bloque.ejercicios.map((ej, idx) => {
-                              const name = ej.ejercicio.nombre
-                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl)
+                              const name = ej.ejercicio.nombre;
+                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+
+                              const start = idx + 0;
+                              const end = idx + 1;
+
                               return (
                                 <li key={ej.ID_Ejercicio}>
-                                  {`0-${idx}: ${ej.reps} `}
+                                  {`${start}-${end}: ${ej.reps} `}
                                   {hasDetail ? (
-                                    <Link to={`/entrenador/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
+                                    <Link
+                                      to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`}
+                                      className="exercise-link"
+                                    >
                                       {name}
                                     </Link>
                                   ) : (
                                     name
                                   )}
                                 </li>
-                              )
+                              );
                             })}
                           </ul>
                         </div>
                       )}
+
 
                       {/* AMRAP (igual que MiRutina) */}
                       {bloque.type === 'AMRAP' && (
@@ -290,6 +341,13 @@ const RutinasAsignadas = () => {
             </div>
           ))}
         </div>
+
+        <ConfirmationPopup
+          isOpen={isPopupOpen}
+          message="¿Estás seguro que deseas eliminar esta rutina?"
+          onClose={closePopup}
+          onConfirm={handleConfirmDelete}
+        />
       </div>
     </div>
   )
