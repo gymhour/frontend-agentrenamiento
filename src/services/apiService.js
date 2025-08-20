@@ -122,6 +122,15 @@ const getRutinasEntrenadores = async (idEntrenador) => {
     }
 }
 
+const getRutinasAdmins = async() => {
+    try {
+        const response = await apiClient.get(`/rutinas/admins`)
+        return response.data;
+    } catch (error) {
+        throw new Error("Error al traer las rutinas del admin");
+    }
+}
+
 /* Entrenadores */
 const getEntrenadores = async () => {
     try {
@@ -398,6 +407,7 @@ export default {
     editRutina,
     deleteRutina,
     getRutinasEntrenadores,
+    getRutinasAdmins,
     // Entrenadores
     getEntrenadores,
     addEntrenadorToClase,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import '../../../App.css';
 import '../MiRutina/MiRutina.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
@@ -41,29 +41,22 @@ const RutinasRecomendadas = () => {
     const fetchRutinas = async () => {
       setLoading(true);
       try {
-        const admins = await apiService.getUsuariosAdmins();
+        const resp = await apiService.getRutinasAdmins();
+        const list = Array.isArray(resp?.rutinas) ? resp.rutinas : [];
 
-        const adminIds = (admins || [])
-          .filter(a => String(a?.tipo || '').toLowerCase() === 'admin' && a?.estado !== false)
-          .map(a => a.ID_Usuario)
-          .filter(Boolean);
+        // defensas mínimas y orden por fecha (más nuevas primero)
+        const normalizadas = list.map(r => ({
+          ...r,
+          dias: Array.isArray(r?.dias) ? r.dias.filter(Boolean) : [],
+          claseRutina: r?.claseRutina ?? null,
+          grupoMuscularRutina: r?.grupoMuscularRutina ?? null,
+        }));
 
-        if (adminIds.length === 0) {
-          if (!cancelled) setRutinas([]);
-          return;
-        }
-
-        // Traer rutinas de cada admin en paralelo
-        const results = await Promise.allSettled(
-          adminIds.map(id => apiService.getUserRutinas(id)) // debe devolver { rutinas: [...] }
-        );
-
-        // Juntar exitosas, deduplicar
-        const todas = results.flatMap(r =>
-          r.status === 'fulfilled' ? (r.value?.rutinas || []) : []
-        );
-
-        const unicas = dedupeRutinas(todas);
+        const unicas = dedupeRutinas(normalizadas).sort((a, b) => {
+          const da = new Date(a?.createdAt || 0).getTime();
+          const db = new Date(b?.createdAt || 0).getTime();
+          return db - da;
+        });
 
         if (!cancelled) setRutinas(unicas);
       } catch (error) {
@@ -78,15 +71,27 @@ const RutinasRecomendadas = () => {
     return () => { cancelled = true; };
   }, []);
 
-  const clases = Array.from(new Set(rutinas.map(r => r.claseRutina).filter(Boolean)));
-  const grupos = Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina).filter(Boolean)));
-  const dias = Array.from(new Set(rutinas.flatMap(r => r.dias).filter(Boolean)));
+  // opciones de filtros (únicos y no vacíos)
+  const clases = useMemo(
+    () => Array.from(new Set(rutinas.map(r => r.claseRutina).filter(Boolean))),
+    [rutinas]
+  );
+  const grupos = useMemo(
+    () => Array.from(new Set(rutinas.map(r => r.grupoMuscularRutina).filter(Boolean))),
+    [rutinas]
+  );
+  const dias = useMemo(
+    () => Array.from(new Set(rutinas.flatMap(r => r.dias || []).filter(Boolean))),
+    [rutinas]
+  );
 
-  const filteredRutinas = rutinas.filter(r => (
-    (fClase === '' || r.claseRutina === fClase) &&
-    (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
-    (fDia === '' || r.dias.includes(fDia))
-  ));
+  const filteredRutinas = useMemo(() => {
+    return rutinas.filter(r => (
+      (fClase === '' || r.claseRutina === fClase) &&
+      (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
+      (fDia === '' || (Array.isArray(r.dias) && r.dias.includes(fDia)))
+    ));
+  }, [rutinas, fClase, fGrupo, fDia]);
 
   const aplicarFiltro = () => { setFClase(selClase); setFGrupo(selGrupo); setFDia(selDia); };
   const limpiarFiltro = () => { setSelClase(''); setSelGrupo(''); setSelDia(''); setFClase(''); setFGrupo(''); setFDia(''); };
@@ -145,15 +150,19 @@ const RutinasRecomendadas = () => {
               <div key={rutina.ID_Rutina} className="rutina-card">
                 <div className='rutina-header'>
                   <h3>{rutina.nombre}</h3>
+                  {/* {rutina?.alumno?.tipo && (
+                    <span className="tag" style={{ marginLeft: 8 }}>
+                      {String(rutina.alumno.tipo).toLowerCase() === 'admin' ? 'Admin' : rutina.alumno.tipo}
+                    </span>
+                  )} */}
                 </div>
 
                 <div className="rutina-data">
-                  {/* <p>Día de la semana: {rutina.dias.join(', ')}</p> */}
                   <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
                   <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
                   <p>
                     <strong>Días:</strong>{' '}
-                    {rutina.dias && rutina.dias.length > 0 ? rutina.dias.join(', ') : '—'}
+                    {Array.isArray(rutina.dias) && rutina.dias.length > 0 ? rutina.dias.join(', ') : '—'}
                   </p>
                 </div>
 
@@ -163,19 +172,19 @@ const RutinasRecomendadas = () => {
                   </p>
                 )}
 
-                {rutina.bloques && rutina.bloques.length > 0 && (
+                {Array.isArray(rutina.bloques) && rutina.bloques.length > 0 && (
                   <div className="bloques-list">
                     {rutina.bloques.map(bloque => (
                       <div key={bloque.ID_Bloque} className="bloque-card">
 
                         {bloque.type === 'SETS_REPS' && (
                           <div>
-                            {bloque.ejercicios.map(ej => {
-                              const name = ej.ejercicio.nombre;
-                              const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                            {Array.isArray(bloque.ejercicios) && bloque.ejercicios.map(ej => {
+                              const name = ej?.ejercicio?.nombre || 'Ejercicio';
+                              const hasDetail = !!(ej?.ejercicio?.descripcion || ej?.ejercicio?.mediaUrl);
                               return (
                                 <p key={ej.ID_Ejercicio}>
-                                  {bloque.setsReps}{' '}
+                                  {bloque.setsReps ?? ej?.setRepWeight ?? ''}{' '}
                                   {hasDetail ? (
                                     <Link to={`/alumno/ejercicios/${ej.ejercicio.ID_Ejercicio}`} className='exercise-link'>
                                       {name}
@@ -192,13 +201,13 @@ const RutinasRecomendadas = () => {
                         {bloque.type === 'ROUNDS' && (
                           <div>
                             {(() => {
-                              const count = bloque.cantRondas ?? bloque.ejercicios[0]?.reps;
+                              const count = bloque.cantRondas ?? bloque?.ejercicios?.[0]?.reps;
                               return count ? <p>{`${count} rondas de:`}</p> : null;
                             })()}
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map(ej => {
-                                const name = ej.ejercicio.nombre;
-                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                              {Array.isArray(bloque.ejercicios) && bloque.ejercicios.map(ej => {
+                                const name = ej?.ejercicio?.nombre || 'Ejercicio';
+                                const hasDetail = !!(ej?.ejercicio?.descripcion || ej?.ejercicio?.mediaUrl);
                                 return (
                                   <li key={ej.ID_Ejercicio}>
                                     {ej.reps}{' '}
@@ -218,13 +227,14 @@ const RutinasRecomendadas = () => {
 
                         {bloque.type === 'EMOM' && (
                           <div>
-                            <p>{`EMOM ${bloque.durationMin}min:`}</p>
+                            <p>{`EMOM ${bloque.durationMin ?? ''}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map((ej, idx) => {
-                                const name = ej.ejercicio.nombre;
-                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                              {Array.isArray(bloque.ejercicios) && bloque.ejercicios.map((ej, idx) => {
+                                const name = ej?.ejercicio?.nombre || 'Ejercicio';
+                                const hasDetail = !!(ej?.ejercicio?.descripcion || ej?.ejercicio?.mediaUrl);
 
-                                const start = idx + 0;
+                                // muestra “0-1, 1-2, 2-3…” como tenías
+                                const start = idx;
                                 const end = idx + 1;
 
                                 return (
@@ -249,11 +259,11 @@ const RutinasRecomendadas = () => {
 
                         {bloque.type === 'AMRAP' && (
                           <div>
-                            <p>{`AMRAP ${bloque.durationMin}min:`}</p>
+                            <p>{`AMRAP ${bloque.durationMin ?? ''}min:`}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map(ej => {
-                                const name = ej.ejercicio.nombre;
-                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                              {Array.isArray(bloque.ejercicios) && bloque.ejercicios.map(ej => {
+                                const name = ej?.ejercicio?.nombre || 'Ejercicio';
+                                const hasDetail = !!(ej?.ejercicio?.descripcion || ej?.ejercicio?.mediaUrl);
                                 return (
                                   <li key={ej.ID_Ejercicio}>
                                     {ej.reps}{' '}
@@ -273,11 +283,11 @@ const RutinasRecomendadas = () => {
 
                         {bloque.type === 'LADDER' && (
                           <>
-                            <p>{bloque.tipoEscalera}</p>
+                            <p>{bloque.tipoEscalera ?? 'Ladder'}</p>
                             <ul style={{ paddingLeft: '20px' }}>
-                              {bloque.ejercicios.map(ej => {
-                                const label = ej.setRepWeight ?? ej.ejercicio.nombre;
-                                const hasDetail = !!(ej.ejercicio.descripcion || ej.ejercicio.mediaUrl);
+                              {Array.isArray(bloque.ejercicios) && bloque.ejercicios.map(ej => {
+                                const label = ej?.setRepWeight ?? ej?.ejercicio?.nombre ?? 'Ejercicio';
+                                const hasDetail = !!(ej?.ejercicio?.descripcion || ej?.ejercicio?.mediaUrl);
                                 return (
                                   <li key={ej.ID_Ejercicio}>
                                     {hasDetail ? (

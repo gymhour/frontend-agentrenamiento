@@ -59,13 +59,13 @@ const CuotasUsuarios = () => {
   const opcionesFiltroEstado = ['Todos —', 'Pendiente', 'Pagada', 'Vencida'];
   const labelToEstado = label => {
     if (label === 'Pagada')  return 'true';
-    if (label === 'Pendiente') return 'false';
+    if (label === 'Pendiente') return 'pendiente';
     if (label === 'Vencida')  return 'vencida';
     return '';
   };
   const estadoToLabel = estado => {
     if (estado === 'true')    return 'Pagada';
-    if (estado === 'false')   return 'Pendiente';
+    if (estado === 'pendiente')   return 'Pendiente';
     if (estado === 'vencida') return 'Vencida';
     return 'Todos —';
   };

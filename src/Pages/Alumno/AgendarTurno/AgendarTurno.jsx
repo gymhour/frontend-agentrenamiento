@@ -228,13 +228,23 @@ const AgendarTurno = () => {
           )}
 
           <div className="datepicker-container">
+
+            {/* para volver como antes
+            
+              dateFormat="dd/MM/yyyy h:mm aa"
+              timeFormat="h:mm aa"
+              locale="en"
+              
+              */}
+
             <DatePicker
               selected={selectedDateTime}
               onChange={(date) => setSelectedDateTime(date)}
               showTimeSelect
-              dateFormat="dd/MM/yyyy HH:mm"
-              locale="es"                 // 👈 clave
-              timeCaption="Hora"          // etiqueta del selector de hora
+              dateFormat="dd/MM/yyyy h:mm aa"
+              timeFormat="h:mm aa"
+              locale="en"
+              timeCaption="Hora"
               placeholderText="Selecciona fecha y hora"
               filterDate={filterDate}
               includeTimes={selectedDateTime ? getAllowedTimes(selectedDateTime) : []}
