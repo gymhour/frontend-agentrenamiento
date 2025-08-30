@@ -1,6 +1,7 @@
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify'; // Importa el ToastContainer
+import GymHourLanding from './Pages/Landing/Landing';
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Pages/Auth/Login/Login';
 import SignUp from './Pages/Auth/SignUp/SignUp';
@@ -47,7 +48,7 @@ function App() {
   // Comprueba si el usuario está “logueado”.
   const isLoggedIn = Boolean(localStorage.getItem('token'));
   // Define las rutas donde NO queremos el chat:
-  const hiddenPaths = ['/', '/sign-up', '/forgot-password', '/reset-password'];
+  const hiddenPaths = ['/', '/login', '/sign-up', '/forgot-password', '/reset-password'];
   // Sólo mostramos el chat si el usuario está logueado y la ruta actual NO está en hiddenPaths
   const showChat = isLoggedIn && !hiddenPaths.includes(location.pathname);
 
@@ -67,7 +68,8 @@ function App() {
       />
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<GymHourLanding />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/reset-password' element={<ResetPassword />} />

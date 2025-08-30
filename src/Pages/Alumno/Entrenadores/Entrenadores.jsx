@@ -34,7 +34,7 @@ const Entrenadores = () => {
       <div className="content-layout">
         <h2>Entrenadores</h2>
         <p style={{ paddingTop: '12px' }}>
-          Conocé a nuestros instructores en Wembley
+          Conocé a nuestros instructores
         </p>
         <div className="trainers-grid">
           {!loading &&

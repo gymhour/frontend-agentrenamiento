@@ -3,7 +3,7 @@ import React, { useState } from "react";
 // Css
 import "./sidebarmenu.css";
 // Assets
-import ClientLogo from "../../assets/client/wembleylogo.png";
+import ClientLogo from "../../assets/client/voltfit.png";
 import OurLogo from "../../assets/gymhour/logo_gymhour.png";
 // Iconos sidebar
 import { ReactComponent as InicioIcon } from '../../assets/icons/sidebar/inicio.svg';

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import './login.css';
 // Assets
 import LoginBackgroundImage from '../../../assets/login/login_background.png';
-import ClientLogo from '../../../assets/client/wembleylogo.png'
+import ClientLogo from '../../../assets/client/voltfit.png'
 import OurLogo from '../../../assets/gymhour/logo_gymhour.png'
 // Funciones
 import { useNavigate } from 'react-router-dom';
