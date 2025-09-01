@@ -271,11 +271,11 @@ export default function GymHourLanding() {
             <footer className="gh-footer">
                 <div className="gh-container gh-footer-inner">
                     <p className="gh-muted">© {new Date().getFullYear()} GymHour </p>
-                    <div className="gh-footer-links">
+                    {/* <div className="gh-footer-links">
                         <a href="#">Política de privacidad</a>
                         <a href="#">Términos</a>
                         <a href="mailto:hola@gymhour.app">Contacto</a>
-                    </div>
+                    </div> */}
                 </div>
             </footer>
         </div>

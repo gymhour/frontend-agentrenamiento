@@ -393,4 +393,25 @@
     .gh-h1 {
         font-size: 32px;
     }
+
+    .gh-hero-actions {
+        flex-direction: column;
+    }
+
+    .gh-hero-grid {
+        padding: 0px;
+    }
+
+    .gh-cta-card {
+        flex-direction: column;
+    }
+
+    .gh-cta-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .gh-footer-inner {
+        flex-direction: column;
+    }
 }
