@@ -8,22 +8,34 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-// ToastContainer
 import { toast } from 'react-toastify';
 import { registerLocale } from 'react-datepicker';
 import es from 'date-fns/locale/es';
 import 'react-datepicker/dist/react-datepicker.css';
 registerLocale('es', es);
 
-// Mapeo de días en español a índices de Date.getDay()
-const mapping = {
-  "Domingo": 0,
-  "Lunes": 1,
-  "Martes": 2,
-  "Miércoles": 3,
-  "Jueves": 4,
-  "Viernes": 5,
-  "Sábado": 6,
+// ————————————————————————————————————————————————
+// Día → índice (tolerante a tildes y mayúsculas)
+// ————————————————————————————————————————————————
+const diaIndex = (nombre) => {
+  if (!nombre) return null;
+  const t = nombre
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')                // separa diacríticos
+    .replace(/[\u0300-\u036f]/g, ''); // quita diacríticos
+
+  switch (t) {
+    case 'domingo':   return 0;
+    case 'lunes':     return 1;
+    case 'martes':    return 2;
+    case 'miercoles': return 3; // cubre "Miércoles" y "Miercoles"
+    case 'jueves':    return 4;
+    case 'viernes':   return 5;
+    case 'sabado':    return 6; // cubre "Sábado" y "Sabado"
+    default:          return null;
+  }
 };
 
 const AgendarTurno = () => {
@@ -51,7 +63,7 @@ const AgendarTurno = () => {
 
   const clasesOptions = clases.map((clase) => clase.nombre);
 
-  // Filtra las fechas permitidas: solo entre hoy y +7 días y días permitidos según la clase
+  // Filtra fechas: hoy a +7 días y días permitidos según horarios ACTIVOS
   const filterDate = (date) => {
     const now = new Date();
 
@@ -74,15 +86,21 @@ const AgendarTurno = () => {
       const clase = clases.find(c => c.nombre === selectedClase);
       if (!clase) return false;
 
-      const allowedDays = clase.HorariosClase.map(h => mapping[h.diaSemana]);
-      if (!allowedDays.includes(date.getDay())) {
-        return false;
-      }
+      const activos = (clase.HorariosClase ?? []).filter(h => h.activo !== false);
+      if (activos.length === 0) return false;
 
+      const allowedDays = activos
+        .map(h => diaIndex(h.diaSemana))
+        .filter(d => d !== null);
+
+      if (!allowedDays.includes(date.getDay())) return false;
+
+      // Si es hoy, asegurar que haya al menos un horario futuro
       if (dateOnly.getTime() === todayOnly.getTime()) {
-        const hasFutureSlot = clase.HorariosClase.some(h => {
+        const hasFutureSlot = activos.some(h => {
           const utcInicio = new Date(h.horaIni);
           const localStart = new Date(dateOnly);
+          // Usamos las horas/min de UTCHours como "hora de pared"
           localStart.setHours(
             utcInicio.getUTCHours(),
             utcInicio.getUTCMinutes(),
@@ -92,55 +110,43 @@ const AgendarTurno = () => {
         });
         return hasFutureSlot;
       }
-
       return true;
     }
 
     return true;
   };
 
-
-  // Filtra las horas disponibles según el horario de la clase para el día seleccionado
-  const filterTime = (time) => {
-    if (!selectedClase || !selectedDateTime) return true;
-    const selectedDay = selectedDateTime.getDay();
-    const claseSeleccionada = clases.find(clase => clase.nombre === selectedClase);
-    if (!claseSeleccionada) return true;
-    const scheduleForDay = claseSeleccionada.HorariosClase.find(h => mapping[h.diaSemana] === selectedDay);
-    if (!scheduleForDay) return false;
-    const startTime = new Date(time);
-    const endTime = new Date(time);
-    const utcHoraIni = new Date(scheduleForDay.horaIni);
-    const utcHoraFin = new Date(scheduleForDay.horaFin);
-    startTime.setHours(utcHoraIni.getUTCHours(), utcHoraIni.getUTCMinutes(), 0, 0);
-    endTime.setHours(utcHoraFin.getUTCHours(), utcHoraFin.getUTCMinutes(), 0, 0);
-    return time >= startTime && time <= endTime;
-  };
-
-  // Genera un array de horarios permitidos en intervalos de 15 minutos para el día seleccionado
+  // Genera todos los horarios de inicio permitidos para el día seleccionado (uno por cada horario ACTIVO)
   const getAllowedTimes = (date) => {
     if (!date || !selectedClase) return [];
     const dia = date.getDay();
     const clase = clases.find(c => c.nombre === selectedClase);
     if (!clase) return [];
 
-    const horario = clase.HorariosClase
-      .find(h => mapping[h.diaSemana] === dia);
-    if (!horario) return [];
+    const horariosDia = (clase.HorariosClase ?? [])
+      .filter(h => h.activo !== false && diaIndex(h.diaSemana) === dia);
 
-    // parse UTC y crear un Date local con la misma fecha + hora de inicio
-    const utcInicio = new Date(horario.horaIni);
-    const localStart = new Date(date);
-    localStart.setHours(
-      utcInicio.getUTCHours(),
-      utcInicio.getUTCMinutes(),
-      0, 0
-    );
+    if (horariosDia.length === 0) return [];
 
-    return [localStart];
+    const now = new Date();
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const isToday = dateOnly.getTime() === new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+    const allowedStarts = horariosDia
+      .map(h => {
+        const utcInicio = new Date(h.horaIni);
+        const localStart = new Date(date);
+        // Copiamos la hora/min de UTC como "hora local" visible (no tocamos tu lógica)
+        localStart.setHours(utcInicio.getUTCHours(), utcInicio.getUTCMinutes(), 0, 0);
+        return localStart;
+      })
+      .filter(t => !isToday || t > now) // si es hoy, solo futuros
+      .sort((a, b) => a - b);
+
+    return allowedStarts;
   };
 
-  // al principio del archivo
+  // Helper para formatear fecha local como ISO sin zona (mantiene tu comportamiento)
   const formatLocalISO = (date) => {
     const pad = n => String(n).padStart(2, '0');
     return [
@@ -156,12 +162,11 @@ const AgendarTurno = () => {
   const manejarSeleccionClase = (e) => {
     const nombreClaseSeleccionada = e.target.value;
     setSelectedClase(nombreClaseSeleccionada);
-    setSelectedDateTime(null); // Reiniciamos la fecha/hora al cambiar de clase
+    setSelectedDateTime(null); // reiniciamos al cambiar de clase
   };
 
   const manejarAgendarTurno = async () => {
-    setLoading(true);
-
+    // Validaciones sin activar loader para no “pegar” la UI en errores tempranos
     if (!selectedClase || !selectedDateTime) {
       toast.error("Por favor, selecciona una clase y un turno (fecha y hora) disponibles.");
       return;
@@ -180,32 +185,49 @@ const AgendarTurno = () => {
     }
 
     const day = selectedDateTime.getDay();
-    const scheduleForDay = claseSeleccionada.HorariosClase.find(h => mapping[h.diaSemana] === day);
-    if (!scheduleForDay) {
+    // Horarios activos del mismo día
+    const horariosMismoDia = (claseSeleccionada.HorariosClase ?? [])
+      .filter(h => h.activo !== false && diaIndex(h.diaSemana) === day);
+
+    if (horariosMismoDia.length === 0) {
       toast.error("No hay horario disponible para ese día.");
+      return;
+    }
+
+    // Encontrar el horario cuyo "inicio" coincide con la hora elegida en el picker
+    // (misma lógica de hora local = UTCHours/UTCMinutes)
+    const horarioElegido = horariosMismoDia.find(h => {
+      const utcInicio = new Date(h.horaIni);
+      const hh = utcInicio.getUTCHours();
+      const mm = utcInicio.getUTCMinutes();
+      return (hh === selectedDateTime.getHours() && mm === selectedDateTime.getMinutes());
+    });
+
+    if (!horarioElegido) {
+      toast.error("No pudimos identificar el horario seleccionado. Probá elegir nuevamente la hora.");
       return;
     }
 
     const body = {
       ID_Usuario: parseInt(usuarioId, 10),
-      ID_HorarioClase: scheduleForDay.ID_HorarioClase,
+      ID_HorarioClase: horarioElegido.ID_HorarioClase,
       fecha: formatLocalISO(selectedDateTime),
     };
 
     setIsAgendando(true);
+    setLoading(true);
     try {
-      console.log("body que envio", body)
-      const respuesta = await apiService.postTurno(body);
+      console.log("body que envio", body);
+      await apiService.postTurno(body);
       setSelectedClase('');
       setSelectedDateTime(null);
-      setLoading(false);
       toast.success("Turno agendado exitosamente.");
     } catch (err) {
-      setLoading(false)
-      console.log(err)
-      toast.error(err.message);
+      console.log(err);
+      toast.error(err?.message || "No se pudo agendar el turno.");
     } finally {
       setIsAgendando(false);
+      setLoading(false);
     }
   };
 
@@ -214,8 +236,6 @@ const AgendarTurno = () => {
       {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout'>
-        {/* Toast en modo oscuro */}
-        {/* <ToastContainer theme="dark" /> */}
         <h2 className='agendar-turno-title'>Agendar turno</h2>
         <div className="agendar-turno-ctn">
           {!loading && (
@@ -228,22 +248,13 @@ const AgendarTurno = () => {
           )}
 
           <div className="datepicker-container">
-
-            {/* para volver como antes
-            
-              dateFormat="dd/MM/yyyy h:mm aa"
-              timeFormat="h:mm aa"
-              locale="en"
-              
-              */}
-
             <DatePicker
               selected={selectedDateTime}
               onChange={(date) => setSelectedDateTime(date)}
               showTimeSelect
               dateFormat="dd/MM/yyyy h:mm aa"
               timeFormat="h:mm aa"
-              locale="en"
+              locale="es"
               timeCaption="Hora"
               placeholderText="Selecciona fecha y hora"
               filterDate={filterDate}
