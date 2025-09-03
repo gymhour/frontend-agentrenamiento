@@ -203,6 +203,13 @@
     width: fit-content;
 }
 
+.row-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
 /* 900px - cuupos pasa a 2 columnas */
 @media (max-width: 900px) {
     .horario-item {

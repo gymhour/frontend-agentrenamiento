@@ -13,9 +13,10 @@ import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropd
 import { toast } from "react-toastify";
 import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
 import CustomInput from "../../../Components/utils/CustomInput/CustomInput";
+import ConfirmationPopup from "../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp"
 
 // ——————————————————————————————————————————
-// Utils de día/horario (tus reglas “hora de pared” en ISO Z)
+// Utils de día/horario (hora “de pared” → ISO Z)
 // ——————————————————————————————————————————
 const normalizeDay = (d) =>
   (d || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -85,7 +86,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  // Solo mostramos horarios activos; mantenemos 'activo' para estilos/guardas
+  // Solo mostramos horarios activos; mantenemos 'activo' por compatibilidad
   const [horarios, setHorarios] = useState([
     { diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null, activo: true }
   ]);
@@ -96,9 +97,6 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   const [dropdownValue, setDropdownValue] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
-
-  // Modo por defecto para edición de fila (lo usamos como “preselección” al entrar a editar)
-  const [updateMode, setUpdateMode] = useState("preserve"); // "preserve" | "instant"
 
   // snapshot de horarios iniciales (para revertir al cancelar edición)
   const [initialHorariosMap, setInitialHorariosMap] = useState({}); // { [idHorarioClase]: {diaSemana, horaIni, horaFin, cupos, activo} }
@@ -137,7 +135,6 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   // ——————————————————————————————————————————
   const fetchClaseDetalle = useCallback(async () => {
     if (!isEditing || !classId) return;
-
     setIsLoading(true);
     try {
       const { data } = await apiClient.get(`/clase/horario/${classId}`);
@@ -187,7 +184,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
       setImagePreview(imagenClase);
       setImage(null);
 
-      const init = entrenadoresIniciales ?? [];
+      const init = (entrenadoresIniciales ?? []);
       setSelectedEntrenadores(init);
       setInitialEntrenadores(init);
 
@@ -246,7 +243,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     const h = horarios[idx];
     const key = rowKey(h, idx);
 
-    // Si es existente y no está en modo edición, no permitir
+    // Si es existente y NO está en modo edición, no permitir
     if (h.idHorarioClase && !editingRowMap[key]) return;
 
     setHorarios((prev) => {
@@ -260,7 +257,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     const h = horarios[idx];
     const key = rowKey(h, idx);
     setEditingRowMap((m) => ({ ...m, [key]: true }));
-    setRowUpdateMode((m) => ({ ...m, [key]: m[key] || updateMode })); // preselecciona con el default global
+    setRowUpdateMode((m) => ({ ...m, [key]: "preserve" })); // ← default por fila
   };
 
   const cancelEditRow = (idx) => {
@@ -316,8 +313,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     try {
       await apiClient.post(`/clase/${classId}/horarioClase`, payload);
       toast.success("Horario creado.");
-      // refrescamos desde servidor para obtener ID_HorarioClase, etc.
-      await fetchClaseDetalle();
+      await fetchClaseDetalle(); // refresco para obtener ID_HorarioClase, etc.
     } catch (error) {
       console.error(error);
       toast.error("No se pudo crear el horario.");
@@ -401,7 +397,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     if (image) dataForm.append("image", image);
 
     if (isEditing) {
-      // ✅ Nuevo contrato: SOLO nombre, descripción e imagen
+      // ✅ Ahora SOLO nombre/descr/imagen
       apiClient
         .put(`/clase/horario/${classId}`, dataForm, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -432,8 +428,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
         })
         .finally(() => setIsLoading(false));
     } else {
-      // Crear clase: dejamos tu flujo original (POST crea clase + horarios embebidos)
-      // Convertimos SOLO los horarios activos (nuevos del formulario)
+      // Crear clase (POST original con horarios embebidos)
       const onlyEditable = horarios.filter((h) => h.activo !== false);
 
       const transformedHorarios = onlyEditable.map((h) => ({
@@ -484,7 +479,6 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     setHorarios([{ diaSemana: "", horaIni: "", horaFin: "", cupos: "", idHorarioClase: null, activo: true }]);
     setSelectedEntrenadores([]);
     setDropdownValue("");
-    setUpdateMode("preserve");
     setInitialHorariosMap({});
     setEditingRowMap({});
     setRowUpdateMode({});
@@ -719,38 +713,6 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                 </div>
               </div>
 
-              {/* Modo por defecto para futuras ediciones (opcional) */}
-              {isEditing && (
-                <div className="form-input-ctn">
-                  <label>Modo por defecto al editar horarios:</label>
-                  <div className="radio-group">
-                    <label className="radio-group-label">
-                      <input
-                        type="radio"
-                        name="updateMode"
-                        value="preserve"
-                        checked={updateMode === "preserve"}
-                        onChange={(e) => setUpdateMode(e.target.value)}
-                      />
-                      <span> Preservar turnos </span>
-                    </label>
-                    <label className="radio-group-label">
-                      <input
-                        type="radio"
-                        name="updateMode"
-                        value="instant"
-                        checked={updateMode === "instant"}
-                        onChange={(e) => setUpdateMode(e.target.value)}
-                      />
-                      <span> Instantáneo </span>
-                    </label>
-                  </div>
-                  <p className="gh-muted sm" style={{ marginTop: 8 }}>
-                    Este modo se usa como preselección cuando toques “Editar” en un horario.
-                  </p>
-                </div>
-              )}
-
               {/* Submit (CLASE) */}
               <div className="clase-actividad-form-guardar-btn">
                 <button type="submit" className="submit-btn" disabled={isLoading}>
@@ -760,22 +722,13 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
             </form>
           </div>
 
-          {/* Modal confirmación eliminar */}
-          {confirmDelete.open && (
-            <div className="modal-overlay">
-              <div className="modal">
-                <h4>Eliminar horario</h4>
-                <p className="gh-muted">
-                  ¿Seguro que querés eliminar este horario? Esto también eliminará todos los turnos existentes asociados.
-                </p>
-                <div className="modal-actions">
-                  <SecondaryButton text="Cancelar" onClick={() => setConfirmDelete({ open: false, id: null })} />
-                  <SecondaryButton text="Eliminar" onClick={confirmDeleteHorario} />
-                </div>
-              </div>
-            </div>
-          )}
-
+          {/* Modal confirmación eliminar (usa tu shared ConfirmationPopup) */}
+          <ConfirmationPopup
+            isOpen={confirmDelete.open}
+            onClose={() => setConfirmDelete({ open: false, id: null })}
+            onConfirm={() => confirmDeleteHorario()} // ignoramos el parámetro del popup
+            message="¿Seguro que querés eliminar este horario? Esto también eliminará todos los turnos existentes asociados."
+          />
         </div>
       </div>
     </div>
