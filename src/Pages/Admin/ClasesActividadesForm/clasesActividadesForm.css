@@ -270,3 +270,35 @@
         align-items: center;
     }
 }
+
+.editmode-explainer {
+    display: grid;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  
+  .editmode-option {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 10px;
+    align-items: start;
+    cursor: pointer;
+  }
+  
+  .editmode-option input[type="radio"] {
+    margin-top: 3px;
+  }
+  
+  .editmode-option strong {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  
+  .editmode-option p {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 0.92rem;
+    line-height: 1.25rem;
+  }
+  

@@ -13,7 +13,7 @@ import CustomDropdown from "../../../Components/utils/CustomDropdown/CustomDropd
 import { toast } from "react-toastify";
 import LoaderFullScreen from "../../../Components/utils/LoaderFullScreen/LoaderFullScreen";
 import CustomInput from "../../../Components/utils/CustomInput/CustomInput";
-import ConfirmationPopup from "../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp"
+import ConfirmationPopup from "../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp";
 
 // ——————————————————————————————————————————
 // Utils de día/horario (hora “de pared” → ISO Z)
@@ -107,6 +107,14 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
 
   // Modal de confirmación de borrado
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
+
+  // Popup para elegir modo ANTES de guardar
+  const [editModeDialog, setEditModeDialog] = useState({
+    open: false,
+    idx: null,
+    key: null,
+    mode: "preserve", // default
+  });
 
   // Slots 30'
   const generateTimeSlots = () => {
@@ -257,7 +265,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     const h = horarios[idx];
     const key = rowKey(h, idx);
     setEditingRowMap((m) => ({ ...m, [key]: true }));
-    setRowUpdateMode((m) => ({ ...m, [key]: "preserve" })); // ← default por fila
+    setRowUpdateMode((m) => ({ ...m, [key]: "preserve" })); // default por fila
   };
 
   const cancelEditRow = (idx) => {
@@ -323,12 +331,12 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
   };
 
   // Guardar edición de fila EXISTENTE → POST /clase/horario/:ID_HorarioClase/modify
-  const saveExistingRow = async (idx) => {
+  const saveExistingRow = async (idx, modeOverride) => {
     const h = horarios[idx];
     if (!h.idHorarioClase) return;
 
     const key = rowKey(h, idx);
-    const mode = rowUpdateMode[key] || "preserve";
+    const mode = modeOverride || rowUpdateMode[key] || "preserve";
 
     if (!h.diaSemana || !h.horaIni || !h.horaFin || !h.cupos) {
       toast.error("Completa día, inicio, fin y cupos antes de guardar.");
@@ -382,6 +390,26 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
       setIsLoading(false);
       setConfirmDelete({ open: false, id: null });
     }
+  };
+
+  // ——— POPUP DE MODO ANTES DE GUARDAR ———
+  const requestModeBeforeSave = (idx) => {
+    const h = horarios[idx];
+    const key = rowKey(h, idx);
+    const current = rowUpdateMode[key] || "preserve";
+    setEditModeDialog({ open: true, idx, key, mode: current });
+  };
+
+  const confirmSaveWithMode = () => {
+    const { idx, key, mode } = editModeDialog;
+    if (idx == null || !key) return;
+
+    // Guardamos preferencia (opcional)
+    setRowUpdateMode((m) => ({ ...m, [key]: mode }));
+
+    // Cerrar popup y ejecutar guardado con el modo elegido
+    setEditModeDialog({ open: false, idx: null, key: null, mode: "preserve" });
+    saveExistingRow(idx, mode);
   };
 
   // ——————————————————————————————————————————
@@ -659,40 +687,14 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                           {isExisting ? (
                             !isEditingRow ? (
                               <div className="row-actions">
+                                {/* EDITAR → habilita campos */}
                                 <SecondaryButton text="Editar" onClick={() => enterEditRow(idx)} />
                                 <CloseIcon className="close-icon" onClick={() => requestDeleteRow(idx)} />
                               </div>
                             ) : (
                               <div className="row-actions edit-mode">
-                                {/* Modo preserve/instant por fila */}
-                                <div className="radio-group sm">
-                                  <label className="radio-group-label">
-                                    <input
-                                      type="radio"
-                                      name={`mode-${key}`}
-                                      value="preserve"
-                                      checked={(rowUpdateMode[key] || "preserve") === "preserve"}
-                                      onChange={(e) =>
-                                        setRowUpdateMode((m) => ({ ...m, [key]: e.target.value }))
-                                      }
-                                    />
-                                    <span>Preserve</span>
-                                  </label>
-                                  <label className="radio-group-label" style={{ marginLeft: 8 }}>
-                                    <input
-                                      type="radio"
-                                      name={`mode-${key}`}
-                                      value="instant"
-                                      checked={rowUpdateMode[key] === "instant"}
-                                      onChange={(e) =>
-                                        setRowUpdateMode((m) => ({ ...m, [key]: e.target.value }))
-                                      }
-                                    />
-                                    <span>Instant</span>
-                                  </label>
-                                </div>
-
-                                <SecondaryButton text="Guardar" onClick={() => saveExistingRow(idx)} />
+                                {/* GUARDAR → abre popup para elegir modo */}
+                                <SecondaryButton text="Guardar" onClick={() => requestModeBeforeSave(idx)} />
                                 <SecondaryButton text="Cancelar" onClick={() => cancelEditRow(idx)} />
                               </div>
                             )
@@ -716,19 +718,58 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
               {/* Submit (CLASE) */}
               <div className="clase-actividad-form-guardar-btn">
                 <button type="submit" className="submit-btn" disabled={isLoading}>
-                  {isEditing ? "Guardar cambios de la clase" : "Crear Clase"}
+                  {isEditing ? "Guardar cambios" : "Crear Clase"}
                 </button>
               </div>
             </form>
           </div>
 
-          {/* Modal confirmación eliminar (usa tu shared ConfirmationPopup) */}
+          {/* Modal confirmación eliminar */}
           <ConfirmationPopup
             isOpen={confirmDelete.open}
             onClose={() => setConfirmDelete({ open: false, id: null })}
-            onConfirm={() => confirmDeleteHorario()} // ignoramos el parámetro del popup
+            onConfirm={() => confirmDeleteHorario()}
             message="¿Seguro que querés eliminar este horario? Esto también eliminará todos los turnos existentes asociados."
           />
+
+          {/* Popup para elegir modo antes de GUARDAR una fila existente */}
+          <ConfirmationPopup
+            isOpen={editModeDialog.open}
+            onClose={() => setEditModeDialog({ open: false, idx: null, key: null, mode: "preserve" })}
+            onConfirm={confirmSaveWithMode}
+            message="¿Cómo querés aplicar los cambios en este horario?"
+          >
+            <div className="editmode-explainer">
+              <label className="editmode-option">
+                <input
+                  type="radio"
+                  name="editmode"
+                  value="preserve"
+                  checked={editModeDialog.mode === "preserve"}
+                  onChange={() => setEditModeDialog((s) => ({ ...s, mode: "preserve" }))}
+                />
+                <div>
+                  <strong>Preserve</strong>
+                  <p>Actualiza el horario preservando los turnos existentes cuando sea posible.</p>
+                </div>
+              </label>
+
+              <label className="editmode-option">
+                <input
+                  type="radio"
+                  name="editmode"
+                  value="instant"
+                  checked={editModeDialog.mode === "instant"}
+                  onChange={() => setEditModeDialog((s) => ({ ...s, mode: "instant" }))}
+                />
+                <div>
+                  <strong>Instant</strong>
+                  <p>Inhabilita el horario anterior y crea turnos nuevos con los cambios.</p>
+                </div>
+              </label>
+            </div>
+          </ConfirmationPopup>
+
         </div>
       </div>
     </div>
