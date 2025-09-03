@@ -427,7 +427,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     if (isEditing) {
       // ✅ Ahora SOLO nombre/descr/imagen
       apiClient
-        .put(`/clase/horario/${classId}`, dataForm, {
+        .put(`/clase/clase/${classId}`, dataForm, {
           headers: { "Content-Type": "multipart/form-data" },
         })
         .then(async () => {
@@ -635,7 +635,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
 
                         {/* Inicio */}
                         <div className="form-input-ctn-horario">
-                          <label>Horario de inicio</label>
+                          <label>Hr. Inicio</label>
                           <select
                             name="horaIni"
                             value={horario.horaIni}
@@ -652,7 +652,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
 
                         {/* Fin */}
                         <div className="form-input-ctn-horario">
-                          <label>Horario de fin</label>
+                          <label>Hr. Fin</label>
                           <select
                             name="horaFin"
                             value={horario.horaFin}
