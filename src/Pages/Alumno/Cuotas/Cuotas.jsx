@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import './Cuotas.css';
-import axios from 'axios';
+// import axios from 'axios'; // ← no se usa
 import { ReactComponent as GaliciaIcon } from '../../../assets/icons/galicia_logo.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/icons/copy.svg';
 import { toast } from 'react-toastify';
+import apiService from '../../../services/apiService';
 
 const Cuotas = () => {
-  const [cuotas, setCuotas] = useState([]);
+  const [cuotas, setCuotas] = useState([]);   // siempre array
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,33 +25,43 @@ const Cuotas = () => {
     }
   };
 
-  const formatMonth = (m) =>
-    m
-      ? new Date(m).toLocaleString('es-AR', {
-          month: 'long',
-          year: 'numeric',
-          timeZone: 'UTC'
-        })
-      : '–';
+  // "2025-05" -> "mayo de 2025"
+  const formatMonth = (yyyyMM) => {
+    if (!yyyyMM) return '–';
+    const [y, m] = String(yyyyMM).split('-').map(Number);
+    if (!y || !m) return '–';
+    // Evitamos problemas de timezone creando la fecha en UTC
+    const d = new Date(Date.UTC(y, m - 1, 1));
+    return d.toLocaleString('es-AR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  };
 
   const formatDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString('es-AR') : '–';
 
   const formatCurrency = (val) =>
-    new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
+    new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val ?? 0);
 
   useEffect(() => {
     const fetchCuotas = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          'https://gym-backend-rust.vercel.app/cuotas/usuario/16/cuotas'
-        );
-        setCuotas(res.data);
+        const userId = localStorage.getItem('usuarioId');
+
+        // Esperamos la promesa y normalizamos la respuesta a array
+        const res = await apiService.getCuotasUsuario(userId);
+
+        const lista =
+          Array.isArray(res) ? res
+          : Array.isArray(res?.data) ? res.data
+          : Array.isArray(res?.data?.data) ? res.data.data
+          : [];
+
+        setCuotas(lista);
         setError(null);
       } catch (err) {
         console.error(err);
         setError('Error al cargar las cuotas.');
+        setCuotas([]); // mantené array para no romper el render
       } finally {
         setLoading(false);
       }
@@ -97,7 +108,7 @@ const Cuotas = () => {
           <p style={{ marginTop: '20px' }}>Cargando cuotas...</p>
         ) : error ? (
           <p className="text-error">{error}</p>
-        ) : cuotas.length === 0 ? (
+        ) : (cuotas?.length ?? 0) === 0 ? (
           <p>No hay cuotas para mostrar.</p>
         ) : (
           <div className="table-responsive">

@@ -8,6 +8,7 @@ import './TurnosAdmin.css'
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen'
 import { toast } from 'react-toastify'
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown'
+import apiService from '../../../services/apiService'
 
 moment.locale('es')
 
@@ -35,13 +36,7 @@ const TurnosAdmin = () => {
   );
 
   useEffect(() => {
-    fetch('https://gym-backend-rust.vercel.app/turnos')
-      .then(res => {
-        if (!res.ok) {
-          toast.error("Hubo un error al traer los turnos. Intente nuevamente.")
-        }
-        return res.json()
-      })
+    apiService.getTurnos()
       .then(data => setRawTurnos(data))
       .catch(err => console.log(err))
       .finally(() => setLoading(false))

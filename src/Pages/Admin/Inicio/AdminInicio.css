@@ -7,7 +7,7 @@
 
 .card {
   flex: 1;
-  min-width: 200px;
+  min-width: 280px;
   border: 1px solid #333;
   border-radius: 8px;
   padding: 1.25rem;

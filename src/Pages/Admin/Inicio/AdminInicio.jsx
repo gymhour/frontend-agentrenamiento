@@ -32,6 +32,8 @@ const AdminInicio = () => {
     quotasPendingThisMonth: 0,
     totalAmountPaidThisMonth: 0,
     totalAmountPendingThisMonth: 0,
+    quotasOverdue: 0,
+    totalAmountOverdue: 0,
   });
 
   // historial completo desde API
@@ -43,7 +45,6 @@ const AdminInicio = () => {
   const [showFilters, setShowFilters] = useState(false)
 
   // --- Estados para los inputs de filtro de rango de fechas (mes/año) ---
-  // Estas fechas no se aplican hasta que se hace clic en "Aplicar filtros"
   const [inputStartDate, setInputStartDate] = useState(null); // Date
   const [inputEndDate, setInputEndDate] = useState(null); // Date
 
@@ -56,7 +57,11 @@ const AdminInicio = () => {
     setLoading(true);
     try {
       const response = await apiService.getKPIs();
-      setKpi(response.kpi);
+      // merge para tolerar APIs viejas que no envían los nuevos campos
+      setKpi(prev => ({
+        ...prev,
+        ...(response?.kpi || {})
+      }));
       setHistory(response.history || []);
     } catch (error) {
       console.error('Error al obtener los KPIs:', error);
@@ -71,7 +76,6 @@ const AdminInicio = () => {
     setLoading(true);
     try {
       const response = await apiService.getUserById(localStorage.getItem("usuarioId"));
-      // Atención: usar '===' para comparar
       if (response.tipo === "admin") {
         setNombreUsuario("Administrador");
       } else {
@@ -94,21 +98,18 @@ const AdminInicio = () => {
 
   // Helper para formatear números como "$12.345"
   const currencyFormatter = (value) =>
-    `$${value.toLocaleString('es-AR')}`;
+    `$${Number(value || 0).toLocaleString('es-AR')}`;
 
   // Helper: convierte "YYYY-MM" en un Date => primer día del mes
   const parseMesToDate = (mesString) => {
-    // mesString viene en formato "2024-06", asumimos válido
     const [year, month] = mesString.split('-').map(Number);
     return new Date(year, month - 1, 1);
   };
 
   // Filtrar history en base a filterStartDate y filterEndDate
   const filteredHistory = history.filter(item => {
-    // Si no existe campo mes, omitimos
     if (!item.mes) return false;
     const itemDate = parseMesToDate(item.mes);
-    // Si no hay filtro de inicio o fin, dejamos pasar
     if (filterStartDate && itemDate < filterStartDate) return false;
     if (filterEndDate && itemDate > filterEndDate) return false;
     return true;
@@ -122,18 +123,15 @@ const AdminInicio = () => {
 
   // Función que se dispara al hacer clic en "Aplicar filtros"
   const applyFilters = () => {
-    // Para asegurar que la comparación sea sólo por mes/año:
-    // convertimos inputStartDate y inputEndDate al primer día de su mes
     if (inputStartDate) {
       setFilterStartDate(new Date(inputStartDate.getFullYear(), inputStartDate.getMonth(), 1));
     } else {
       setFilterStartDate(null);
     }
     if (inputEndDate) {
-      // para incluir todo el mes final, colocamos el último día de ese mes
       const y = inputEndDate.getFullYear();
       const m = inputEndDate.getMonth();
-      const lastDay = new Date(y, m + 1, 0).getTime(); // timestamp del último día
+      const lastDay = new Date(y, m + 1, 0).getTime();
       setFilterEndDate(new Date(lastDay));
     } else {
       setFilterEndDate(null);
@@ -148,10 +146,8 @@ const AdminInicio = () => {
     setFilterEndDate(null);
   };
 
-  // Clase CSS para input de mes/año (puedes ajustar en AdminInicio.css)
   const datePickerClass = 'custom-datepicker-mes';
 
-  // Devuelve el nombre del mes actual
   const currentMonthName = new Date().toLocaleDateString('es-ES', {
     month: 'long',
     year: 'numeric'
@@ -220,7 +216,38 @@ const AdminInicio = () => {
               </span>
             </p>
           </div>
+
+          <div className='card'>
+            <div className="card-text-ctn">
+              <IngresosPendientesIcon
+                width={20}
+                height={20}
+                fill='none'
+                style={{ color: "#bfbfbf" }}
+              />
+              <h3>Monto en cuotas vencidas</h3>
+            </div>
+            <p className='value'>
+              {currencyFormatter(kpi.totalAmountOverdue)}
+            </p>
+          </div>
+            
+          <div className='card'>
+            <div className="card-text-ctn">
+              <IngresosPendientesIcon
+                width={20}
+                height={20}
+                fill='none'
+                style={{ color: "#bfbfbf" }}
+              />
+              <h3>Cant. cuotas vencidas </h3>
+            </div>
+            <p className='value'>
+              {kpi.quotasOverdue}
+            </p>
+          </div>
         </div>
+
         {/* === Sección del gráfico de barras === */}
         <div className='chart-section'>
           <h3>Ingresos Mensuales</h3>
@@ -234,7 +261,6 @@ const AdminInicio = () => {
             </button>
           </div>
 
-          {/* === Sección de filtros de fecha para el gráfico === */}
           {showFilters && (
             <div className='filters-container' style={{ marginTop: '20px', marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <div className='admin-inicio-filtros-inputs-ctn' style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -272,7 +298,6 @@ const AdminInicio = () => {
             </div>
           )}
 
-
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
@@ -280,31 +305,13 @@ const AdminInicio = () => {
                 margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
               >
                 <defs>
-                  <linearGradient
-                    id="barGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor="#e63946"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="#e63946"
-                      stopOpacity={0.2}
-                    />
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#e63946" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#e63946" stopOpacity={0.2} />
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid
-                  vertical={false}
-                  stroke="#444"
-                  strokeDasharray="3 3"
-                />
+                <CartesianGrid vertical={false} stroke="#444" strokeDasharray="3 3" />
 
                 <XAxis
                   dataKey="mes"
@@ -328,16 +335,9 @@ const AdminInicio = () => {
                     borderRadius: "8px",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
                   }}
-                  labelStyle={{
-                    color: "#fff",
-                    fontSize: 12,
-                    fontWeight: "bold"
-                  }}
+                  labelStyle={{ color: "#fff", fontSize: 12, fontWeight: "bold" }}
                   itemStyle={{ color: "#fff", fontSize: 12 }}
-                  formatter={(value, name) => [
-                    currencyFormatter(value),
-                    name
-                  ]}
+                  formatter={(value, name) => [currencyFormatter(value), name]}
                 />
 
                 <Bar

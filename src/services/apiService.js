@@ -343,6 +343,15 @@ const postCuotasMasivas = async(body) => {
     }
 }
 
+const getCuotasUsuario = async(id) => {
+    try {
+        const response = await apiClient.get(`cuotas/usuario/${id}/cuotas`);
+        return response;
+    } catch (error) {
+        throw new Error("Error en el servicio de getCuotasUsuario")
+    }
+}
+
 // Ejercicios
 const getEjercicios = async() => {
     try {
@@ -437,6 +446,7 @@ export default {
     deletePlanes,
     putPlanes,
     // Cuotas
+    getCuotasUsuario,
     postCuotasMasivas,
     // Ejercicios
     getEjercicios,

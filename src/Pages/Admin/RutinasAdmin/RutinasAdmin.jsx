@@ -9,6 +9,7 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg'
 import { useNavigate, Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const RutinasAdmin = () => {
   const [rutinas, setRutinas] = useState([])
@@ -44,11 +45,16 @@ const RutinasAdmin = () => {
 
   const handleConfirmDelete = async () => {
     if (selectedRutinaId) {
+      setLoading(true)
       try {
         await apiService.deleteRutina(selectedRutinaId)
         setRutinas(prev => prev.filter(r => r.ID_Rutina !== selectedRutinaId))
+        setLoading(false)
+        toast.success("Rutina eliminada correctamente.")
       } catch (error) {
         console.error('Error al eliminar rutina', error)
+        setLoading(false)
+        toast.error("No se pudo eliminar la ruta. Intente nuevamente.")
       }
       closePopup()
     }

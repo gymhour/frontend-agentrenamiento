@@ -34,7 +34,7 @@ const CrearUsuario = () => {
     const fetchPlanes = async () => {
       try {
         const data = await apiService.getPlanes();
-        setPlanOptions(data.map(p => ({ label: p.nombre, value: p.ID_Plan })))
+        setPlanOptions(data.map(p => ({ label: p.nombre, value: p.ID_Plan })));
       } catch (error) {
         console.error('Error al cargar planes:', error);
         toast.error('No se pudieron cargar los planes disponibles');
@@ -52,54 +52,71 @@ const CrearUsuario = () => {
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       setAvatarFile(file);
       setAvatarPreview(URL.createObjectURL(file));
+    } else {
+      setAvatarFile(null);
+      setAvatarPreview("");
     }
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault();            // ← evita el submit nativo
+    if (isLoading) return;
 
     try {
       setIsLoading(true);
 
-      const isoFecha = formData.fechaCumple
-        ? new Date(formData.fechaCumple).toISOString()
-        : '';
+      // Normalizo la fecha (si tu API espera "YYYY-MM-DD", enviá esa forma)
+      const fechaPlano = formData.fechaCumple || '';
+      const isoFecha = fechaPlano ? new Date(fechaPlano).toISOString() : '';
 
-      const selectedPlan = planOptions.find(p => p.label === formData.plan);
-
-      const payload = new FormData();
-      payload.append('email', formData.email);
-      payload.append('password', formData.password);
-      payload.append('nombre', formData.nombre);
-      payload.append('apellido', formData.apellido);
-      payload.append('direc', formData.direc);
-      payload.append('tel', formData.tel);
-      payload.append('tipo', formData.tipo.toLowerCase());
-      payload.append('fechaCumple', isoFecha);
-      payload.append('ID_Plan', selectedPlan.value);
-
-      if (formData.tipo === 'Entrenador' && formData.profesion) {
-        payload.append('profesion', formData.profesion);
+      // Valido plan si es Cliente
+      let idPlan = null;
+      if (formData.tipo === 'Cliente') {
+        const selectedPlan = planOptions.find(p => p.label === formData.plan);
+        if (!selectedPlan) {
+          toast.error('Seleccioná un plan');
+          setIsLoading(false);
+          return;
+        }
+        idPlan = selectedPlan.value;
       }
 
+      const payload = new FormData();
+      payload.append('email', formData.email.trim());
+      payload.append('password', formData.password);
+      payload.append('nombre', formData.nombre.trim());
+      payload.append('apellido', formData.apellido.trim());
+      payload.append('direc', formData.direc.trim());
+      payload.append('tel', formData.tel.trim());
+      payload.append('tipo', formData.tipo ? formData.tipo.toLowerCase() : '');
+      payload.append('fechaCumple', isoFecha);
+
+      if (idPlan) payload.append('ID_Plan', idPlan);
+      if (formData.tipo === 'Entrenador' && formData.profesion) {
+        payload.append('profesion', formData.profesion.trim());
+      }
       if (avatarFile) {
         payload.append('avatar', avatarFile);
       }
 
-      await apiClient.post('/usuarios', payload)
+      await apiClient.post('/usuarios', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
       toast.success('Usuario añadido correctamente');
       setFormData(initialFormData);
       setAvatarFile(null);
-      navigate("/admin/usuarios")
-      setIsLoading(false);
+      setAvatarPreview("");
+      navigate("/admin/usuarios");
     } catch (error) {
-      const msg = error.response?.data?.message || 'No se pudo registrar el usuario';
+      console.error(error);
+      const msg = error?.response?.data?.message || 'No se pudo registrar el usuario';
       toast.error(msg);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -112,8 +129,8 @@ const CrearUsuario = () => {
       <SidebarMenu isAdmin={true} />
       <div className="content-layout">
         <h2>Crear usuario</h2>
+
         <form
-          onSubmit={handleSubmit}
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -124,43 +141,29 @@ const CrearUsuario = () => {
         >
           <label htmlFor="email">Email:</label>
           <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            placeholder="Ingresa tu email"
+            type="email" id="email" name="email"
+            value={formData.email} onChange={handleChange}
+            required placeholder="Ingresa tu email"
           />
 
           <label htmlFor="password">Contraseña:</label>
           <CustomInput
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            placeholder="Ingresa tu contraseña"
+            type="password" id="password" name="password"
+            value={formData.password} onChange={handleChange}
+            required placeholder="Ingresa tu contraseña"
           />
 
           <label htmlFor="nombre">Nombre:</label>
           <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
+            type="text" id="nombre" name="nombre"
+            value={formData.nombre} onChange={handleChange}
             placeholder="Ingresa el nombre"
           />
 
           <label htmlFor="apellido">Apellido:</label>
           <input
-            type="text"
-            id="apellido"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
+            type="text" id="apellido" name="apellido"
+            value={formData.apellido} onChange={handleChange}
             placeholder="Ingresa el apellido"
           />
 
@@ -174,8 +177,7 @@ const CrearUsuario = () => {
                 tipo: typeof val === 'string' ? val : val.target.value,
               }))
             }
-            name="tipo"
-            id="tipo"
+            name="tipo" id="tipo"
           />
 
           {formData.tipo === 'Cliente' && (
@@ -184,14 +186,10 @@ const CrearUsuario = () => {
               <CustomDropdown
                 options={planOptions.map(p => p.label)}
                 value={formData.plan}
-                onChange={e =>
-                  setFormData(f => ({
-                    ...f,
-                    plan: e.target.value
-                  }))
+                onChange={(e) =>
+                  setFormData(f => ({ ...f, plan: (e?.target?.value ?? '') }))
                 }
-                name="plan"
-                id="plan"
+                name="plan" id="plan"
               />
             </>
           )}
@@ -200,11 +198,8 @@ const CrearUsuario = () => {
             <>
               <label htmlFor="profesion">Profesión:</label>
               <input
-                type="text"
-                id="profesion"
-                name="profesion"
-                value={formData.profesion}
-                onChange={handleChange}
+                type="text" id="profesion" name="profesion"
+                value={formData.profesion} onChange={handleChange}
                 placeholder="Ingresa la profesión"
               />
             </>
@@ -212,52 +207,41 @@ const CrearUsuario = () => {
 
           <label htmlFor="direc">Dirección:</label>
           <input
-            type="text"
-            id="direc"
-            name="direc"
-            value={formData.direc}
-            onChange={handleChange}
+            type="text" id="direc" name="direc"
+            value={formData.direc} onChange={handleChange}
             placeholder="Ingresa la dirección"
           />
 
           <label htmlFor="tel">Teléfono:</label>
           <input
-            type="tel"
-            id="tel"
-            name="tel"
-            value={formData.tel}
-            onChange={handleChange}
+            type="tel" id="tel" name="tel"
+            value={formData.tel} onChange={handleChange}
             placeholder="Ingresa el teléfono"
           />
 
           <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>
           <input
-            type="date"
-            id="fechaCumple"
-            name="fechaCumple"
-            value={formData.fechaCumple}
-            onChange={handleChange}
+            type="date" id="fechaCumple" name="fechaCumple"
+            value={formData.fechaCumple} onChange={handleChange}
           />
 
           <label htmlFor="avatar">Avatar:</label>
           <input
-            type="file"
-            id="avatar"
-            name="avatar"
-            accept="image/*"
-            onChange={handleFileChange}
+            type="file" id="avatar" name="avatar"
+            accept="image/*" onChange={handleFileChange}
           />
+
           {avatarPreview && (
             <div className="preview-container">
               <img
-                src={avatarPreview}
-                alt="Preview clase"
-                className="preview-img"
-                width={300}
+                src={avatarPreview} alt="Preview clase"
+                className="preview-img" width={300}
               />
             </div>
           )}
-          <PrimaryButton text="Crear usuario" type="submit" onClick={handleSubmit} />
+
+          {/* El botón solo como submit, el onClick ya no hace falta */}
+          <PrimaryButton text={isLoading ? "Creando..." : "Crear usuario"} type="submit" disabled={isLoading} onClick={handleSubmit} />
         </form>
       </div>
     </div>

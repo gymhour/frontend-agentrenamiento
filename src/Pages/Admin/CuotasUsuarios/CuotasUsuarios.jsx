@@ -13,6 +13,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { FaChevronDown, FaChevronLeft, FaChevronRight, FaChevronUp } from 'react-icons/fa';
 import apiService from '../../../services/apiService';
+import { toast } from 'react-toastify';
 
 const CuotasUsuarios = () => {
   // — Estados de datos y carga —
@@ -58,14 +59,14 @@ const CuotasUsuarios = () => {
 
   const opcionesFiltroEstado = ['Todos —', 'Pendiente', 'Pagada', 'Vencida'];
   const labelToEstado = label => {
-    if (label === 'Pagada')  return 'true';
+    if (label === 'Pagada') return 'true';
     if (label === 'Pendiente') return 'pendiente';
-    if (label === 'Vencida')  return 'vencida';
+    if (label === 'Vencida') return 'vencida';
     return '';
   };
   const estadoToLabel = estado => {
-    if (estado === 'true')    return 'Pagada';
-    if (estado === 'pendiente')   return 'Pendiente';
+    if (estado === 'true') return 'Pagada';
+    if (estado === 'pendiente') return 'Pendiente';
     if (estado === 'vencida') return 'Vencida';
     return 'Todos —';
   };
@@ -160,15 +161,27 @@ const CuotasUsuarios = () => {
     try {
       if (actionType === 'pay') {
         await apiClient.put(`/cuotas/${selectedCuota.ID_Cuota}/pay`, { formaPago });
+        toast.success(
+          `Cuota pagada: cuota #${selectedCuota.ID_Cuota} por ${formatCurrency(selectedCuota.importe)} · ${formaPago}`
+        );
       } else if (actionType === 'delete') {
         await apiClient.delete(`/cuotas/${selectedCuota.ID_Cuota}`);
+        toast.success(`Cuota eliminada correctamente.`);
       }
       closeConfirmation();
       fetchCuotas();
+    } catch (err) {
+      console.error(err);
+      const msg = err?.response?.data?.message
+        || (actionType === 'pay'
+          ? 'No se pudo registrar el pago.'
+          : 'No se pudo eliminar la cuota.');
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -218,9 +231,10 @@ const CuotasUsuarios = () => {
       setShowBulkModal(false);
       setPage(1);
       fetchCuotas();
+      toast.success("Las cuotas se generaron correctamente.")
     } catch (err) {
       console.error('Error al generar cuotas masivas:', err);
-      alert('No se pudieron generar las cuotas masivas.');
+      toast.error('No se pudieron generar las cuotas masivas.');
     } finally {
       setLoading(false);
     }
@@ -426,7 +440,7 @@ const CuotasUsuarios = () => {
             <form onSubmit={handleSubmit} className="modal-form">
               <label>Usuario</label>
               <CustomDropdown
-                options={users.filter(u => u.estado === true ).map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
+                options={users.filter(u => u.estado === true).map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
                 value={
                   selectedEmail
                     ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`

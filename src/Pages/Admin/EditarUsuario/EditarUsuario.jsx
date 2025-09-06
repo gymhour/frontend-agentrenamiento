@@ -38,6 +38,7 @@ const EditarUsuario = () => {
     const fetchPlanes = async () => {
       try {
         const data = await apiService.getPlanes();
+
         setPlanOptions(data.map(p => ({ label: p.nombre, value: p.ID_Plan })))
       } catch (error) {
         console.error('Error al cargar planes:', error);
@@ -70,7 +71,7 @@ const EditarUsuario = () => {
           tipo:       tipoCapitalizado,
           fechaCumple: fechaISO,
           estado:     !!user.estado,
-          plan: user.plan.nombre
+          plan: user.tipo !== "admin" ? user.plan.nombre : ''
         });
         setIsLoading(false)
       } catch (err) {
