@@ -97,7 +97,7 @@ const createRutina = async (data) => {
 
 const editRutina = async (idRutina, data) => {
     try {
-        const response = await apiClient.put(`/rutinas/${idRutina}`, data);
+        const response = await apiClient.put(`/rutinas/putnuevo/${idRutina}`, data);
         return response.data
     } catch (error) {
         throw new Error("Error en el service de getRutinas");
