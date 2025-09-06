@@ -93,7 +93,7 @@
 
 .gh-hero-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: 1.1fr 1fr;
     gap: 40px;
     align-items: center;
 }
@@ -379,6 +379,10 @@
     .gh-grid-3 {
         grid-template-columns: 1fr 1fr;
     }
+
+    .gh-hero-preview {
+        height: 450px;
+    }
 }
 
 @media (max-width: 640px) {
@@ -400,6 +404,14 @@
 
     .gh-hero-grid {
         padding: 0px;
+    }
+
+    .gh-hero-preview {
+        height: 355px;
+    }
+
+    .gh-hero {
+        padding-bottom: 0px;
     }
 
     .gh-cta-card {

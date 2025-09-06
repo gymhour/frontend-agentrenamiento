@@ -47,6 +47,11 @@
     color: rgba(255, 255, 255, 0.6);
 }
 
+.our-logo-container {
+    font-size: 15px;
+    color: #8a8a8a;
+}
+
 @media screen and (max-width: 500px) {
     .login-subcontainer{
         padding: 0px 24px;

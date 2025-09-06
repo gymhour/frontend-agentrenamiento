@@ -354,7 +354,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
     setIsLoading(true);
     try {
       await apiClient.post(`/clase/horario/${h.idHorarioClase}/modify`, payload);
-      toast.success("Horario actualizado.");
+      toast.success("Horario y turnos asociados actualizados.");
       await fetchClaseDetalle();
     } catch (error) {
       console.error(error);
@@ -749,8 +749,8 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                   onChange={() => setEditModeDialog((s) => ({ ...s, mode: "preserve" }))}
                 />
                 <div>
-                  <strong>Preserve</strong>
-                  <p>Actualiza el horario preservando los turnos existentes cuando sea posible.</p>
+                  <strong>Preserva</strong>
+                  <p>Actualiza el horario preservando los turnos activos.</p>
                 </div>
               </label>
 
@@ -763,8 +763,8 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                   onChange={() => setEditModeDialog((s) => ({ ...s, mode: "instant" }))}
                 />
                 <div>
-                  <strong>Instant</strong>
-                  <p>Inhabilita el horario anterior y crea turnos nuevos con los cambios.</p>
+                  <strong>Instantaneo</strong>
+                  <p>Actualiza el horario de todos los turnos, incluyendo los activos.</p>
                 </div>
               </label>
             </div>

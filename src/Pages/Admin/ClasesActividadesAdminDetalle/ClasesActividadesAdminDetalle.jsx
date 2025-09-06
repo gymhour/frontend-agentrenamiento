@@ -68,6 +68,8 @@ const ClasesActividadesAdminDetalle = ({ fromAdmin, fromEntrenador }) => {
     .some(ent => ent.ID_Usuario === usuarioId);
   const canEdit = fromAdmin || isEntrenadorClase;
 
+  const isActive = (val) => val === true || val === 1 || val === '1' || val === 'true';
+  const horariosActivos = (claseDetalle?.HorariosClase ?? []).filter(h => isActive(h?.activo));
 
   return (
     <div className='page-layout'>
@@ -123,9 +125,9 @@ const ClasesActividadesAdminDetalle = ({ fromAdmin, fromEntrenador }) => {
             {/* Horarios */}
             <div className="clases-actividades-item clases-actividades-detalle-info-horario">
               <h2>Horarios</h2>
-              {claseDetalle.HorariosClase.length > 0 ? (
+              {horariosActivos.length > 0 ? (
                 <ul>
-                  {claseDetalle.HorariosClase.map(horario => (
+                  {horariosActivos.map(horario => (
                     <li key={horario.ID_HorarioClase}>
                       {horario.diaSemana} de{' '}
                       {horario.horaIni.slice(11, 16)} a {horario.horaFin.slice(11, 16)}

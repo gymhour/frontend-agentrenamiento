@@ -3,8 +3,7 @@
 .create-clase-form {
     display: flex;
     flex-direction: column;
-    align-items: start;
-    justify-content: start;
+    align-items: flex-start;
     gap: 20px;
 }
 
@@ -17,8 +16,7 @@
 .create-clase-form form {
     display: flex;
     flex-direction: column;
-    align-items: start;
-    justify-content: start;
+    align-items: flex-start;
     gap: 30px;
     margin-top: 20px;
 }
@@ -26,12 +24,12 @@
 .create-clase-form .form-input-ctn {
     display: flex;
     flex-direction: column;
-    align-items: start;
-    justify-content: center;
     gap: 6px;
-    width: 450px;
+    width: 100%;
     max-width: 450px;
 }
+
+/* ========== Controles base ========== */
 
 .create-clase-form form input,
 .create-clase-form form textarea {
@@ -45,8 +43,14 @@
     font-size: 16px;
 }
 
+.create-clase-form form textarea {
+    min-height: 150px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
 .create-clase-form form select {
-    min-width: 180px;
+    width: 100%;
+    min-width: 0;
     min-height: 50px;
     background-color: #252525;
     border-radius: 12px;
@@ -54,23 +58,14 @@
     outline: none;
     color: #FAFAFA;
     font-size: 16px;
-    padding: 0px 10px;
+    padding: 0 10px;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    /* background-image: url('ruta-a-tu-flecha.svg'); 
-    background-position: right 10px center;
-    background-repeat: no-repeat;
-    background-size: 16px; */
 }
 
 .create-clase-form form select::-ms-expand {
     display: none;
-}
-
-.create-clase-form form textarea {
-    min-height: 150px;
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 .create-clase-form form .submit-btn {
@@ -84,49 +79,23 @@
     cursor: pointer;
 }
 
+/* opcional heredado */
 .form-container form .forgot-password-link {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.6);
 }
 
-.horario-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-.horario-item input {
-    display: flex;
-    min-width: 200px;
-    height: 50px;
-}
-
-.form-input-ctn-horario {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.close-icon {
-    width: 48px;
-    height: 48px;
-    position: relative;
-    top: 10px;
-}
+/* ========== Tags entrenadores ========== */
 
 .selected-tags {
     width: 300px;
     display: flex;
-    justify-content: start;
     align-items: center;
     gap: 12px;
 }
 
 .selected-tags .tag {
     display: flex;
-    justify-content: start;
     align-items: center;
     gap: 14px;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -138,10 +107,14 @@
     cursor: pointer;
 }
 
+/* ========== Imagen ========== */
+
 .preview-container img {
     border-radius: 6px;
     padding-top: 20px;
 }
+
+/* ========== Horarios grid ========== */
 
 .form-input-horarios {
     width: 100%;
@@ -152,8 +125,7 @@
     grid-template-columns: 1.2fr 1fr 1fr 0.8fr auto;
     gap: 12px;
     align-items: end;
-    margin-top: 20px;
-    margin-bottom: 10px;
+    margin: 20px 0 10px;
 }
 
 .form-input-ctn-horario {
@@ -167,12 +139,6 @@
     height: 50px;
 }
 
-.create-clase-form form select {
-    width: 100%;
-    min-width: 0;
-    min-height: 50px;
-}
-
 .close-icon {
     width: 40px;
     height: 40px;
@@ -182,27 +148,6 @@
     cursor: pointer;
 }
 
-.radio-group {
-    width: 100%;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 20px;
-    padding: 10px 0px;
-}
-
-.radio-group-label {
-    width: fit-content;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    gap: 6px;
-}
-
-.radio-group-label span {
-    width: fit-content;
-}
-
 .row-actions {
     display: flex;
     justify-content: center;
@@ -210,7 +155,25 @@
     gap: 8px;
 }
 
-/* 900px - cuupos pasa a 2 columnas */
+/* ========== Radios agrupados (si se usan fuera del modal) ========== */
+
+.radio-group {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.radio-group-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ========== Breakpoints ========== */
+
+/* 900px: 2 columnas en horarios, X  absolutizada */
 @media (max-width: 900px) {
     .horario-item {
         grid-template-columns: 1fr 1fr;
@@ -228,11 +191,10 @@
     }
 }
 
-/*  600px - todo en una columna */
+/* 600px: 1 columna y centrados botones */
 @media (max-width: 600px) {
-
     .create-clase-form .form-input-ctn {
-        width: 100%;
+        max-width: 100%;
     }
 
     .horario-item {
@@ -255,50 +217,93 @@
         height: 52px;
     }
 
-    .clase-actividad-form-agg-horario-btn {
+    .clase-actividad-form-agg-horario-btn,
+    .clase-actividad-form-guardar-btn {
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         margin-top: 35px;
     }
-
-    .clase-actividad-form-guardar-btn {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 }
 
+/* Modal */
 .editmode-explainer {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    margin-top: 8px;
-  }
-  
-  .editmode-option {
-    display: grid;
-    grid-template-columns: 18px 1fr;
-    gap: 10px;
-    align-items: start;
-    cursor: pointer;
-  }
-  
-  .editmode-option input[type="radio"] {
-    margin-top: 3px;
-  }
-  
-  .editmode-option strong {
+    margin: 20px 0;
+    --accent: var(--primary-color);
+    --accent-hover: var(--primary-color-hover);
+    --accent-60: color-mix(in srgb, var(--accent) 60%, transparent);
+    --accent-16: color-mix(in srgb, var(--accent) 16%, transparent);
+    --accent-10: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.editmode-option {
+    position: relative;
     display: block;
-    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ocultamos el radio nativo (la card es el control) */
+.editmode-option>input[type="radio"] {
+    position: absolute;
+    inset: 0;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* tarjeta visual */
+.editmode-option>div {
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+    border: 1px solid rgba(255, 255, 255, .10);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, .45),
+        inset 0 1px 0 rgba(255, 255, 255, .07);
+    backdrop-filter: blur(6px);
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    max-width: 420px;
+}
+
+/* hover */
+.editmode-option:hover>div {
+    transform: translateY(-1px);
+    border-color: var(--accent-60);
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, .55),
+        0 0 0 3px var(--accent-10) inset;
+}
+
+/* focus teclado */
+.editmode-option>input[type="radio"]:focus-visible+div {
+    outline: 2px solid var(--accent-hover);
+    outline-offset: 3px;
+}
+
+/* seleccionado */
+.editmode-option>input[type="radio"]:checked+div {
+    border-color: var(--accent);
+    box-shadow:
+        0 12px 28px rgba(0, 0, 0, .55),
+        0 0 0 3px var(--accent-16) inset;
+}
+
+/* tipografía interna */
+.editmode-option strong {
+    display: block;
+    font-size: 15px;
+    line-height: 1.2;
     margin-bottom: 2px;
-  }
-  
-  .editmode-option p {
+}
+
+.editmode-option p {
     margin: 0;
-    opacity: 0.85;
-    font-size: 0.92rem;
-    line-height: 1.25rem;
-  }
-  
+    font-size: 13px;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, .72);
+}

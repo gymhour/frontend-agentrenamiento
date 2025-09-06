@@ -7,8 +7,8 @@ import ImageInicio from "../../assets/gymhour/sc_inicio.png"
 import ImageAdminKps from "../../assets/gymhour/sc_admin_kps.png"
 import ImageTurnos from "../../assets/gymhour/sc_turnos.png"
 import ImageClase from "../../assets/gymhour/sc_clase.png"
-
-
+import GymhourIsotipo from "../../assets/gymhour/logo_gymhour_isotipo.png"
+import GymhourTextoDerecha from "../../assets/gymhour/logo_gymhour_text_right.png"
 
 const Section = ({ id, eyebrow, title, children, className = "" }) => (
     <section id={id} className={`gh-section ${className}`}>
@@ -135,8 +135,8 @@ export default function GymHourLanding() {
             <header className="gh-header">
                 <div className="gh-container gh-header-inner">
                     <a href="#" className="gh-brand">
-                        <div className="gh-logo">H</div>
-                        <span>GymHour</span>
+                        
+                        <img src={GymhourTextoDerecha} alt="" width={120}/>
                     </a>
                     <nav className="gh-nav">
                         {nav.map((n) => (
@@ -146,7 +146,7 @@ export default function GymHourLanding() {
                         ))}
                     </nav>
                     <div className="gh-header-cta">
-                        <Link to="/login" className="gh-btn gh-btn-ghost"> Login </Link>
+                        {/* <Link to="/login" className="gh-btn gh-btn-ghost"> Login </Link> */}
                         <a href="#cta" className="gh-btn gh-btn-primary">Solicitar demo</a>
                     </div>
                 </div>
@@ -254,11 +254,11 @@ export default function GymHourLanding() {
                     </Card>
                     <Card>
                         <h4 className="gh-feature-title">¿Necesito instalar algo?</h4>
-                        <p className="gh-muted sm mt-6">No. Es 100% web y responsive: funciona en computadora y celular desde el navegador.</p>
+                        <p className="gh-muted sm mt-6">No. Es 100% web y funciona desde cualquier tipo de dispositivo con acceso a Internet. </p>
                     </Card>
                     <Card>
                         <h4 className="gh-feature-title">¿Cómo gestionan las cuotas?</h4>
-                        <p className="gh-muted sm mt-6">Podés crear cuotas únicas o generar cuotas masivas para todos los usuarios con plan. Además, el sistema marca automáticamente las vencidas mediante un proceso programado.</p>
+                        <p className="gh-muted sm mt-6">Podés crear cuotas únicas o generar cuotas masivas para todos los usuarios. Además, el sistema marca automáticamente las vencidas mediante un proceso programado.</p>
                     </Card>
                     <Card>
                         <h4 className="gh-feature-title">¿Qué métricas muestra el panel?</h4>

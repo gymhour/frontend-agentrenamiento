@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import './login.css';
 // Assets
 import LoginBackgroundImage from '../../../assets/login/login_background.png';
-import ClientLogo from '../../../assets/client/voltfit.png'
-import OurLogo from '../../../assets/gymhour/logo_gymhour.png'
+import ClientLogo from '../../../assets/client/ag_entrenamiento.png'
+import OurLogo from '../../../assets/gymhour/logo_gymhour_sin_texto.png'
 // Funciones
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -65,7 +65,7 @@ const Login = () => {
       {/* {isLoading && <LoaderFullScreen />} */}
       <div className="login-subcontainer">
         <div className="gym-logo-container">
-          <img src={ClientLogo} alt="Logo del gimnasio - cliente" width={120} />
+          <img src={ClientLogo} alt="Logo del gimnasio" width={120} />
         </div>
         <div className="form-container">
           <form onSubmit={handleSubmit}>
@@ -93,7 +93,8 @@ const Login = () => {
           </form>
         </div>
         <div className="our-logo-container">
-          <img src={OurLogo} alt="Logo de nuestra empresa" width={120} />
+          {/* <img src={OurLogo} alt="Logo de nuestra empresa" width={120} /> */}
+          <p> Gymhour - Software para gimnasios </p>
         </div>
       </div>
     </div>
