@@ -16,7 +16,9 @@ const Entrenadores = () => {
     const fetchEntrenadores = async () => {
       try {
         const data = await apiService.getEntrenadores();
-        setEntrenadores(data);
+        const activos = data.filter(entrenador => entrenador.estado === true);
+        setEntrenadores(activos);
+        console.log("Entrenadores activos", activos);
       } catch (error) {
         setError(error.message);
       } finally {
