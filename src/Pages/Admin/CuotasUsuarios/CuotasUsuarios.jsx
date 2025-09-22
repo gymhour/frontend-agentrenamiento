@@ -543,7 +543,7 @@ const CuotasUsuarios = () => {
               id="formaPago"
               value={formaPago}
               onChange={e => setFormaPago(e.target.value)}
-              options={["Efectivo", "Tarjeta de crédito", "Tarjeta de débito"]}
+              options={["Efectivo", "Tarjeta de crédito", "Tarjeta de débito", "Transferencia"]}
             />
           </div>
         )}
