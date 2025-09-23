@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import '../../../App.css';
 import './CuotasUsuarios.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
@@ -14,6 +14,7 @@ import SecondaryButton from '../../../Components/utils/SecondaryButton/Secondary
 import { FaChevronDown, FaChevronLeft, FaChevronRight, FaChevronUp } from 'react-icons/fa';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
 
 const CuotasUsuarios = () => {
   // — Estados de datos y carga —
@@ -31,9 +32,10 @@ const CuotasUsuarios = () => {
   const [selectedCuota, setSelectedCuota] = useState(null);
 
   // — Estados del formulario “Nueva cuota” —
-  const [selectedEmail, setSelectedEmail] = useState('');
+  const [selectedUserOpt, setSelectedUserOpt] = useState(null);
   const [mesDate, setMesDate] = useState(null);
   const [importe, setImporte] = useState('');
+  const [venceDate, setVenceDate] = useState(null);
 
   // — Estados para carga masiva —
   const [bulkMesDate, setBulkMesDate] = useState(null);
@@ -80,10 +82,52 @@ const CuotasUsuarios = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const usersRes = await apiClient.get('/usuarios');
-      setUsers(usersRes.data.data || []);
+      // 1) Pedimos la primera página para saber cuántas hay
+      const first = await apiClient.get('/usuarios', { params: { page: 1 } });
+      const totalPages = Number(first?.data?.meta?.totalPages || 1);
+
+      let all = Array.isArray(first?.data?.data) ? first.data.data : [];
+
+      // 2) Si hay más páginas, las pedimos en paralelo
+      if (totalPages > 1) {
+        const reqs = [];
+        for (let p = 2; p <= totalPages; p++) {
+          reqs.push(apiClient.get('/usuarios', { params: { page: p } }));
+        }
+        const results = await Promise.allSettled(reqs);
+        results.forEach(r => {
+          if (r.status === 'fulfilled') {
+            const chunk = Array.isArray(r.value?.data?.data) ? r.value.data.data : [];
+            all = all.concat(chunk);
+          }
+        });
+      }
+
+      // 3) Dedup por ID_Usuario
+      const byId = new Map();
+      all.forEach(u => {
+        if (u && typeof u.ID_Usuario !== 'undefined' && !byId.has(u.ID_Usuario)) {
+          byId.set(u.ID_Usuario, u);
+        }
+      });
+
+      // 4) Filtrado robusto: solo clientes activos
+      const normTipo = t => String(t ?? '').trim().toLowerCase();
+      const activos = Array.from(byId.values())
+        .filter(u => u?.estado === true && normTipo(u?.tipo) === 'cliente');
+
+      // 5) Orden alfabético
+      activos.sort((a, b) =>
+        `${a?.nombre || ''} ${a?.apellido || ''}`.localeCompare(
+          `${b?.nombre || ''} ${b?.apellido || ''}`,
+          'es',
+          { sensitivity: 'base' }
+        )
+      );
+
+      setUsers(activos);
     } catch (err) {
-      console.error('Error obteniendo usuarios:', err);
+      console.error('Error obteniendo usuarios (paginado):', err);
     }
   };
 
@@ -182,14 +226,20 @@ const CuotasUsuarios = () => {
     }
   };
 
+  // Helper: ISO UTC fin de día (evita drift por TZ)
+  const toIsoUtcEndOfDay = (localDate) => {
+    if (!localDate) return null;
+    const y = localDate.getFullYear();
+    const m = localDate.getMonth();
+    const d = localDate.getDate();
+    return new Date(Date.UTC(y, m, d, 23, 59, 59, 0)).toISOString();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(false);
     setLoading(true);
 
-    const user = users.find(u => u.email === selectedEmail);
-    if (!user) {
+    if (!selectedUserOpt?.value) {
       alert('Seleccioná un usuario válido.');
       setLoading(false);
       return;
@@ -199,17 +249,25 @@ const CuotasUsuarios = () => {
       setLoading(false);
       return;
     }
+    if (!venceDate) {
+      alert('Seleccioná una fecha de vencimiento.');
+      setLoading(false);
+      return;
+    }
 
     const mesString = buildMesString(mesDate);
-    const vence = `${mesString}-10T23:59:59.000Z`;
+    const venceIso  = toIsoUtcEndOfDay(venceDate);
 
-    const payload = { mes: mesString, importe: Number(importe), vence };
+    const payload = { mes: mesString, importe: Number(importe), vence: venceIso };
     try {
-      await apiClient.post(`/cuotas/usuario/${user.ID_Usuario}`, payload);
-      setSelectedEmail('');
+      await apiClient.post(`/cuotas/usuario/${selectedUserOpt.value}`, payload);
+      setSelectedUserOpt(null);
       setMesDate(null);
+      setVenceDate(null);
       setImporte('');
       setPage(1);
+      setShowModal(false);
+      toast.success('Cuota creada correctamente.');
     } catch (err) {
       console.error('Error al crear cuota:', err);
       alert('No se pudo crear la cuota.');
@@ -225,7 +283,7 @@ const CuotasUsuarios = () => {
     try {
       const mesString = buildMesString(bulkMesDate);
       const venceIso  = toIsoUtcEndOfDay(bulkVenceDate);
-      const payload = { mes: mesString, vence: venceIso };
+      const payload   = { mes: mesString, vence: venceIso };
       await apiService.postCuotasMasivas(payload);
       setShowBulkModal(false);
       setPage(1);
@@ -272,16 +330,14 @@ const CuotasUsuarios = () => {
   const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString('es-AR') : '–');
   const formatCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
 
-  const toIsoUtcEndOfDay = (localDate) => {
-    if (!localDate) return null;
-    const y = localDate.getFullYear();
-    const m = localDate.getMonth();
-    const d = localDate.getDate();
-    return new Date(Date.UTC(y, m, d, 23, 59, 59, 0)).toISOString();
-  };
-
-
   const datePickerClass = 'custom-datepicker custom-datepicker-mes';
+
+  const userOptions = useMemo(() => {
+    return users.map(u => ({
+      value: u.ID_Usuario,
+      label: `${u.nombre} ${u.apellido} (${u.email})`,
+    }));
+  }, [users]);
 
   return (
     <div className="page-layout">
@@ -447,21 +503,15 @@ const CuotasUsuarios = () => {
             <h3>Nueva cuota</h3>
             <form onSubmit={handleSubmit} className="modal-form">
               <label>Usuario</label>
-              <CustomDropdown
-                options={users.filter(u => u.estado === true).map(u => `${u.nombre} ${u.apellido} (${u.email})`)}
-                value={
-                  selectedEmail
-                    ? `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`
-                    : ''
-                }
-                placeholderOption="Seleccioná un usuario"
-                onChange={e => {
-                  const txt = e.target.value;
-                  const match = txt.match(/\(([^)]+)\)$/);
-                  if (match) setSelectedEmail(match[1]);
-                  else setSelectedEmail('');
-                }}
-                required
+              <Select
+                options={userOptions}
+                value={selectedUserOpt}
+                onChange={setSelectedUserOpt}
+                placeholder="Seleccioná un usuario"
+                isClearable
+                isSearchable
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
               />
 
               <label>Mes</label>
@@ -472,6 +522,16 @@ const CuotasUsuarios = () => {
                 showMonthYearPicker
                 placeholderText="Seleccioná mes y año"
                 className={datePickerClass}
+                required
+              />
+
+              <label>Vence</label>
+              <ReactDatePicker
+                selected={venceDate}
+                onChange={date => setVenceDate(date)}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="Seleccioná fecha de vencimiento"
+                className="custom-datepicker"
                 required
               />
 
@@ -518,7 +578,7 @@ const CuotasUsuarios = () => {
                 onChange={date => setBulkVenceDate(date)}
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Seleccione fecha de vencimiento"
-                className={datePickerClass}
+                className="custom-datepicker"
               />
               <div className="modal-actions">
                 <button type="button" className="modal-secondary-button" onClick={() => setShowBulkModal(false)}>
