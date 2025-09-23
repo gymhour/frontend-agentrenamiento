@@ -352,6 +352,17 @@ const getCuotasUsuario = async(id) => {
     }
 }
 
+const getCuotasReminder = async(idUsuario) => {
+    try {
+        const response = await apiClient.get(`/cuotas/reminder/${idUsuario}`);
+        return response.data;
+    } catch (error) {
+        const apiMsg = error?.response?.data?.message;
+        throw new Error(apiMsg || "Error en el servicio de getCuotasReminder");
+    }
+}
+
+
 // Ejercicios
 const getEjercicios = async() => {
     try {
@@ -448,6 +459,7 @@ export default {
     // Cuotas
     getCuotasUsuario,
     postCuotasMasivas,
+    getCuotasReminder,
     // Ejercicios
     getEjercicios,
     getEjercicioById,

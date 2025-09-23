@@ -59,3 +59,83 @@
         margin-top: 20px;
     }
 }
+
+.cuota-reminder {
+    background: rgba(255, 193, 7, 0.12); /* amarillo suave */
+    border: 1px solid rgba(255, 193, 7, 0.35);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .cuota-reminder__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .cuota-reminder__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  
+  .cuota-reminder__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+  }
+  
+  .cuota-reminder__close:hover {
+    background: rgba(0,0,0,0.08);
+  }
+  
+  .cuota-reminder__message {
+    margin: 0 0 8px 0;
+    font-size: 0.95rem;
+    opacity: 0.95;
+  }
+  
+  .cuota-reminder__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  
+  .cuota-reminder__item {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px dashed rgba(255, 193, 7, 0.35);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  
+  .cuota-reminder__item-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    font-size: 0.95rem;
+  }
+  
+  .cuota-reminder__item-row + .cuota-reminder__item-row {
+    margin-top: 6px;
+  }
+  
+  .cuota-reminder__actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  

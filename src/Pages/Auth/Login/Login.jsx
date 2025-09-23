@@ -53,7 +53,8 @@ const Login = () => {
   
       toast.success('Inicio de sesión exitoso');
     } catch (error) {
-      toast.error("Error al iniciar sesión. Comprueba tus credenciales");
+      console.log("error", error.response.data)
+      toast.error( error.response.data.error ? error.response.data.error : "Error al iniciar sesión. Comprueba tus credenciales");
     } finally {
       setIsLoading(false);
     }

@@ -222,16 +222,15 @@ const CuotasUsuarios = () => {
     if (!bulkMesDate) { alert('Selecciona un mes válido.'); return; }
     if (!bulkVenceDate) { alert('Selecciona fecha de vencimiento.'); return; }
     setLoading(true);
-    const mesString = buildMesString(bulkMesDate);
-    const venceDate = new Date(bulkVenceDate);
-    venceDate.setHours(23, 59, 59, 0);
-    const payload = { mes: mesString, vence: venceDate.toISOString() };
     try {
+      const mesString = buildMesString(bulkMesDate);
+      const venceIso  = toIsoUtcEndOfDay(bulkVenceDate);
+      const payload = { mes: mesString, vence: venceIso };
       await apiService.postCuotasMasivas(payload);
       setShowBulkModal(false);
       setPage(1);
       fetchCuotas();
-      toast.success("Las cuotas se generaron correctamente.")
+      toast.success("Las cuotas se generaron correctamente.");
     } catch (err) {
       console.error('Error al generar cuotas masivas:', err);
       toast.error('No se pudieron generar las cuotas masivas.');
@@ -272,6 +271,15 @@ const CuotasUsuarios = () => {
   };
   const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString('es-AR') : '–');
   const formatCurrency = (val) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(val);
+
+  const toIsoUtcEndOfDay = (localDate) => {
+    if (!localDate) return null;
+    const y = localDate.getFullYear();
+    const m = localDate.getMonth();
+    const d = localDate.getDate();
+    return new Date(Date.UTC(y, m, d, 23, 59, 59, 0)).toISOString();
+  };
+
 
   const datePickerClass = 'custom-datepicker custom-datepicker-mes';
 
