@@ -10,14 +10,15 @@ import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // <-- agrego Link
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg"
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
-  'Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo',
-  'Miércoles','Sábado'
+  'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo',
+  'Miércoles', 'Sábado'
 ];
 
 const isDiaN = (k) => /^dia(\d+)$/i.test(k);
@@ -33,15 +34,15 @@ const smartSortDiaKeys = (diasObj) => {
   const hasAnyDiaN = keys.some(isDiaN);
   if (hasAnyDiaN) {
     const sinDia = keys.filter(k => k === 'sin_dia');
-    const diaNs  = keys.filter(isDiaN).sort((a,b) => diaNIndex(a) - diaNIndex(b));
-    const others = keys.filter(k => !isDiaN(k) && k !== 'sin_dia').sort((a,b) => a.localeCompare(b));
+    const diaNs = keys.filter(isDiaN).sort((a, b) => diaNIndex(a) - diaNIndex(b));
+    const others = keys.filter(k => !isDiaN(k) && k !== 'sin_dia').sort((a, b) => a.localeCompare(b));
     return [...diaNs, ...others, ...sinDia];
   }
 
   const sinDia = keys.filter(k => k === 'sin_dia');
-  const week   = keys.filter(k => WEEK_ORDER.includes(k))
-                     .sort((a,b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
-  const others = keys.filter(k => !WEEK_ORDER.includes(k) && k !== 'sin_dia').sort((a,b) => a.localeCompare(b));
+  const week = keys.filter(k => WEEK_ORDER.includes(k))
+    .sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
+  const others = keys.filter(k => !WEEK_ORDER.includes(k) && k !== 'sin_dia').sort((a, b) => a.localeCompare(b));
   return [...week, ...others, ...sinDia];
 };
 
@@ -63,18 +64,19 @@ const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 const headerForBlock = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return ''; // <- nunca encabezado “principal”
-    case 'ROUNDS':    return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
-    case 'EMOM':      return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
-    case 'AMRAP':     return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'TABATA':    return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
-    case 'LADDER':    return b?.tipoEscalera || 'Escalera';
-    default:          return '';
+    case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
+    case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
+    case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
+    case 'TABATA': return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
+    case 'LADDER': return b?.tipoEscalera || 'Escalera';
+    default: return '';
   }
 };
 
+/** texto base del item (sin link) */
 const itemText = (it, tipo) => {
-  const name  = it?.ejercicio?.nombre || 'Ejercicio';
-  const reps  = (it?.reps ?? '').toString().trim();
+  const name = it?.ejercicio?.nombre || 'Ejercicio';
+  const reps = (it?.reps ?? '').toString().trim();
   const extra = (it?.setRepWeight ?? '').toString().trim();
   const showExtra = extra && extra.toLowerCase() !== name.toLowerCase();
 
@@ -84,12 +86,39 @@ const itemText = (it, tipo) => {
   return showExtra ? `${left} — ${extra}` : left;
 };
 
+/** ¿Este ejercicio debe linkear? Requisito: esGenerico=false e ID_Ejercicio válido */
+const isLinkableExercise = (it) => {
+  const ej = it?.ejercicio;
+  return !!(ej?.ID_Ejercicio && ej?.esGenerico === false);
+};
+
+/** Render del <li> con posible link + icono */
+const renderEjercicioItem = (it, tipo) => {
+  const txt = itemText(it, tipo);
+  if (isLinkableExercise(it)) {
+    const id = it.ejercicio.ID_Ejercicio;
+    return (
+      <span className="ejercicio-link-wrap">
+        <Link
+          to={`/alumno/ejercicios/${id}`}
+          className="ejercicio-link"
+          title="Ver detalle del ejercicio"
+        >
+          {txt}
+        </Link>
+        <VideoIcon className="video-icon" aria-hidden="true" />
+      </span>
+    );
+  }
+  return <span>{txt}</span>;
+};
+
 // Si un SETS_REPS no trae ejercicios, mostramos esta línea como item de cuerpo.
 const setsRepsFallback = (b) => {
   const parts = [
     b?.setsReps ? `${b.setsReps}` : '',
     b?.nombreEj ? `${b.nombreEj}` : '',
-    b?.weight   ? `— ${b.weight}` : ''
+    b?.weight ? `— ${b.weight}` : ''
   ].filter(Boolean);
   const txt = parts.join(' ').trim();
   return txt || null;
@@ -152,8 +181,8 @@ const MiRutina = () => {
   }, []);
 
   const clases = useMemo(() => Array.from(new Set(clasesApi.map(c => c.nombre))), [clasesApi]);
-  const grupos = ["Pecho","Espalda","Piernas","Brazos","Hombros","Abdominales","Glúteos","Tren Superior","Tren Inferior","Full Body","Mixto"];
-  const diasSemana = ["Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"];
+  const grupos = ["Pecho", "Espalda", "Piernas", "Brazos", "Hombros", "Abdominales", "Glúteos", "Tren Superior", "Tren Inferior", "Full Body", "Mixto"];
+  const diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
 
   const filteredRutinas = rutinas.filter(r => {
     const tieneDia = (fDia === '') ||
@@ -182,7 +211,7 @@ const MiRutina = () => {
   };
   const handlePopUpOpen = id => { setSelectedRutinaId(id); setIsPopupOpen(true); };
   const handlePopupConfirm = () => { setIsPopupOpen(false); if (selectedRutinaId) { deleteRutina(selectedRutinaId); setSelectedRutinaId(null); } };
-  const handlePopupClose   = () => { setIsPopupOpen(false); setSelectedRutinaId(null); };
+  const handlePopupClose = () => { setIsPopupOpen(false); setSelectedRutinaId(null); };
 
   const toggleDia = (rutinaId, diaKey) => {
     setOpenState(prev => ({
@@ -288,7 +317,9 @@ const MiRutina = () => {
                             <div key={i} className='bloque-card'>
                               {(items.length > 0) ? (
                                 <ul className='bloque-list'>
-                                  {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                  {items.map((it, j) => (
+                                    <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                  ))}
                                 </ul>
                               ) : (
                                 fallback && (
@@ -307,7 +338,9 @@ const MiRutina = () => {
                             {header && <p className='bloque-header'>{header}</p>}
                             {items.length > 0 && (
                               <ul className='bloque-list'>
-                                {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                {items.map((it, j) => (
+                                  <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                ))}
                               </ul>
                             )}
                             {b.type === 'ROUNDS' && b.descansoRonda ? (
@@ -346,7 +379,9 @@ const MiRutina = () => {
                                       <div key={i} className='bloque-card'>
                                         {(items.length > 0) ? (
                                           <ul className='bloque-list'>
-                                            {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                            {items.map((it, j) => (
+                                              <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                            ))}
                                           </ul>
                                         ) : (
                                           fallback && (
@@ -364,7 +399,9 @@ const MiRutina = () => {
                                       {header && <p className='bloque-header'>{header}</p>}
                                       {items.length > 0 && (
                                         <ul className='bloque-list'>
-                                          {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                          {items.map((it, j) => (
+                                            <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                          ))}
                                         </ul>
                                       )}
                                       {b.type === 'ROUNDS' && b.descansoRonda ? (

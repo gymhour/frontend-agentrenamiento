@@ -63,10 +63,26 @@
     font-family: 'BebasNewu', Arial, Helvetica, sans-serif;
 }
 
-.exercise-link {
+.ejercicio-link {
+    color: #fafafa;
     text-decoration: underline;
-    color: white;
+    text-underline-offset: 2px;
 }
+
+.ejercicio-link-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.video-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    stroke: currentColor;
+}
+
 
 .mi-rutina-eliminar-btn {
     color: rgb(243, 102, 102);
