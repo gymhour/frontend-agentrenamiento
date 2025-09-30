@@ -8,6 +8,8 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { ReactComponent as VideoIcon } from '../../../assets/icons/video-icon.svg';
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -76,6 +78,32 @@ const itemText = (it, tipo) => {
 
   const left = reps ? `${reps} ${name}` : name;
   return showExtra ? `${left} — ${extra}` : left;
+};
+
+// === Nueva lógica de link + icono (igual que en MiRutina)
+const isLinkableExercise = (it) => {
+  const ej = it?.ejercicio;
+  return !!(ej?.ID_Ejercicio && ej?.esGenerico === false);
+};
+
+const renderEjercicioItem = (it, tipo) => {
+  const txt = itemText(it, tipo);
+  if (isLinkableExercise(it)) {
+    const id = it.ejercicio.ID_Ejercicio;
+    return (
+      <span className="ejercicio-link-wrap">
+        <Link
+          to={`/alumno/ejercicios/${id}`}
+          className="ejercicio-link"
+          title="Ver detalle del ejercicio"
+        >
+          {txt}
+        </Link>
+        <VideoIcon className="video-icon" aria-hidden="true" />
+      </span>
+    );
+  }
+  return <span>{txt}</span>;
 };
 
 // Si un SETS_REPS no trae ejercicios, mostramos esta línea como item de cuerpo.
@@ -250,7 +278,6 @@ const RutinasRecomendadas = () => {
 
                   {/* ===== DÍAS ===== */}
                   {dias.length <= 1 ? (
-                    // Si no hay días o hay 1, se muestra directo (sin acordeón)
                     <div className='rutina-dia'>
                       {dias[0] && <h4>{dias[0].nombre}</h4>}
                       {dias[0]?.descripcion && <p className='dia-desc'>{dias[0].descripcion}</p>}
@@ -265,7 +292,9 @@ const RutinasRecomendadas = () => {
                             <div key={i} className='bloque-card'>
                               {(items.length > 0) ? (
                                 <ul className='bloque-list'>
-                                  {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                  {items.map((it, j) => (
+                                    <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                  ))}
                                 </ul>
                               ) : (
                                 fallback && (
@@ -283,7 +312,9 @@ const RutinasRecomendadas = () => {
                             {header && <p className='bloque-header'>{header}</p>}
                             {items.length > 0 && (
                               <ul className='bloque-list'>
-                                {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                {items.map((it, j) => (
+                                  <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                ))}
                               </ul>
                             )}
                             {b.type === 'ROUNDS' && b.descansoRonda ? (
@@ -294,7 +325,6 @@ const RutinasRecomendadas = () => {
                       })}
                     </div>
                   ) : (
-                    // Acordeón (primer día abierto por defecto)
                     <div className='rutina-dias-accordion'>
                       {dias.map((d, idx) => {
                         const isOpen = !!openState?.[rutina.ID_Rutina]?.[d.key];
@@ -323,7 +353,9 @@ const RutinasRecomendadas = () => {
                                       <div key={i} className='bloque-card'>
                                         {(items.length > 0) ? (
                                           <ul className='bloque-list'>
-                                            {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                            {items.map((it, j) => (
+                                              <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                            ))}
                                           </ul>
                                         ) : (
                                           fallback && (
@@ -341,7 +373,9 @@ const RutinasRecomendadas = () => {
                                       {header && <p className='bloque-header'>{header}</p>}
                                       {items.length > 0 && (
                                         <ul className='bloque-list'>
-                                          {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                          {items.map((it, j) => (
+                                            <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+                                          ))}
                                         </ul>
                                       )}
                                       {b.type === 'ROUNDS' && b.descansoRonda ? (

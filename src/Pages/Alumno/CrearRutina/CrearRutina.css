@@ -238,7 +238,7 @@
     }
 
     .sets-row {
-        grid-template-columns: 80px 1fr 28px;
+        grid-template-columns: 70px 1fr 70px 28px;
         gap: 8px;
     }
 

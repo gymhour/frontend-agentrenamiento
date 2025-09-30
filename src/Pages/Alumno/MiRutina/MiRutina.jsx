@@ -86,13 +86,11 @@ const itemText = (it, tipo) => {
   return showExtra ? `${left} — ${extra}` : left;
 };
 
-/** ¿Este ejercicio debe linkear? Requisito: esGenerico=false e ID_Ejercicio válido */
 const isLinkableExercise = (it) => {
   const ej = it?.ejercicio;
   return !!(ej?.ID_Ejercicio && ej?.esGenerico === false);
 };
 
-/** Render del <li> con posible link + icono */
 const renderEjercicioItem = (it, tipo) => {
   const txt = itemText(it, tipo);
   if (isLinkableExercise(it)) {
@@ -418,9 +416,9 @@ const MiRutina = () => {
                     </div>
                   )}
 
-                  <div style={{ marginTop: 12 }}>
-                    <SecondaryButton text="Ver más detalles" onClick={() => { /* TODO */ }} />
-                  </div>
+                  {/* <div style={{ marginTop: 12 }}>
+                    <SecondaryButton text="Ver más detalles" onClick={() => }} />
+                  </div> */}
                 </div>
               );
             })
