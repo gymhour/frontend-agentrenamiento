@@ -384,3 +384,7 @@
   .days-tabs::-webkit-scrollbar-thumb:hover {
     background: rgba(255,255,255,0.22);
   }  
+
+  .css-1nmdiq5-menu .css-qr46ko .css-d7l1ni-option {
+    background: #303030;
+  }

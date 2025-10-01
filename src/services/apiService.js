@@ -410,6 +410,27 @@ const putEjercicios = async(id, body) => {
     }
 }
 
+// Helpers
+export async function fetchAllClientsActive(apiService, { take = 100 } = {}) {
+    let page = 1;
+    let totalPages = 1;
+    const all = [];
+  
+    do {
+      const resp = await apiService.getUsers({ page, take }); 
+      const data = Array.isArray(resp?.data) ? resp.data : [];
+  
+      // Filtrar solo clientes activos
+      const clientesActivos = data.filter(u => (u?.tipo?.toLowerCase?.() === 'cliente') && u?.estado === true);
+      all.push(...clientesActivos);
+  
+      totalPages = Number(resp?.meta?.totalPages || 1);
+      page += 1;
+    } while (page <= totalPages);
+  
+    return all;
+  }
+  
 export default {
     // Clases
     getClases,
@@ -466,4 +487,6 @@ export default {
     postEjercicios,
     putEjercicios,
     deleteEjercicios,
+    // Helpers
+    fetchAllClientsActive
 };
