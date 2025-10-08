@@ -40,6 +40,7 @@ import TurnosAdmin from './Pages/Admin/TurnosAdmin/TurnosAdmin';
 import Ejercicios from './Pages/Shared/Ejercicios/Ejercicios';
 import EjercicioForm from './Pages/Shared/EjercicioForm/EjercicioForm';
 import EjercicioDetail from './Pages/Shared/EjercicioDetail/EjercicioDetail';
+import RutinaDetail from './Pages/Shared/RutinaDetail/RutinaDetail';
 
 function App() {
 
@@ -173,6 +174,14 @@ function App() {
           }
         />
         <Route
+          path="/admin/rutinas/:id"
+          element={
+            <ProtectedRoute>
+              <RutinaDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin/crear-rutina"
           element={
             <ProtectedRoute>
@@ -224,6 +233,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CrearRutina fromEntrenador={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/entrenador/rutinas/:id"
+          element={
+            <ProtectedRoute>
+              <RutinaDetail />
             </ProtectedRoute>
           }
         />
@@ -347,6 +364,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MiRutina />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alumno/rutinas/:id"
+          element={
+            <ProtectedRoute>
+              <RutinaDetail />
             </ProtectedRoute>
           }
         />

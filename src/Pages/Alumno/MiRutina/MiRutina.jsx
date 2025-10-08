@@ -416,9 +416,11 @@ const MiRutina = () => {
                     </div>
                   )}
 
-                  {/* <div style={{ marginTop: 12 }}>
-                    <SecondaryButton text="Ver más detalles" onClick={() => }} />
-                  </div> */}
+                  <div style={{ marginTop: 12 }}>
+                    <button className='rutina-ver-detalle-btn' onClick={() => navigate(`/alumno/rutinas/${rutina.ID_Rutina}`)}>
+                      Ver mas detalles
+                    </button>
+                  </div>
                 </div>
               );
             })

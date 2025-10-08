@@ -1,0 +1,190 @@
+.page-layout .content-layout {
+    color-scheme: dark;
+    --gh-bg: #0d0f10;
+    --gh-surface: #121417;
+    --gh-surface-2: #0f1113;
+    --gh-border: #24282e;
+    --gh-text: #eceff3;
+    --gh-muted: #a8acb2;
+    --gh-chip-bg: #161a1f;
+    --gh-chip-border: #2a3036;
+}
+
+.page-layout .content-layout .gh-card,
+.page-layout .content-layout .gh-surface {
+    background: var(--gh-surface);
+    border: 1px solid var(--gh-border);
+    color: var(--gh-text);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+    padding: 10px;
+}
+
+.page-layout .content-layout .gh-muted {
+    color: var(--gh-muted);
+}
+
+.page-layout .content-layout .gh-feature-title {
+    color: var(--gh-text);
+}
+
+.page-layout .content-layout .gh-tabs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.page-layout .content-layout .gh-tab {
+    appearance: none;
+    background: var(--gh-surface-2);
+    border: 1px solid var(--gh-border);
+    color: var(--gh-text);
+    padding: 8px 14px;
+    line-height: 1;
+    border-radius: 8px;
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.page-layout .content-layout .gh-tab:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent) inset;
+}
+
+.page-layout .content-layout .gh-tab.active {
+    background: color-mix(in srgb, var(--primary-color) 16%, var(--gh-surface-2));
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.page-layout .content-layout .gh-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 960px) {
+    .page-layout .content-layout .gh-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.page-layout .content-layout .gh-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-layout .content-layout .gh-badge,
+.page-layout .content-layout .gh-chip {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--gh-chip-bg);
+    border: 1px solid var(--gh-chip-border);
+    color: var(--gh-text);
+}
+
+.page-layout .content-layout .gh-chip.success {
+    background: color-mix(in srgb, var(--primary-color) 18%, var(--gh-chip-bg));
+    border-color: color-mix(in srgb, var(--primary-color) 55%, var(--gh-chip-border));
+    color: color-mix(in srgb, var(--primary-color) 95%, #ffffff);
+}
+
+.page-layout .content-layout .gh-list-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 10px;
+    background: var(--gh-surface-2);
+    border: 1px solid var(--gh-border);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+}
+
+.page-layout .content-layout .gh-list-item+.gh-list-item {
+    margin-top: 8px;
+}
+
+.page-layout .content-layout .gh-text.bold {
+    font-weight: 600;
+}
+
+.page-layout .content-layout .gh-list-item .gh-link {
+    color: var(--primary-color);
+    text-decoration: underline;
+    opacity: .95;
+}
+
+.page-layout .content-layout .gh-list-item .gh-link:hover {
+    opacity: 1;
+}
+
+@media (max-width: 640px) {
+    .page-layout .content-layout .gh-list-item {
+        grid-template-columns: 1fr;
+    }
+}
+
+.page-layout .content-layout .gh-surface:hover,
+.page-layout .content-layout .gh-card:hover {
+    border-color: var(--gh-border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+.page-layout .content-layout .gh-grid-2,
+.page-layout .content-layout .gh-grid-2.gh-grid-fullwidth {
+    display: grid;
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+}
+
+.page-layout .content-layout .gh-ej-row {
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+}
+
+.page-layout .content-layout .gh-ej-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: var(--gh-surface);
+    border: 1px solid var(--gh-border);
+}
+
+.page-layout .content-layout .gh-ej-thumb.placeholder {
+    display: block;
+    background: var(--gh-surface-2);
+}
+
+.page-layout .content-layout .gh-ej-main {
+    display: grid;
+    gap: 6px;
+}
+
+.page-layout .content-layout .gh-ej-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-layout .content-layout .gh-ej-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.page-layout .content-layout .gh-ej-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--gh-muted);
+}
+
+.gh-label {
+    color: #929292;
+    margin-bottom: 8px;
+}
