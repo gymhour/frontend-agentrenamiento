@@ -203,6 +203,15 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                     </li>
                   </Link>
                   <Link
+                      to="/admin/asignar-rutinas"
+                      className={`menu-link ${location.pathname === "/admin/asignar-rutinas" ? "active" : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                      </li>
+                    </Link>
+                  <Link
                     to="/admin/rutinas"
                     className={`menu-link ${location.pathname === "/admin/rutinas"
                       ? "active"
@@ -214,7 +223,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         className="icon"
                         color="#A2A2A2"
                       />{" "}
-                      Cargar rutinas
+                      Rutinas recomendadas
                     </li>
                   </Link>
                   <Link

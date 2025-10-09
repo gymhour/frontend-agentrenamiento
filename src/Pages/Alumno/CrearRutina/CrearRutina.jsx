@@ -5,7 +5,7 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput.jsx';
 import './CrearRutina.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
-import apiService from '../../../services/apiService';
+import apiService, { fetchAllClientsActive } from '../../../services/apiService'; // <-- usa el helper paginado
 import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -95,6 +95,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const isEditing = Boolean(rutinaId);
   const navigate = useNavigate();
 
+  const canAssign = !!(fromEntrenador || fromAdmin);
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -125,19 +127,26 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   }, []);
 
   useEffect(() => {
-    if (fromEntrenador) {
-      apiService.getAllUsuarios()
-        .then(res => setUsers(res.data))
-        .catch(() => toast.error('No se pudieron cargar los usuarios'));
+    // Cargar TODOS los clientes activos con paginado cuando se puede asignar (admin o entrenador)
+    if (canAssign) {
+      (async () => {
+        try {
+          const clientes = await fetchAllClientsActive(apiService, { take: 100 });
+          setUsers(clientes);
+        } catch (e) {
+          toast.error('No se pudieron cargar todos los usuarios');
+        }
+      })();
     }
-  }, [fromEntrenador]);
+  }, [canAssign]);
 
   useEffect(() => {
-    if (isEditing && (!fromEntrenador || users.length > 0)) {
+    // si estoy editando y (no necesito usuarios) o (ya los tengo), traigo la rutina
+    if (isEditing && (!canAssign || users.length > 0)) {
       fetchRoutine();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing, fromEntrenador, users]);
+  }, [isEditing, canAssign, users]);
 
   const cryptoRandomId = () => {
     try {
@@ -157,7 +166,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       setSelectedClase(r.claseRutina || "");
       setSelectedGrupoMuscular(r.grupoMuscularRutina || "");
 
-      if (fromEntrenador) {
+      if (canAssign) {
         const alumnoEmail = r?.alumno?.email ?? r?.alumnoEmail ?? null;
         const alumnoId = r?.ID_Usuario ?? r?.alumno?.ID_Usuario ?? null;
         let selected = null;
@@ -196,6 +205,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     e.preventDefault();
     if (!formData.nombre.trim()) return toast.error("Ingresá un nombre para la rutina");
     if (!days.length) return toast.error("Agregá al menos un día");
+
+    if (canAssign && !selectedEmail) {
+      return toast.error("Seleccioná un usuario para asignar la rutina");
+    }
+
     setStep(2);
   };
 
@@ -318,7 +332,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
   // Payload
   const buildPayload = () => {
-    const userId = fromEntrenador
+    const userId = canAssign
       ? users.find(u => u.email === selectedEmail)?.ID_Usuario
       : Number(localStorage.getItem("usuarioId"));
 
@@ -375,7 +389,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
 
     return {
       ID_Usuario: Number(userId),
-      ID_Entrenador: entrenadorId,
+      ID_Entrenador: entrenadorId, // para admin queda null (si querés que sea el admin logueado, te lo cambio)
       nombre: formData.nombre,
       desc: formData.descripcion,
       claseRutina: selectedClase || "Combinada",
@@ -413,7 +427,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
           <h2>{isEditing ? 'Editar Rutina' : 'Crear Rutina'}</h2>
-          {step === 2 && (
+        {step === 2 && (
             <PrimaryButton
               text={isEditing ? "Guardar cambios" : "Crear rutina"}
               linkTo="#"
@@ -456,9 +470,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                 onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
               />
 
-              {fromEntrenador && (
+              {canAssign && (
                 <Select
-                  options={users.filter(u => u.tipo === "cliente").map(u => ({
+                  options={users.map(u => ({
                     label: `${u.nombre} ${u.apellido} (${u.email})`,
                     value: u.email
                   }))}

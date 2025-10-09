@@ -173,6 +173,13 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/admin/asignar-rutinas"
+          element={
+            <ProtectedRoute>
+              <CrearRutina fromEntrenador={false} fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/rutinas/:id"
           element={

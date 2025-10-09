@@ -122,7 +122,7 @@ const getRutinasEntrenadores = async (idEntrenador) => {
     }
 }
 
-const getRutinasAdmins = async() => {
+const getRutinasAdmins = async () => {
     try {
         const response = await apiClient.get(`/rutinas/admins`)
         return response.data;
@@ -157,14 +157,17 @@ const removeEntrenadorFromClase = async (idClase, idEntrenador) => {
     }
 }
 
-const getAllUsuarios = async () => {
+const getAllUsuarios = async ({ page = 1, take = 15 } = {}) => {
     try {
-        const response = await apiClient('/usuarios');
+        const response = await apiClient('/usuarios', {
+            params: { page, take },
+        });
         return response.data;
     } catch (error) {
         throw new Error(`Error al obtener los usuarios`);
     }
-}
+};
+
 
 const getUserById = async (id) => {
     try {
@@ -297,7 +300,7 @@ const getKPIs = async () => {
 }
 
 // Admin planes
-const getPlanes = async() => {
+const getPlanes = async () => {
     try {
         const response = await apiClient.get("/planes");
         return response.data;
@@ -306,7 +309,7 @@ const getPlanes = async() => {
     }
 }
 
-const postPlanes = async(body) => {
+const postPlanes = async (body) => {
     try {
         const response = await apiClient.post("/planes", body);
         return response;
@@ -315,7 +318,7 @@ const postPlanes = async(body) => {
     }
 }
 
-const deletePlanes = async(id) => {
+const deletePlanes = async (id) => {
     try {
         const response = await apiClient.delete(`/planes/${id}`);
         return response;
@@ -324,7 +327,7 @@ const deletePlanes = async(id) => {
     }
 }
 
-const putPlanes = async(id, body) => {
+const putPlanes = async (id, body) => {
     try {
         const response = await apiClient.put(`/planes/${id}`, body)
         return response.data;
@@ -334,7 +337,7 @@ const putPlanes = async(id, body) => {
 }
 
 // Cuotas
-const postCuotasMasivas = async(body) => {
+const postCuotasMasivas = async (body) => {
     try {
         const response = await apiClient.post("cuotas/generate-cuotas", body);
         return response;
@@ -343,7 +346,7 @@ const postCuotasMasivas = async(body) => {
     }
 }
 
-const getCuotasUsuario = async(id) => {
+const getCuotasUsuario = async (id) => {
     try {
         const response = await apiClient.get(`cuotas/usuario/${id}/cuotas`);
         return response;
@@ -352,7 +355,7 @@ const getCuotasUsuario = async(id) => {
     }
 }
 
-const getCuotasReminder = async(idUsuario) => {
+const getCuotasReminder = async (idUsuario) => {
     try {
         const response = await apiClient.get(`/cuotas/reminder/${idUsuario}`);
         return response.data;
@@ -364,7 +367,7 @@ const getCuotasReminder = async(idUsuario) => {
 
 
 // Ejercicios
-const getEjercicios = async() => {
+const getEjercicios = async () => {
     try {
         const response = await apiClient.get("/ejercicios");
         return response.data;
@@ -374,7 +377,7 @@ const getEjercicios = async() => {
 }
 
 // Ejercicios
-const getEjercicioById = async(id) => {
+const getEjercicioById = async (id) => {
     try {
         const response = await apiClient.get(`/ejercicios/${id}`);
         return response;
@@ -383,7 +386,7 @@ const getEjercicioById = async(id) => {
     }
 }
 
-const postEjercicios = async(body) => {
+const postEjercicios = async (body) => {
     try {
         const response = await apiClient.post("/ejercicios", body);
         return response;
@@ -392,7 +395,7 @@ const postEjercicios = async(body) => {
     }
 }
 
-const deleteEjercicios = async(id) => {
+const deleteEjercicios = async (id) => {
     try {
         const response = await apiClient.delete(`/ejercicios/${id}`);
         return response;
@@ -401,7 +404,7 @@ const deleteEjercicios = async(id) => {
     }
 }
 
-const putEjercicios = async(id, body) => {
+const putEjercicios = async (id, body) => {
     try {
         const response = await apiClient.put(`/ejercicios/${id}`, body)
         return response.data;
@@ -414,23 +417,29 @@ const putEjercicios = async(id, body) => {
 export async function fetchAllClientsActive(apiService, { take = 100 } = {}) {
     let page = 1;
     let totalPages = 1;
-    const all = [];
-  
+
+    const byId = new Map();
+
     do {
-      const resp = await apiService.getUsers({ page, take }); 
-      const data = Array.isArray(resp?.data) ? resp.data : [];
-  
-      // Filtrar solo clientes activos
-      const clientesActivos = data.filter(u => (u?.tipo?.toLowerCase?.() === 'cliente') && u?.estado === true);
-      all.push(...clientesActivos);
-  
-      totalPages = Number(resp?.meta?.totalPages || 1);
-      page += 1;
+        const resp = await apiService.getAllUsuarios({ page, take });
+        const data = Array.isArray(resp?.data) ? resp.data : [];
+
+        // Filtrar solo clientes activos
+        data.forEach(u => {
+            const isCliente = String(u?.tipo ?? '').toLowerCase() === 'cliente';
+            const isActivo = u?.estado === true;
+            if (isCliente && isActivo) {
+                byId.set(u.ID_Usuario, u);
+            }
+        });
+
+        totalPages = Number(resp?.meta?.totalPages || 1);
+        page += 1;
     } while (page <= totalPages);
-  
-    return all;
-  }
-  
+
+    return Array.from(byId.values());
+}
+
 export default {
     // Clases
     getClases,

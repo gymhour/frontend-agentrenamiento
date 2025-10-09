@@ -10,11 +10,12 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { ReactComponent as VideoIcon } from '../../../assets/icons/video-icon.svg';
+import { useNavigate } from 'react-router-dom';
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
-  'Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo',
-  'Miércoles','Sábado'
+  'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo',
+  'Miércoles', 'Sábado'
 ];
 
 const isDiaN = (k) => /^dia(\d+)$/i.test(k);
@@ -30,15 +31,15 @@ const smartSortDiaKeys = (diasObj) => {
   const hasAnyDiaN = keys.some(isDiaN);
   if (hasAnyDiaN) {
     const sinDia = keys.filter(k => k === 'sin_dia');
-    const diaNs  = keys.filter(isDiaN).sort((a,b) => diaNIndex(a) - diaNIndex(b));
-    const others = keys.filter(k => !isDiaN(k) && k !== 'sin_dia').sort((a,b) => a.localeCompare(b));
+    const diaNs = keys.filter(isDiaN).sort((a, b) => diaNIndex(a) - diaNIndex(b));
+    const others = keys.filter(k => !isDiaN(k) && k !== 'sin_dia').sort((a, b) => a.localeCompare(b));
     return [...diaNs, ...others, ...sinDia];
   }
 
   const sinDia = keys.filter(k => k === 'sin_dia');
-  const week   = keys.filter(k => WEEK_ORDER.includes(k))
-                     .sort((a,b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
-  const others = keys.filter(k => !WEEK_ORDER.includes(k) && k !== 'sin_dia').sort((a,b) => a.localeCompare(b));
+  const week = keys.filter(k => WEEK_ORDER.includes(k))
+    .sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
+  const others = keys.filter(k => !WEEK_ORDER.includes(k) && k !== 'sin_dia').sort((a, b) => a.localeCompare(b));
   return [...week, ...others, ...sinDia];
 };
 
@@ -59,18 +60,18 @@ const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 const headerForBlock = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return '';
-    case 'ROUNDS':    return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
-    case 'EMOM':      return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
-    case 'AMRAP':     return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'TABATA':    return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
-    case 'LADDER':    return b?.tipoEscalera || 'Escalera';
-    default:          return '';
+    case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
+    case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
+    case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
+    case 'TABATA': return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
+    case 'LADDER': return b?.tipoEscalera || 'Escalera';
+    default: return '';
   }
 };
 
 const itemText = (it, tipo) => {
-  const name  = it?.ejercicio?.nombre || 'Ejercicio';
-  const reps  = (it?.reps ?? '').toString().trim();
+  const name = it?.ejercicio?.nombre || 'Ejercicio';
+  const reps = (it?.reps ?? '').toString().trim();
   const extra = (it?.setRepWeight ?? '').toString().trim();
   const showExtra = extra && extra.toLowerCase() !== name.toLowerCase();
 
@@ -111,7 +112,7 @@ const setsRepsFallback = (b) => {
   const parts = [
     b?.setsReps ? `${b.setsReps}` : '',
     b?.nombreEj ? `${b.nombreEj}` : '',
-    b?.weight   ? `— ${b.weight}` : ''
+    b?.weight ? `— ${b.weight}` : ''
   ].filter(Boolean);
   const txt = parts.join(' ').trim();
   return txt || null;
@@ -134,6 +135,8 @@ const RutinasRecomendadas = () => {
 
   // estado de desplegables por rutina/día
   const [openState, setOpenState] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -393,7 +396,9 @@ const RutinasRecomendadas = () => {
                   )}
 
                   <div style={{ marginTop: 12 }}>
-                    <SecondaryButton text="Ver más detalles" onClick={() => { /* TODO */ }} />
+                    <button className='rutina-ver-detalle-btn' onClick={() => navigate(`/alumno/rutinas/${rutina.ID_Rutina}`)}>
+                      Ver mas detalles
+                    </button>
                   </div>
                 </div>
               );
