@@ -523,7 +523,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
         <div className="main-col" style={{ flex: '1 1 auto', minWidth: 0 }}>
           <div className="mi-rutina-title header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <h2>{isEditing ? 'Editar Rutina' : 'Crear Rutina'}</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 'auto' }}>
               {step === 2 && (
                 <PrimaryButton
                   text={isEditing ? "Guardar cambios" : "Crear rutina"}
