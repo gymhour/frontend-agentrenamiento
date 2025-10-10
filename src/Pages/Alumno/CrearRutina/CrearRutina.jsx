@@ -11,7 +11,7 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
-import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
+import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
 const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA"];
@@ -91,7 +91,6 @@ const convertApiBlockData = (b) => {
 
 // Normalizador de métricas (clave de la fix)
 const normalizeUserMetrics = (resp) => {
-  // Casos posibles: resp = { ejercicios: [...] } | { data: { ejercicios: [...] } } | [...]
   const ejercicios =
     (resp && Array.isArray(resp.ejercicios) && resp.ejercicios) ||
     (resp && resp.data && Array.isArray(resp.data.ejercicios) && resp.data.ejercicios) ||
@@ -133,6 +132,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   // Días (tabs)
   const [days, setDays] = useState([{ key: 'dia1', nombre: '', descripcion: '', blocks: [] }]);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
+
+  // === Responsive (detectar mobile) ===
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     apiService.getEjercicios()
@@ -269,9 +271,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     const newDays = days.filter((_, i) => i !== idx).map((d, i) => ({ ...d, key: `dia${i+1}` }));
     setDays(newDays);
     setActiveDayIndex(Math.max(0, idx - 1));
-  };
-  const renameDayField = (idx, field, value) => {
-    setDays(days.map((d, i) => i === idx ? { ...d, [field]: value } : d));
   };
 
   const activeDay = days[activeDayIndex];
@@ -462,6 +461,32 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     } finally { setLoading(false); }
   };
 
+  // === Responsive: detectar mobile, cerrar con ESC y bloquear scroll cuando abierto ===
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 720px)');
+    const handler = (e) => setIsMobile(e.matches);
+    setIsMobile(mql.matches);
+    try { mql.addEventListener('change', handler); } catch { mql.addListener(handler); }
+    return () => {
+      try { mql.removeEventListener('change', handler); } catch { mql.removeListener(handler); }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!(isMobile && infoOpen)) return;
+    const onKey = (e) => { if (e.key === 'Escape') setInfoOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isMobile, infoOpen]);
+
+  useEffect(() => {
+    if (isMobile && infoOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [isMobile, infoOpen]);
+
   /* ================ Derivados UI ================ */
   const filteredExercises = useMemo(() => {
     const term = exerciseSearch.trim().toLowerCase();
@@ -481,6 +506,19 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
 
       <div className='content-layout mi-rutina-ctn layout-with-info' style={{ display: 'flex', gap: 16 }}>
+        {/* FAB para abrir info en mobile */}
+        {canAssign && step === 2 && isMobile && !infoOpen && (
+          <button
+            className="fab-info"
+            onClick={() => setInfoOpen(true)}
+            aria-label="Abrir información"
+            aria-controls="info-panel"
+            aria-expanded={infoOpen}
+          >
+            Info
+          </button>
+        )}
+
         {/* Contenido principal (izquierda) */}
         <div className="main-col" style={{ flex: '1 1 auto', minWidth: 0 }}>
           <div className="mi-rutina-title header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
@@ -493,16 +531,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                   onClick={handleSubmit}
                 />
               )}
-              {/* {canAssign && step === 2 && (
-                <button
-                  type="button"
-                  onClick={() => setInfoOpen(v => !v)}
-                  className="info-toggle-btn"
-                  title={infoOpen ? 'Ocultar Información' : 'Mostrar Información'}
-                >
-                  {infoOpen ? 'Ocultar Información' : 'Mostrar Información'}
-                </button>
-              )} */}
             </div>
           </div>
 
@@ -627,14 +655,14 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                 </div>
 
                 {/* Bloques */}
-                {(activeDay?.blocks || []).map((block) => {
+                {(activeDay?.blocks || []).map((block, idxBlock) => {
                   const isDragging = draggingBlockId === block.id;
                   const isOver = dragOverBlockId === block.id;
                   const sugKeyPrefix = `${activeDay?.key || 'dia'}-${block.id}-`;
 
                   return (
                     <div
-                      key={block.id}
+                      key={block.id ?? idxBlock}
                       className={`block-container ${isDragging ? 'block--dragging' : ''} ${isOver ? 'block--over' : ''}`}
                       onDragOver={(e) => onDragOver(e, block.id)}
                       onDrop={(e) => onDrop(e, block.id)}
@@ -991,152 +1019,168 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
           )}
         </div>
 
-        {/* Panel lateral Información (derecha) — SOLO Step 2 */}
-        {canAssign && step === 2 && infoOpen && (
-          <aside className="info-panel">
-            <div className="info-panel__header">
-              <h3>Información</h3>
-              <button
-                type="button"
-                onClick={() => setInfoOpen(false)}
-                className="info-panel__close"
-                title="Cerrar panel"
-              >×</button>
-            </div>
+        {/* Panel lateral Información (drawer en mobile, fijo en desktop) — SOLO Step 2 */}
+        {canAssign && step === 2 && (
+          <>
+            {/* Backdrop (solo visible en mobile cuando está abierto) */}
+            <div
+              className={`info-backdrop ${isMobile && infoOpen ? 'show' : ''}`}
+              onClick={() => setInfoOpen(false)}
+              aria-hidden={!isMobile || !infoOpen}
+            />
 
-            {/* Tabs */}
-            <div className="info-tabs">
-              <button
-                className={`info-tab ${infoTab === 'ejercicios' ? 'active' : ''}`}
-                onClick={() => setInfoTab('ejercicios')}
-              >
-                Ejercicios
-              </button>
-              <button
-                className={`info-tab ${infoTab === 'usuario' ? 'active' : ''}`}
-                onClick={() => setInfoTab('usuario')}
-              >
-                Información del usuario
-              </button>
-            </div>
-
-            {/* Contenido Tabs */}
-            {infoTab === 'ejercicios' && (
-              <div>
-                <input
-                  type="text"
-                  className="info-search"
-                  placeholder="Buscar ejercicio..."
-                  value={exerciseSearch}
-                  onChange={(e) => setExerciseSearch(e.target.value)}
-                />
-                <div className="info-list">
-                  {(filteredExercises || []).map((ej) => (
-                    <div key={ej.ID_Ejercicio} className="info-card">
-                      <div className="info-card__row">
-                        <strong className="info-card__title">{ej.nombre}</strong>
-                        {ej.youtubeUrl && (
-                          <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
-                        )}
-                      </div>
-                      {ej.descripcion && <p className="info-card__desc">{ej.descripcion}</p>}
-                      <div className="info-card__meta">
-                        {ej.musculos && <small><b>Músculos:</b> {ej.musculos}</small>}
-                        {ej.equipamiento && <small><b>Equipo:</b> {ej.equipamiento}</small>}
-                      </div>
-                    </div>
-                  ))}
-                  {(!filteredExercises || filteredExercises.length === 0) && (
-                    <p className="info-empty">No se encontraron ejercicios.</p>
-                  )}
-                </div>
+            <aside
+              id="info-panel"
+              className={`info-panel ${isMobile ? 'drawer' : ''} ${infoOpen ? 'open' : ''}`}
+              role={isMobile ? 'dialog' : undefined}
+              aria-modal={isMobile ? 'true' : undefined}
+              aria-label="Información contextual"
+            >
+              <div className="info-panel__header">
+                <h3>Información</h3>
+                <button
+                  type="button"
+                  onClick={() => setInfoOpen(false)}
+                  className="info-panel__close"
+                  title="Cerrar panel"
+                  aria-label="Cerrar panel"
+                >×</button>
               </div>
-            )}
 
-            {infoTab === 'usuario' && (
-              <div>
-                <div className="user-meta">
-                  <div className="user-meta__line">
-                    <b>Usuario asignado:</b>{' '}
-                    {selectedUserId
-                      ? `${selectedUser?.nombre || ''} ${selectedUser?.apellido || ''}`
-                      : '— seleccioná un usuario'}
+              {/* Tabs */}
+              <div className="info-tabs">
+                <button
+                  className={`info-tab ${infoTab === 'ejercicios' ? 'active' : ''}`}
+                  onClick={() => setInfoTab('ejercicios')}
+                >
+                  Ejercicios
+                </button>
+                <button
+                  className={`info-tab ${infoTab === 'usuario' ? 'active' : ''}`}
+                  onClick={() => setInfoTab('usuario')}
+                >
+                  Información del usuario
+                </button>
+              </div>
+
+              {/* Contenido Tabs */}
+              {infoTab === 'ejercicios' && (
+                <div>
+                  <input
+                    type="text"
+                    className="info-search"
+                    placeholder="Buscar ejercicio..."
+                    value={exerciseSearch}
+                    onChange={(e) => setExerciseSearch(e.target.value)}
+                  />
+                  <div className="info-list">
+                    {(filteredExercises || []).map((ej) => (
+                      <div key={ej.ID_Ejercicio} className="info-card">
+                        <div className="info-card__row">
+                          <strong className="info-card__title">{ej.nombre}</strong>
+                          {ej.youtubeUrl && (
+                            <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
+                          )}
+                        </div>
+                        {ej.descripcion && <p className="info-card__desc">{ej.descripcion}</p>}
+                        <div className="info-card__meta">
+                          {ej.musculos && <small><b>Músculos:</b> {ej.musculos}</small>}
+                          {ej.equipamiento && <small><b>Equipo:</b> {ej.equipamiento}</small>}
+                        </div>
+                      </div>
+                    ))}
+                    {(!filteredExercises || filteredExercises.length === 0) && (
+                      <p className="info-empty">No se encontraron ejercicios.</p>
+                    )}
                   </div>
                 </div>
+              )}
 
-                {!selectedUserId && (
-                  <p className="info-empty">
-                    Para ver mediciones, primero seleccioná un usuario en el desplegable de la izquierda.
-                  </p>
-                )}
+              {infoTab === 'usuario' && (
+                <div>
+                  <div className="user-meta">
+                    <div className="user-meta__line">
+                      <b>Usuario asignado:</b>{' '}
+                      {selectedUserId
+                        ? `${selectedUser?.nombre || ''} ${selectedUser?.apellido || ''}`
+                        : '— seleccioná un usuario'}
+                    </div>
+                  </div>
 
-                {selectedUserId && (
-                  <>
-                    {loadingMetrics && <p className="info-loading">Cargando mediciones...</p>}
-                    {!loadingMetrics && (!userMetrics || !Array.isArray(userMetrics.ejercicios) || userMetrics.ejercicios.length === 0) && (
-                      <p className="info-empty">Sin datos de mediciones.</p>
-                    )}
+                  {!selectedUserId && (
+                    <p className="info-empty">
+                      Para ver mediciones, primero seleccioná un usuario en el desplegable de la izquierda.
+                    </p>
+                  )}
 
-                    {!loadingMetrics && Array.isArray(userMetrics?.ejercicios) && userMetrics.ejercicios.length > 0 && (
-                      <div className="metrics-list">
-                        {userMetrics.ejercicios.map((e) => {
-                          const historico = Array.isArray(e.HistoricoEjercicios) ? [...e.HistoricoEjercicios] : [];
-                          historico.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
-                          const last3 = historico.slice(0, 3);
+                  {selectedUserId && (
+                    <>
+                      {loadingMetrics && <p className="info-loading">Cargando mediciones...</p>}
+                      {!loadingMetrics && (!userMetrics || !Array.isArray(userMetrics.ejercicios) || userMetrics.ejercicios.length === 0) && (
+                        <p className="info-empty">Sin datos de mediciones.</p>
+                      )}
 
-                          // PR histórico (máximo Cantidad)
-                          let pr = null;
-                          for (const h of historico) {
-                            if (!pr || h.Cantidad > pr.Cantidad) pr = h;
-                          }
+                      {!loadingMetrics && Array.isArray(userMetrics?.ejercicios) && userMetrics.ejercicios.length > 0 && (
+                        <div className="metrics-list">
+                          {userMetrics.ejercicios.map((e) => {
+                            const historico = Array.isArray(e.HistoricoEjercicios) ? [...e.HistoricoEjercicios] : [];
+                            historico.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+                            const last3 = historico.slice(0, 3);
 
-                          return (
-                            <div key={e.ID_EjercicioMedicion} className="info-card">
-                              <div className="info-card__row">
-                                <strong className="info-card__title">{e.nombre}</strong>
-                                <small className="info-card__badge">{e.tipoMedicion}</small>
-                              </div>
+                            // PR histórico (máximo Cantidad)
+                            let pr = null;
+                            for (const h of historico) {
+                              if (!pr || h.Cantidad > pr.Cantidad) pr = h;
+                            }
 
-                              {/* Últimos 3 */}
-                              {last3.length > 0 ? (
-                                <div className="metric-block">
-                                  <div className="metric-block__title">Últimos 3 registros</div>
-                                  <ul className="metric-history">
-                                    {last3.map(h => (
-                                      <li key={h.ID_HistoricoEjercicio}>
-                                        <span className="metric-date">{new Date(h.Fecha).toLocaleDateString()}</span>
-                                        <span className="metric-sep">—</span>
-                                        <span className="metric-value">{h.Cantidad}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
+                            return (
+                              <div key={e.ID_EjercicioMedicion} className="info-card">
+                                <div className="info-card__row">
+                                  <strong className="info-card__title">{e.nombre}</strong>
+                                  <small className="info-card__badge">{e.tipoMedicion}</small>
                                 </div>
-                              ) : (
-                                <div className="metric-block metric-block--empty">Sin registros</div>
-                              )}
 
-                              {/* PR histórico */}
-                              <div className="metric-block metric-block--pr">
-                                <span className="metric-pr-label">PR histórico:</span>
-                                {pr
-                                  ? (
-                                    <span className="metric-pr-value">
-                                      {pr.Cantidad} <span className="metric-pr-date">({new Date(pr.Fecha).toLocaleDateString()})</span>
-                                    </span>
-                                  )
-                                  : <span className="metric-pr-value">—</span>
-                                }
+                                {/* Últimos 3 */}
+                                {last3.length > 0 ? (
+                                  <div className="metric-block">
+                                    <div className="metric-block__title">Últimos 3 registros</div>
+                                    <ul className="metric-history">
+                                      {last3.map(h => (
+                                        <li key={h.ID_HistoricoEjercicio}>
+                                          <span className="metric-date">{new Date(h.Fecha).toLocaleDateString()}</span>
+                                          <span className="metric-sep">—</span>
+                                          <span className="metric-value">{h.Cantidad}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ) : (
+                                  <div className="metric-block metric-block--empty">Sin registros</div>
+                                )}
+
+                                {/* PR histórico */}
+                                <div className="metric-block metric-block--pr">
+                                  <span className="metric-pr-label">PR histórico:</span>
+                                  {pr
+                                    ? (
+                                      <span className="metric-pr-value">
+                                        {pr.Cantidad} <span className="metric-pr-date">({new Date(pr.Fecha).toLocaleDateString()})</span>
+                                      </span>
+                                    )
+                                    : <span className="metric-pr-value">—</span>
+                                  }
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-          </aside>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </aside>
+          </>
         )}
       </div>
     </div>

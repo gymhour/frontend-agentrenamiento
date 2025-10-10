@@ -13,6 +13,7 @@ import ClasesActividadesCard from '../ClasesActividadesCard/ClasesActividadesCar
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AlumnoInicio = () => {
   const [clases, setClases] = useState([]);
@@ -23,9 +24,11 @@ const AlumnoInicio = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [turnoToCancel, setTurnoToCancel] = useState(null);
 
-  // 👇 Estado para recordatorios de cuotas
-  const [cuotaReminder, setCuotaReminder] = useState(null); // { message, remindersCount, reminders: [...] }
+  // Recordatorios de cuotas (nueva response)
+  const [cuotaReminder, setCuotaReminder] = useState(null); // response cruda del endpoint nuevo
   const [showReminder, setShowReminder] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -44,14 +47,27 @@ const AlumnoInicio = () => {
         setNombreUsuario(`${usuarioData?.nombre || ''} ${usuarioData?.apellido || ''}`.trim());
         setError('');
 
-        // Traemos recordatorios de cuotas (si falla, no rompemos la home)
+        // Nueva response de cuotas
         try {
           const reminderResp = await apiService.getCuotasReminder(usuarioId);
-          setCuotaReminder(reminderResp);
-          setShowReminder(true);
-        } catch (remErr) {
-          // Puede no haber recordatorios o devolver 404/204; lo ignoramos
+          // Estructura nueva:
+          // { message, hasVencidas, totals: {vencidas, venceHoy, porVencer, recordatorios}, vencidas:[], venceHoy:[], porVencer:[] }
+          const vencidas = Array.isArray(reminderResp?.vencidas) ? reminderResp.vencidas : [];
+          const porVencer = [
+            ...(Array.isArray(reminderResp?.venceHoy) ? reminderResp.venceHoy : []),
+            ...(Array.isArray(reminderResp?.porVencer) ? reminderResp.porVencer : []),
+          ];
+          // Si no hay nada para mostrar, no guardamos (así no se renderiza)
+          if (vencidas.length === 0 && porVencer.length === 0) {
+            setCuotaReminder(null);
+            setShowReminder(false);
+          } else {
+            setCuotaReminder(reminderResp);
+            setShowReminder(true);
+          }
+        } catch {
           setCuotaReminder(null);
+          setShowReminder(false);
         }
       } catch (err) {
         console.error(err);
@@ -122,6 +138,36 @@ const AlumnoInicio = () => {
     return `${m}/${y}`; // MM/YYYY
   };
 
+  // ======= Derivados de cuotas (para la nueva UI) =======
+  const cuotasVencidas = useMemo(() => Array.isArray(cuotaReminder?.vencidas) ? cuotaReminder.vencidas : [], [cuotaReminder]);
+  const cuotasPorVencer = useMemo(() => {
+    const hoy = Array.isArray(cuotaReminder?.venceHoy) ? cuotaReminder.venceHoy : [];
+    const proximo = Array.isArray(cuotaReminder?.porVencer) ? cuotaReminder.porVencer : [];
+    return [...hoy, ...proximo];
+  }, [cuotaReminder]);
+
+  const hayVencidas = cuotasVencidas.length > 0;
+  const hayPendientes = cuotasPorVencer.length > 0;
+
+  // Prioridad: si hay vencidas -> rojo; si no, si hay pendientes -> amarillo; si no, no se muestra
+  const debeMostrarReminder = showReminder && (hayVencidas || hayPendientes);
+  const esRojo = hayVencidas;
+
+  // Estilos inline para rojo (dejamos amarillo con tu CSS actual)
+  const reminderContainerStyle = esRojo
+    ? { background: 'rgba(229, 72, 77, 0.12)', border: '1px solid rgba(229, 72, 77, 0.45)' }
+    : undefined;
+  const reminderItemStyle = esRojo
+    ? { borderColor: 'rgba(229, 72, 77, 0.45)' }
+    : undefined;
+
+  const tituloReminder = esRojo ? 'Cuotas vencidas' : 'Cuotas por vencer';
+  const mensajeReminder = cuotaReminder?.message || (esRojo
+    ? `Tienes ${cuotasVencidas.length} cuota(s) vencida(s).`
+    : `Tienes ${cuotasPorVencer.length} cuota(s) próxima(s) a vencer.`);
+
+  const itemsReminder = esRojo ? cuotasVencidas : cuotasPorVencer;
+
   return (
     <div className="page-layout">
       {loading && <LoaderFullScreen />}
@@ -132,11 +178,11 @@ const AlumnoInicio = () => {
           <h2> ¡Hola, {nombreUsuario || 'alumno'}! </h2>
         </div>
 
-        {/* ===== Recordatorio de cuotas ===== */}
-        {showReminder && cuotaReminder?.remindersCount > 0 && (
-          <div className="cuota-reminder">
+        {/* ===== Recordatorio de cuotas (nueva response) ===== */}
+        {debeMostrarReminder && (
+          <div className="cuota-reminder" style={reminderContainerStyle}>
             <div className="cuota-reminder__header">
-              <h4 className="cuota-reminder__title">Recordatorio de cuota</h4>
+              <h4 className="cuota-reminder__title">{tituloReminder}</h4>
               <button
                 className="cuota-reminder__close"
                 aria-label="Cerrar recordatorio"
@@ -146,13 +192,13 @@ const AlumnoInicio = () => {
               </button>
             </div>
 
-            {cuotaReminder?.message && (
-              <p className="cuota-reminder__message">{cuotaReminder.message}</p>
+            {mensajeReminder && (
+              <p className="cuota-reminder__message">{mensajeReminder}</p>
             )}
 
             <ul className="cuota-reminder__list">
-              {(cuotaReminder.reminders || []).map((r) => (
-                <li key={r.ID_Cuota} className="cuota-reminder__item">
+              {itemsReminder.map((r) => (
+                <li key={r.ID_Cuota} className="cuota-reminder__item" style={reminderItemStyle}>
                   <div className="cuota-reminder__item-row">
                     <span><strong>Mes:</strong> {formatMesYYYYMM(r.mes)}</span>
                     <span><strong>Importe:</strong> {formatCurrency(r.importe)}</span>
@@ -161,11 +207,11 @@ const AlumnoInicio = () => {
                     <span>
                       <strong>Vence:</strong> {formatISO(r.vence)}
                       {typeof r.daysLeft === 'number' && (
-                        <> ({r.daysLeft} día{r.daysLeft === 1 ? '' : 's'} restante{r.daysLeft === 1 ? '' : 's'})</>
+                        <> ({r.daysLeft >= 0 ? `${r.daysLeft} día${r.daysLeft === 1 ? '' : 's'} restante${r.daysLeft === 1 ? '' : 's'}` : `hace ${Math.abs(r.daysLeft)} día${Math.abs(r.daysLeft) === 1 ? '' : 's'}`})</>
                       )}
                     </span>
                     <span>
-                      <strong>Estado:</strong> {r.pagada ? 'Pagada' : 'Pendiente'}
+                      <strong>Estado:</strong> {r.estado || (r.vencida ? 'Vencida' : 'Pendiente')}
                     </span>
                   </div>
                 </li>
@@ -173,7 +219,7 @@ const AlumnoInicio = () => {
             </ul>
 
             <div className="cuota-reminder__actions">
-              <PrimaryButton text="Ver más detalles" onClick={() => { /* TODO: navegación a detalle de cuotas */ }} />
+              <PrimaryButton text="Ver más detalles" linkTo="/alumno/cuotas" />
             </div>
           </div>
         )}

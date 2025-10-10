@@ -475,7 +475,7 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {showChat && <AsistenteChat />}
+      {/* {showChat && <AsistenteChat />} */}
     </>
   );
 }
