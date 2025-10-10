@@ -10,6 +10,14 @@
     --gh-chip-border: #2a3036;
 }
 
+.header-rutina {
+    padding: 20px 40px;
+}
+
+.tab-dias {
+    padding: 0px 40px;
+}
+
 .page-layout .content-layout .gh-card,
 .page-layout .content-layout .gh-surface {
     background: var(--gh-surface);
@@ -17,7 +25,7 @@
     color: var(--gh-text);
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
-    padding: 10px;
+    padding: 16px;
 }
 
 .page-layout .content-layout .gh-muted {
@@ -65,7 +73,7 @@
 
 @media (min-width: 960px) {
     .page-layout .content-layout .gh-grid-2 {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -93,9 +101,9 @@
 
 .page-layout .content-layout .gh-list-item {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr;
     align-items: start;
-    gap: 10px;
+    gap: 12px;
     background: var(--gh-surface-2);
     border: 1px solid var(--gh-border);
     border-radius: 12px;
@@ -111,16 +119,6 @@
     font-weight: 600;
 }
 
-.page-layout .content-layout .gh-list-item .gh-link {
-    color: var(--primary-color);
-    text-decoration: underline;
-    opacity: .95;
-}
-
-.page-layout .content-layout .gh-list-item .gh-link:hover {
-    opacity: 1;
-}
-
 @media (max-width: 640px) {
     .page-layout .content-layout .gh-list-item {
         grid-template-columns: 1fr;
@@ -133,30 +131,62 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
 }
 
-.page-layout .content-layout .gh-grid-2,
-.page-layout .content-layout .gh-grid-2.gh-grid-fullwidth {
-    display: grid;
-    grid-template-columns: 1fr !important;
-    gap: 16px;
-}
-
+/* ======= Ejercicio row ======= */
 .page-layout .content-layout .gh-ej-row {
     grid-template-columns: auto 1fr;
     gap: 12px;
 }
 
-.page-layout .content-layout .gh-ej-thumb {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
-    object-fit: cover;
+/* Contenedor de media para reservar tamaño */
+.page-layout .content-layout .gh-media-slot {
+    width: 96px;
+    /* un poco más ancho para video */
+    min-width: 96px;
+    height: 64px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
     background: var(--gh-surface);
     border: 1px solid var(--gh-border);
 }
 
-.page-layout .content-layout .gh-ej-thumb.placeholder {
+/* Imagen fija */
+.page-layout .content-layout .gh-ej-thumb {
+    width: 96px;
+    height: 64px;
+    object-fit: cover;
     display: block;
-    background: var(--gh-surface-2);
+}
+
+/* Placeholder cuadrado redondeado */
+.page-layout .content-layout .gh-ej-thumb-placeholder {
+    width: 96px;
+    height: 64px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1a1e23, #0f1113);
+    border: 1px dashed #30363d;
+    display: none;
+}
+
+.page-layout .content-layout .gh-ej-thumb-placeholder.show {
+    display: block;
+}
+
+/* Video / YouTube */
+.page-layout .content-layout .gh-ej-media.yt,
+.page-layout .content-layout .gh-ej-media.video {
+    width: 96px;
+    height: 64px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.page-layout .content-layout .gh-ej-iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
 }
 
 .page-layout .content-layout .gh-ej-main {
@@ -170,12 +200,6 @@
     gap: 8px;
 }
 
-.page-layout .content-layout .gh-ej-chips {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
 .page-layout .content-layout .gh-ej-info {
     display: flex;
     align-items: center;
@@ -187,4 +211,13 @@
 .gh-label {
     color: #929292;
     margin-bottom: 8px;
+}
+
+@media screen and (max-width: 500px) {
+    .header-rutina {
+        padding: 10px 16px;
+    }
+    .tab-dias {
+        padding: 15px 16px;
+    }
 }
