@@ -1059,7 +1059,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                   <div className="user-meta__line">
                     <b>Usuario asignado:</b>{' '}
                     {selectedUserId
-                      ? `${selectedUser?.nombre || ''} ${selectedUser?.apellido || ''} (${selectedUser?.email || ''}) — ID ${selectedUserId}`
+                      ? `${selectedUser?.nombre || ''} ${selectedUser?.apellido || ''}`
                       : '— seleccioná un usuario'}
                   </div>
                 </div>

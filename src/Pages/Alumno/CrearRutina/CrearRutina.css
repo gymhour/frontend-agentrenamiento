@@ -565,7 +565,7 @@
 
 /* Métricas */
 .user-meta {
-    margin-bottom: 8px;
+    margin: 20px 0px;
 }
 
 .user-meta__line {
@@ -576,7 +576,7 @@
 .metrics-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
 }
 
 .info-card__badge {
