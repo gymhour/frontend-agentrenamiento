@@ -4,6 +4,11 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiService from '../../../services/apiService';
 import './RutinaDetail.css';
 
+// ==== PDF ====
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
+
 const TYPE_LABELS = {
     SETS_REPS: 'Series y repeticiones',
     ROUNDS: 'Rondas',
@@ -85,7 +90,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
             if (u.hostname.includes('youtube.com')) {
                 const id = u.searchParams.get('v');
                 if (id) return id;
-                // formatos /embed/ID
                 const m = u.pathname.match(/\/embed\/([A-Za-z0-9_-]{6,})/);
                 if (m) return m[1];
             }
@@ -124,16 +128,13 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
             );
         }
 
-        // Si envían un archivo de video directo
         if (isVideoFile(ej?.mediaUrl)) {
             return (
                 <video className="gh-ej-media video" controls preload="metadata">
                     <source src={ej.mediaUrl} />
-                    {/* Fallback si el navegador no soporta el formato */}
                 </video>
             );
         }
-        // Si no hay video, usar imagen
         if (ej?.mediaUrl) {
             return (
                 <img
@@ -142,7 +143,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     alt={ej?.nombre || 'Ejercicio'}
                     onError={(ev) => {
                         ev.currentTarget.style.display = 'none';
-                        // mostramos placeholder a la derecha al esconder la imagen (ver CSS)
                         const sib = ev.currentTarget.nextElementSibling;
                         if (sib && sib.classList.contains('gh-ej-thumb-placeholder')) {
                             sib.classList.add('show');
@@ -151,8 +151,213 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                 />
             );
         }
-        // Placeholder
         return <div className="gh-ej-thumb-placeholder show" aria-hidden="true" />;
+    };
+
+    // =========================
+    //      EXPORTAR A PDF
+    // =========================
+    const handleExportPDF = () => {
+        if (!rutina) return;
+
+        const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        const M = 48; // márgenes
+        let cursorY = M;
+
+        const addSectionTitle = (text) => {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(14);
+            doc.text(text, M, cursorY);
+            cursorY += 10;
+            doc.setDrawColor(150);
+            doc.line(M, cursorY, pageW - M, cursorY);
+            cursorY += 12;
+        };
+
+        const ensureSpace = (minSpace = 120) => {
+            if (cursorY + minSpace > pageH - M) {
+                doc.addPage();
+                cursorY = M;
+            }
+        };
+
+        // Header documento
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        const titulo = pretty(rutina.nombre, 'Rutina');
+        doc.text(titulo, M, cursorY);
+        cursorY += 22;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        const alumno =
+            rutina?.alumno
+                ? `${pretty(rutina.alumno.nombre, '')} ${pretty(rutina.alumno.apellido, '')}`.trim()
+                : '';
+        const entrenador =
+            rutina?.entrenador
+                ? `${pretty(rutina.entrenador.nombre, '')} ${pretty(rutina.entrenador.apellido, '')}`.trim()
+                : '—';
+        const creada = rutina?.createdAt ? new Date(rutina.createdAt).toLocaleDateString() : '';
+
+        const headerLines = [
+            alumno ? `Alumno: ${alumno}` : '',
+            `Entrenador: ${entrenador}`,
+            creada ? `Creada: ${creada}` : '',
+            headerSubtitle ? `Detalle: ${headerSubtitle}` : ''
+        ].filter(Boolean);
+
+        headerLines.forEach((line) => {
+            doc.text(line, M, cursorY);
+            cursorY += 16;
+        });
+
+        if (pretty(rutina.desc, '')) {
+            const descLines = doc.splitTextToSize(String(rutina.desc), pageW - M * 2);
+            descLines.forEach((l) => {
+                doc.text(l, M, cursorY);
+                cursorY += 14;
+            });
+        }
+
+        // Separador
+        cursorY += 8;
+        doc.setDrawColor(200);
+        doc.line(M, cursorY, pageW - M, cursorY);
+        cursorY += 18;
+
+        // Por cada día
+        const diasArr = normalizeDias(rutina?.dias);
+        if (diasArr.length === 0) {
+            doc.setFont('helvetica', 'italic');
+            doc.text('Esta rutina no tiene días cargados.', M, cursorY);
+            doc.save(safeFileName(titulo, alumno));
+            return;
+        }
+
+        diasArr.forEach((d, idxDia) => {
+            ensureSpace(80);
+            const nombreDia = pretty(d?.nombre, d?.key?.replace('dia', 'Día ') || `Día ${idxDia + 1}`);
+            addSectionTitle(nombreDia);
+
+            const bloques = Array.isArray(d?.bloques) ? d.bloques : [];
+            if (bloques.length === 0) {
+                doc.setFont('helvetica', 'italic');
+                doc.setFontSize(11);
+                doc.text('Este día no tiene bloques cargados.', M, cursorY);
+                cursorY += 18;
+                return;
+            }
+
+            bloques.forEach((b, iB) => {
+                ensureSpace(80);
+
+                // Header de bloque
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                const type = b?.type;
+                const dur = pretty(b?.durationMin, '');
+                const rondas = pretty(b?.cantRondas, '');
+                const escalera = pretty(b?.tipoEscalera, '');
+
+                let bloqueTitulo = typeLabel(type);
+                if (type === 'ROUNDS' && rondas) bloqueTitulo = `${rondas} Rondas`;
+                if (type === 'EMOM' && dur) bloqueTitulo = `EMOM ${dur}min`;
+                if (type === 'AMRAP' && dur) bloqueTitulo = `AMRAP ${dur}min`;
+                if (type === 'TABATA' && dur) bloqueTitulo = `Tabata ${dur}min`;
+                if (type === 'LADDER' && escalera) bloqueTitulo = `Escalera: ${escalera}`;
+
+                doc.text(bloqueTitulo, M, cursorY);
+                cursorY += 6;
+
+                // Tabla de ejercicios
+                const rows = (b?.ejercicios || []).map((e) => {
+                    const ej = e?.ejercicio || {};
+                    const nombre = pretty(ej?.nombre, 'Ejercicio');
+                    const reps = deriveReps(e, b);
+                    const peso = derivePeso(e, b);
+                    return {
+                        ejercicio: nombre,
+                        reps: reps || '',
+                        peso: peso || ''
+                    };
+                });
+
+                if (rows.length === 0) {
+                    doc.setFont('helvetica', 'italic');
+                    doc.setFontSize(10);
+                    doc.text('Este bloque no tiene ejercicios.', M, cursorY + 16);
+                    cursorY += 32;
+                } else {
+                    autoTable(doc, {
+                        startY: cursorY + 10,
+                        margin: { left: M, right: M },
+                        theme: 'grid', // opcional, deja bordes finos y claros
+                        styles: {
+                            font: 'helvetica',
+                            fontSize: 10,
+                            cellPadding: 6,
+                            overflow: 'linebreak',
+                            textColor: 0,        // texto de body en negro
+                        },
+                        headStyles: {
+                            fillColor: [240, 240, 240], // gris clarito de fondo (o [255,255,255] si lo querés blanco)
+                            textColor: 0,               // <<--- títulos del header en negro
+                            fontStyle: 'bold'
+                        },
+                        head: [['Ejercicio', 'Series / Reps', 'Peso']],
+                        body: rows.map((r) => [r.ejercicio, r.reps, r.peso]),
+                        didDrawPage: (data) => {
+                            const page = doc.getCurrentPageInfo().pageNumber;
+                            const total = doc.getNumberOfPages();
+                            doc.setFontSize(9);
+                            doc.setTextColor(100);
+                            doc.text(`Página ${page} de ${total}`, pageW - M, pageH - 10, { align: 'right' });
+                        }
+                    });
+
+                    cursorY = (doc.lastAutoTable?.finalY || cursorY) + 16;
+                }
+
+                // Footer del bloque
+                if (pretty(b?.descansoRonda, '')) {
+                    ensureSpace(30);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    doc.text(`Descanso entre rondas: ${b.descansoRonda}`, M, cursorY);
+                    cursorY += 16;
+                }
+
+                // Separador entre bloques
+                if (iB !== bloques.length - 1) {
+                    doc.setDrawColor(230);
+                    doc.line(M, cursorY, pageW - M, cursorY);
+                    cursorY += 14;
+                }
+            });
+
+            // Separador entre días
+            if (idxDia !== diasArr.length - 1) {
+                ensureSpace(20);
+                doc.setDrawColor(180);
+                doc.line(M, cursorY, pageW - M, cursorY);
+                cursorY += 18;
+            }
+        });
+
+        // Guardar
+        doc.save(safeFileName(titulo, rutina?.alumno));
+    };
+
+    const safeFileName = (titulo, alumnoObj) => {
+        const alumnoName = alumnoObj
+            ? `${pretty(alumnoObj?.nombre, '')} ${pretty(alumnoObj?.apellido, '')}`.trim()
+            : 'alumno';
+        const today = new Date().toISOString().slice(0, 10);
+        const raw = `Rutina_${alumnoName || 'alumno'}_${titulo || 'detalle'}_${today}.pdf`;
+        return raw.replace(/[^\w\s.-]/g, '_');
     };
 
     return (
@@ -169,6 +374,16 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
                 {!loading && !error && rutina && (
                     <>
+                        {/* ====== Acciones globales ====== */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                            <PrimaryButton
+                                text="Exportar como PDF"
+                                type="button"
+                                onClick={handleExportPDF}
+                                title="Exportar esta rutina a PDF"
+                            />
+                        </div>
+
                         {/* Header rutina */}
                         <div className="header-rutina" style={{ display: 'grid', gap: 12 }}>
                             <div style={{ display: 'grid', gap: 6 }}>
@@ -303,7 +518,7 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                                             </h4>
                                                         </div>
 
-                                                        {/* lista de ejercicios (video/img/placeholder + título + reps) */}
+                                                        {/* lista de ejercicios (media + título + reps) */}
                                                         <div style={{ display: 'grid', gap: 10 }}>
                                                             {(b.ejercicios || []).length === 0 ? (
                                                                 <div className="gh-muted sm">
@@ -315,8 +530,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                                                     const nombre = pretty(ej?.nombre, 'Ejercicio');
                                                                     const reps = deriveReps(e, b);
                                                                     const peso = derivePeso(e, b);
-
-                                                                    // Título: Nombre - {kg}
                                                                     const title =
                                                                         peso && String(peso).trim().length > 0
                                                                             ? `${nombre} - ${peso}`
@@ -330,7 +543,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                                                             {/* Media */}
                                                                             <div className="gh-media-slot">
                                                                                 {renderMedia(ej)}
-                                                                                {/* Fallback de imagen si falla: */}
                                                                                 {!ej?.mediaUrl && (
                                                                                     <div className="gh-ej-thumb-placeholder show" />
                                                                                 )}
