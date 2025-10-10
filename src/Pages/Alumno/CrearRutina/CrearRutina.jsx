@@ -114,7 +114,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [clases, setClases] = useState([]);
   const [selectedClase, setSelectedClase] = useState("");
   const [selectedGrupoMuscular, setSelectedGrupoMuscular] = useState("");
-  const gruposMusculares = ["Pecho","Espalda","Piernas","Brazos","Hombros","Abdominales","Glúteos","Tren Superior","Tren Inferior","Full Body","Mixto"];
+  const gruposMusculares = ["Pecho", "Espalda", "Piernas", "Brazos", "Hombros", "Abdominales", "Glúteos", "Tren Superior", "Tren Inferior", "Full Body", "Mixto"];
 
   const [users, setUsers] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
@@ -123,7 +123,10 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   const [suggestions, setSuggestions] = useState({});
 
   // Panel de Información (solo admin/entrenador)
-  const [infoOpen, setInfoOpen] = useState(true);
+  const [infoOpen, setInfoOpen] = useState(() => {
+    if (typeof window === 'undefined') return true; // SSR safe
+    return !window.matchMedia('(max-width: 720px)').matches;
+  });
   const [infoTab, setInfoTab] = useState('ejercicios'); // 'ejercicios' | 'usuario'
   const [exerciseSearch, setExerciseSearch] = useState('');
   const [userMetrics, setUserMetrics] = useState(null);
@@ -145,6 +148,12 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
       .then(setClases)
       .catch(() => toast.error('No se pudieron cargar las clases'));
   }, []);
+
+  useEffect(() => {
+    if (step === 2) {
+      setInfoOpen(!isMobile); 
+    }
+  }, [step, isMobile]);  
 
   useEffect(() => {
     if (canAssign) {
@@ -252,12 +261,13 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     if (!formData.nombre.trim()) return toast.error("Ingresá un nombre para la rutina");
     if (!days.length) return toast.error("Agregá al menos un día");
 
-    if (canAssign && !selectedEmail) {
+    if (fromEntrenador && !selectedEmail) {
       return toast.error("Seleccioná un usuario para asignar la rutina");
     }
 
     setStep(2);
   };
+
 
   // Tabs días
   const addDay = () => {
@@ -268,7 +278,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   };
   const removeDay = (idx) => {
     if (days.length === 1) return toast.info("Debe existir al menos un día");
-    const newDays = days.filter((_, i) => i !== idx).map((d, i) => ({ ...d, key: `dia${i+1}` }));
+    const newDays = days.filter((_, i) => i !== idx).map((d, i) => ({ ...d, key: `dia${i + 1}` }));
     setDays(newDays);
     setActiveDayIndex(Math.max(0, idx - 1));
   };
@@ -376,7 +386,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
   // Payload
   const buildPayload = () => {
     const userId = canAssign
-      ? users.find(u => u.email === selectedEmail)?.ID_Usuario
+      ? (users.find(u => u.email === selectedEmail)?.ID_Usuario ?? null)
       : Number(localStorage.getItem("usuarioId"));
 
     const entrenadorId = fromEntrenador ? Number(localStorage.getItem("usuarioId")) : null;
@@ -431,8 +441,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
     });
 
     return {
-      ID_Usuario: Number(userId),
-      ID_Entrenador: entrenadorId, // para admin queda null
+      ID_Usuario: userId,
+      ID_Entrenador: entrenadorId,
       nombre: formData.nombre,
       desc: formData.descripcion,
       claseRutina: selectedClase || "Combinada",
@@ -515,7 +525,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
             aria-controls="info-panel"
             aria-expanded={infoOpen}
           >
-            Info
+            Información útil
           </button>
         )}
 
@@ -577,17 +587,18 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                     value={
                       selectedEmail
                         ? {
-                            label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
-                            value: selectedEmail
-                          }
+                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
+                          value: selectedEmail
+                        }
                         : null
                     }
                     onChange={option => setSelectedEmail(option.value)}
                     placeholder="Seleccioná un usuario"
                     isSearchable
-                    required
+                    required={!!fromEntrenador}
                   />
                 )}
+
 
                 <div className='crearRutina-s1-continuar-btn-ctn'>
                   <PrimaryButton text="Continuar" linkTo="#" onClick={handleContinue} />
@@ -919,9 +930,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador }) => {
                           <div className="sets-reps-ctn">
                             {block.data.setsReps.map((setRep, idx) => (
                               <div key={idx} className="sets-ladder sets-row--no-series">
-                                <div className="exercise-cell" style={{ width: '100%'}}>
+                                <div className="exercise-cell" style={{ width: '100%' }}>
                                   <input
-                                    style={{ width: '100%'}}
+                                    style={{ width: '100%' }}
                                     type="text"
                                     className="exercise-input"
                                     placeholder={setRep.placeholderExercise}
