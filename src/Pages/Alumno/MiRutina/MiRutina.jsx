@@ -226,7 +226,7 @@ const MiRutina = () => {
 
         <div className='mi-rutina-title'>
           <h2>Mis rutinas</h2>
-          <PrimaryButton text='Crear rutina' linkTo='/alumno/crear-rutina' />
+          {/* <PrimaryButton text='Crear rutina' linkTo='/alumno/crear-rutina' /> */}
         </div>
 
         <div style={{ margin: '30px 0px' }}>

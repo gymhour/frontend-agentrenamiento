@@ -71,7 +71,7 @@ function App() {
       />
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<GymHourLanding />} />
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
@@ -391,7 +391,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/alumno/crear-rutina"
           element={
             <ProtectedRoute>
@@ -406,7 +406,7 @@ function App() {
               <CrearRutina fromAlumno={true} />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="/alumno/ejercicios"
           element={
