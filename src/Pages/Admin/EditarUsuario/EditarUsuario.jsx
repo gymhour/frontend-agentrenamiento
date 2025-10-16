@@ -49,41 +49,50 @@ const EditarUsuario = () => {
   }, []);
 
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     const fetchUser = async () => {
       try {
         const user = await apiService.getUserById(id);
-        const fechaISO = user.fechaCumple
+  
+        const fechaISO = user?.fechaCumple
           ? new Date(user.fechaCumple).toISOString().slice(0, 10)
           : '';
-        const rawTipo = user.tipo || '';
-        const tipoCapitalizado = rawTipo
-          ? rawTipo.charAt(0).toUpperCase() + rawTipo.slice(1)
-          : 'Cliente';
-        
+  
+        const tipoLower = (user?.tipo || '').toLowerCase();
+        const tipoCapitalizado =
+          tipoLower ? tipoLower.charAt(0).toUpperCase() + tipoLower.slice(1) : 'Cliente';
+  
+        // Nombre de plan si existe (API puede devolver { plan: { nombre, ID_Plan } } o solo ID)
+        const planNombre =
+          user?.plan?.nombre
+            || user?.plan?.label
+            || ''; // si no hay plan, queda vacío y no rompe
+  
         setFormData({
-          email:      user.email    || '',
-          nombre:     user.nombre   || '',
-          apellido:   user.apellido || '',
-          profesion:  user.profesion|| '',
-          direc:      user.direc    || '',
-          tel:        user.tel      || '',
-          tipo:       tipoCapitalizado,
+          email:       user?.email    || '',
+          nombre:      user?.nombre   || '',
+          apellido:    user?.apellido || '',
+          profesion:   user?.profesion|| '',
+          direc:       user?.direc    || '',
+          tel:         user?.tel      || '',
+          tipo:        tipoCapitalizado,
           fechaCumple: fechaISO,
-          estado:     !!user.estado,
-          plan: user.tipo !== "admin" ? user.plan.nombre : ''
+          estado:      !!user?.estado,
+          // Solo precargar plan para clientes; en admin/entrenador lo dejamos vacío
+          plan:        tipoLower === 'cliente' ? planNombre : ''
         });
-        setIsLoading(false)
+  
       } catch (err) {
         console.error(err);
         toast.error('No se pudo cargar los datos del usuario');
+      } finally {
         setIsLoading(false);
       }
     };
-
+  
     if (id) fetchUser();
   }, [id]);
-
+  
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({

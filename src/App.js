@@ -41,6 +41,8 @@ import Ejercicios from './Pages/Shared/Ejercicios/Ejercicios';
 import EjercicioForm from './Pages/Shared/EjercicioForm/EjercicioForm';
 import EjercicioDetail from './Pages/Shared/EjercicioDetail/EjercicioDetail';
 import RutinaDetail from './Pages/Shared/RutinaDetail/RutinaDetail';
+import CrearRutinaRecomendada from './Pages/Admin/CrearRutinaRecomendada/CrearRutinaRecomendada';
+import RutinasAsignadasAdmin from './Pages/Admin/RutinasAsignadasAdmin/RutinasAsignadasAdmin';
 
 function App() {
 
@@ -176,7 +178,14 @@ function App() {
         <Route path="/admin/asignar-rutinas"
           element={
             <ProtectedRoute>
-              <CrearRutina fromEntrenador={false} fromAdmin={true} />
+              <CrearRutina fromAdmin={true} />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/admin/rutinas-asignadas"
+          element={
+            <ProtectedRoute>
+              <RutinasAsignadasAdmin fromAdmin={true} />
             </ProtectedRoute>
           }
         />
@@ -184,7 +193,7 @@ function App() {
           path="/admin/rutinas/:id"
           element={
             <ProtectedRoute>
-              <RutinaDetail />
+              <RutinaDetail fromAdmin={true} />
             </ProtectedRoute>
           }
         />
@@ -192,7 +201,7 @@ function App() {
           path="/admin/crear-rutina"
           element={
             <ProtectedRoute>
-              <CrearRutina fromAdmin={true} />
+              <CrearRutinaRecomendada fromAdmin={true} />
             </ProtectedRoute>
           }
         />
@@ -247,7 +256,7 @@ function App() {
           path="/entrenador/rutinas/:id"
           element={
             <ProtectedRoute>
-              <RutinaDetail />
+              <RutinaDetail fromEntrenador={true} />
             </ProtectedRoute>
           }
         />
@@ -378,7 +387,7 @@ function App() {
           path="/alumno/rutinas/:id"
           element={
             <ProtectedRoute>
-              <RutinaDetail />
+              <RutinaDetail fromAlumno={true} />
             </ProtectedRoute>
           }
         />
@@ -386,7 +395,7 @@ function App() {
           path="/alumno/crear-rutina"
           element={
             <ProtectedRoute>
-              <CrearRutina fromAdmin={false} />
+              <CrearRutina fromAlumno={true} />
             </ProtectedRoute>
           }
         />
@@ -394,7 +403,7 @@ function App() {
           path="/alumno/editar-rutina/:rutinaId"
           element={
             <ProtectedRoute>
-              <CrearRutina fromAdmin={false} />
+              <CrearRutina fromAlumno={true} />
             </ProtectedRoute>
           }
         />

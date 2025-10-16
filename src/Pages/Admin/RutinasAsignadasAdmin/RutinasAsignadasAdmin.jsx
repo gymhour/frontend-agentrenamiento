@@ -4,7 +4,6 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiService, {fetchAllClientsActive} from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-import './RutinasAsignadas.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
@@ -96,7 +95,7 @@ const renderEjercicioItem = (it, tipo) => {
     return (
       <span className="ejercicio-link-wrap">
         <Link
-          to={`/entrenador/ejercicios/${id}`}
+          to={`/admin/ejercicios/${id}`}
           className="ejercicio-link"
           title="Ver detalle del ejercicio"
         >
@@ -151,9 +150,9 @@ const RutinasAsignadas = () => {
 
   const loadRutinasAsignadas = async () => {
     setLoading(true);
-    const entrenadorId = localStorage.getItem('usuarioId');
+    const adminId = localStorage.getItem('usuarioId');
     try {
-      const { rutinas: lista = [] } = await apiService.getRutinasEntrenadores(entrenadorId);
+      const { rutinas: lista = [] } = await apiService.getUserRutinas(adminId);
 
       // abrir primer día por defecto por rutina
       const init = {};
@@ -297,7 +296,7 @@ const RutinasAsignadas = () => {
 
   return (
     <div className='page-layout'>
-      <SidebarMenu isAdmin={false} isEntrenador={true} />
+      <SidebarMenu isAdmin={true} isEntrenador={false} />
       <div className='content-layout mi-rutina-ctn'>
 
         <div className='mi-rutina-title' style={{ marginBottom: '20px' }}>

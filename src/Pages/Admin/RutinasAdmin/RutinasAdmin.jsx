@@ -9,7 +9,8 @@ import apiService from '../../../services/apiService.js';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
-import { useNavigate } from 'react-router-dom';
+import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
 
@@ -70,6 +71,7 @@ const headerForBlock = (b) => {
   }
 };
 
+// texto base del item
 const itemText = (it, tipo) => {
   const name = it?.ejercicio?.nombre || 'Ejercicio';
   const reps = (it?.reps ?? '').toString().trim();
@@ -82,7 +84,7 @@ const itemText = (it, tipo) => {
   return showExtra ? `${left} — ${extra}` : left;
 };
 
-// Fallback para SETS_REPS sin items
+// fallback SETS_REPS vacío
 const setsRepsFallback = (b) => {
   const parts = [
     b?.setsReps ? `${b.setsReps}` : '',
@@ -92,6 +94,7 @@ const setsRepsFallback = (b) => {
   const txt = parts.join(' ').trim();
   return txt || null;
 };
+
 /* ==================================================== */
 
 const RutinasAdmin = () => {
@@ -99,16 +102,38 @@ const RutinasAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRutinaId, setSelectedRutinaId] = useState(null);
-  const [openState, setOpenState] = useState({}); // { [ID_Rutina]: { [diaKey]: bool } }
+  const [openState, setOpenState] = useState({});
   const navigate = useNavigate();
+
+  // === Nueva función: renderEjercicioItem ===
+  const renderEjercicioItem = (it, tipo) => {
+    const txt = itemText(it, tipo);
+    const id = it?.ejercicio?.ID_Ejercicio || it?.ID_Ejercicio;
+    const esGenerico = it?.ejercicio?.esGenerico ?? true;
+
+    if (id && esGenerico === false) {
+      return (
+        <span className="ejercicio-link-wrap">
+          <Link
+            to={`/admin/ejercicios/${id}`}
+            className="ejercicio-link"
+            title="Ver detalle del ejercicio"
+          >
+            {txt}
+          </Link>
+          <VideoIcon className="video-icon" aria-hidden="true" />
+        </span>
+      );
+    }
+
+    return <span>{txt}</span>;
+  };
 
   const fetchRutinas = async () => {
     const userId = localStorage.getItem('usuarioId');
     try {
       const { rutinas: lista = [] } = await apiService.getUserRutinas(userId);
       setRutinas(lista);
-
-      // abrir primer día por defecto por rutina
       const init = {};
       (lista || []).forEach(r => {
         const dias = normalizeDias(r);
@@ -137,11 +162,10 @@ const RutinasAdmin = () => {
     try {
       await apiService.deleteRutina(selectedRutinaId);
       toast.success('Rutina eliminada correctamente.');
-      // Refrescar pantalla (UX)
       await fetchRutinas();
     } catch (error) {
       console.error('Error al eliminar rutina', error);
-      toast.error('No se pudo eliminar la rutina. Intente nuevamente.');
+      toast.error('No se pudo eliminar la rutina.');
       setLoading(false);
     } finally {
       closePopup();
@@ -155,20 +179,16 @@ const RutinasAdmin = () => {
     }));
   };
 
-  // ===== Duplicar rutina (Admin) =====
+  // duplicar rutina
   const buildDuplicatePayload = (rutina) => {
     const currentUserId = Number(localStorage.getItem('usuarioId')) || null;
-
-    // En Admin tu API suele traer alumno sin ID_Usuario; usamos fallback al usuario actual.
     const alumnoId = rutina?.alumno?.ID_Usuario ?? currentUserId;
-
     const originalDias = rutina?.dias || {};
     const diasPayload = {};
 
     Object.keys(originalDias).forEach((diaKey, idx) => {
       const dia = originalDias[diaKey] || {};
       const bloques = Array.isArray(dia.bloques) ? dia.bloques : [];
-
       const bloquesPayload = bloques.map((b) => {
         const ejercicios = Array.isArray(b?.ejercicios) ? b.ejercicios : [];
         const bloqueEjercicios = ejercicios.map((it) => {
@@ -179,7 +199,6 @@ const RutinasAdmin = () => {
             setRepWeight: (it?.setRepWeight ?? '').toString().trim() || undefined,
           };
         });
-
         return {
           type: b?.type || 'SETS_REPS',
           setsReps: b?.setsReps ?? null,
@@ -201,9 +220,9 @@ const RutinasAdmin = () => {
     });
 
     return {
-      ID_Usuario: alumnoId,                         // Admin: cae al usuario actual si el alumno no trae ID
-      ID_Entrenador: null,                          // En Admin no asignamos entrenador
-      nombre: `${rutina?.nombre || 'Rutina'} (1)`,  // sufijo duplicado
+      ID_Usuario: alumnoId,
+      ID_Entrenador: null,
+      nombre: `${rutina?.nombre || 'Rutina'} (1)`,
       desc: rutina?.desc || '',
       claseRutina: rutina?.claseRutina || 'Combinada',
       grupoMuscularRutina: rutina?.grupoMuscularRutina || 'Mixto',
@@ -217,10 +236,10 @@ const RutinasAdmin = () => {
       const payload = buildDuplicatePayload(rutina);
       await apiService.createRutina(payload);
       toast.success('Rutina duplicada correctamente.');
-      await fetchRutinas(); // refrescar listado
+      await fetchRutinas();
     } catch (error) {
       console.error('Error al duplicar rutina:', error);
-      toast.error('No se pudo duplicar la rutina. Intente nuevamente.');
+      toast.error('No se pudo duplicar la rutina.');
       setLoading(false);
     }
   };
@@ -232,7 +251,7 @@ const RutinasAdmin = () => {
       <SidebarMenu isAdmin={true} />
       <div className='content-layout mi-rutina-ctn'>
         <div className="mi-rutina-title">
-          <div><h2>Mis Rutinas</h2></div>
+          <h2>Mis Rutinas</h2>
           <PrimaryButton text="Crear rutina" linkTo="/admin/crear-rutina" />
         </div>
 
@@ -247,27 +266,9 @@ const RutinasAdmin = () => {
                 <div className='rutina-header'>
                   <h3>{rutina.nombre}</h3>
                   <div className="rutina-header-acciones">
-                    <button
-                      onClick={() => handleDuplicate(rutina)}
-                      className='mi-rutina-eliminar-btn'
-                      title='Duplicar rutina'
-                    >
-                      <FaCopy size={18} />
-                    </button>
-                    <button
-                      onClick={() => openDeletePopup(rutina.ID_Rutina)}
-                      className='mi-rutina-eliminar-btn'
-                      title='Eliminar rutina'
-                    >
-                      <DeleteIcon width={20} height={20} />
-                    </button>
-                    <button
-                      onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)}
-                      className='mi-rutina-eliminar-btn'
-                      title='Editar rutina'
-                    >
-                      <EditIcon width={20} height={20} />
-                    </button>
+                    <button onClick={() => handleDuplicate(rutina)} title='Duplicar rutina'><FaCopy size={18} /></button>
+                    <button onClick={() => openDeletePopup(rutina.ID_Rutina)} title='Eliminar rutina'><DeleteIcon width={20} height={20} /></button>
+                    <button onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)} title='Editar rutina'><EditIcon width={20} height={20} /></button>
                   </div>
                 </div>
 
@@ -286,33 +287,26 @@ const RutinasAdmin = () => {
                     {(dias[0]?.bloques || []).map((b, i) => {
                       const items = getBloqueItems(b);
                       const header = headerForBlock(b);
-
-                      // SETS_REPS: cuerpo (sin header) y sin duplicados
                       if (b.type === 'SETS_REPS') {
                         const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                         return (
                           <div key={i} className='bloque-card'>
                             {(items.length > 0) ? (
                               <ul className='bloque-list'>
-                                {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                {items.map((it, j) => <li key={j}>{renderEjercicioItem(it, b.type)}</li>)}
                               </ul>
                             ) : (
-                              fallback && (
-                                <ul className='bloque-list'>
-                                  <li>{fallback}</li>
-                                </ul>
-                              )
+                              fallback && <ul className='bloque-list'><li>{fallback}</li></ul>
                             )}
                           </div>
                         );
                       }
-
                       return (
                         <div key={i} className='bloque-card'>
                           {header && <p className='bloque-header'>{header}</p>}
                           {items.length > 0 && (
                             <ul className='bloque-list'>
-                              {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                              {items.map((it, j) => <li key={j}>{renderEjercicioItem(it, b.type)}</li>)}
                             </ul>
                           )}
                           {b.type === 'ROUNDS' && b.descansoRonda != null && (
@@ -340,36 +334,26 @@ const RutinasAdmin = () => {
                           {isOpen && (
                             <div className='accordion-content'>
                               {d.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
-
                               {(d.bloques || []).map((b, i) => {
                                 const items = getBloqueItems(b);
                                 const header = headerForBlock(b);
-
                                 if (b.type === 'SETS_REPS') {
                                   const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                                   return (
                                     <div key={i} className='bloque-card'>
-                                      {(items.length > 0) ? (
-                                        <ul className='bloque-list'>
-                                          {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
-                                        </ul>
-                                      ) : (
-                                        fallback && (
-                                          <ul className='bloque-list'>
-                                            <li>{fallback}</li>
-                                          </ul>
-                                        )
-                                      )}
+                                      {(items.length > 0)
+                                        ? <ul className='bloque-list'>{items.map((it, j) => <li key={j}>{renderEjercicioItem(it, b.type)}</li>)}</ul>
+                                        : fallback && <ul className='bloque-list'><li>{fallback}</li></ul>
+                                      }
                                     </div>
                                   );
                                 }
-
                                 return (
                                   <div key={i} className='bloque-card'>
                                     {header && <p className='bloque-header'>{header}</p>}
                                     {items.length > 0 && (
                                       <ul className='bloque-list'>
-                                        {items.map((it, j) => <li key={j}>{itemText(it, b.type)}</li>)}
+                                        {items.map((it, j) => <li key={j}>{renderEjercicioItem(it, b.type)}</li>)}
                                       </ul>
                                     )}
                                     {b.type === 'ROUNDS' && b.descansoRonda != null && (
@@ -388,7 +372,7 @@ const RutinasAdmin = () => {
 
                 <div style={{ marginTop: 12 }}>
                   <button className='rutina-ver-detalle-btn' onClick={() => navigate(`/admin/rutinas/${rutina.ID_Rutina}`)}>
-                    Ver mas detalles
+                    Ver más detalles
                   </button>
                 </div>
               </div>

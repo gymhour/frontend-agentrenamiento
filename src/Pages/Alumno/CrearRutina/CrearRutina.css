@@ -698,61 +698,99 @@
     background: var(--primary-color);
     color: #fff;
     font-weight: 600;
-    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
     cursor: pointer;
     transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
-  }
-  .fab-info:hover { transform: translateY(-2px); }
-  @media (min-width: 721px) { .fab-info { display: none; } }
-  
-  /* ===== Backdrop para drawer ===== */
-  .info-backdrop {
+}
+
+.fab-info:hover {
+    transform: translateY(-2px);
+}
+
+@media (min-width: 721px) {
+    .fab-info {
+        display: none;
+    }
+}
+
+/* ===== Backdrop para drawer ===== */
+.info-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.35);
+    background: rgba(0, 0, 0, .35);
     opacity: 0;
     pointer-events: none;
     transition: opacity .18s ease;
     z-index: 49;
-  }
-  .info-backdrop.show {
+}
+
+.info-backdrop.show {
     opacity: 1;
     pointer-events: auto;
-  }
-  
-  /* ===== Drawer en mobile ===== */
-  .info-panel.drawer {
+}
+
+/* Drawer en mobile */
+.info-panel.drawer {
     position: fixed;
     top: 50px;
     right: 0;
     width: min(420px, 92vw);
-    height: 100vh;
-    max-height: 100vh;
+    height: calc(100dvh - 50px);
+    max-height: calc(100dvh - 50px);
     transform: translateX(100%);
     transition: transform .22s ease;
     z-index: 50;
     border-left: 1px solid rgba(255, 255, 255, 0.06);
     padding: 12px;
-    border-radius: 0;            /* en drawer no redondeamos */
+    border-radius: 0;
     background: #0f0f0f;
-    box-shadow: -10px 0 30px rgba(0,0,0,.5);
-  }
-  .info-panel.drawer.open {
+    box-shadow: -10px 0 30px rgba(0, 0, 0, .5);
+    overflow: hidden;
+}
+
+/* Estructura interna del panel como columna */
+.info-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Área scrollable dentro del panel */
+.info-panel__content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+}
+
+.info-panel.drawer.open {
     transform: translateX(0);
-  }
-  
-  /* En desktop sigue como panel fijo a la derecha */
-  @media (min-width: 721px) {
-    .info-panel.drawer { position: sticky; top: 16px; height: auto; transform: none; box-shadow: none; border-radius: 10px; }
-  }
-  
-  /* Ajustes existentes para que el layout no cambie en desktop */
-  @media (max-width: 1100px) {
-    .info-panel { position: static; max-height: none; width: 100%; flex: 1 1 auto; margin-top: 8px; }
-  }
-  
-  /* Cuando el drawer está abierto, el botón de cerrar es importante */
-  .info-panel__close {
+}
+
+/* En desktop sigue como panel fijo a la derecha */
+@media (min-width: 721px) {
+    .info-panel.drawer {
+        position: sticky;
+        top: 16px;
+        height: auto;
+        transform: none;
+        box-shadow: none;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .info-panel {
+        position: static;
+        max-height: none;
+        width: 100%;
+        flex: 1 1 auto;
+        margin-top: 8px;
+    }
+}
+
+.info-panel__close {
     border: none;
     background: transparent;
     font-size: 20px;
@@ -762,9 +800,9 @@
     width: 28px;
     height: 28px;
     line-height: 26px;
-  }
-  .info-panel__close:hover {
+}
+
+.info-panel__close:hover {
     background: rgba(255, 255, 255, 0.06);
     color: #fff;
-  }
-  
+}

@@ -3,9 +3,8 @@ import '../../../App.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown.jsx';
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput.jsx';
-import './CrearRutina.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton.jsx';
-import apiService, { fetchAllClientsActive } from '../../../services/apiService';
+import apiService, { fetchAllClientsActive } from '../../../services/apiService.js';
 import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -100,12 +99,12 @@ const normalizeUserMetrics = (resp) => {
 };
 
 /* ================= Component ================= */
-const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
+const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const { rutinaId } = useParams();
   const isEditing = Boolean(rutinaId);
   const navigate = useNavigate();
 
-  const canAssign = !!(fromEntrenador || fromAdmin);
+  const canAssign = !!(fromEntrenador);
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -456,21 +455,15 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     setLoading(true);
     try {
       const payload = buildPayload();
-      
       if (isEditing) {
         await apiService.editRutina(rutinaId, payload);
         toast.success('Rutina actualizada correctamente');
         if (fromEntrenador) navigate('/entrenador/rutinas-asignadas');
-      } 
-      
-      else {
+      } else {
         await apiService.createRutina(payload);
         toast.success('Rutina creada correctamente');
       }
-      
-      if (fromAdmin) navigate('/admin/rutinas');
-      if (fromEntrenador) navigate('/entrenador/rutinas-asignadas');
-      if (fromAlumno) navigate('/alumno/mi-rutina');
+      navigate('/admin/rutinas');
     } catch {
       toast.error(isEditing ? 'Error actualizando rutina' : 'Error creando rutina');
     } finally { setLoading(false); }
@@ -1205,4 +1198,4 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   );
 };
 
-export default CrearRutina;
+export default CrearRutinaRecomendada;

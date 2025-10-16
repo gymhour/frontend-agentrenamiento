@@ -203,14 +203,23 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                     </li>
                   </Link>
                   <Link
-                      to="/admin/asignar-rutinas"
-                      className={`menu-link ${location.pathname === "/admin/asignar-rutinas" ? "active" : ""
+                    to="/admin/asignar-rutinas"
+                    className={`menu-link ${location.pathname === "/admin/asignar-rutinas" ? "active" : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                    </li>
+                  </Link>
+                  {/* <Link
+                      to="/admin/rutinas-asignadas"
+                      className={`menu-link ${location.pathname === "/admin/rutinas-asignadas" ? "active" : ""
                         }`}
                     >
                       <li className="menu-item">
-                        <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                        <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Rutinas Asignadas
                       </li>
-                    </Link>
+                  </Link> */}
                   <Link
                     to="/admin/rutinas"
                     className={`menu-link ${location.pathname === "/admin/rutinas"
