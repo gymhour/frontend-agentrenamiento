@@ -167,7 +167,7 @@ const RutinasAsignadas = () => {
       setOpenState(init);
     } catch (error) {
       console.error('Error cargando rutinas:', error);
-      toast.error('Error al cargar las rutinas. Intenta nuevamente.');
+      // toast.error('Error al cargar las rutinas. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
