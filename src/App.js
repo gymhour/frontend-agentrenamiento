@@ -71,15 +71,15 @@ function App() {
       />
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<GymHourLanding />} />
+        {/* <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
-        <Route path='/reset-password' element={<ResetPassword />} />
+        <Route path='/reset-password' element={<ResetPassword />} /> */}
 
         {/* Rutas protegidas */}
         {/* Admin */}
-        <Route path="/admin/inicio"
+        {/* <Route path="/admin/inicio"
           element={
             <ProtectedRoute>
               <AdminInicio />
@@ -236,9 +236,9 @@ function App() {
               <ChangePassword fromAdmin={true} />
             </ProtectedRoute>
           }
-        />
+        /> */}
         {/* Entrenador */}
-        <Route path="/entrenador/inicio"
+        {/* <Route path="/entrenador/inicio"
           element={
             <ProtectedRoute>
               <InicioEntrenador />
@@ -336,9 +336,9 @@ function App() {
               <ChangePassword fromAdmin={false} fromEntrenador={true} />
             </ProtectedRoute>
           }
-        />
+        /> */}
         {/* Alumno */}
-        <Route path="/alumno/inicio"
+        {/* <Route path="/alumno/inicio"
           element={
             <ProtectedRoute>
               <AlumnoInicio />
@@ -390,7 +390,7 @@ function App() {
               <RutinaDetail fromAlumno={true} />
             </ProtectedRoute>
           }
-        />
+        /> */}
         {/* <Route
           path="/alumno/crear-rutina"
           element={
@@ -407,7 +407,7 @@ function App() {
             </ProtectedRoute>
           }
         /> */}
-        <Route
+        {/* <Route
           path="/alumno/ejercicios"
           element={
             <ProtectedRoute>
@@ -478,7 +478,7 @@ function App() {
               <ChangePassword fromAdmin={false} />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         {/* Ruta de error */}
         <Route path="*" element={<NotFound />} />
