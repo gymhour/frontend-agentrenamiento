@@ -274,7 +274,7 @@ const MiRutina = () => {
                 <div key={rutina.ID_Rutina} className='rutina-card'>
                   <div className='rutina-header'>
                     <h3>{rutina.nombre}</h3>
-                    <div className='rutina-header-acciones'>
+                    {/* <div className='rutina-header-acciones'>
                       <button
                         onClick={() => handlePopUpOpen(rutina.ID_Rutina)}
                         className='mi-rutina-eliminar-btn'
@@ -289,7 +289,7 @@ const MiRutina = () => {
                       >
                         <EditIcon width={20} height={20} />
                       </button>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className='rutina-data'>

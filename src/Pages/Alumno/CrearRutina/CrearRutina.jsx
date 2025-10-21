@@ -288,6 +288,53 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     setDays(days.map((d, i) => i === activeDayIndex ? { ...d, blocks: newBlocks } : d));
   };
 
+  const addExerciseIntoBuildingBlock = (exerciseObj) => {
+    const ejName = exerciseObj?.nombre || '';
+    const ejId = exerciseObj?.ID_Ejercicio || null;
+
+    // Si no hay bloques, crear uno por defecto y poner el ejercicio como primera fila
+    if (!activeDay?.blocks || activeDay.blocks.length === 0) {
+      const newBlock = makeEmptyBlock('Series y repeticiones');
+      newBlock.data.setsReps = [{
+        series: '',
+        exercise: ejName,
+        weight: '',
+        placeholderExercise: getRandomExercise(),
+        exerciseId: ejId
+      }];
+      setActiveDayBlocks([newBlock]);
+      toast.success(`Agregado "${ejName}" en un nuevo bloque`);
+      return;
+    }
+
+    // Agregar en el último bloque del día activo
+    const lastIndex = activeDay.blocks.length - 1;
+    const lastBlock = activeDay.blocks[lastIndex];
+
+    // Asegurar setsReps
+    const currentSets = Array.isArray(lastBlock?.data?.setsReps) ? lastBlock.data.setsReps : [];
+    const updatedLastBlock = {
+      ...lastBlock,
+      data: {
+        ...lastBlock.data,
+        setsReps: [
+          ...currentSets,
+          {
+            series: '',
+            exercise: ejName,
+            weight: '',
+            placeholderExercise: getRandomExercise(),
+            exerciseId: ejId
+          }
+        ]
+      }
+    };
+
+    const newBlocks = activeDay.blocks.map((b, i) => (i === lastIndex ? updatedLastBlock : b));
+    setActiveDayBlocks(newBlocks);
+    toast.success(`Agregado "${ejName}" al último bloque`);
+  };
+
   // Blocks
   const handleAddBlock = (e) => {
     const selectedType = e.target.value;
@@ -468,7 +515,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         toast.success('Rutina creada correctamente');
       }
       
-      if (fromAdmin) navigate('/admin/rutinas');
+      if (fromAdmin) navigate('/admin/rutinas-asignadas');
       if (fromEntrenador) navigate('/entrenador/rutinas-asignadas');
       if (fromAlumno) navigate('/alumno/mi-rutina');
     } catch {
@@ -1095,14 +1142,21 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                         <div key={ej.ID_Ejercicio} className="info-card">
                           <div className="info-card__row">
                             <strong className="info-card__title">{ej.nombre}</strong>
-                            {ej.youtubeUrl && (
-                              <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
-                            )}
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                              <PrimaryButton
+                                className="info-card__add"
+                                onClick={() => addExerciseIntoBuildingBlock(ej)}
+                                text="Agregar"
+                              />
+                            </div>
                           </div>
                           {ej.descripcion && <p className="info-card__desc">{ej.descripcion}</p>}
                           <div className="info-card__meta">
                             {ej.musculos && <small><b>Músculos:</b> {ej.musculos}</small>}
                             {ej.equipamiento && <small><b>Equipo:</b> {ej.equipamiento}</small>}
+                            {ej.youtubeUrl && (
+                                <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
+                            )}
                           </div>
                         </div>
                       ))}

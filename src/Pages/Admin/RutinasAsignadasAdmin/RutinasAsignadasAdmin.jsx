@@ -152,7 +152,7 @@ const RutinasAsignadas = () => {
     setLoading(true);
     const adminId = localStorage.getItem('usuarioId');
     try {
-      const { rutinas: lista = [] } = await apiService.getUserRutinas(adminId);
+      const { rutinas: lista = [] } = await apiService.getRutinasEntrenadores(adminId);
 
       // abrir primer día por defecto por rutina
       const init = {};
