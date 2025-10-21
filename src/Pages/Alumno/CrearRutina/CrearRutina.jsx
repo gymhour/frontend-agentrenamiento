@@ -436,7 +436,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       ? (users.find(u => u.email === selectedEmail)?.ID_Usuario ?? null)
       : Number(localStorage.getItem("usuarioId"));
 
-    const entrenadorId = fromEntrenador ? Number(localStorage.getItem("usuarioId")) : null;
+    const entrenadorId = canAssign ? Number(localStorage.getItem("usuarioId")) : null;
 
     const diasObj = {};
     days.forEach((d, i) => {
