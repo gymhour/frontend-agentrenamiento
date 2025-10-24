@@ -52,9 +52,9 @@ const Cuotas = () => {
 
         const lista =
           Array.isArray(res) ? res
-          : Array.isArray(res?.data) ? res.data
-          : Array.isArray(res?.data?.data) ? res.data.data
-          : [];
+            : Array.isArray(res?.data) ? res.data
+              : Array.isArray(res?.data?.data) ? res.data.data
+                : [];
 
         setCuotas(lista);
         setError(null);
@@ -81,16 +81,16 @@ const Cuotas = () => {
           <h3>Datos de cuenta</h3>
           <div className="cuotas-datos-pagos-info">
             <span style={{ fontWeight: '600' }}>
-            AUGUSTO GRENÓN 
-            {/* <GaliciaIcon width="120" /> */}
+              AUGUSTO GRENÓN
+              {/* <GaliciaIcon width="120" /> */}
             </span>
             <span>
-            AG Entrenamientos 
+              AG Entrenamientos
             </span>
             <span>
               <b>ALIAS:</b> {alias}{' '}
               <button className="copy-button" onClick={() => handleCopy(alias)}>
-                <CopyIcon width={16} height={16}/>
+                <CopyIcon width={16} height={16} />
               </button>
             </span>
             {/* <span>
@@ -101,9 +101,14 @@ const Cuotas = () => {
             </span> */}
             <span><b>CUIL:</b> 20-35752545-5</span>
           </div>
-          <a href="">
-            <button className='cuotas-wsp-btn'> Enviar comprobante por WhatsApp </button>
+          <a
+            href="https://wa.me/5493406423587?text=Hola%20AG%20Entrenamientos%21%20Les%20comparto%20el%20comprobante%20de%20pago%20de%20este%20mes%3A"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button class="cuotas-wsp-btn">Enviar comprobante por WhatsApp</button>
           </a>
+
         </div>
 
         <h3>Historial de pagos</h3>
