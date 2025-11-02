@@ -10,7 +10,7 @@ import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
 import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
 import { toast } from 'react-toastify';
-import { useNavigate, Link } from 'react-router-dom'; // <-- agrego Link
+import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg"
@@ -59,20 +59,6 @@ const normalizeDias = (rutina) => {
 
 const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 
-// Para bloques SETS_REPS, ya no usamos header.
-// En los demás, sí:
-const headerForBlock = (b) => {
-  switch (b?.type) {
-    case 'SETS_REPS': return ''; // <- nunca encabezado “principal”
-    case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
-    case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
-    case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'TABATA': return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
-    case 'LADDER': return b?.tipoEscalera || 'Escalera';
-    default: return '';
-  }
-};
-
 /** texto base del item (sin link) */
 const itemText = (it, tipo) => {
   const name = it?.ejercicio?.nombre || 'Ejercicio';
@@ -120,6 +106,60 @@ const setsRepsFallback = (b) => {
   ].filter(Boolean);
   const txt = parts.join(' ').trim();
   return txt || null;
+};
+
+/* ======== NUEVO: helpers para TABATA ======== */
+// Normaliza "30s / 20off", "30s x 20s", "30 on / 20 off", etc.
+const formatWorkRest = (str = "") => {
+  const s = String(str).trim();
+  if (!s) return "";
+  const txt = s
+    .replace(/on|trabajo/gi, "")
+    .replace(/off|descanso/gi, "")
+    .replace(/[x×]/g, "/")
+    .replace(/\s+/g, " ")
+    .replace(/\s*\/\s*/g, "/")
+    .trim();
+  const [work, rest] = txt.split("/");
+  if (work && rest) return `${work.trim()} trabajo × ${rest.trim()} descanso`;
+  return s;
+};
+
+// Texto de encabezado para cada bloque (con TABATA nuevo)
+const headerForBlock = (b) => {
+  switch (b?.type) {
+    case 'SETS_REPS': return '';
+    case 'ROUNDS':    return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
+    case 'EMOM':      return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
+    case 'AMRAP':     return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
+    case 'LADDER':    return b?.tipoEscalera || 'Escalera';
+    case 'TABATA': {
+      const parts = [];
+      if (b?.cantSeries) parts.push(`${b.cantSeries} series`);
+      if (b?.tiempoTrabajoDescansoTabata) parts.push(formatWorkRest(b.tiempoTrabajoDescansoTabata));
+      if (parts.length) return `Tabata — ${parts.join(' · ')}`;
+      return b?.durationMin ? `Tabata ${b.durationMin}min:` : 'Tabata:';
+    }
+    default: return '';
+  }
+};
+
+// Pie/meta visual para TABATA (chips compactas)
+const renderTabataMeta = (b) => {
+  const hasNew = !!(b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata);
+  if (!hasNew) return null;
+
+  return (
+    <div className="bloque-footnote tabata-meta">
+      {/* <span className="meta-chip"><b>Series:</b> {b?.cantSeries ?? '—'}</span>
+      <span className="meta-chip">
+        <b>Trabajo/Descanso:</b> {b?.tiempoTrabajoDescansoTabata ? formatWorkRest(b.tiempoTrabajoDescansoTabata) : '—'}
+      </span> */}
+      {b?.descTabata && (
+        <span className="meta-chip"><b>Pausa entre series:</b> {b.descTabata}</span>
+      )}
+    </div>
+  );
 };
 
 /* ===================== Component ===================== */
@@ -334,6 +374,7 @@ const MiRutina = () => {
                         return (
                           <div key={i} className='bloque-card'>
                             {header && <p className='bloque-header'>{header}</p>}
+
                             {items.length > 0 && (
                               <ul className='bloque-list'>
                                 {items.map((it, j) => (
@@ -341,6 +382,10 @@ const MiRutina = () => {
                                 ))}
                               </ul>
                             )}
+
+                            {/* NUEVO: meta TABATA */}
+                            {b.type === 'TABATA' && renderTabataMeta(b)}
+
                             {b.type === 'ROUNDS' && b.descansoRonda ? (
                               <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
                             ) : null}
@@ -395,6 +440,7 @@ const MiRutina = () => {
                                   return (
                                     <div key={i} className='bloque-card'>
                                       {header && <p className='bloque-header'>{header}</p>}
+
                                       {items.length > 0 && (
                                         <ul className='bloque-list'>
                                           {items.map((it, j) => (
@@ -402,6 +448,10 @@ const MiRutina = () => {
                                           ))}
                                         </ul>
                                       )}
+
+                                      {/* NUEVO: meta TABATA */}
+                                      {b.type === 'TABATA' && renderTabataMeta(b)}
+
                                       {b.type === 'ROUNDS' && b.descansoRonda ? (
                                         <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
                                       ) : null}

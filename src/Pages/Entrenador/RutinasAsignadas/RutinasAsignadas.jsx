@@ -12,7 +12,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg"; // <-- agregado
+import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -58,14 +58,36 @@ const normalizeDias = (rutina) => {
 
 const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 
-// En SETS_REPS no usamos header; en el resto sí:
-const headerForBlock = (b) => {
+/* ===== Etiquetas por tipo (incluye TABATA mejorado) ===== */
+const formatWorkRest = (str = '') => {
+  const s = String(str).trim();
+  if (!s) return '';
+  const txt = s
+    .replace(/on|trabajo/gi, '')
+    .replace(/off|descanso/gi, '')
+    .replace(/[x×]/g, '/')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*\/\s*/g, '/')
+    .trim();
+  const [work, rest] = txt.split('/');
+  if (work && rest) return `${work.trim()} trabajo × ${rest.trim()} descanso`;
+  return s;
+};
+
+const blockLabel = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return '';
     case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
     case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
     case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'TABATA': return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
+    case 'TABATA': {
+      const chips = [];
+      if (b?.cantSeries) chips.push(`${b.cantSeries} series`);
+      if (b?.tiempoTrabajoDescansoTabata) chips.push(formatWorkRest(b.tiempoTrabajoDescansoTabata));
+      if (chips.length) return `Tabata — ${chips.join(' · ')}`;
+      if (b?.durationMin) return `Tabata ${b.durationMin}min:`;
+      return 'TABATA:';
+    }
     case 'LADDER': return b?.tipoEscalera || 'Escalera';
     default: return '';
   }
@@ -83,7 +105,7 @@ const itemText = (it, tipo) => {
   return showExtra ? `${left} — ${extra}` : left;
 };
 
-// ====== NUEVO: misma lógica de MiRutina.jsx ======
+// ====== Links a ejercicios (misma UX) ======
 const isLinkableExercise = (it) => {
   const ej = it?.ejercicio;
   return !!(ej?.ID_Ejercicio && ej?.esGenerico === false);
@@ -109,7 +131,7 @@ const renderEjercicioItem = (it, tipo) => {
   return <span>{txt}</span>;
 };
 
-// Si un SETS_REPS no trae ejercicios, mostramos esta línea como item de cuerpo.
+// Fallback para SETS_REPS sin ejercicios
 const setsRepsFallback = (b) => {
   const parts = [
     b?.setsReps ? `${b.setsReps}` : '',
@@ -224,7 +246,7 @@ const RutinasAsignadas = () => {
     }));
   };
 
-  // ====== Duplicar rutina ======
+  // ====== Duplicar rutina (incluye TABATA fields) ======
   const buildDuplicatePayload = (rutina) => {
     const entrenadorId = Number(localStorage.getItem('usuarioId')) || null;
     const alumnoId = rutina?.alumno?.ID_Usuario || null;
@@ -256,6 +278,10 @@ const RutinasAsignadas = () => {
           cantRondas: b?.cantRondas ?? null,
           durationMin: b?.durationMin ?? null,
           tipoEscalera: b?.tipoEscalera ?? null,
+          // —— TABATA:
+          cantSeries: b?.cantSeries ?? null,
+          descTabata: b?.descTabata ?? null,
+          tiempoTrabajoDescansoTabata: b?.tiempoTrabajoDescansoTabata ?? null,
           bloqueEjercicios,
         };
       });
@@ -284,7 +310,6 @@ const RutinasAsignadas = () => {
       const payload = buildDuplicatePayload(rutina);
       await apiService.createRutina(payload);
       toast.success('Rutina duplicada correctamente.');
-      // Refrescar listado para reflejar la nueva rutina
       await loadRutinasAsignadas();
     } catch (error) {
       console.error('Error al duplicar rutina:', error);
@@ -375,7 +400,7 @@ const RutinasAsignadas = () => {
 
                     {(dias[0]?.bloques || []).map((b, i) => {
                       const items = getBloqueItems(b);
-                      const header = headerForBlock(b);
+                      const header = blockLabel(b);
 
                       if (b.type === 'SETS_REPS') {
                         const fallback = items.length === 0 ? setsRepsFallback(b) : null;
@@ -408,6 +433,14 @@ const RutinasAsignadas = () => {
                               ))}
                             </ul>
                           )}
+
+                          {/* Meta específica por tipo */}
+                          {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
+                            <p className='bloque-footnote'>
+                              {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
+                            </p>
+                          )}
+
                           {b.type === 'ROUNDS' && b.descansoRonda != null && (
                             <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
                           )}
@@ -437,7 +470,7 @@ const RutinasAsignadas = () => {
 
                               {(d.bloques || []).map((b, i) => {
                                 const items = getBloqueItems(b);
-                                const header = headerForBlock(b);
+                                const header = blockLabel(b);
 
                                 if (b.type === 'SETS_REPS') {
                                   const fallback = items.length === 0 ? setsRepsFallback(b) : null;
@@ -470,6 +503,17 @@ const RutinasAsignadas = () => {
                                         ))}
                                       </ul>
                                     )}
+
+                                    {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
+                                      <p className='bloque-footnote'>
+                                        {b?.cantSeries ? <><b>Series:</b> {b.cantSeries} · </> : null}
+                                        {b?.tiempoTrabajoDescansoTabata
+                                          ? <><b>Trabajo/Descanso:</b> {formatWorkRest(b.tiempoTrabajoDescansoTabata)} · </>
+                                          : null}
+                                        {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
+                                      </p>
+                                    )}
+
                                     {b.type === 'ROUNDS' && b.descansoRonda != null && (
                                       <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
                                     )}

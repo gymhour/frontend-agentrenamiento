@@ -48,7 +48,16 @@ const makeEmptyBlock = (selectedType) => {
     case 'Escalera':
       return { id: Date.now(), type: selectedType, data: { escaleraType: '', setsReps: [{ ...baseSet }] } };
     case 'TABATA':
-      return { id: Date.now(), type: selectedType, data: { duration: '4', setsReps: [{ ...baseSet }] } };
+      return {
+        id: Date.now(),
+        type: selectedType,
+        data: {
+          cantSeries: '',
+          descTabata: '',
+          tiempoTrabajoDescansoTabata: '',
+          setsReps: [{ ...baseSet }]
+        }
+      };
     default:
       return { id: Date.now(), type: 'Series y repeticiones', data: { setsReps: [{ ...baseSet }] } };
   }
@@ -82,7 +91,12 @@ const convertApiBlockData = (b) => {
     case 'LADDER':
       return { escaleraType: b.tipoEscalera ?? '', setsReps: mappedSets };
     case 'TABATA':
-      return { duration: b.durationMin ?? '4', setsReps: mappedSets };
+      return {
+        cantSeries: b.cantSeries ?? '',
+        descTabata: b.descTabata ?? '',
+        tiempoTrabajoDescansoTabata: b.tiempoTrabajoDescansoTabata ?? (b.durationMin ? `${b.durationMin}m` : ''),
+        setsReps: mappedSets
+      };
     default:
       return { setsReps: mappedSets };
   }
@@ -104,6 +118,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const isEditing = Boolean(rutinaId);
   const navigate = useNavigate();
 
+  // En recomendadas solo entrenador asigna
   const canAssign = !!(fromEntrenador);
 
   const [step, setStep] = useState(1);
@@ -121,9 +136,9 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const [allExercises, setAllExercises] = useState([]);
   const [suggestions, setSuggestions] = useState({});
 
-  // Panel de Información (solo admin/entrenador)
+  // Panel de Información
   const [infoOpen, setInfoOpen] = useState(() => {
-    if (typeof window === 'undefined') return true; // SSR safe
+    if (typeof window === 'undefined') return true;
     return !window.matchMedia('(max-width: 720px)').matches;
   });
   const [infoTab, setInfoTab] = useState('ejercicios'); // 'ejercicios' | 'usuario'
@@ -131,11 +146,11 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const [userMetrics, setUserMetrics] = useState(null);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
 
-  // Días (tabs)
+  // Días
   const [days, setDays] = useState([{ key: 'dia1', nombre: '', descripcion: '', blocks: [] }]);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
 
-  // === Responsive (detectar mobile) ===
+  // Responsive
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -149,10 +164,8 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   }, []);
 
   useEffect(() => {
-    if (step === 2) {
-      setInfoOpen(!isMobile); 
-    }
-  }, [step, isMobile]);  
+    if (step === 2) setInfoOpen(!isMobile);
+  }, [step, isMobile]);
 
   useEffect(() => {
     if (canAssign) {
@@ -174,14 +187,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing, canAssign, users]);
 
-  // ID del usuario seleccionado (para métricas)
   const selectedUserId = useMemo(() => {
     if (!canAssign) return Number(localStorage.getItem("usuarioId"));
     const u = users.find(u => u.email === selectedEmail);
     return u?.ID_Usuario ?? null;
   }, [canAssign, users, selectedEmail]);
 
-  // Carga de métricas SOLO cuando: admin/entrenador + user sel + step2 + tab usuario
   useEffect(() => {
     if (!canAssign) return;
     if (!selectedUserId) { setUserMetrics(null); return; }
@@ -266,7 +277,6 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
 
     setStep(2);
   };
-
 
   // Tabs días
   const addDay = () => {
@@ -426,7 +436,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
           case 'LADDER':
             return { type, tipoEscalera: (block.data.escaleraType || '').trim() || null, bloqueEjercicios };
           case 'TABATA':
-            return { type, durationMin: parseInt(block.data.duration || 4, 10), bloqueEjercicios };
+            return {
+              type,
+              cantSeries: Number.isFinite(parseInt(block.data.cantSeries, 10)) ? parseInt(block.data.cantSeries, 10) : null,
+              descTabata: (block.data.descTabata || '').trim() || null,
+              tiempoTrabajoDescansoTabata: (block.data.tiempoTrabajoDescansoTabata || '').trim() || null,
+              bloqueEjercicios
+            };
           default:
             return { type, bloqueEjercicios };
         }
@@ -469,7 +485,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     } finally { setLoading(false); }
   };
 
-  // === Responsive: detectar mobile, cerrar con ESC y bloquear scroll cuando abierto ===
+  // Responsive listeners
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 720px)');
     const handler = (e) => setIsMobile(e.matches);
@@ -514,7 +530,6 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
       <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
 
       <div className='content-layout mi-rutina-ctn layout-with-info' style={{ display: 'flex', gap: 16 }}>
-        {/* FAB para abrir info en mobile */}
         {canAssign && step === 2 && isMobile && !infoOpen && (
           <button
             className="fab-info"
@@ -527,7 +542,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
           </button>
         )}
 
-        {/* Contenido principal (izquierda) */}
+        {/* Contenido principal */}
         <div className="main-col" style={{ flex: '1 1 auto', minWidth: 0 }}>
           <div className="mi-rutina-title header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <h2>{isEditing ? 'Editar Rutina' : 'Crear Rutina'}</h2>
@@ -585,9 +600,9 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                     value={
                       selectedEmail
                         ? {
-                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
-                          value: selectedEmail
-                        }
+                            label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
+                            value: selectedEmail
+                          }
                         : null
                     }
                     onChange={option => setSelectedEmail(option.value)}
@@ -596,7 +611,6 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                     required={!!fromEntrenador}
                   />
                 )}
-
 
                 <div className='crearRutina-s1-continuar-btn-ctn'>
                   <PrimaryButton text="Continuar" linkTo="#" onClick={handleContinue} />
@@ -630,12 +644,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                       </button>
                     </div>
                   ))}
-                  <button className="day-tab add" onClick={() => {
-                    const nextIndex = days.length + 1;
-                    const newKey = `dia${nextIndex}`;
-                    setDays([...days, { key: newKey, nombre: '', descripcion: '', blocks: [] }]);
-                    setActiveDayIndex(days.length);
-                  }}>+ Añadir día</button>
+                  <button className="day-tab add" onClick={addDay}>+ Añadir día</button>
                 </div>
 
                 {/* Meta del día */}
@@ -966,31 +975,45 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                       {/* TABATA */}
                       {block.type === "TABATA" && (
                         <div className="tabata-ctn">
-                          <div className="cantidad-tabata-ctn">
-                            <span> TABATA de </span>
-                            <input
-                              className='cant-rondas-subctn-input-chico'
-                              placeholder="4"
-                              value={block.data.duration}
-                              onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)}
-                            />
-                            <input className='cant-rondas-subctn-input-grande' placeholder="minutos" disabled />
+                          <div className="cantidad-tabata-ctn" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                            <div className='cant-rondas-subctn'>
+                              <span>Series: </span>
+                              <input
+                                className='cant-rondas-subctn-input-chico'
+                                placeholder="4"
+                                value={block.data.cantSeries}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'cantSeries', e.target.value)}
+                              />
+                            </div>
+                            <div className='cant-rondas-subctn'>
+                              <span>Trabajo/descanso: </span>
+                              <input
+                                className='cant-rondas-subctn-input-grande'
+                                placeholder='ej. 20s x 10s'
+                                value={block.data.tiempoTrabajoDescansoTabata}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'tiempoTrabajoDescansoTabata', e.target.value)}
+                              />
+                            </div>
+                            <div className='cant-rondas-subctn'>
+                              <span>Descanso entre series: </span>
+                              <input
+                                className='cant-rondas-subctn-input-grande'
+                                placeholder='ej. 1 minuto'
+                                value={block.data.descTabata}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'descTabata', e.target.value)}
+                              />
+                            </div>
                           </div>
 
+                          {/* Lista de ejercicios SIN campo series */}
                           <div className="sets-reps-ctn">
                             {block.data.setsReps.map((setRep, idx) => (
-                              <div key={idx} className="sets-row">
-                                <input
-                                  type="text"
-                                  className="series-input"
-                                  placeholder="ej. 20s on / 10s off"
-                                  value={setRep.series}
-                                  onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
-                                />
-                                <div className="exercise-cell">
+                              <div key={idx} className="sets-row sets-row--no-series">
+                                <div className="exercise-cell" style={{ width: '100%' }}>
                                   <input
                                     type="text"
                                     className="exercise-input"
+                                    style={{ width: '100%' }}
                                     placeholder={setRep.placeholderExercise}
                                     value={setRep.exercise}
                                     onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
@@ -1008,12 +1031,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                 <input
                                   type="text"
                                   className="weight-input"
-                                  placeholder="-"
+                                  placeholder="ej. 16kg"
                                   value={setRep.weight}
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este ejercicio">–</button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
@@ -1028,10 +1051,9 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
           )}
         </div>
 
-        {/* Panel lateral Información (drawer en mobile, fijo en desktop) — SOLO Step 2 */}
+        {/* Panel lateral Información (drawer en mobile) — SOLO Step 2 */}
         {canAssign && step === 2 && (
           <>
-            {/* Backdrop (solo visible en mobile cuando está abierto) */}
             <div
               className={`info-backdrop ${isMobile && infoOpen ? 'show' : ''}`}
               onClick={() => setInfoOpen(false)}
@@ -1137,7 +1159,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                               historico.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
                               const last3 = historico.slice(0, 3);
 
-                              // PR histórico (máximo Cantidad)
+                              // PR histórico
                               let pr = null;
                               for (const h of historico) {
                                 if (!pr || h.Cantidad > pr.Cantidad) pr = h;
@@ -1150,7 +1172,6 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                     <small className="info-card__badge">{e.tipoMedicion}</small>
                                   </div>
 
-                                  {/* Últimos 3 */}
                                   {last3.length > 0 ? (
                                     <div className="metric-block">
                                       <div className="metric-block__title">Últimos 3 registros</div>
@@ -1168,7 +1189,6 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                     <div className="metric-block metric-block--empty">Sin registros</div>
                                   )}
 
-                                  {/* PR histórico */}
                                   <div className="metric-block metric-block--pr">
                                     <span className="metric-pr-label">PR histórico:</span>
                                     {pr

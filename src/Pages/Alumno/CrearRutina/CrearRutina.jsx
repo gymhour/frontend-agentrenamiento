@@ -49,7 +49,7 @@ const makeEmptyBlock = (selectedType) => {
     case 'Escalera':
       return { id: Date.now(), type: selectedType, data: { escaleraType: '', setsReps: [{ ...baseSet }] } };
     case 'TABATA':
-      return { id: Date.now(), type: selectedType, data: { duration: '4', setsReps: [{ ...baseSet }] } };
+      return { id: Date.now(), type: selectedType, data: { cantSeries: '', descTabata: '', tiempoTrabajoDescansoTabata: '', setsReps: [{ ...baseSet }] } };
     default:
       return { id: Date.now(), type: 'Series y repeticiones', data: { setsReps: [{ ...baseSet }] } };
   }
@@ -83,7 +83,12 @@ const convertApiBlockData = (b) => {
     case 'LADDER':
       return { escaleraType: b.tipoEscalera ?? '', setsReps: mappedSets };
     case 'TABATA':
-      return { duration: b.durationMin ?? '4', setsReps: mappedSets };
+      return {
+        cantSeries: b.cantSeries ?? '',
+        descTabata: b.descTabata ?? '',
+        tiempoTrabajoDescansoTabata: b.tiempoTrabajoDescansoTabata ?? (b.durationMin ? `${b.durationMin}m` : ''),
+        setsReps: mappedSets
+      };
     default:
       return { setsReps: mappedSets };
   }
@@ -120,7 +125,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   const [selectedEmail, setSelectedEmail] = useState(null);
 
   const [allExercises, setAllExercises] = useState([]);
-  const [suggestions, setSuggestions] = useState({});
+  // const [suggestions, setSuggestions] = useState({});
 
   // Panel de Información (solo admin/entrenador)
   const [infoOpen, setInfoOpen] = useState(() => {
@@ -374,6 +379,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   };
 
   // Suggestions
+  const [suggestions, setSuggestionsState] = useState({});
+  const setSuggestions = setSuggestionsState;
+
   const handleExerciseInputChange = (blockId, idx, value) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block => {
       if (block.id === blockId) {
@@ -474,7 +482,13 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
           case 'LADDER':
             return { type, tipoEscalera: (block.data.escaleraType || '').trim() || null, bloqueEjercicios };
           case 'TABATA':
-            return { type, durationMin: parseInt(block.data.duration || 4, 10), bloqueEjercicios };
+            return {
+              type,
+              cantSeries: Number.isFinite(parseInt(block.data.cantSeries, 10)) ? parseInt(block.data.cantSeries, 10) : null,
+              descTabata: (block.data.descTabata || '').trim() || null,
+              tiempoTrabajoDescansoTabata: (block.data.tiempoTrabajoDescansoTabata || '').trim() || null,
+              bloqueEjercicios
+            };
           default:
             return { type, bloqueEjercicios };
         }
@@ -684,12 +698,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                       </button>
                     </div>
                   ))}
-                  <button className="day-tab add" onClick={() => {
-                    const nextIndex = days.length + 1;
-                    const newKey = `dia${nextIndex}`;
-                    setDays([...days, { key: newKey, nombre: '', descripcion: '', blocks: [] }]);
-                    setActiveDayIndex(days.length);
-                  }}>+ Añadir día</button>
+                  <button className="day-tab add" onClick={addDay}>+ Añadir día</button>
                 </div>
 
                 {/* Meta del día */}
@@ -1017,34 +1026,48 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                         </div>
                       )}
 
-                      {/* TABATA */}
+                      {/* TABATA — NUEVO FORMATO */}
                       {block.type === "TABATA" && (
                         <div className="tabata-ctn">
-                          <div className="cantidad-tabata-ctn">
-                            <span> TABATA de </span>
-                            <input
-                              className='cant-rondas-subctn-input-chico'
-                              placeholder="4"
-                              value={block.data.duration}
-                              onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)}
-                            />
-                            <input className='cant-rondas-subctn-input-grande' placeholder="minutos" disabled />
+                          <div className="cantidad-tabata-ctn" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                            <div className='cant-rondas-subctn'>
+                              <span>Series: </span>
+                              <input
+                                className='cant-rondas-subctn-input-chico'
+                                placeholder="4"
+                                value={block.data.cantSeries}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'cantSeries', e.target.value)}
+                              />
+                            </div>
+                            <div className='cant-rondas-subctn'>
+                              <span>Trabajo/descanso: </span>
+                              <input
+                                className='cant-rondas-subctn-input-grande'
+                                placeholder='ej. 20s x 10s'
+                                value={block.data.tiempoTrabajoDescansoTabata}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'tiempoTrabajoDescansoTabata', e.target.value)}
+                              />
+                            </div>
+                            <div className='cant-rondas-subctn'>
+                              <span>Descanso entre series: </span>
+                              <input
+                                className='cant-rondas-subctn-input-grande'
+                                placeholder='ej. 1 minuto'
+                                value={block.data.descTabata}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'descTabata', e.target.value)}
+                              />
+                            </div>
                           </div>
 
+                          {/* Lista de ejercicios SIN campo series */}
                           <div className="sets-reps-ctn">
                             {block.data.setsReps.map((setRep, idx) => (
-                              <div key={idx} className="sets-row">
-                                <input
-                                  type="text"
-                                  className="series-input"
-                                  placeholder="ej. 20s on / 10s off"
-                                  value={setRep.series}
-                                  onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
-                                />
-                                <div className="exercise-cell">
+                              <div key={idx} className="sets-row sets-row--no-series">
+                                <div className="exercise-cell" style={{ width: '100%' }}>
                                   <input
                                     type="text"
                                     className="exercise-input"
+                                    style={{ width: '100%' }}
                                     placeholder={setRep.placeholderExercise}
                                     value={setRep.exercise}
                                     onChange={e => handleExerciseInputChange(block.id, idx, e.target.value)}
@@ -1062,12 +1085,12 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                 <input
                                   type="text"
                                   className="weight-input"
-                                  placeholder="-"
+                                  placeholder="ej. 16kg"
                                   value={setRep.weight}
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este ejercicio">–</button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
