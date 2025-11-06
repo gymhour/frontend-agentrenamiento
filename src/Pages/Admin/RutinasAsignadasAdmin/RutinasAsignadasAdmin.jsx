@@ -425,7 +425,7 @@ const RutinasAsignadas = () => {
                       <DeleteIcon width={20} height={20} />
                     </button>
                     <button
-                      onClick={() => navigate(`/entrenador/editar-rutina/${rutina.ID_Rutina}`)}
+                      onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)}
                       className='mi-rutina-eliminar-btn'
                       title='Editar rutina'
                     >

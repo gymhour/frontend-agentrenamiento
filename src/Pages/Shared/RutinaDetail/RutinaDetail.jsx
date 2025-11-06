@@ -22,7 +22,8 @@ const TYPE_LABELS = {
 const pretty = (v, fallback = '—') =>
   v === null || v === undefined || v === '' ? fallback : v;
 
-// --- Normaliza y ordena dia1, dia2, ...
+/* ===================== DÍAS ===================== */
+// Normaliza y ordena dia1, dia2, ...
 const normalizeDias = (diasObj) => {
   if (!diasObj || typeof diasObj !== 'object') return [];
   const keys = Object.keys(diasObj).sort((a, b) => {
@@ -33,10 +34,11 @@ const normalizeDias = (diasObj) => {
   return keys.map((key) => ({ key, ...diasObj[key] }));
 };
 
-/* ======== Helpers rutina ======== */
+/* ===================== HELPERS RUTINA ===================== */
 const deriveReps = (ejItem, bloque) => ejItem?.reps || bloque?.setsReps || '';
 const derivePeso = (ejItem, bloque) => ejItem?.setRepWeight || bloque?.weight || '';
 
+/* ===================== TABATA ===================== */
 // Normaliza "30s / 20off", "30s x 20s", "30 on / 20 off", etc.
 const formatWorkRest = (str = '') => {
   const s = String(str).trim();
@@ -73,7 +75,7 @@ const typeLabel = (type, b) => {
   return TYPE_LABELS[type] || pretty(type, 'Bloque');
 };
 
-/* ======== Helpers media (video > imagen > placeholder) ======== */
+/* ===================== MEDIA EJERCICIO ===================== */
 const getYouTubeId = (url) => {
   if (!url) return null;
   try {
@@ -85,9 +87,12 @@ const getYouTubeId = (url) => {
       const m = u.pathname.match(/\/embed\/([A-Za-z0-9_-]{6,})/);
       if (m) return m[1];
     }
-  } catch { }
+  } catch {
+    // ignore
+  }
   return null;
 };
+
 const isVideoFile = (url) => /\.(mp4|webm|ogg)$/i.test(url || '');
 
 const RenderMedia = ({ ej }) => {
@@ -127,6 +132,7 @@ const RenderMedia = ({ ej }) => {
       </video>
     );
   }
+
   if (ej?.mediaUrl) {
     return (
       <img
@@ -143,11 +149,13 @@ const RenderMedia = ({ ej }) => {
       />
     );
   }
+
   return <div className="gh-ej-thumb-placeholder show" aria-hidden="true" />;
 };
 
-/* ========= DROPSET helpers (vista detalle) ========= */
-const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
+/* ===================== DROPSET (COMPARTIDO) ===================== */
+const getBloqueItems = (b) =>
+  Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 
 /** true si es bloque SETS_REPS con 2+ items del mismo ejercicio */
 const isDropSetBlock = (b) => {
@@ -155,18 +163,26 @@ const isDropSetBlock = (b) => {
   const items = getBloqueItems(b);
   if (!Array.isArray(items) || items.length < 2) return false;
 
-  const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
-  const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
+  const firstId =
+    items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
+  const firstName = (
+    items[0]?.ejercicio?.nombre ||
+    b?.nombreEj ||
+    ''
+  )
+    .trim()
+    .toLowerCase();
 
-  return items.every(it => {
-    const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
+  return items.every((it) => {
+    const id =
+      it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
     const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
     if (firstId != null && id != null) return id === firstId;
     return name && name === firstName;
   });
 };
 
-/** "reps -- weight" usando × */
+/** "reps -- peso" usando × para la vista detalle */
 const repsWeightLine = (it) => {
   const reps = (it?.reps || '').toString().replace(/x/gi, '×').trim();
   const w = (it?.setRepWeight || '').toString().trim();
@@ -176,14 +192,14 @@ const repsWeightLine = (it) => {
   return '—';
 };
 
-/** Render del bloque dropset en la card de detalle */
+/** Vista DROPSET en la UI (card) */
 const DropSetDetail = ({ bloque }) => {
   const items = getBloqueItems(bloque);
   const ejFirst = items[0]?.ejercicio || {};
   const nombre = (bloque?.nombreEj || ejFirst?.nombre || 'Ejercicio').trim();
 
   return (
-    <div className="gh-surface" style={{ display: 'grid', gap: 12 }}>
+    <div className="gh-surface dropset-surface" style={{ display: 'grid', gap: 8 }}>
       <h4 className="gh-feature-title" style={{ margin: 0 }}>
         {`DROPSET — ${nombre}`}
       </h4>
@@ -191,7 +207,9 @@ const DropSetDetail = ({ bloque }) => {
       <div className="gh-list-item gh-ej-row">
         <div className="gh-media-slot">
           <RenderMedia ej={ejFirst} />
-          {!ejFirst?.mediaUrl && <div className="gh-ej-thumb-placeholder show" />}
+          {!ejFirst?.mediaUrl && (
+            <div className="gh-ej-thumb-placeholder show" />
+          )}
         </div>
 
         <div className="gh-ej-main">
@@ -205,7 +223,115 @@ const DropSetDetail = ({ bloque }) => {
     </div>
   );
 };
-/* ================================================ */
+
+/* ===================== DROPSET PDF ===================== */
+/** misma lógica de detección, reutilizando isDropSetBlock */
+const isDropSetBlockPDF = isDropSetBlock;
+
+/**
+ * Render compacto del bloque DROPSET en PDF.
+ * Mantiene la estructura:
+ *  - título "DROPSET — Nombre"
+ *  - celda grande con el ejercicio
+ *  - por cada item: columna chica (sets) + columna con reps/peso dividida
+ * pero con alturas/ancho/fuente reducidos para que se vea más prolijo.
+ */
+const renderDropSetPDF = (doc, { M, pageW, title, items, startY }) => {
+  // Tamaños base (más chicos que antes)
+  const rowH = 34;
+  const nameW = 220;
+  const setsW = 22;
+  const valW = 54;
+
+  // Escalamos en ancho si hace falta
+  const neededW = nameW + items.length * (setsW + valW);
+  const usableW = pageW - M * 2;
+  const scale = neededW > usableW ? usableW / neededW : 1;
+
+  const h = rowH;
+  const wName = nameW * scale;
+  const wSets = setsW * scale;
+  const wVal = valW * scale;
+
+  let y = startY;
+
+  // Título
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(0);
+  doc.text(title, M, y);
+  y += 6;
+
+  const rowY = y + 6;
+  let x = M;
+
+  const centerText = (txt, cx, cy, size = 8, bold = false) => {
+    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    doc.setFontSize(size);
+    doc.text(String(txt), cx, cy, {
+      align: 'center',
+      baseline: 'middle',
+    });
+  };
+
+  doc.setDrawColor(0);
+
+  // Celda de nombre
+  const nombre =
+    items[0]?.ejercicio?.nombre || 'Ejercicio';
+  doc.rect(x, rowY, wName, h);
+  centerText(nombre, x + wName / 2, rowY + h / 2, 9);
+  x += wName;
+
+  // Columnas por cada tramo del dropset
+  items.forEach((it) => {
+    const raw = String(it?.reps || '')
+      .replace(/×/g, 'x')
+      .trim();
+    let sets = '';
+    let reps = '';
+    if (/^\d+\s*[xX]\s*\d+$/i.test(raw)) {
+      const [s1, s2] = raw.toLowerCase().split('x').map((s) => s.trim());
+      sets = s1;
+      reps = s2;
+    } else if (/^\d+$/.test(raw)) {
+      sets = '1';
+      reps = raw;
+    } else {
+      reps = raw;
+    }
+    const peso = (it?.setRepWeight || '').toString().trim();
+
+    // Columna sets (estrecha)
+    doc.rect(x, rowY, wSets, h);
+    centerText(sets || '—', x + wSets / 2, rowY + h / 2, 8);
+    x += wSets;
+
+    // Columna reps/peso
+    doc.rect(x, rowY, wVal, h);
+    // línea horizontal al medio
+    doc.line(x, rowY + h / 2, x + wVal, rowY + h / 2);
+    centerText(reps || '—', x + wVal / 2, rowY + h / 4, 8, true);
+    centerText(peso || '—', x + wVal / 2, rowY + (3 * h) / 4, 7, false);
+    x += wVal;
+  });
+
+  // devolvemos la Y final del bloque (parte baja de la fila)
+  return rowY + h;
+};
+
+/* ===================== FILENAME ===================== */
+const safeFileName = (titulo, alumnoObj) => {
+  const alumnoName = alumnoObj
+    ? `${pretty(alumnoObj?.nombre, '')} ${pretty(
+        alumnoObj?.apellido,
+        ''
+      )}`.trim()
+    : 'alumno';
+  const today = new Date().toISOString().slice(0, 10);
+  const raw = `Rutina_${alumnoName || 'alumno'}_${titulo || 'detalle'}_${today}.pdf`;
+  return raw.replace(/[^\w\s.-]/g, '_');
+};
 
 /* =========================
  *      COMPONENTE
@@ -254,104 +380,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   /* =========================
    *      EXPORTAR A PDF
    * ========================= */
-  // === DROPSET helpers (PDF) ===
-  const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
-
-  const isDropSetBlockPDF = (b) => {
-    if (!b || b.type !== 'SETS_REPS') return false;
-    const items = getBloqueItems(b);
-    if (items.length < 2) return false;
-
-    const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
-    const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
-
-    return items.every(it => {
-      const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
-      const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
-      if (firstId != null && id != null) return id === firstId;
-      return name && name === firstName;
-    });
-  };
-
-  // "2x20" | "2×20" -> { sets: 2, reps: 20 }
-  const parseSetsReps = (val) => {
-    const s = String(val || '').replace(/×/g, 'x').trim();
-    const m = s.match(/^\s*(\d+)\s*[xX]\s*(\d+)\s*$/);
-    if (m) return { sets: Number(m[1]), reps: Number(m[2]) };
-    const onlyNum = s.match(/^\d+$/);
-    if (onlyNum) return { sets: 1, reps: Number(s) };
-    return { sets: null, reps: s || '' };
-  };
-
-  // Dibuja el bloque dropset como grilla
-  const renderDropSetPDF = (doc, opts) => {
-    const { M, pageW, pageH, ensureSpace, title, items } = opts;
-
-    const H = 64;                 // alto de la fila
-    const nameW = 240;            // ancho col nombre
-    const setsW = 26;             // ancho col "sets"
-    const valW = 66;             // ancho col "reps/peso"
-
-    // ¿Entrará?
-    const neededW = nameW + items.length * (setsW + valW);
-    const usableW = pageW - M * 2;
-    const scale = neededW > usableW ? (usableW / neededW) : 1;
-
-    const h = H;
-    const wName = nameW * scale;
-    const wSets = setsW * scale;
-    const wVal = valW * scale;
-
-    ensureSpace(h + 40);
-
-    // Título
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text(title, M, doc.lastAutoTable ? (doc.lastAutoTable.finalY + 18) : (opts.cursorY || (M + 18)));
-
-    // y base después del título
-    const y = (doc.lastAutoTable ? (doc.lastAutoTable.finalY + 26) : ((opts.cursorY || M) + 26));
-    let x = M;
-
-    // util para centrar
-    const centerText = (txt, cx, cy) => doc.text(String(txt), cx, cy, { align: 'center', baseline: 'middle' });
-
-    // Caja nombre
-    doc.setDrawColor(0);
-    doc.rect(x, y, wName, h);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    centerText(items[0]?.ejercicio?.nombre || 'Ejercicio', x + wName / 2, y + h / 2);
-    x += wName;
-
-    // Columnas por ítem
-    items.forEach((it) => {
-      const { sets, reps } = parseSetsReps(it?.reps);
-      const peso = (it?.setRepWeight || '').toString().trim();
-
-      // Sets (col estrecha)
-      doc.rect(x, y, wSets, h);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(12);
-      centerText(sets ?? '—', x + wSets / 2, y + h / 2);
-      x += wSets;
-
-      // Reps/Peso (col ancha, con línea media)
-      doc.rect(x, y, wVal, h);
-      doc.line(x, y + h / 2, x + wVal, y + h / 2);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      centerText(reps ?? '—', x + wVal / 2, y + h / 4);              // arriba
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(12);
-      centerText(peso || '—', x + wVal / 2, y + (3 * h) / 4);         // abajo
-      x += wVal;
-    });
-
-    return y + h; // nueva Y
-  };
-
-
   const handleExportPDF = () => {
     if (!rutina) return;
 
@@ -361,16 +389,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     const M = 48;
     let cursorY = M;
 
-    const addSectionTitle = (text) => {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.text(text, M, cursorY);
-      cursorY += 10;
-      doc.setDrawColor(150);
-      doc.line(M, cursorY, pageW - M, cursorY);
-      cursorY += 12;
-    };
-
     const ensureSpace = (minSpace = 120) => {
       if (cursorY + minSpace > pageH - M) {
         doc.addPage();
@@ -378,24 +396,43 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       }
     };
 
+    const addSectionTitle = (text) => {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(0);
+      doc.text(text, M, cursorY);
+      cursorY += 10;
+      doc.setDrawColor(150);
+      doc.line(M, cursorY, pageW - M, cursorY);
+      cursorY += 12;
+    };
+
     // Header doc
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
+    doc.setTextColor(0);
     const titulo = pretty(rutina.nombre, 'Rutina');
     doc.text(titulo, M, cursorY);
     cursorY += 22;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
-    const alumno =
-      rutina?.alumno
-        ? `${pretty(rutina.alumno.nombre, '')} ${pretty(rutina.alumno.apellido, '')}`.trim()
-        : '';
-    const entrenador =
-      rutina?.entrenador
-        ? `${pretty(rutina.entrenador.nombre, '')} ${pretty(rutina.entrenador.apellido, '')}`.trim()
-        : '—';
-    const creada = rutina?.createdAt ? new Date(rutina.createdAt).toLocaleDateString() : '';
+
+    const alumno = rutina?.alumno
+      ? `${pretty(rutina.alumno.nombre, '')} ${pretty(
+          rutina.alumno.apellido,
+          ''
+        )}`.trim()
+      : '';
+    const entrenador = rutina?.entrenador
+      ? `${pretty(rutina.entrenador.nombre, '')} ${pretty(
+          rutina.entrenador.apellido,
+          ''
+        )}`.trim()
+      : '—';
+    const creada = rutina?.createdAt
+      ? new Date(rutina.createdAt).toLocaleDateString()
+      : '';
 
     const headerLines = [
       alumno ? `Alumno: ${alumno}` : '',
@@ -410,7 +447,10 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     });
 
     if (pretty(rutina.desc, '')) {
-      const descLines = doc.splitTextToSize(String(rutina.desc), pageW - M * 2);
+      const descLines = doc.splitTextToSize(
+        String(rutina.desc),
+        pageW - M * 2
+      );
       descLines.forEach((l) => {
         doc.text(l, M, cursorY);
         cursorY += 14;
@@ -432,7 +472,10 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
     diasArr.forEach((d, idxDia) => {
       ensureSpace(80);
-      const nombreDia = pretty(d?.nombre, d?.key?.replace('dia', 'Día ') || `Día ${idxDia + 1}`);
+      const nombreDia = pretty(
+        d?.nombre,
+        d?.key?.replace('dia', 'Día ') || `Día ${idxDia + 1}`
+      );
       addSectionTitle(nombreDia);
 
       const bloques = Array.isArray(d?.bloques) ? d.bloques : [];
@@ -445,47 +488,56 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       }
 
       bloques.forEach((b, iB) => {
-        ensureSpace(80);
+        ensureSpace(70);
 
-        // —— DROPSET PDF (bloque SETS_REPS con mismo ejercicio y 2+ items)
+        // —— DROPSET PDF
         if (b?.type === 'SETS_REPS' && isDropSetBlockPDF(b)) {
           const items = getBloqueItems(b);
-          const nombre = (b?.nombreEj || items[0]?.ejercicio?.nombre || 'Ejercicio').trim();
-          // título "DROPSET — Nombre"
+          const nombre =
+            (b?.nombreEj ||
+              items[0]?.ejercicio?.nombre ||
+              'Ejercicio').trim();
           const title = `DROPSET — ${nombre}`;
 
-          // Render especial
-          const nextY = renderDropSetPDF(doc, {
-            M, pageW, pageH, ensureSpace,
+          const endY = renderDropSetPDF(doc, {
+            M,
+            pageW,
             title,
             items,
-            cursorY
+            startY: cursorY,
           });
 
-          cursorY = nextY + 12;
+          cursorY = endY + 10;
 
           // Separador entre bloques
           if (iB !== bloques.length - 1) {
             doc.setDrawColor(230);
             doc.line(M, cursorY, pageW - M, cursorY);
-            cursorY += 12;
+            cursorY += 10;
           }
-          return; // importante: saltar al siguiente bloque
+          return; // siguiente bloque
         }
 
-        // —— Resto de bloques (comportamiento existente)
+        // —— Resto de bloques
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
+        doc.setTextColor(0);
         const tituloBloque = typeLabel(b?.type, b);
-        doc.text(tituloBloque, M, cursorY);
-        cursorY += 6;
+        if (tituloBloque) {
+          doc.text(tituloBloque, M, cursorY);
+          cursorY += 6;
+        }
 
         const rows = (b?.ejercicios || []).map((e) => {
           const ej = e?.ejercicio || {};
           const nombre = pretty(ej?.nombre, 'Ejercicio');
           const reps = deriveReps(e, b);
           const peso = derivePeso(e, b);
-          return { ejercicio: nombre, reps: reps || '', peso: peso || '' };
+          return {
+            ejercicio: nombre,
+            reps: reps || '',
+            peso: peso || '',
+          };
         });
 
         if (rows.length === 0) {
@@ -498,69 +550,77 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
             startY: cursorY + 10,
             margin: { left: M, right: M },
             theme: 'grid',
-            styles: { font: 'helvetica', fontSize: 10, cellPadding: 6, overflow: 'linebreak', textColor: 0 },
-            headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+            styles: {
+              font: 'helvetica',
+              fontSize: 9,
+              cellPadding: 4,
+              overflow: 'linebreak',
+              textColor: 0,
+            },
+            headStyles: {
+              fillColor: [240, 240, 240],
+              textColor: 0,
+              fontStyle: 'bold',
+            },
             head: [['Ejercicio', 'Series / Reps', 'Peso']],
             body: rows.map((r) => [r.ejercicio, r.reps, r.peso]),
-            didDrawPage: () => {
-              const page = doc.getCurrentPageInfo().pageNumber;
-              const total = doc.getNumberOfPages();
-              doc.setFontSize(9);
-              doc.setTextColor(100);
-              doc.text(`Página ${page} de ${total}`, pageW - M, pageH - 10, { align: 'right' });
-            },
           });
-          cursorY = (doc.lastAutoTable?.finalY || cursorY) + 12;
+          cursorY = (doc.lastAutoTable?.finalY || cursorY) + 10;
         }
 
-        if (b?.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata)) {
-          ensureSpace(26);
+        // Meta TABATA
+        if (
+          b?.type === 'TABATA' &&
+          (b?.cantSeries ||
+            b?.tiempoTrabajoDescansoTabata ||
+            b?.descTabata)
+        ) {
+          ensureSpace(18);
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          const meta = [b?.descTabata ? `Pausa entre series: ${b.descTabata}` : ''].filter(Boolean);
+          doc.setFontSize(9);
+          const meta = [];
+          if (b?.descTabata)
+            meta.push(`Pausa entre series: ${b.descTabata}`);
           if (meta.length) {
             doc.text(meta.join('   ·   '), M, cursorY);
-            cursorY += 14;
+            cursorY += 12;
           }
         }
 
+        // Meta ROUNDS
         if (pretty(b?.descansoRonda, '')) {
-          ensureSpace(20);
+          ensureSpace(16);
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          doc.text(`Descanso entre rondas: ${b.descansoRonda}`, M, cursorY);
-          cursorY += 14;
+          doc.setFontSize(9);
+          doc.text(
+            `Descanso entre rondas: ${b.descansoRonda}`,
+            M,
+            cursorY
+          );
+          cursorY += 12;
         }
 
+        // Separador entre bloques
         if (iB !== bloques.length - 1) {
           doc.setDrawColor(230);
           doc.line(M, cursorY, pageW - M, cursorY);
-          cursorY += 12;
+          cursorY += 10;
         }
       });
-
 
       // Separador entre días
       if (idxDia !== diasArr.length - 1) {
         ensureSpace(20);
         doc.setDrawColor(180);
         doc.line(M, cursorY, pageW - M, cursorY);
-        cursorY += 18;
+        cursorY += 16;
       }
     });
 
     doc.save(safeFileName(titulo, rutina?.alumno));
   };
 
-  const safeFileName = (titulo, alumnoObj) => {
-    const alumnoName = alumnoObj
-      ? `${pretty(alumnoObj?.nombre, '')} ${pretty(alumnoObj?.apellido, '')}`.trim()
-      : 'alumno';
-    const today = new Date().toISOString().slice(0, 10);
-    const raw = `Rutina_${alumnoName || 'alumno'}_${titulo || 'detalle'}_${today}.pdf`;
-    return raw.replace(/[^\w\s.-]/g, '_');
-  };
-
+  /* ========================= RENDER ========================= */
   return (
     <div className="page-layout">
       <SidebarMenu
@@ -569,24 +629,45 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         isAlumno={fromAlumno}
       />
       <div className="content-layout">
-        {loading && <div className="gh-card gh-muted">Cargando rutina…</div>}
+        {loading && (
+          <div className="gh-card gh-muted">Cargando rutina…</div>
+        )}
         {!loading && error && <div className="gh-error">{error}</div>}
 
         {!loading && !error && rutina && (
           <>
             {/* Acciones */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-              <PrimaryButton text="Exportar como PDF" type="button" onClick={handleExportPDF} />
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginBottom: 12,
+              }}
+            >
+              <PrimaryButton
+                text="Exportar como PDF"
+                type="button"
+                onClick={handleExportPDF}
+              />
             </div>
 
             {/* Header rutina */}
-            <div className="header-rutina" style={{ display: 'grid', gap: 12 }}>
+            <div
+              className="header-rutina"
+              style={{ display: 'grid', gap: 12 }}
+            >
               <div style={{ display: 'grid', gap: 6 }}>
-                <h2 className="gh-title" style={{ margin: 0 }}>
+                <h2
+                  className="gh-title"
+                  style={{ margin: 0 }}
+                >
                   {pretty(rutina.nombre, 'Rutina sin nombre')}
                 </h2>
                 {headerSubtitle && (
-                  <p className="gh-muted sm" style={{ margin: 0 }}>
+                  <p
+                    className="gh-muted sm"
+                    style={{ margin: 0 }}
+                  >
                     {headerSubtitle}
                   </p>
                 )}
@@ -598,7 +679,13 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                   <div className="gh-text">
                     {pretty(
                       rutina?.alumno
-                        ? `${pretty(rutina.alumno.nombre, '')} ${pretty(rutina.alumno.apellido, '')}`.trim()
+                        ? `${pretty(
+                            rutina.alumno.nombre,
+                            ''
+                          )} ${pretty(
+                            rutina.alumno.apellido,
+                            ''
+                          )}`.trim()
                         : ''
                     )}
                   </div>
@@ -608,7 +695,13 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                   <div className="gh-text">
                     {pretty(
                       rutina?.entrenador
-                        ? `${pretty(rutina.entrenador.nombre, '')} ${pretty(rutina.entrenador.apellido, '')}`.trim()
+                        ? `${pretty(
+                            rutina.entrenador.nombre,
+                            ''
+                          )} ${pretty(
+                            rutina.entrenador.apellido,
+                            ''
+                          )}`.trim()
                         : '—'
                     )}
                   </div>
@@ -617,7 +710,11 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                   <div className="gh-label xs">Creada</div>
                   <div className="gh-text">
                     {pretty(
-                      rutina?.createdAt ? new Date(rutina.createdAt).toLocaleDateString() : ''
+                      rutina?.createdAt
+                        ? new Date(
+                            rutina.createdAt
+                          ).toLocaleDateString()
+                        : ''
                     )}
                   </div>
                 </div>
@@ -625,27 +722,53 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
               {pretty(rutina.desc, '') && (
                 <div className="gh-surface">
-                  <p className="gh-text" style={{ margin: 0 }}>{rutina.desc}</p>
+                  <p
+                    className="gh-text"
+                    style={{ margin: 0 }}
+                  >
+                    {rutina.desc}
+                  </p>
                 </div>
               )}
             </div>
 
             {/* Tabs de días */}
-            <div className="tab-dias" style={{ display: 'grid', gap: 12 }}>
+            <div
+              className="tab-dias"
+              style={{ display: 'grid', gap: 12 }}
+            >
               <div className="gh-tabs">
-                <div className="gh-tabs-list" role="tablist" aria-label="Días de la rutina">
+                <div
+                  className="gh-tabs-list"
+                  role="tablist"
+                  aria-label="Días de la rutina"
+                >
                   {dias.length === 0 && (
-                    <span className="gh-muted sm">Esta rutina no tiene días cargados.</span>
+                    <span className="gh-muted sm">
+                      Esta rutina no tiene días
+                      cargados.
+                    </span>
                   )}
                   {dias.map((d) => (
                     <button
                       key={d.key}
                       role="tab"
-                      aria-selected={activeDiaKey === d.key}
-                      className={`gh-tab ${activeDiaKey === d.key ? 'active' : ''}`}
-                      onClick={() => setActiveDiaKey(d.key)}
+                      aria-selected={
+                        activeDiaKey === d.key
+                      }
+                      className={`gh-tab ${
+                        activeDiaKey === d.key
+                          ? 'active'
+                          : ''
+                      }`}
+                      onClick={() =>
+                        setActiveDiaKey(d.key)
+                      }
                     >
-                      {pretty(d?.nombre, d.key.replace('dia', 'Día '))}
+                      {pretty(
+                        d?.nombre,
+                        d.key.replace('dia', 'Día ')
+                      )}
                     </button>
                   ))}
                 </div>
@@ -653,95 +776,208 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
               {/* Panel del día activo */}
               {dias.map((d) => {
-                const isActive = d.key === activeDiaKey;
+                const isActive =
+                  d.key === activeDiaKey;
                 if (!isActive) return null;
 
-                const bloques = Array.isArray(d?.bloques) ? d.bloques : [];
+                const bloques = Array.isArray(
+                  d?.bloques
+                )
+                  ? d.bloques
+                  : [];
+
                 return (
-                  <div key={`${d.key}-panel`} role="tabpanel">
+                  <div
+                    key={`${d.key}-panel`}
+                    role="tabpanel"
+                  >
                     {bloques.length === 0 ? (
-                      <div className="gh-muted">Este día no tiene bloques cargados.</div>
+                      <div className="gh-muted">
+                        Este día no tiene bloques
+                        cargados.
+                      </div>
                     ) : (
                       <div className="gh-grid-2 gh-grid-fullwidth">
                         {bloques.map((b) => {
-                          // —— Vista especial DROPSET
-                          if (b?.type === 'SETS_REPS' && isDropSetBlock(b)) {
-                            return <DropSetDetail key={b.ID_Bloque} bloque={b} />;
+                          if (
+                            b?.type ===
+                              'SETS_REPS' &&
+                            isDropSetBlock(b)
+                          ) {
+                            return (
+                              <DropSetDetail
+                                key={
+                                  b.ID_Bloque
+                                }
+                                bloque={b}
+                              />
+                            );
                           }
 
                           return (
-                            <div className="gh-surface" key={b.ID_Bloque} style={{ display: 'grid', gap: 12 }}>
+                            <div
+                              className="gh-surface"
+                              key={b.ID_Bloque}
+                              style={{
+                                display:
+                                  'grid',
+                                gap: 12,
+                              }}
+                            >
                               {/* header del bloque */}
                               <div
                                 style={{
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
+                                  display:
+                                    'flex',
+                                  justifyContent:
+                                    'space-between',
+                                  alignItems:
+                                    'center',
                                   gap: 8,
-                                  flexWrap: 'wrap',
+                                  flexWrap:
+                                    'wrap',
                                 }}
                               >
-                                <h4 className="gh-feature-title" style={{ margin: 0 }}>
-                                  {typeLabel(b?.type, b)}
+                                <h4
+                                  className="gh-feature-title"
+                                  style={{
+                                    margin: 0,
+                                  }}
+                                >
+                                  {typeLabel(
+                                    b?.type,
+                                    b
+                                  )}
                                 </h4>
                               </div>
 
                               {/* lista de ejercicios */}
-                              <div style={{ display: 'grid', gap: 10 }}>
-                                {(b.ejercicios || []).length === 0 ? (
-                                  <div className="gh-muted sm">Este bloque no tiene ejercicios.</div>
+                              <div
+                                style={{
+                                  display:
+                                    'grid',
+                                  gap: 10,
+                                }}
+                              >
+                                {(b.ejercicios ||
+                                  [])
+                                  .length ===
+                                0 ? (
+                                  <div className="gh-muted sm">
+                                    Este
+                                    bloque no
+                                    tiene
+                                    ejercicios.
+                                  </div>
                                 ) : (
-                                  b.ejercicios.map((e, idx) => {
-                                    const ej = e?.ejercicio || {};
-                                    const nombre = pretty(ej?.nombre, 'Ejercicio');
-                                    const reps = deriveReps(e, b);
-                                    const peso = derivePeso(e, b);
-                                    const title =
-                                      peso && String(peso).trim().length > 0
-                                        ? `${nombre} - ${peso}`
-                                        : nombre;
+                                  b.ejercicios.map(
+                                    (
+                                      e,
+                                      idx
+                                    ) => {
+                                      const ej =
+                                        e?.ejercicio ||
+                                        {};
+                                      const nombre =
+                                        pretty(
+                                          ej?.nombre,
+                                          'Ejercicio'
+                                        );
+                                      const reps =
+                                        deriveReps(
+                                          e,
+                                          b
+                                        );
+                                      const peso =
+                                        derivePeso(
+                                          e,
+                                          b
+                                        );
+                                      const title =
+                                        peso &&
+                                        String(
+                                          peso
+                                        )
+                                          .trim()
+                                          .length >
+                                          0
+                                          ? `${nombre} - ${peso}`
+                                          : nombre;
 
-                                    return (
-                                      <div
-                                        key={`${b.ID_Bloque}-${e.ID_Ejercicio}-${idx}`}
-                                        className="gh-list-item gh-ej-row"
-                                      >
-                                        <div className="gh-media-slot">
-                                          <RenderMedia ej={ej} />
-                                          {!ej?.mediaUrl && (
-                                            <div className="gh-ej-thumb-placeholder show" />
-                                          )}
-                                        </div>
+                                      return (
+                                        <div
+                                          key={`${b.ID_Bloque}-${e.ID_Ejercicio}-${idx}`}
+                                          className="gh-list-item gh-ej-row"
+                                        >
+                                          <div className="gh-media-slot">
+                                            <RenderMedia
+                                              ej={
+                                                ej
+                                              }
+                                            />
+                                            {!ej?.mediaUrl && (
+                                              <div className="gh-ej-thumb-placeholder show" />
+                                            )}
+                                          </div>
 
-                                        <div className="gh-ej-main">
-                                          <div className="gh-ej-title">
-                                            <span className="gh-text bold">{title}</span>
-                                          </div>
-                                          <div className="gh-ej-info">
-                                            {reps && <span className="gh-muted sm">{reps}</span>}
+                                          <div className="gh-ej-main">
+                                            <div className="gh-ej-title">
+                                              <span className="gh-text bold">
+                                                {
+                                                  title
+                                                }
+                                              </span>
+                                            </div>
+                                            <div className="gh-ej-info">
+                                              {reps && (
+                                                <span className="gh-muted sm">
+                                                  {
+                                                    reps
+                                                  }
+                                                </span>
+                                              )}
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    );
-                                  })
+                                      );
+                                    }
+                                  )
                                 )}
                               </div>
 
-                              {/* Meta de TABATA */}
-                              {b?.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
-                                <div className="bloque-footnote tabata-meta">
-                                  {b?.descTabata && (
-                                    <span className="meta-chip"><b>Pausa entre series:</b> {b.descTabata}</span>
-                                  )}
-                                </div>
-                              )}
+                              {/* Meta TABATA */}
+                              {b?.type ===
+                                'TABATA' &&
+                                (b?.cantSeries ||
+                                  b?.tiempoTrabajoDescansoTabata ||
+                                  b?.descTabata) && (
+                                  <div className="bloque-footnote tabata-meta">
+                                    {b?.descTabata && (
+                                      <span className="meta-chip">
+                                        <b>
+                                          Pausa
+                                          entre
+                                          series:
+                                        </b>{' '}
+                                        {
+                                          b.descTabata
+                                        }
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
 
-                              {/* Meta de Rondas (se mantiene) */}
-                              {b?.type === 'ROUNDS' && pretty(b.descansoRonda, '') && (
-                                <div className="gh-inline">
-                                  <span>{`Descanso entre rondas: ${b.descansoRonda}`}</span>
-                                </div>
-                              )}
+                              {/* Meta Rounds */}
+                              {b?.type ===
+                                'ROUNDS' &&
+                                pretty(
+                                  b.descansoRonda,
+                                  ''
+                                ) && (
+                                  <div className="gh-inline">
+                                    <span>{`Descanso entre rondas: ${b.descansoRonda}`}</span>
+                                  </div>
+                                )}
                             </div>
                           );
                         })}
@@ -756,15 +992,6 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       </div>
     </div>
   );
-};
-
-const safeFileName = (titulo, alumnoObj) => {
-  const alumnoName = alumnoObj
-    ? `${pretty(alumnoObj?.nombre, '')} ${pretty(alumnoObj?.apellido, '')}`.trim()
-    : 'alumno';
-  const today = new Date().toISOString().slice(0, 10);
-  const raw = `Rutina_${alumnoName || 'alumno'}_${titulo || 'detalle'}_${today}.pdf`;
-  return raw.replace(/[^\w\s.-]/g, '_');
 };
 
 export default RutinaDetail;
