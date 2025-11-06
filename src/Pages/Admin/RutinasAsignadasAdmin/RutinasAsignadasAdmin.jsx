@@ -146,6 +146,50 @@ const setsRepsFallback = (b) => {
   const txt = parts.join(' ').trim();
   return txt || null;
 };
+
+/* ======== DROPSET detection & rendering ======== */
+/** true si es bloque SETS_REPS con 2+ items del mismo ejercicio */
+const isDropSetBlock = (b) => {
+  if (!b || b.type !== 'SETS_REPS') return false;
+  const items = getBloqueItems(b);
+  if (!Array.isArray(items) || items.length < 2) return false;
+
+  const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
+  const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
+
+  return items.every(it => {
+    const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
+    const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
+    if (firstId != null && id != null) return id === firstId;
+    return name && name === firstName;
+  });
+};
+
+const repsWeightLine = (it) => {
+  const reps = (it?.reps || '').toString().replace(/x/gi, '×').trim();
+  const w = (it?.setRepWeight || '').toString().trim();
+  if (reps && w) return `${reps} - ${w}`;
+  if (reps) return reps;
+  if (w) return w;
+  return '—';
+};
+
+/** Render del bloque dropset */
+const renderDropSetBlock = (b) => {
+  const items = getBloqueItems(b);
+  const nombre = (b?.nombreEj || items[0]?.ejercicio?.nombre || 'Ejercicio').trim();
+
+  return (
+    <div className="bloque-card dropset-card">
+      <p className="bloque-header">DROPSET — {nombre}</p>
+      <ul className="bloque-list dropset-list">
+        {items.map((it, idx) => (
+          <li key={idx}>{repsWeightLine(it)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 /* ==================================================== */
 
 const RutinasAsignadas = () => {
@@ -407,6 +451,9 @@ const RutinasAsignadas = () => {
                       const header = blockLabel(b);
 
                       if (b.type === 'SETS_REPS') {
+                        if (isDropSetBlock(b)) {
+                          return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+                        }
                         const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                         return (
                           <div key={i} className='bloque-card'>
@@ -438,13 +485,8 @@ const RutinasAsignadas = () => {
                             </ul>
                           )}
 
-                          {/* Meta específica por tipo */}
                           {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
                             <p className='bloque-footnote'>
-                              {/* {b?.cantSeries ? <><b>Series:</b> {b.cantSeries} · </> : null}
-                              {b?.tiempoTrabajoDescansoTabata
-                                ? <><b>Trabajo/Descanso:</b> {formatWorkRest(b.tiempoTrabajoDescansoTabata)} · </>
-                                : null} */}
                               {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
                             </p>
                           )}
@@ -481,6 +523,9 @@ const RutinasAsignadas = () => {
                                 const header = blockLabel(b);
 
                                 if (b.type === 'SETS_REPS') {
+                                  if (isDropSetBlock(b)) {
+                                    return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+                                  }
                                   const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                                   return (
                                     <div key={i} className='bloque-card'>
@@ -541,7 +586,7 @@ const RutinasAsignadas = () => {
                 </div>
 
                 <div style={{ marginTop: 12 }}>
-                  <button className='rutina-ver-detalle-btn' onClick={() => navigate(`/entrenador/rutinas/${rutina.ID_Rutina}`)}>
+                  <button className='rutina-ver-detalle-btn' onClick={() => navigate(`/admin/rutinas/${rutina.ID_Rutina}`)}>
                     Ver mas detalles
                   </button>
                 </div>

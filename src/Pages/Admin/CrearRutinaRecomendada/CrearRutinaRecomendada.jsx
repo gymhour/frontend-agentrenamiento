@@ -13,7 +13,9 @@ import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
-const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA"];
+// Agregamos DROPSET
+const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA", "DROPSET"];
+
 const apiToDisplayType = {
   SETS_REPS: 'Series y repeticiones',
   ROUNDS: 'Rondas',
@@ -21,7 +23,9 @@ const apiToDisplayType = {
   AMRAP: 'AMRAP',
   LADDER: 'Escalera',
   TABATA: 'TABATA',
+  DROPSET: 'DROPSET',
 };
+
 const displayToApiType = (t) => ({
   "Series y repeticiones": "SETS_REPS",
   "Rondas": "ROUNDS",
@@ -29,6 +33,7 @@ const displayToApiType = (t) => ({
   "AMRAP": "AMRAP",
   "Escalera": "LADDER",
   "TABATA": "TABATA",
+  "DROPSET": "DROPSET",
 }[t] || "SETS_REPS");
 
 const getRandomExercise = () =>
@@ -36,6 +41,7 @@ const getRandomExercise = () =>
 
 const makeEmptyBlock = (selectedType) => {
   const baseSet = { series: '', exercise: '', weight: '', placeholderExercise: getRandomExercise(), exerciseId: null };
+
   switch (selectedType) {
     case 'Series y repeticiones':
       return { id: Date.now(), type: selectedType, data: { setsReps: [{ ...baseSet }] } };
@@ -58,21 +64,41 @@ const makeEmptyBlock = (selectedType) => {
           setsReps: [{ ...baseSet }]
         }
       };
+    case 'DROPSET':
+      return {
+        id: Date.now(),
+        type: selectedType,
+        data: {
+          exerciseName: '',
+          exerciseId: null,
+          exercisePlaceholder: getRandomExercise(),
+          setsReps: [{ series: '', weight: '' }]
+        }
+      };
     default:
       return { id: Date.now(), type: 'Series y repeticiones', data: { setsReps: [{ ...baseSet }] } };
   }
 };
 
 const convertApiBlockData = (b) => {
-  const items = Array.isArray(b.bloqueEjercicios) ? b.bloqueEjercicios
-    : Array.isArray(b.ejercicios) ? b.ejercicios : [];
+  const items = Array.isArray(b.bloqueEjercicios)
+    ? b.bloqueEjercicios
+    : Array.isArray(b.ejercicios)
+      ? b.ejercicios
+      : [];
 
   const mappedSets = items.map((e) => {
     const nombreEj = e?.ejercicio?.nombre ?? e?.nombre ?? '';
     const idEj = e.ID_Ejercicio ?? e?.ejercicio?.ID_Ejercicio ?? e?.ejercicioId ?? null;
     const reps = e.reps ?? e.setsReps ?? '';
     const weight = e.setRepWeight ?? '';
-    return { series: reps, exercise: nombreEj, weight, placeholderExercise: '', exerciseId: idEj || null };
+    return {
+      series: reps,
+      exercise: nombreEj,
+      weight,
+      placeholderExercise: '',
+      exerciseId: idEj || null
+    };
   });
 
   switch (b.type) {
@@ -80,7 +106,13 @@ const convertApiBlockData = (b) => {
       return {
         setsReps: mappedSets.length
           ? mappedSets
-          : [{ series: b.setsReps || '', exercise: b.nombreEj || '', weight: b.weight || '', placeholderExercise: '', exerciseId: null }]
+          : [{
+              series: b.setsReps || '',
+              exercise: b.nombreEj || '',
+              weight: b.weight || '',
+              placeholderExercise: '',
+              exerciseId: null
+            }]
       };
     case 'ROUNDS':
       return { rounds: b.cantRondas ?? '', descanso: b.descansoRonda ?? '', setsReps: mappedSets };
@@ -97,12 +129,23 @@ const convertApiBlockData = (b) => {
         tiempoTrabajoDescansoTabata: b.tiempoTrabajoDescansoTabata ?? (b.durationMin ? `${b.durationMin}m` : ''),
         setsReps: mappedSets
       };
+    case 'DROPSET':
+      // Si alguna vez viene como DROPSET desde la API
+      return {
+        exerciseName: b.nombreEj ?? b?.ejercicio?.nombre ?? '',
+        exerciseId: b?.ejercicioId ?? b?.ejercicio?.ID_Ejercicio ?? null,
+        exercisePlaceholder: '',
+        setsReps: items.map((e) => ({
+          series: e.reps ?? '',
+          weight: e.setRepWeight ?? ''
+        }))
+      };
     default:
       return { setsReps: mappedSets };
   }
 };
 
-// Normalizador de métricas (clave de la fix)
+// Normalizador de métricas
 const normalizeUserMetrics = (resp) => {
   const ejercicios =
     (resp && Array.isArray(resp.ejercicios) && resp.ejercicios) ||
@@ -118,8 +161,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const isEditing = Boolean(rutinaId);
   const navigate = useNavigate();
 
-  // En recomendadas solo entrenador asigna
-  const canAssign = !!(fromEntrenador);
+  const canAssign = !!fromEntrenador;
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -136,21 +178,18 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const [allExercises, setAllExercises] = useState([]);
   const [suggestions, setSuggestions] = useState({});
 
-  // Panel de Información
   const [infoOpen, setInfoOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
     return !window.matchMedia('(max-width: 720px)').matches;
   });
-  const [infoTab, setInfoTab] = useState('ejercicios'); // 'ejercicios' | 'usuario'
+  const [infoTab, setInfoTab] = useState('ejercicios');
   const [exerciseSearch, setExerciseSearch] = useState('');
   const [userMetrics, setUserMetrics] = useState(null);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
 
-  // Días
   const [days, setDays] = useState([{ key: 'dia1', nombre: '', descripcion: '', blocks: [] }]);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
 
-  // Responsive
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -248,7 +287,11 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
         const loaded = keys.map((k) => {
           const d = r.dias[k] || {};
           const blocks = Array.isArray(d.bloques)
-            ? d.bloques.map(b => ({ id: cryptoRandomId(), type: apiToDisplayType[b.type] || b.type, data: convertApiBlockData(b) }))
+            ? d.bloques.map(b => ({
+                id: cryptoRandomId(),
+                type: apiToDisplayType[b.type] || b.type,
+                data: convertApiBlockData(b)
+              }))
             : [];
           return { key: k, nombre: d.nombre || '', descripcion: d.descripcion || '', blocks };
         });
@@ -256,7 +299,11 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
         setActiveDayIndex(0);
       } else {
         const blocks = Array.isArray(r.Bloques)
-          ? r.Bloques.map(b => ({ id: cryptoRandomId(), type: apiToDisplayType[b.type] || b.type, data: convertApiBlockData(b) }))
+          ? r.Bloques.map(b => ({
+              id: cryptoRandomId(),
+              type: apiToDisplayType[b.type] || b.type,
+              data: convertApiBlockData(b)
+            }))
           : [];
         setDays([{ key: 'dia1', nombre: '', descripcion: '', blocks }]);
         setActiveDayIndex(0);
@@ -287,17 +334,19 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   };
   const removeDay = (idx) => {
     if (days.length === 1) return toast.info("Debe existir al menos un día");
-    const newDays = days.filter((_, i) => i !== idx).map((d, i) => ({ ...d, key: `dia${i + 1}` }));
+    const newDays = days
+      .filter((_, i) => i !== idx)
+      .map((d, i) => ({ ...d, key: `dia${i + 1}` }));
     setDays(newDays);
     setActiveDayIndex(Math.max(0, idx - 1));
   };
 
   const activeDay = days[activeDayIndex];
   const setActiveDayBlocks = (newBlocks) => {
-    setDays(days.map((d, i) => i === activeDayIndex ? { ...d, blocks: newBlocks } : d));
+    setDays(days.map((d, i) => (i === activeDayIndex ? { ...d, blocks: newBlocks } : d)));
   };
 
-  // Blocks
+  // Blocks CRUD
   const handleAddBlock = (e) => {
     const selectedType = e.target.value;
     if (!selectedType) return;
@@ -307,14 +356,18 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setActiveDayBlocks((activeDay?.blocks || []).filter(b => b.id !== blockId));
   };
   const handleBlockFieldChange = (blockId, field, value) => {
-    setActiveDayBlocks((activeDay?.blocks || []).map(block => block.id === blockId
-      ? { ...block, data: { ...block.data, [field]: value } }
-      : block));
+    setActiveDayBlocks((activeDay?.blocks || []).map(block =>
+      block.id === blockId
+        ? { ...block, data: { ...block.data, [field]: value } }
+        : block
+    ));
   };
   const handleSetRepChange = (blockId, index, field, value) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block => {
       if (block.id === blockId) {
-        const newSetsReps = block.data.setsReps.map((sr, i) => i === index ? { ...sr, [field]: value } : sr);
+        const newSetsReps = block.data.setsReps.map((sr, i) =>
+          i === index ? { ...sr, [field]: value } : sr
+        );
         return { ...block, data: { ...block.data, setsReps: newSetsReps } };
       }
       return block;
@@ -323,23 +376,48 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
   const handleAddSetRep = (blockId) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
-        ? { ...block, data: { ...block.data, setsReps: [...block.data.setsReps, { series: '', exercise: '', weight: '', placeholderExercise: getRandomExercise(), exerciseId: null }] } }
+        ? {
+            ...block,
+            data: {
+              ...block.data,
+              setsReps: [
+                ...block.data.setsReps,
+                block.type === "DROPSET"
+                  ? { series: '', weight: '' }
+                  : {
+                      series: '',
+                      exercise: '',
+                      weight: '',
+                      placeholderExercise: getRandomExercise(),
+                      exerciseId: null
+                    }
+              ]
+            }
+          }
         : block
     ));
   };
   const handleDeleteSetRep = (blockId, index) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
-        ? { ...block, data: { ...block.data, setsReps: block.data.setsReps.filter((_, i) => i !== index) } }
+        ? {
+            ...block,
+            data: {
+              ...block.data,
+              setsReps: block.data.setsReps.filter((_, i) => i !== index)
+            }
+          }
         : block
     ));
   };
 
-  // Suggestions
+  // Autocomplete ejercicios por fila
   const handleExerciseInputChange = (blockId, idx, value) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block => {
       if (block.id === blockId) {
-        const newSets = block.data.setsReps.map((sr, i) => i === idx ? { ...sr, exercise: value, exerciseId: null } : sr);
+        const newSets = block.data.setsReps.map((sr, i) =>
+          i === idx ? { ...sr, exercise: value, exerciseId: null } : sr
+        );
         return { ...block, data: { ...block.data, setsReps: newSets } };
       }
       return block;
@@ -350,39 +428,109 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
       setSuggestions(prev => ({ ...prev, [key]: [] }));
       return;
     }
+
     const lista = Array.isArray(allExercises) ? allExercises : [];
     const filtered = lista
       .filter(e => e.nombre?.toLowerCase?.().includes(value.trim().toLowerCase()))
       .slice(0, 5);
+
     setSuggestions(prev => ({ ...prev, [key]: filtered }));
   };
+
   const handleSelectSuggestion = (blockId, idx, exerciseObj) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block => {
       if (block.id === blockId) {
         const newSets = block.data.setsReps.map((sr, i) =>
-          i === idx ? { ...sr, exercise: exerciseObj.nombre, exerciseId: exerciseObj.ID_Ejercicio } : sr
+          i === idx
+            ? {
+                ...sr,
+                exercise: exerciseObj.nombre,
+                exerciseId: exerciseObj.ID_Ejercicio
+              }
+            : sr
         );
         return { ...block, data: { ...block.data, setsReps: newSets } };
       }
       return block;
     }));
+
     const key = `${activeDay?.key || 'dia'}-${blockId}-${idx}`;
+    setSuggestions(prev => ({ ...prev, [key]: [] }));
+  };
+
+  // Autocomplete para nombre del ejercicio del DROPSET
+  const handleDropsetNameChange = (blockId, value) => {
+    setActiveDayBlocks((activeDay?.blocks || []).map(block =>
+      block.id === blockId
+        ? {
+            ...block,
+            data: {
+              ...block.data,
+              exerciseName: value,
+              exerciseId: null
+            }
+          }
+        : block
+    ));
+
+    const key = `${activeDay?.key || 'dia'}-${blockId}-dropsetname`;
+    if (value.trim() === '') {
+      setSuggestions(prev => ({ ...prev, [key]: [] }));
+      return;
+    }
+
+    const lista = Array.isArray(allExercises) ? allExercises : [];
+    const filtered = lista
+      .filter(e => e.nombre?.toLowerCase?.().includes(value.trim().toLowerCase()))
+      .slice(0, 5);
+
+    setSuggestions(prev => ({ ...prev, [key]: filtered }));
+  };
+
+  const handleSelectDropsetName = (blockId, exerciseObj) => {
+    setActiveDayBlocks((activeDay?.blocks || []).map(block =>
+      block.id === blockId
+        ? {
+            ...block,
+            data: {
+              ...block.data,
+              exerciseName: exerciseObj.nombre,
+              exerciseId: exerciseObj.ID_Ejercicio
+            }
+          }
+        : block
+    ));
+
+    const key = `${activeDay?.key || 'dia'}-${blockId}-dropsetname`;
     setSuggestions(prev => ({ ...prev, [key]: [] }));
   };
 
   // Drag & drop por bloque
   const [draggingBlockId, setDraggingBlockId] = useState(null);
   const [dragOverBlockId, setDragOverBlockId] = useState(null);
-  const onDragStart = (e, blockId) => { setDraggingBlockId(blockId); e.dataTransfer.setData('text/plain', String(blockId)); e.dataTransfer.effectAllowed = 'move'; };
-  const onDragOver = (e, overId) => { e.preventDefault(); setDragOverBlockId(overId); };
+
+  const onDragStart = (e, blockId) => {
+    setDraggingBlockId(blockId);
+    e.dataTransfer.setData('text/plain', String(blockId));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+  const onDragOver = (e, overId) => {
+    e.preventDefault();
+    setDragOverBlockId(overId);
+  };
   const onDrop = (e, toId) => {
     e.preventDefault();
     const fromId = Number(e.dataTransfer.getData('text/plain'));
-    if (!fromId || fromId === toId) { setDraggingBlockId(null); setDragOverBlockId(null); return; }
+    if (!fromId || fromId === toId) {
+      setDraggingBlockId(null);
+      setDragOverBlockId(null);
+      return;
+    }
     const list = activeDay?.blocks || [];
     const fromIndex = list.findIndex(b => b.id === fromId);
     const toIndex = list.findIndex(b => b.id === toId);
     if (fromIndex === -1 || toIndex === -1) return;
+
     const newOrder = [...list];
     const [moved] = newOrder.splice(fromIndex, 1);
     newOrder.splice(toIndex, 0, moved);
@@ -390,9 +538,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setDraggingBlockId(null);
     setDragOverBlockId(null);
   };
-  const onDragEnd = () => { setDraggingBlockId(null); setDragOverBlockId(null); };
+  const onDragEnd = () => {
+    setDraggingBlockId(null);
+    setDragOverBlockId(null);
+  };
 
-  // Payload
+  // Payload (incluye transformación DROPSET -> SETS_REPS)
   const buildPayload = () => {
     const userId = canAssign
       ? (users.find(u => u.email === selectedEmail)?.ID_Usuario ?? null)
@@ -401,13 +552,64 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     const entrenadorId = fromEntrenador ? Number(localStorage.getItem("usuarioId")) : null;
 
     const diasObj = {};
+
     days.forEach((d, i) => {
       const key = `dia${i + 1}`;
-      const bloques = (d.blocks || []).map(block => {
-        const bloqueEjercicios = block.data.setsReps.map(setRep => {
+      const bloques = [];
+
+      (d.blocks || []).forEach(block => {
+        const type = displayToApiType(block.type);
+
+        // DROPSET -> un solo bloque SETS_REPS con múltiples bloqueEjercicios
+        if (type === 'DROPSET') {
+          const name = (block?.data?.exerciseName || '').trim();
+          const ejId = block?.data?.exerciseId ?? null;
+          const rows = Array.isArray(block?.data?.setsReps) ? block.data.setsReps : [];
+
+          const bloqueEjercicios = rows.map(sr => {
+            const reps = sr?.series || '';
+            const weightNorm = (sr?.weight || '').trim();
+            return ejId
+              ? {
+                  ejercicioId: ejId,
+                  reps,
+                  setRepWeight: weightNorm || undefined
+                }
+              : {
+                  nuevoEjercicio: { nombre: name },
+                  reps,
+                  setRepWeight: weightNorm || undefined
+                };
+          });
+
+          const first = rows[0] || {};
+          const firstReps = first.series || null;
+          const firstWeight = (first.weight || '').trim() || null;
+
+          bloques.push({
+            type: 'SETS_REPS',
+            setsReps: firstReps,
+            nombreEj: name || null,
+            weight: firstWeight,
+            descansoRonda: null,
+            bloqueEjercicios
+          });
+
+          return; // siguiente bloque
+        }
+
+        const sets = Array.isArray(block?.data?.setsReps)
+          ? block.data.setsReps
+          : [];
+
+        const bloqueEjercicios = sets.map(setRep => {
           const normWeight = (setRep.weight || '').trim();
           if (setRep.exerciseId) {
-            return { ejercicioId: setRep.exerciseId, reps: setRep.series, setRepWeight: normWeight || undefined };
+            return {
+              ejercicioId: setRep.exerciseId,
+              reps: setRep.series,
+              setRepWeight: normWeight || undefined
+            };
           }
           return {
             nuevoEjercicio: { nombre: setRep.exercise },
@@ -416,35 +618,59 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
           };
         });
 
-        const type = displayToApiType(block.type);
         switch (type) {
           case 'SETS_REPS':
-            return {
+            bloques.push({
               type,
               setsReps: block.data.setsReps[0]?.series || null,
               nombreEj: block.data.setsReps[0]?.exercise || null,
               weight: (block.data.setsReps[0]?.weight || '').trim() || null,
               descansoRonda: block.data.descanso || null,
               bloqueEjercicios
-            };
+            });
+            break;
           case 'ROUNDS':
-            return { type, cantRondas: parseInt(block.data.rounds || 0, 10) || null, descansoRonda: parseInt(block.data.descanso || 0, 10) || null, bloqueEjercicios };
-          case 'EMOM':
-            return { type, durationMin: parseInt(block.data.totalMinutes || 0, 10) || null, bloqueEjercicios };
-          case 'AMRAP':
-            return { type, durationMin: parseInt(block.data.duration || 0, 10) || null, bloqueEjercicios };
-          case 'LADDER':
-            return { type, tipoEscalera: (block.data.escaleraType || '').trim() || null, bloqueEjercicios };
-          case 'TABATA':
-            return {
+            bloques.push({
               type,
-              cantSeries: Number.isFinite(parseInt(block.data.cantSeries, 10)) ? parseInt(block.data.cantSeries, 10) : null,
+              cantRondas: parseInt(block.data.rounds || 0, 10) || null,
+              descansoRonda: parseInt(block.data.descanso || 0, 10) || null,
+              bloqueEjercicios
+            });
+            break;
+          case 'EMOM':
+            bloques.push({
+              type,
+              durationMin: parseInt(block.data.totalMinutes || 0, 10) || null,
+              bloqueEjercicios
+            });
+            break;
+          case 'AMRAP':
+            bloques.push({
+              type,
+              durationMin: parseInt(block.data.duration || 0, 10) || null,
+              bloqueEjercicios
+            });
+            break;
+          case 'LADDER':
+            bloques.push({
+              type,
+              tipoEscalera: (block.data.escaleraType || '').trim() || null,
+              bloqueEjercicios
+            });
+            break;
+          case 'TABATA':
+            bloques.push({
+              type,
+              cantSeries: Number.isFinite(parseInt(block.data.cantSeries, 10))
+                ? parseInt(block.data.cantSeries, 10)
+                : null,
               descTabata: (block.data.descTabata || '').trim() || null,
               tiempoTrabajoDescansoTabata: (block.data.tiempoTrabajoDescansoTabata || '').trim() || null,
               bloqueEjercicios
-            };
+            });
+            break;
           default:
-            return { type, bloqueEjercicios };
+            bloques.push({ type, bloqueEjercicios });
         }
       });
 
@@ -471,6 +697,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setLoading(true);
     try {
       const payload = buildPayload();
+
       if (isEditing) {
         await apiService.editRutina(rutinaId, payload);
         toast.success('Rutina actualizada correctamente');
@@ -479,10 +706,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
         await apiService.createRutina(payload);
         toast.success('Rutina creada correctamente');
       }
+
       navigate('/admin/rutinas');
     } catch {
       toast.error(isEditing ? 'Error actualizando rutina' : 'Error creando rutina');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Responsive listeners
@@ -624,7 +854,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
             <div className="crear-rutina-step2">
               <div className="crear-rutina-step-2-form">
 
-                <SecondaryButton text="← Volver" linkTo="#" onClick={() => setStep(1)} style={{ marginBottom: '16px' }} />
+                <SecondaryButton
+                  text="← Volver"
+                  linkTo="#"
+                  onClick={() => setStep(1)}
+                  style={{ marginBottom: '16px' }}
+                />
 
                 {/* Tabs de días */}
                 <div className="days-tabs">
@@ -652,12 +887,20 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                   <CustomInput
                     placeholder="Nombre del día (ej. Fuerza - Día 1)"
                     value={activeDay?.nombre || ''}
-                    onChange={(e) => setDays(days.map((d, i) => i === activeDayIndex ? { ...d, nombre: e.target.value } : d))}
+                    onChange={(e) =>
+                      setDays(days.map((d, i) =>
+                        i === activeDayIndex ? { ...d, nombre: e.target.value } : d
+                      ))
+                    }
                   />
                   <CustomInput
                     placeholder="Descripción del día (opcional)"
                     value={activeDay?.descripcion || ''}
-                    onChange={(e) => setDays(days.map((d, i) => i === activeDayIndex ? { ...d, descripcion: e.target.value } : d))}
+                    onChange={(e) =>
+                      setDays(days.map((d, i) =>
+                        i === activeDayIndex ? { ...d, descripcion: e.target.value } : d
+                      ))
+                    }
                   />
                 </div>
 
@@ -699,7 +942,11 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                           </svg>
                         </button>
 
-                        <button onClick={() => handleDeleteBlock(block.id)} className="delete-block-btn" title="Eliminar bloque">
+                        <button
+                          onClick={() => handleDeleteBlock(block.id)}
+                          className="delete-block-btn"
+                          title="Eliminar bloque"
+                        >
                           <CloseIcon width={32} height={32} />
                         </button>
                       </div>
@@ -729,7 +976,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                 {(suggestions[`${sugKeyPrefix}${idx}`] || []).length > 0 && (
                                   <ul className="suggestions-list">
                                     {suggestions[`${sugKeyPrefix}${idx}`].map(ex => (
-                                      <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                      <li
+                                        key={ex.ID_Ejercicio}
+                                        onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                      >
                                         {ex.nombre}
                                       </li>
                                     ))}
@@ -744,7 +994,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                 onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                 aria-label="Peso"
                               />
-                              <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                              <button
+                                onClick={() => handleDeleteSetRep(block.id, idx)}
+                                className="delete-set-btn"
+                                title="Eliminar este set"
+                              >
+                                –
+                              </button>
                             </div>
                           ))}
                           <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
@@ -756,11 +1012,21 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                         <div className="rondas-ctn">
                           <div className="cantidad-rondas-descanso">
                             <div className='cant-rondas-subctn'>
-                              <input className='cant-rondas-subctn-input-chico' placeholder="3" value={block.data.rounds} onChange={(e) => handleBlockFieldChange(block.id, 'rounds', e.target.value)} />
+                              <input
+                                className='cant-rondas-subctn-input-chico'
+                                placeholder="3"
+                                value={block.data.rounds}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'rounds', e.target.value)}
+                              />
                               <span> rondas con </span>
                             </div>
                             <div className='cant-rondas-subctn'>
-                              <input className='cant-rondas-subctn-input-chico' placeholder="90" value={block.data.descanso} onChange={(e) => handleBlockFieldChange(block.id, 'descanso', e.target.value)} />
+                              <input
+                                className='cant-rondas-subctn-input-chico'
+                                placeholder="90"
+                                value={block.data.descanso}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'descanso', e.target.value)}
+                              />
                               <span> segundos de descanso </span>
                             </div>
                           </div>
@@ -786,7 +1052,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   {(suggestions[`${sugKeyPrefix}${idx}`] || []).length > 0 && (
                                     <ul className="suggestions-list">
                                       {suggestions[`${sugKeyPrefix}${idx}`].map(ex => (
-                                        <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                        <li
+                                          key={ex.ID_Ejercicio}
+                                          onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                        >
                                           {ex.nombre}
                                         </li>
                                       ))}
@@ -801,7 +1070,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                                <button
+                                  onClick={() => handleDeleteSetRep(block.id, idx)}
+                                  className="delete-set-btn"
+                                  title="Eliminar este set"
+                                >
+                                  –
+                                </button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
@@ -815,13 +1090,31 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                           <div className="cantidad-emom-ctn">
                             <div className='cant-rondas-subctn'>
                               <span> Cada </span>
-                              <input className='cant-rondas-subctn-input-chico' placeholder="1" value={block.data.interval} onChange={(e) => handleBlockFieldChange(block.id, 'interval', e.target.value)} />
-                              <input className='cant-rondas-subctn-input-grande' placeholder="minuto" disabled />
+                              <input
+                                className='cant-rondas-subctn-input-chico'
+                                placeholder="1"
+                                value={block.data.interval}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'interval', e.target.value)}
+                              />
+                              <input
+                                className='cant-rondas-subctn-input-grande'
+                                placeholder="minuto"
+                                disabled
+                              />
                             </div>
                             <div className='cant-rondas-subctn'>
                               <span> por </span>
-                              <input className='cant-rondas-subctn-input-chico' placeholder="20" value={block.data.totalMinutes} onChange={(e) => handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)} />
-                              <input className='cant-rondas-subctn-input-grande' placeholder="minutos" disabled />
+                              <input
+                                className='cant-rondas-subctn-input-chico'
+                                placeholder="20"
+                                value={block.data.totalMinutes}
+                                onChange={(e) => handleBlockFieldChange(block.id, 'totalMinutes', e.target.value)}
+                              />
+                              <input
+                                className='cant-rondas-subctn-input-grande'
+                                placeholder="minutos"
+                                disabled
+                              />
                             </div>
                           </div>
 
@@ -846,7 +1139,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   {(suggestions[`${sugKeyPrefix}${idx}`] || []).length > 0 && (
                                     <ul className="suggestions-list">
                                       {suggestions[`${sugKeyPrefix}${idx}`].map(ex => (
-                                        <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                        <li
+                                          key={ex.ID_Ejercicio}
+                                          onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                        >
                                           {ex.nombre}
                                         </li>
                                       ))}
@@ -861,7 +1157,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                                <button
+                                  onClick={() => handleDeleteSetRep(block.id, idx)}
+                                  className="delete-set-btn"
+                                  title="Eliminar este set"
+                                >
+                                  –
+                                </button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
@@ -874,8 +1176,17 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                         <div className="amrap-ctn">
                           <div className="cantidad-amrap-ctn">
                             <span> AMRAP de </span>
-                            <input className='cant-rondas-subctn-input-chico' placeholder="20" value={block.data.duration} onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)} />
-                            <input className='cant-rondas-subctn-input-grande' placeholder="minutos" disabled />
+                            <input
+                              className='cant-rondas-subctn-input-chico'
+                              placeholder="20"
+                              value={block.data.duration}
+                              onChange={(e) => handleBlockFieldChange(block.id, 'duration', e.target.value)}
+                            />
+                            <input
+                              className='cant-rondas-subctn-input-grande'
+                              placeholder="minutos"
+                              disabled
+                            />
                           </div>
 
                           <div className="sets-reps-ctn">
@@ -899,7 +1210,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   {(suggestions[`${sugKeyPrefix}${idx}`] || []).length > 0 && (
                                     <ul className="suggestions-list">
                                       {suggestions[`${sugKeyPrefix}${idx}`].map(ex => (
-                                        <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                        <li
+                                          key={ex.ID_Ejercicio}
+                                          onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                        >
                                           {ex.nombre}
                                         </li>
                                       ))}
@@ -914,7 +1228,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                                <button
+                                  onClick={() => handleDeleteSetRep(block.id, idx)}
+                                  className="delete-set-btn"
+                                  title="Eliminar este set"
+                                >
+                                  –
+                                </button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
@@ -936,7 +1256,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
 
                           <div className="sets-reps-ctn">
                             {block.data.setsReps.map((setRep, idx) => (
-                              <div key={idx} className="sets-ladder sets-row--no-series">
+                              <div
+                                key={idx}
+                                className="sets-ladder sets-row--no-series"
+                              >
                                 <div className="exercise-cell" style={{ width: '100%' }}>
                                   <input
                                     style={{ width: '100%' }}
@@ -949,7 +1272,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   {(suggestions[`${sugKeyPrefix}${idx}`] || []).length > 0 && (
                                     <ul className="suggestions-list">
                                       {suggestions[`${sugKeyPrefix}${idx}`].map(ex => (
-                                        <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                        <li
+                                          key={ex.ID_Ejercicio}
+                                          onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                        >
                                           {ex.nombre}
                                         </li>
                                       ))}
@@ -964,7 +1290,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este set">–</button>
+                                <button
+                                  onClick={() => handleDeleteSetRep(block.id, idx)}
+                                  className="delete-set-btn"
+                                  title="Eliminar este set"
+                                >
+                                  –
+                                </button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
@@ -975,7 +1307,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                       {/* TABATA */}
                       {block.type === "TABATA" && (
                         <div className="tabata-ctn">
-                          <div className="cantidad-tabata-ctn" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                          <div
+                            className="cantidad-tabata-ctn"
+                            style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}
+                          >
                             <div className='cant-rondas-subctn'>
                               <span>Series: </span>
                               <input
@@ -1005,10 +1340,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                             </div>
                           </div>
 
-                          {/* Lista de ejercicios SIN campo series */}
                           <div className="sets-reps-ctn">
                             {block.data.setsReps.map((setRep, idx) => (
-                              <div key={idx} className="sets-row sets-row--no-series">
+                              <div
+                                key={idx}
+                                className="sets-row sets-row--no-series"
+                              >
                                 <div className="exercise-cell" style={{ width: '100%' }}>
                                   <input
                                     type="text"
@@ -1021,7 +1358,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   {(suggestions[`${sugKeyPrefix}${idx}`] || []).length > 0 && (
                                     <ul className="suggestions-list">
                                       {suggestions[`${sugKeyPrefix}${idx}`].map(ex => (
-                                        <li key={ex.ID_Ejercicio} onClick={() => handleSelectSuggestion(block.id, idx, ex)}>
+                                        <li
+                                          key={ex.ID_Ejercicio}
+                                          onClick={() => handleSelectSuggestion(block.id, idx, ex)}
+                                        >
                                           {ex.nombre}
                                         </li>
                                       ))}
@@ -1036,10 +1376,93 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                                   onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
                                   aria-label="Peso"
                                 />
-                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar este ejercicio">–</button>
+                                <button
+                                  onClick={() => handleDeleteSetRep(block.id, idx)}
+                                  className="delete-set-btn"
+                                  title="Eliminar este ejercicio"
+                                >
+                                  –
+                                </button>
                               </div>
                             ))}
                             <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* DROPSET */}
+                      {block.type === "DROPSET" && (
+                        <div className="dropset-ctn">
+                          {/* Nombre ejercicio con autocomplete */}
+                          <div className="exercise-cell" style={{ width: '100%', marginBottom: 12 }}>
+                            <input
+                              type="text"
+                              className="exercise-input"
+                              style={{ width: '100%' }}
+                              placeholder={block.data.exercisePlaceholder || 'Nombre ejercicio'}
+                              value={block.data.exerciseName || ''}
+                              onChange={(e) => handleDropsetNameChange(block.id, e.target.value)}
+                            />
+                            {(suggestions[`${activeDay?.key || 'dia'}-${block.id}-dropsetname`] || []).length > 0 && (
+                              <ul className="suggestions-list">
+                                {suggestions[`${activeDay?.key || 'dia'}-${block.id}-dropsetname`].map(ex => (
+                                  <li
+                                    key={ex.ID_Ejercicio}
+                                    onClick={() => handleSelectDropsetName(block.id, ex)}
+                                  >
+                                    {ex.nombre}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+
+                          {/* Filas serie + kilos */}
+                          <div className="sets-reps-ctn">
+                            {block.data.setsReps.map((sr, idx) => (
+                              <div
+                                key={idx}
+                                className="sets-row sets-row--dropset"
+                              >
+                                <div
+                                  className="series-group"
+                                  style={{ display: 'flex', gap: 8, width: '100%' }}
+                                >
+                                  <div style={{ flex: 1 }}>
+                                    <label className="mini-label">Serie y reps</label>
+                                    <input
+                                      type="text"
+                                      className="series-input"
+                                      placeholder="Ej. 2×20"
+                                      value={sr.series}
+                                      onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
+                                    />
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label className="mini-label">Kilos</label>
+                                    <input
+                                      type="text"
+                                      className="weight-input"
+                                      placeholder="Ej. 50kg"
+                                      value={sr.weight}
+                                      onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
+                                    />
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => handleDeleteSetRep(block.id, idx)}
+                                  className="delete-set-btn"
+                                  title="Eliminar fila"
+                                >
+                                  –
+                                </button>
+                              </div>
+                            ))}
+                            <PrimaryButton
+                              text="+"
+                              linkTo="#"
+                              onClick={() => handleAddSetRep(block.id)}
+                            />
                           </div>
                         </div>
                       )}
@@ -1051,7 +1474,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
           )}
         </div>
 
-        {/* Panel lateral Información (drawer en mobile) — SOLO Step 2 */}
+        {/* Panel lateral Información */}
         {canAssign && step === 2 && (
           <>
             <div
@@ -1075,11 +1498,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                   className="info-panel__close"
                   title="Cerrar panel"
                   aria-label="Cerrar panel"
-                >×</button>
+                >
+                  ×
+                </button>
               </div>
 
               <div className="info-panel__content">
-                {/* Tabs */}
                 <div className="info-tabs">
                   <button
                     className={`info-tab ${infoTab === 'ejercicios' ? 'active' : ''}`}
@@ -1095,7 +1519,6 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                   </button>
                 </div>
 
-                {/* Contenido Tabs */}
                 {infoTab === 'ejercicios' && (
                   <div>
                     <input
@@ -1111,17 +1534,31 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                           <div className="info-card__row">
                             <strong className="info-card__title">{ej.nombre}</strong>
                             {ej.youtubeUrl && (
-                              <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
+                              <a
+                                href={ej.youtubeUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="info-card__link"
+                              >
+                                YouTube
+                              </a>
                             )}
                           </div>
-                          {ej.descripcion && <p className="info-card__desc">{ej.descripcion}</p>}
+                          {ej.descripcion && (
+                            <p className="info-card__desc">{ej.descripcion}</p>
+                          )}
                           <div className="info-card__meta">
-                            {ej.musculos && <small><b>Músculos:</b> {ej.musculos}</small>}
-                            {ej.equipamiento && <small><b>Equipo:</b> {ej.equipamiento}</small>}
+                            {ej.musculos && (
+                              <small><b>Músculos:</b> {ej.musculos}</small>
+                            )}
+                            {ej.equipamiento && (
+                              <small><b>Equipo:</b> {ej.equipamiento}</small>
+                            )}
                           </div>
                         </div>
                       ))}
-                      {(!filteredExercises || filteredExercises.length === 0) && (
+                      {(!filteredExercises ||
+                        filteredExercises.length === 0) && (
                         <p className="info-empty">No se encontraron ejercicios.</p>
                       )}
                     </div>
@@ -1141,70 +1578,120 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
 
                     {!selectedUserId && (
                       <p className="info-empty">
-                        Para ver mediciones, primero seleccioná un usuario en el desplegable de la izquierda.
+                        Para ver mediciones, primero seleccioná un usuario
+                        en el desplegable de la izquierda.
                       </p>
                     )}
 
                     {selectedUserId && (
                       <>
-                        {loadingMetrics && <p className="info-loading">Cargando mediciones...</p>}
-                        {!loadingMetrics && (!userMetrics || !Array.isArray(userMetrics.ejercicios) || userMetrics.ejercicios.length === 0) && (
-                          <p className="info-empty">Sin datos de mediciones.</p>
+                        {loadingMetrics && (
+                          <p className="info-loading">
+                            Cargando mediciones...
+                          </p>
                         )}
 
-                        {!loadingMetrics && Array.isArray(userMetrics?.ejercicios) && userMetrics.ejercicios.length > 0 && (
-                          <div className="metrics-list">
-                            {userMetrics.ejercicios.map((e) => {
-                              const historico = Array.isArray(e.HistoricoEjercicios) ? [...e.HistoricoEjercicios] : [];
-                              historico.sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
-                              const last3 = historico.slice(0, 3);
+                        {!loadingMetrics &&
+                          (!userMetrics ||
+                            !Array.isArray(userMetrics.ejercicios) ||
+                            userMetrics.ejercicios.length === 0) && (
+                            <p className="info-empty">Sin datos de mediciones.</p>
+                          )}
 
-                              // PR histórico
-                              let pr = null;
-                              for (const h of historico) {
-                                if (!pr || h.Cantidad > pr.Cantidad) pr = h;
-                              }
+                        {!loadingMetrics &&
+                          Array.isArray(userMetrics?.ejercicios) &&
+                          userMetrics.ejercicios.length > 0 && (
+                            <div className="metrics-list">
+                              {userMetrics.ejercicios.map((e) => {
+                                const historico = Array.isArray(e.HistoricoEjercicios)
+                                  ? [...e.HistoricoEjercicios]
+                                  : [];
+                                historico.sort(
+                                  (a, b) =>
+                                    new Date(b.Fecha) - new Date(a.Fecha)
+                                );
+                                const last3 = historico.slice(0, 3);
 
-                              return (
-                                <div key={e.ID_EjercicioMedicion} className="info-card">
-                                  <div className="info-card__row">
-                                    <strong className="info-card__title">{e.nombre}</strong>
-                                    <small className="info-card__badge">{e.tipoMedicion}</small>
-                                  </div>
+                                let pr = null;
+                                for (const h of historico) {
+                                  if (!pr || h.Cantidad > pr.Cantidad) {
+                                    pr = h;
+                                  }
+                                }
 
-                                  {last3.length > 0 ? (
-                                    <div className="metric-block">
-                                      <div className="metric-block__title">Últimos 3 registros</div>
-                                      <ul className="metric-history">
-                                        {last3.map(h => (
-                                          <li key={h.ID_HistoricoEjercicio}>
-                                            <span className="metric-date">{new Date(h.Fecha).toLocaleDateString()}</span>
-                                            <span className="metric-sep">—</span>
-                                            <span className="metric-value">{h.Cantidad}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
+                                return (
+                                  <div
+                                    key={e.ID_EjercicioMedicion}
+                                    className="info-card"
+                                  >
+                                    <div className="info-card__row">
+                                      <strong className="info-card__title">
+                                        {e.nombre}
+                                      </strong>
+                                      <small className="info-card__badge">
+                                        {e.tipoMedicion}
+                                      </small>
                                     </div>
-                                  ) : (
-                                    <div className="metric-block metric-block--empty">Sin registros</div>
-                                  )}
 
-                                  <div className="metric-block metric-block--pr">
-                                    <span className="metric-pr-label">PR histórico:</span>
-                                    {pr
-                                      ? (
+                                    {last3.length > 0 ? (
+                                      <div className="metric-block">
+                                        <div className="metric-block__title">
+                                          Últimos 3 registros
+                                        </div>
+                                        <ul className="metric-history">
+                                          {last3.map((h) => (
+                                            <li
+                                              key={
+                                                h.ID_HistoricoEjercicio
+                                              }
+                                            >
+                                              <span className="metric-date">
+                                                {new Date(
+                                                  h.Fecha
+                                                ).toLocaleDateString()}
+                                              </span>
+                                              <span className="metric-sep">
+                                                —
+                                              </span>
+                                              <span className="metric-value">
+                                                {h.Cantidad}
+                                              </span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ) : (
+                                      <div className="metric-block metric-block--empty">
+                                        Sin registros
+                                      </div>
+                                    )}
+
+                                    <div className="metric-block metric-block--pr">
+                                      <span className="metric-pr-label">
+                                        PR histórico:
+                                      </span>
+                                      {pr ? (
                                         <span className="metric-pr-value">
-                                          {pr.Cantidad} <span className="metric-pr-date">({new Date(pr.Fecha).toLocaleDateString()})</span>
+                                          {pr.Cantidad}{' '}
+                                          <span className="metric-pr-date">
+                                            (
+                                            {new Date(
+                                              pr.Fecha
+                                            ).toLocaleDateString()}
+                                            )
+                                          </span>
                                         </span>
-                                      )
-                                      : <span className="metric-pr-value">—</span>
-                                    }
+                                      ) : (
+                                        <span className="metric-pr-value">
+                                          —
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                                );
+                              })}
+                            </div>
+                          )}
                       </>
                     )}
                   </div>

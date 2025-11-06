@@ -14,7 +14,7 @@ import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
-const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA"];
+const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA", "DROPSET"];
 const apiToDisplayType = {
   SETS_REPS: 'Series y repeticiones',
   ROUNDS: 'Rondas',
@@ -22,6 +22,7 @@ const apiToDisplayType = {
   AMRAP: 'AMRAP',
   LADDER: 'Escalera',
   TABATA: 'TABATA',
+  DROPSET: 'DROPSET',
 };
 const displayToApiType = (t) => ({
   "Series y repeticiones": "SETS_REPS",
@@ -30,6 +31,7 @@ const displayToApiType = (t) => ({
   "AMRAP": "AMRAP",
   "Escalera": "LADDER",
   "TABATA": "TABATA",
+  "DROPSET": "DROPSET",
 }[t] || "SETS_REPS");
 
 const getRandomExercise = () =>
@@ -50,6 +52,9 @@ const makeEmptyBlock = (selectedType) => {
       return { id: Date.now(), type: selectedType, data: { escaleraType: '', setsReps: [{ ...baseSet }] } };
     case 'TABATA':
       return { id: Date.now(), type: selectedType, data: { cantSeries: '', descTabata: '', tiempoTrabajoDescansoTabata: '', setsReps: [{ ...baseSet }] } };
+    case 'DROPSET':
+      // Nombre de ejercicio a nivel bloque + filas de series/kilos
+      return { id: Date.now(), type: selectedType, data: { exerciseName: '', exerciseId: null, exercisePlaceholder: getRandomExercise(), setsReps: [{ series: '', weight: '' }] } };
     default:
       return { id: Date.now(), type: 'Series y repeticiones', data: { setsReps: [{ ...baseSet }] } };
   }
@@ -88,6 +93,16 @@ const convertApiBlockData = (b) => {
         descTabata: b.descTabata ?? '',
         tiempoTrabajoDescansoTabata: b.tiempoTrabajoDescansoTabata ?? (b.durationMin ? `${b.durationMin}m` : ''),
         setsReps: mappedSets
+      };
+    case 'DROPSET':
+      return {
+        exerciseName: b.nombreEj ?? b?.ejercicio?.nombre ?? '',
+        exerciseId: b?.ejercicioId ?? b?.ejercicio?.ID_Ejercicio ?? null,
+        exercisePlaceholder: '',
+        setsReps: items.map((e) => ({
+          series: e.reps ?? '',
+          weight: e.setRepWeight ?? ''
+        }))
       };
     default:
       return { setsReps: mappedSets };
@@ -156,9 +171,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
   useEffect(() => {
     if (step === 2) {
-      setInfoOpen(!isMobile); 
+      setInfoOpen(!isMobile);
     }
-  }, [step, isMobile]);  
+  }, [step, isMobile]);
 
   useEffect(() => {
     if (canAssign) {
@@ -312,11 +327,26 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       return;
     }
 
-    // Agregar en el último bloque del día activo
+    // Agregar en el último bloque del día activo (si es DROPSET, setea el nombre del bloque)
     const lastIndex = activeDay.blocks.length - 1;
     const lastBlock = activeDay.blocks[lastIndex];
 
-    // Asegurar setsReps
+    if (lastBlock?.type === 'DROPSET') {
+      const updated = {
+        ...lastBlock,
+        data: {
+          ...lastBlock.data,
+          exerciseName: ejName,
+          exerciseId: ejId ?? null
+        }
+      };
+      const newBlocks = activeDay.blocks.map((b, i) => (i === lastIndex ? updated : b));
+      setActiveDayBlocks(newBlocks);
+      toast.success(`Asignado "${ejName}" al DROPSET`);
+      return;
+    }
+
+    // Asegurar setsReps (otros tipos)
     const currentSets = Array.isArray(lastBlock?.data?.setsReps) ? lastBlock.data.setsReps : [];
     const updatedLastBlock = {
       ...lastBlock,
@@ -366,7 +396,18 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   const handleAddSetRep = (blockId) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
-        ? { ...block, data: { ...block.data, setsReps: [...block.data.setsReps, { series: '', exercise: '', weight: '', placeholderExercise: getRandomExercise(), exerciseId: null }] } }
+        ? {
+          ...block,
+          data: {
+            ...block.data,
+            setsReps: [
+              ...block.data.setsReps,
+              block.type === 'DROPSET'
+                ? { series: '', weight: '' }
+                : { series: '', exercise: '', weight: '', placeholderExercise: getRandomExercise(), exerciseId: null }
+            ]
+          }
+        }
         : block
     ));
   };
@@ -416,6 +457,35 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     setSuggestions(prev => ({ ...prev, [key]: [] }));
   };
 
+  // Autocompletado para nombre de ejercicio en DROPSET
+  const handleDropsetNameChange = (blockId, value) => {
+    setActiveDayBlocks((activeDay?.blocks || []).map(block =>
+      block.id === blockId
+        ? { ...block, data: { ...block.data, exerciseName: value, exerciseId: null } }
+        : block
+    ));
+
+    const key = `${activeDay?.key || 'dia'}-${blockId}-dropsetname`;
+    if (value.trim() === '') {
+      setSuggestions(prev => ({ ...prev, [key]: [] }));
+      return;
+    }
+    const lista = Array.isArray(allExercises) ? allExercises : [];
+    const filtered = lista
+      .filter(e => e.nombre?.toLowerCase?.().includes(value.trim().toLowerCase()))
+      .slice(0, 5);
+    setSuggestions(prev => ({ ...prev, [key]: filtered }));
+  };
+  const handleSelectDropsetName = (blockId, exerciseObj) => {
+    setActiveDayBlocks((activeDay?.blocks || []).map(block =>
+      block.id === blockId
+        ? { ...block, data: { ...block.data, exerciseName: exerciseObj.nombre, exerciseId: exerciseObj.ID_Ejercicio } }
+        : block
+    ));
+    const key = `${activeDay?.key || 'dia'}-${blockId}-dropsetname`;
+    setSuggestions(prev => ({ ...prev, [key]: [] }));
+  };
+
   // Drag & drop por bloque
   const [draggingBlockId, setDraggingBlockId] = useState(null);
   const [dragOverBlockId, setDragOverBlockId] = useState(null);
@@ -439,6 +509,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   const onDragEnd = () => { setDraggingBlockId(null); setDragOverBlockId(null); };
 
   // Payload
+  // Payload
   const buildPayload = () => {
     const userId = canAssign
       ? (users.find(u => u.email === selectedEmail)?.ID_Usuario ?? null)
@@ -449,8 +520,43 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     const diasObj = {};
     days.forEach((d, i) => {
       const key = `dia${i + 1}`;
-      const bloques = (d.blocks || []).map(block => {
-        const bloqueEjercicios = block.data.setsReps.map(setRep => {
+      const bloques = [];
+
+      (d.blocks || []).forEach(block => {
+        const type = displayToApiType(block.type);
+
+        // ==== TRANSFORMACIÓN: DROPSET → varios SETS_REPS ====
+        if (type === 'DROPSET') {
+          const name = (block?.data?.exerciseName || '').trim();
+          const ejId = block?.data?.exerciseId ?? null;
+          const rows = Array.isArray(block?.data?.setsReps) ? block.data.setsReps : [];
+
+          const bloqueEjercicios = rows.map(sr => {
+            const reps = sr?.series || '';
+            const weightNorm = (sr?.weight || '').trim();
+            return ejId
+              ? { ejercicioId: ejId, reps, setRepWeight: weightNorm || undefined }
+              : { nuevoEjercicio: { nombre: name }, reps, setRepWeight: weightNorm || undefined };
+          });
+
+          const first = rows[0] || {};
+          const firstReps = first.series || null;
+          const firstWeight = (first.weight || '').trim() || null;
+
+          bloques.push({
+            type: 'SETS_REPS',
+            setsReps: firstReps,          // ej. "2x20" o "20"
+            nombreEj: name || null,       // nombre del ejercicio del bloque
+            weight: firstWeight,          // ej. "50kg"
+            descansoRonda: null,
+            bloqueEjercicios
+          });
+
+          return; // pasar al próximo bloque del día
+        }
+
+        // ==== RESTO DE TIPOS (igual que antes) ====
+        const bloqueEjercicios = (block.data.setsReps || []).map(setRep => {
           const normWeight = (setRep.weight || '').trim();
           if (setRep.exerciseId) {
             return { ejercicioId: setRep.exerciseId, reps: setRep.series, setRepWeight: normWeight || undefined };
@@ -462,35 +568,63 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
           };
         });
 
-        const type = displayToApiType(block.type);
         switch (type) {
           case 'SETS_REPS':
-            return {
+            bloques.push({
               type,
               setsReps: block.data.setsReps[0]?.series || null,
               nombreEj: block.data.setsReps[0]?.exercise || null,
               weight: (block.data.setsReps[0]?.weight || '').trim() || null,
               descansoRonda: block.data.descanso || null,
               bloqueEjercicios
-            };
+            });
+            break;
+
           case 'ROUNDS':
-            return { type, cantRondas: parseInt(block.data.rounds || 0, 10) || null, descansoRonda: parseInt(block.data.descanso || 0, 10) || null, bloqueEjercicios };
+            bloques.push({
+              type,
+              cantRondas: parseInt(block.data.rounds || 0, 10) || null,
+              descansoRonda: parseInt(block.data.descanso || 0, 10) || null,
+              bloqueEjercicios
+            });
+            break;
+
           case 'EMOM':
-            return { type, durationMin: parseInt(block.data.totalMinutes || 0, 10) || null, bloqueEjercicios };
+            bloques.push({
+              type,
+              durationMin: parseInt(block.data.totalMinutes || 0, 10) || null,
+              bloqueEjercicios
+            });
+            break;
+
           case 'AMRAP':
-            return { type, durationMin: parseInt(block.data.duration || 0, 10) || null, bloqueEjercicios };
+            bloques.push({
+              type,
+              durationMin: parseInt(block.data.duration || 0, 10) || null,
+              bloqueEjercicios
+            });
+            break;
+
           case 'LADDER':
-            return { type, tipoEscalera: (block.data.escaleraType || '').trim() || null, bloqueEjercicios };
+            bloques.push({
+              type,
+              tipoEscalera: (block.data.escaleraType || '').trim() || null,
+              bloqueEjercicios
+            });
+            break;
+
           case 'TABATA':
-            return {
+            bloques.push({
               type,
               cantSeries: Number.isFinite(parseInt(block.data.cantSeries, 10)) ? parseInt(block.data.cantSeries, 10) : null,
               descTabata: (block.data.descTabata || '').trim() || null,
               tiempoTrabajoDescansoTabata: (block.data.tiempoTrabajoDescansoTabata || '').trim() || null,
               bloqueEjercicios
-            };
+            });
+            break;
+
           default:
-            return { type, bloqueEjercicios };
+            bloques.push({ type, bloqueEjercicios });
         }
       });
 
@@ -517,18 +651,18 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     setLoading(true);
     try {
       const payload = buildPayload();
-      
+
       if (isEditing) {
         await apiService.editRutina(rutinaId, payload);
         toast.success('Rutina actualizada correctamente');
         if (fromEntrenador) navigate('/entrenador/rutinas-asignadas');
-      } 
-      
+      }
+
       else {
         await apiService.createRutina(payload);
         toast.success('Rutina creada correctamente');
       }
-      
+
       if (fromAdmin) navigate('/admin/rutinas-asignadas');
       if (fromEntrenador) navigate('/entrenador/rutinas-asignadas');
       if (fromAlumno) navigate('/alumno/mi-rutina');
@@ -1097,6 +1231,64 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                           </div>
                         </div>
                       )}
+
+                      {/* DROPSET */}
+                      {block.type === "DROPSET" && (
+                        <div className="dropset-ctn">
+                          {/* Nombre del ejercicio (con autocompletado) */}
+                          <div className="exercise-cell" style={{ width: '100%', marginBottom: 12 }}>
+                            <input
+                              type="text"
+                              className="exercise-input"
+                              style={{ width: '100%' }}
+                              placeholder={block.data.exercisePlaceholder || 'Nombre ejercicio'}
+                              value={block.data.exerciseName || ''}
+                              onChange={(e) => handleDropsetNameChange(block.id, e.target.value)}
+                            />
+                            {(suggestions[`${activeDay?.key || 'dia'}-${block.id}-dropsetname`] || []).length > 0 && (
+                              <ul className="suggestions-list">
+                                {suggestions[`${activeDay?.key || 'dia'}-${block.id}-dropsetname`].map(ex => (
+                                  <li key={ex.ID_Ejercicio} onClick={() => handleSelectDropsetName(block.id, ex)}>
+                                    {ex.nombre}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+
+                          {/* Filas: Serie y reps + Kilos */}
+                          <div className="sets-reps-ctn">
+                            {block.data.setsReps.map((sr, idx) => (
+                              <div key={idx} className="sets-row sets-row--dropset">
+                                <div className="series-group" style={{ display: 'flex', gap: 8, width: '100%' }}>
+                                  <div style={{ flex: 1 }}>
+                                    <label className="mini-label">Serie y reps</label>
+                                    <input
+                                      type="text"
+                                      className="series-input"
+                                      placeholder="Ej. 2×20"
+                                      value={sr.series}
+                                      onChange={e => handleSetRepChange(block.id, idx, 'series', e.target.value)}
+                                    />
+                                  </div>
+                                  <div style={{ flex: 1 }}>
+                                    <label className="mini-label">Kilos</label>
+                                    <input
+                                      type="text"
+                                      className="weight-input"
+                                      placeholder="Ej. 50kg"
+                                      value={sr.weight}
+                                      onChange={e => handleSetRepChange(block.id, idx, 'weight', e.target.value)}
+                                    />
+                                  </div>
+                                </div>
+                                <button onClick={() => handleDeleteSetRep(block.id, idx)} className="delete-set-btn" title="Eliminar fila">–</button>
+                              </div>
+                            ))}
+                            <PrimaryButton text="+" linkTo="#" onClick={() => handleAddSetRep(block.id)} />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -1178,7 +1370,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                             {ej.musculos && <small><b>Músculos:</b> {ej.musculos}</small>}
                             {ej.equipamiento && <small><b>Equipo:</b> {ej.equipamiento}</small>}
                             {ej.youtubeUrl && (
-                                <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
+                              <a href={ej.youtubeUrl} target="_blank" rel="noreferrer" className="info-card__link">YouTube</a>
                             )}
                           </div>
                         </div>

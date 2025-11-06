@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg"
+import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -108,8 +108,51 @@ const setsRepsFallback = (b) => {
   return txt || null;
 };
 
-/* ======== NUEVO: helpers para TABATA ======== */
-// Normaliza "30s / 20off", "30s x 20s", "30 on / 20 off", etc.
+/* ======== DROPSET helpers (igual que RutinasAsignadas) ======== */
+/** true si es bloque SETS_REPS con 2+ items del mismo ejercicio */
+const isDropSetBlock = (b) => {
+  if (!b || b.type !== 'SETS_REPS') return false;
+  const items = getBloqueItems(b);
+  if (!Array.isArray(items) || items.length < 2) return false;
+
+  const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
+  const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
+
+  return items.every(it => {
+    const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
+    const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
+    if (firstId != null && id != null) return id === firstId;
+    return name && name === firstName;
+  });
+};
+
+const repsWeightLine = (it) => {
+  const reps = (it?.reps || '').toString().replace(/x/gi, '×').trim();
+  const w = (it?.setRepWeight || '').toString().trim();
+  if (reps && w) return `${reps} - ${w}`;
+  if (reps) return reps;
+  if (w) return w;
+  return '—';
+};
+
+const renderDropSetBlock = (b) => {
+  const items = getBloqueItems(b);
+  const nombre = (b?.nombreEj || items[0]?.ejercicio?.nombre || 'Ejercicio').trim();
+
+  return (
+    <div className="bloque-card dropset-card">
+      <p className="bloque-header">DROPSET — {nombre}</p>
+      <ul className="bloque-list dropset-list">
+        {items.map((it, idx) => (
+          <li key={idx}>{repsWeightLine(it)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+/* ============================================================= */
+
+/* ======== TABATA helpers ======== */
 const formatWorkRest = (str = "") => {
   const s = String(str).trim();
   if (!s) return "";
@@ -125,7 +168,6 @@ const formatWorkRest = (str = "") => {
   return s;
 };
 
-// Texto de encabezado para cada bloque (con TABATA nuevo)
 const headerForBlock = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return '';
@@ -144,17 +186,12 @@ const headerForBlock = (b) => {
   }
 };
 
-// Pie/meta visual para TABATA (chips compactas)
 const renderTabataMeta = (b) => {
   const hasNew = !!(b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata);
   if (!hasNew) return null;
 
   return (
     <div className="bloque-footnote tabata-meta">
-      {/* <span className="meta-chip"><b>Series:</b> {b?.cantSeries ?? '—'}</span>
-      <span className="meta-chip">
-        <b>Trabajo/Descanso:</b> {b?.tiempoTrabajoDescansoTabata ? formatWorkRest(b.tiempoTrabajoDescansoTabata) : '—'}
-      </span> */}
       {b?.descTabata && (
         <span className="meta-chip"><b>Pausa entre series:</b> {b.descTabata}</span>
       )}
@@ -197,7 +234,6 @@ const MiRutina = () => {
           const list = rRes.value?.rutinas || [];
           setRutinas(list);
 
-          // abrir primer día por defecto
           const init = {};
           list.forEach(r => {
             const dias = normalizeDias(r);
@@ -258,15 +294,15 @@ const MiRutina = () => {
     }));
   };
 
+  if (loading) return <LoaderFullScreen />;
+
   return (
     <div className='page-layout'>
-      {loading && <LoaderFullScreen />}
       <SidebarMenu isAdmin={false} />
       <div className='content-layout mi-rutina-ctn'>
 
         <div className='mi-rutina-title'>
           <h2>Mis rutinas</h2>
-          {/* <PrimaryButton text='Crear rutina' linkTo='/alumno/crear-rutina' /> */}
         </div>
 
         <div style={{ margin: '30px 0px' }}>
@@ -314,22 +350,6 @@ const MiRutina = () => {
                 <div key={rutina.ID_Rutina} className='rutina-card'>
                   <div className='rutina-header'>
                     <h3>{rutina.nombre}</h3>
-                    {/* <div className='rutina-header-acciones'>
-                      <button
-                        onClick={() => handlePopUpOpen(rutina.ID_Rutina)}
-                        className='mi-rutina-eliminar-btn'
-                        title='Eliminar rutina'
-                      >
-                        <DeleteIcon width={20} height={20} />
-                      </button>
-                      <button
-                        onClick={() => navigate(`/alumno/editar-rutina/${rutina.ID_Rutina}`)}
-                        className='mi-rutina-eliminar-btn'
-                        title='Editar rutina'
-                      >
-                        <EditIcon width={20} height={20} />
-                      </button>
-                    </div> */}
                   </div>
 
                   <div className='rutina-data'>
@@ -348,8 +368,12 @@ const MiRutina = () => {
                         const items = getBloqueItems(b);
                         const header = headerForBlock(b);
 
-                        // SETS_REPS sin header; renderizamos items o fallback como cuerpo
                         if (b.type === 'SETS_REPS') {
+                          // DROPSET detectado → layout especial
+                          if (isDropSetBlock(b)) {
+                            return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+                          }
+
                           const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                           return (
                             <div key={i} className='bloque-card'>
@@ -383,7 +407,6 @@ const MiRutina = () => {
                               </ul>
                             )}
 
-                            {/* NUEVO: meta TABATA */}
                             {b.type === 'TABATA' && renderTabataMeta(b)}
 
                             {b.type === 'ROUNDS' && b.descansoRonda ? (
@@ -417,6 +440,10 @@ const MiRutina = () => {
                                   const header = headerForBlock(b);
 
                                   if (b.type === 'SETS_REPS') {
+                                    if (isDropSetBlock(b)) {
+                                      return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+                                    }
+
                                     const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                                     return (
                                       <div key={i} className='bloque-card'>
@@ -449,7 +476,6 @@ const MiRutina = () => {
                                         </ul>
                                       )}
 
-                                      {/* NUEVO: meta TABATA */}
                                       {b.type === 'TABATA' && renderTabataMeta(b)}
 
                                       {b.type === 'ROUNDS' && b.descansoRonda ? (

@@ -85,7 +85,7 @@ const getYouTubeId = (url) => {
       const m = u.pathname.match(/\/embed\/([A-Za-z0-9_-]{6,})/);
       if (m) return m[1];
     }
-  } catch {}
+  } catch { }
   return null;
 };
 const isVideoFile = (url) => /\.(mp4|webm|ogg)$/i.test(url || '');
@@ -146,6 +146,67 @@ const RenderMedia = ({ ej }) => {
   return <div className="gh-ej-thumb-placeholder show" aria-hidden="true" />;
 };
 
+/* ========= DROPSET helpers (vista detalle) ========= */
+const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
+
+/** true si es bloque SETS_REPS con 2+ items del mismo ejercicio */
+const isDropSetBlock = (b) => {
+  if (!b || b.type !== 'SETS_REPS') return false;
+  const items = getBloqueItems(b);
+  if (!Array.isArray(items) || items.length < 2) return false;
+
+  const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
+  const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
+
+  return items.every(it => {
+    const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
+    const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
+    if (firstId != null && id != null) return id === firstId;
+    return name && name === firstName;
+  });
+};
+
+/** "reps -- weight" usando × */
+const repsWeightLine = (it) => {
+  const reps = (it?.reps || '').toString().replace(/x/gi, '×').trim();
+  const w = (it?.setRepWeight || '').toString().trim();
+  if (reps && w) return `${reps} -- ${w}`;
+  if (reps) return reps;
+  if (w) return w;
+  return '—';
+};
+
+/** Render del bloque dropset en la card de detalle */
+const DropSetDetail = ({ bloque }) => {
+  const items = getBloqueItems(bloque);
+  const ejFirst = items[0]?.ejercicio || {};
+  const nombre = (bloque?.nombreEj || ejFirst?.nombre || 'Ejercicio').trim();
+
+  return (
+    <div className="gh-surface" style={{ display: 'grid', gap: 12 }}>
+      <h4 className="gh-feature-title" style={{ margin: 0 }}>
+        {`DROPSET — ${nombre}`}
+      </h4>
+
+      <div className="gh-list-item gh-ej-row">
+        <div className="gh-media-slot">
+          <RenderMedia ej={ejFirst} />
+          {!ejFirst?.mediaUrl && <div className="gh-ej-thumb-placeholder show" />}
+        </div>
+
+        <div className="gh-ej-main">
+          <ul className="dropset-lines">
+            {items.map((it, idx) => (
+              <li key={idx}>{repsWeightLine(it)}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+/* ================================================ */
+
 /* =========================
  *      COMPONENTE
  * ========================= */
@@ -193,6 +254,104 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   /* =========================
    *      EXPORTAR A PDF
    * ========================= */
+  // === DROPSET helpers (PDF) ===
+  const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
+
+  const isDropSetBlockPDF = (b) => {
+    if (!b || b.type !== 'SETS_REPS') return false;
+    const items = getBloqueItems(b);
+    if (items.length < 2) return false;
+
+    const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
+    const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
+
+    return items.every(it => {
+      const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
+      const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
+      if (firstId != null && id != null) return id === firstId;
+      return name && name === firstName;
+    });
+  };
+
+  // "2x20" | "2×20" -> { sets: 2, reps: 20 }
+  const parseSetsReps = (val) => {
+    const s = String(val || '').replace(/×/g, 'x').trim();
+    const m = s.match(/^\s*(\d+)\s*[xX]\s*(\d+)\s*$/);
+    if (m) return { sets: Number(m[1]), reps: Number(m[2]) };
+    const onlyNum = s.match(/^\d+$/);
+    if (onlyNum) return { sets: 1, reps: Number(s) };
+    return { sets: null, reps: s || '' };
+  };
+
+  // Dibuja el bloque dropset como grilla
+  const renderDropSetPDF = (doc, opts) => {
+    const { M, pageW, pageH, ensureSpace, title, items } = opts;
+
+    const H = 64;                 // alto de la fila
+    const nameW = 240;            // ancho col nombre
+    const setsW = 26;             // ancho col "sets"
+    const valW = 66;             // ancho col "reps/peso"
+
+    // ¿Entrará?
+    const neededW = nameW + items.length * (setsW + valW);
+    const usableW = pageW - M * 2;
+    const scale = neededW > usableW ? (usableW / neededW) : 1;
+
+    const h = H;
+    const wName = nameW * scale;
+    const wSets = setsW * scale;
+    const wVal = valW * scale;
+
+    ensureSpace(h + 40);
+
+    // Título
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(title, M, doc.lastAutoTable ? (doc.lastAutoTable.finalY + 18) : (opts.cursorY || (M + 18)));
+
+    // y base después del título
+    const y = (doc.lastAutoTable ? (doc.lastAutoTable.finalY + 26) : ((opts.cursorY || M) + 26));
+    let x = M;
+
+    // util para centrar
+    const centerText = (txt, cx, cy) => doc.text(String(txt), cx, cy, { align: 'center', baseline: 'middle' });
+
+    // Caja nombre
+    doc.setDrawColor(0);
+    doc.rect(x, y, wName, h);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    centerText(items[0]?.ejercicio?.nombre || 'Ejercicio', x + wName / 2, y + h / 2);
+    x += wName;
+
+    // Columnas por ítem
+    items.forEach((it) => {
+      const { sets, reps } = parseSetsReps(it?.reps);
+      const peso = (it?.setRepWeight || '').toString().trim();
+
+      // Sets (col estrecha)
+      doc.rect(x, y, wSets, h);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      centerText(sets ?? '—', x + wSets / 2, y + h / 2);
+      x += wSets;
+
+      // Reps/Peso (col ancha, con línea media)
+      doc.rect(x, y, wVal, h);
+      doc.line(x, y + h / 2, x + wVal, y + h / 2);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      centerText(reps ?? '—', x + wVal / 2, y + h / 4);              // arriba
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      centerText(peso || '—', x + wVal / 2, y + (3 * h) / 4);         // abajo
+      x += wVal;
+    });
+
+    return y + h; // nueva Y
+  };
+
+
   const handleExportPDF = () => {
     if (!rutina) return;
 
@@ -288,14 +447,39 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       bloques.forEach((b, iB) => {
         ensureSpace(80);
 
-        // Header de bloque
+        // —— DROPSET PDF (bloque SETS_REPS con mismo ejercicio y 2+ items)
+        if (b?.type === 'SETS_REPS' && isDropSetBlockPDF(b)) {
+          const items = getBloqueItems(b);
+          const nombre = (b?.nombreEj || items[0]?.ejercicio?.nombre || 'Ejercicio').trim();
+          // título "DROPSET — Nombre"
+          const title = `DROPSET — ${nombre}`;
+
+          // Render especial
+          const nextY = renderDropSetPDF(doc, {
+            M, pageW, pageH, ensureSpace,
+            title,
+            items,
+            cursorY
+          });
+
+          cursorY = nextY + 12;
+
+          // Separador entre bloques
+          if (iB !== bloques.length - 1) {
+            doc.setDrawColor(230);
+            doc.line(M, cursorY, pageW - M, cursorY);
+            cursorY += 12;
+          }
+          return; // importante: saltar al siguiente bloque
+        }
+
+        // —— Resto de bloques (comportamiento existente)
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         const tituloBloque = typeLabel(b?.type, b);
         doc.text(tituloBloque, M, cursorY);
         cursorY += 6;
 
-        // Tabla de ejercicios
         const rows = (b?.ejercicios || []).map((e) => {
           const ej = e?.ejercicio || {};
           const nombre = pretty(ej?.nombre, 'Ejercicio');
@@ -318,7 +502,7 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
             headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
             head: [['Ejercicio', 'Series / Reps', 'Peso']],
             body: rows.map((r) => [r.ejercicio, r.reps, r.peso]),
-            didDrawPage: (data) => {
+            didDrawPage: () => {
               const page = doc.getCurrentPageInfo().pageNumber;
               const total = doc.getNumberOfPages();
               doc.setFontSize(9);
@@ -329,18 +513,11 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
           cursorY = (doc.lastAutoTable?.finalY || cursorY) + 12;
         }
 
-        // Meta de bloque
         if (b?.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata)) {
           ensureSpace(26);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
-          const meta = [
-            // b?.cantSeries ? `Series: ${b.cantSeries}` : '',
-            // b?.tiempoTrabajoDescansoTabata
-            //   ? `Trabajo/Descanso: ${formatWorkRest(b.tiempoTrabajoDescansoTabata)}`
-            //   : '',
-            b?.descTabata ? `Pausa entre series: ${b.descTabata}` : '',
-          ].filter(Boolean);
+          const meta = [b?.descTabata ? `Pausa entre series: ${b.descTabata}` : ''].filter(Boolean);
           if (meta.length) {
             doc.text(meta.join('   ·   '), M, cursorY);
             cursorY += 14;
@@ -355,13 +532,13 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
           cursorY += 14;
         }
 
-        // Separador entre bloques
         if (iB !== bloques.length - 1) {
           doc.setDrawColor(230);
           doc.line(M, cursorY, pageW - M, cursorY);
           cursorY += 12;
         }
       });
+
 
       // Separador entre días
       if (idxDia !== diasArr.length - 1) {
@@ -486,86 +663,88 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                       <div className="gh-muted">Este día no tiene bloques cargados.</div>
                     ) : (
                       <div className="gh-grid-2 gh-grid-fullwidth">
-                        {bloques.map((b) => (
-                          <div className="gh-surface" key={b.ID_Bloque} style={{ display: 'grid', gap: 12 }}>
-                            {/* header del bloque */}
-                            <div
-                              style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                gap: 8,
-                                flexWrap: 'wrap',
-                              }}
-                            >
-                              <h4 className="gh-feature-title" style={{ margin: 0 }}>
-                                {typeLabel(b?.type, b)}
-                              </h4>
-                            </div>
+                        {bloques.map((b) => {
+                          // —— Vista especial DROPSET
+                          if (b?.type === 'SETS_REPS' && isDropSetBlock(b)) {
+                            return <DropSetDetail key={b.ID_Bloque} bloque={b} />;
+                          }
 
-                            {/* lista de ejercicios */}
-                            <div style={{ display: 'grid', gap: 10 }}>
-                              {(b.ejercicios || []).length === 0 ? (
-                                <div className="gh-muted sm">Este bloque no tiene ejercicios.</div>
-                              ) : (
-                                b.ejercicios.map((e, idx) => {
-                                  const ej = e?.ejercicio || {};
-                                  const nombre = pretty(ej?.nombre, 'Ejercicio');
-                                  const reps = deriveReps(e, b);
-                                  const peso = derivePeso(e, b);
-                                  const title =
-                                    peso && String(peso).trim().length > 0
-                                      ? `${nombre} - ${peso}`
-                                      : nombre;
+                          return (
+                            <div className="gh-surface" key={b.ID_Bloque} style={{ display: 'grid', gap: 12 }}>
+                              {/* header del bloque */}
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  gap: 8,
+                                  flexWrap: 'wrap',
+                                }}
+                              >
+                                <h4 className="gh-feature-title" style={{ margin: 0 }}>
+                                  {typeLabel(b?.type, b)}
+                                </h4>
+                              </div>
 
-                                  return (
-                                    <div
-                                      key={`${b.ID_Bloque}-${e.ID_Ejercicio}-${idx}`}
-                                      className="gh-list-item gh-ej-row"
-                                    >
-                                      <div className="gh-media-slot">
-                                        <RenderMedia ej={ej} />
-                                        {!ej?.mediaUrl && (
-                                          <div className="gh-ej-thumb-placeholder show" />
-                                        )}
-                                      </div>
+                              {/* lista de ejercicios */}
+                              <div style={{ display: 'grid', gap: 10 }}>
+                                {(b.ejercicios || []).length === 0 ? (
+                                  <div className="gh-muted sm">Este bloque no tiene ejercicios.</div>
+                                ) : (
+                                  b.ejercicios.map((e, idx) => {
+                                    const ej = e?.ejercicio || {};
+                                    const nombre = pretty(ej?.nombre, 'Ejercicio');
+                                    const reps = deriveReps(e, b);
+                                    const peso = derivePeso(e, b);
+                                    const title =
+                                      peso && String(peso).trim().length > 0
+                                        ? `${nombre} - ${peso}`
+                                        : nombre;
 
-                                      <div className="gh-ej-main">
-                                        <div className="gh-ej-title">
-                                          <span className="gh-text bold">{title}</span>
+                                    return (
+                                      <div
+                                        key={`${b.ID_Bloque}-${e.ID_Ejercicio}-${idx}`}
+                                        className="gh-list-item gh-ej-row"
+                                      >
+                                        <div className="gh-media-slot">
+                                          <RenderMedia ej={ej} />
+                                          {!ej?.mediaUrl && (
+                                            <div className="gh-ej-thumb-placeholder show" />
+                                          )}
                                         </div>
-                                        <div className="gh-ej-info">
-                                          {reps && <span className="gh-muted sm">{reps}</span>}
+
+                                        <div className="gh-ej-main">
+                                          <div className="gh-ej-title">
+                                            <span className="gh-text bold">{title}</span>
+                                          </div>
+                                          <div className="gh-ej-info">
+                                            {reps && <span className="gh-muted sm">{reps}</span>}
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  );
-                                })
-                              )}
-                            </div>
-
-                            {/* Meta de TABATA */}
-                            {b?.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
-                              <div className="bloque-footnote tabata-meta">
-                                {/* <span className="meta-chip"><b>Series:</b> {pretty(b.cantSeries)}</span>
-                                <span className="meta-chip">
-                                  <b>Trabajo/Descanso:</b>{' '}
-                                  {b?.tiempoTrabajoDescansoTabata ? formatWorkRest(b.tiempoTrabajoDescansoTabata) : '—'}
-                                </span> */}
-                                {b?.descTabata && (
-                                  <span className="meta-chip"><b>Pausa entre series:</b> {b.descTabata}</span>
+                                    );
+                                  })
                                 )}
                               </div>
-                            )}
 
-                            {/* Meta de Rondas (se mantiene) */}
-                            {b?.type === 'ROUNDS' && pretty(b.descansoRonda, '') && (
-                              <div className="gh-inline">
-                                <span>{`Descanso entre rondas: ${b.descansoRonda}`}</span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                              {/* Meta de TABATA */}
+                              {b?.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
+                                <div className="bloque-footnote tabata-meta">
+                                  {b?.descTabata && (
+                                    <span className="meta-chip"><b>Pausa entre series:</b> {b.descTabata}</span>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Meta de Rondas (se mantiene) */}
+                              {b?.type === 'ROUNDS' && pretty(b.descansoRonda, '') && (
+                                <div className="gh-inline">
+                                  <span>{`Descanso entre rondas: ${b.descansoRonda}`}</span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
