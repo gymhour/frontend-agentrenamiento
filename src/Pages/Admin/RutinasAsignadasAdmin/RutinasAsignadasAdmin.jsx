@@ -177,11 +177,35 @@ const repsWeightLine = (it) => {
 /** Render del bloque dropset */
 const renderDropSetBlock = (b) => {
   const items = getBloqueItems(b);
-  const nombre = (b?.nombreEj || items[0]?.ejercicio?.nombre || 'Ejercicio').trim();
+  if (!items || items.length === 0) return null;
+
+  const firstItem = items[0] || {};
+  const ej = firstItem.ejercicio || {};
+  const nombre = (b?.nombreEj || ej?.nombre || 'Ejercicio').trim();
+
+  // Reutilizamos la misma regla de link que en otros bloques
+  const hasLink = isLinkableExercise(firstItem); // usa ej.ID_Ejercicio && !ej.esGenerico
+
+  const titleNode = hasLink ? (
+    <span className="ejercicio-link-wrap">
+      <Link
+        to={`/alumno/ejercicios/${ej.ID_Ejercicio}`}
+        className="ejercicio-link"
+        title="Ver detalle del ejercicio"
+      >
+        {nombre}
+      </Link>
+      <VideoIcon className="video-icon" aria-hidden="true" />
+    </span>
+  ) : (
+    <span>{nombre}</span>
+  );
 
   return (
     <div className="bloque-card dropset-card">
-      <p className="bloque-header">DROPSET — {nombre}</p>
+      <p className="bloque-header">
+        DROPSET — {titleNode}
+      </p>
       <ul className="bloque-list dropset-list">
         {items.map((it, idx) => (
           <li key={idx}>{repsWeightLine(it)}</li>
@@ -190,6 +214,7 @@ const renderDropSetBlock = (b) => {
     </div>
   );
 };
+
 /* ==================================================== */
 
 const RutinasAsignadas = () => {

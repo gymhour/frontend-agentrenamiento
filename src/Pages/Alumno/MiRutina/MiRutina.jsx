@@ -137,11 +137,34 @@ const repsWeightLine = (it) => {
 
 const renderDropSetBlock = (b) => {
   const items = getBloqueItems(b);
-  const nombre = (b?.nombreEj || items[0]?.ejercicio?.nombre || 'Ejercicio').trim();
+  if (!items || items.length === 0) return null;
+
+  const firstItem = items[0] || {};
+  const ej = firstItem.ejercicio || {};
+  const nombre = (b?.nombreEj || ej?.nombre || 'Ejercicio').trim();
+
+  const hasLink = isLinkableExercise(firstItem);
+
+  const titleNode = hasLink ? (
+    <span className="ejercicio-link-wrap">
+      <Link
+        to={`/alumno/ejercicios/${ej.ID_Ejercicio}`}
+        className="ejercicio-link"
+        title="Ver detalle del ejercicio"
+      >
+        {nombre}
+      </Link>
+      <VideoIcon className="video-icon" aria-hidden="true" />
+    </span>
+  ) : (
+    <span>{nombre}</span>
+  );
 
   return (
     <div className="bloque-card dropset-card">
-      <p className="bloque-header">DROPSET — {nombre}</p>
+      <p className="bloque-header">
+        DROPSET — {titleNode}
+      </p>
       <ul className="bloque-list dropset-list">
         {items.map((it, idx) => (
           <li key={idx}>{repsWeightLine(it)}</li>
@@ -171,10 +194,10 @@ const formatWorkRest = (str = "") => {
 const headerForBlock = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return '';
-    case 'ROUNDS':    return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
-    case 'EMOM':      return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
-    case 'AMRAP':     return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'LADDER':    return b?.tipoEscalera || 'Escalera';
+    case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
+    case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
+    case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
+    case 'LADDER': return b?.tipoEscalera || 'Escalera';
     case 'TABATA': {
       const parts = [];
       if (b?.cantSeries) parts.push(`${b.cantSeries} series`);
