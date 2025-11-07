@@ -186,7 +186,7 @@ const renderDropSetBlock = (b) => {
   const titleNode = hasLink ? (
     <span className="ejercicio-link-wrap">
       <Link
-        to={`/alumno/ejercicios/${ej.ID_Ejercicio}`}
+        to={`/entrenador/ejercicios/${ej.ID_Ejercicio}`}
         className="ejercicio-link"
         title="Ver detalle del ejercicio"
       >
