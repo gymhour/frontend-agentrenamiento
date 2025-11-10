@@ -17,6 +17,9 @@
 .custom-date-picker-input {
     width: 100%;
     max-width: 300px;
+    background-color: var(--background-color-distinct);
+    border: none;
+    color: var(--text-color);
 }
 
 .react-datepicker__triangle {
@@ -24,66 +27,68 @@
 }
 
 .react-datepicker {
-    background-color: #333 !important;
+    background-color: var(--background-color) !important;
     border: 1px solid #444 !important;
-    color: #fff !important;
+    color: var(--text-color) !important;
 }
 
 .react-datepicker__header {
-    background-color: #444 !important;
+    background-color: var(--background-color) !important;
     border-bottom: 1px solid #555 !important;
+    color: var(--text-color);
 }
 
 .react-datepicker__current-month,
 .react-datepicker-time__header,
 .react-datepicker-year-header {
-    color: #fff !important;
+    color: var(--text-color) !important;
 }
 
 /* Días en el calendario */
 .react-datepicker__day-name,
 .react-datepicker__day,
 .react-datepicker__time-name {
-    color: #fff !important;
+    color: var(--text-color) !important;
 }
 
 /* Día seleccionado */
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-    background-color: #666 !important;
-    color: #fff !important;
+    background-color: var(--background-color-distinct) !important;
+    color: var(--text-color) !important;
 }
 
 /* Días fuera del mes actual */
 .react-datepicker__day--outside-month {
-    color: #999 !important;
+    color: var(--background-color-distinct) !important;
 }
 
 /* Hover en días */
 .react-datepicker__day:hover {
-    background-color: #555 !important;
+    background-color: var(--background-color-distinct) !important;
 }
 
 /* Contenedor de la lista de horas */
 .react-datepicker__time-container .react-datepicker__time {
-    background-color: #333 !important;
+    background-color: var(--background-color) !important;
+    color: var(--text-color);
 }
 
 /* Lista de horas */
 .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box .react-datepicker__time-list-item {
-    background-color: #333 !important;
-    color: #fff !important;
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
 }
 
 /* Hover en la lista de horas */
 .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box .react-datepicker__time-list-item:hover {
-    background-color: #555 !important;
+    background-color: var(--background-color-distinct) !important;
 }
 
 /* Hora seleccionada */
 .react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box .react-datepicker__time-list-item--selected {
-    background-color: #666 !important;
-    color: #fff !important;
+    background-color: var(--background-color-distinct) !important;
+    color: var(--text-color) !important;
 }
 
 /* Estilo para fechas deshabilitadas */

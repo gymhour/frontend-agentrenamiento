@@ -228,7 +228,12 @@ const AlumnoInicio = () => {
         <div className="turnos-ctn">
           <div className="turnos-ctn-title">
             <h3> Últimos turnos </h3>
-            <SecondaryButton linkTo="/alumno/turnos" text="Ver historial" icon={ArrowRightIcon} />
+            <SecondaryButton
+              linkTo="/alumno/turnos"
+              text="Ver historial"
+              icon={ArrowRightIcon}
+              iconClassName="allow-fill"
+            />
           </div>
 
           <div className="turnos-ctn-turnos">
@@ -259,7 +264,7 @@ const AlumnoInicio = () => {
         <div className="inicio-clases-act-ctn">
           <div className="inicio-clases-act-title">
             <h3> Clases y actividades </h3>
-            <SecondaryButton linkTo="/alumno/clases-actividades" text="Ver todas" icon={ArrowRightIcon} />
+            <SecondaryButton linkTo="/alumno/clases-actividades" text="Ver todas" icon={ArrowRightIcon} iconClassName="allow-fill" />
           </div>
 
           {error ? (

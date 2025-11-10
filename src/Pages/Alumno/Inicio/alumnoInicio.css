@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 .inicio-bienvenida-ctn {
     margin-bottom: 20px;
 }
@@ -17,7 +19,7 @@
 }
 
 .turnos-ctn-title h3 {
-    color: #FAFAFA;
+    color: var(--text-color);
     font-weight: 600;
 }
 
@@ -31,8 +33,8 @@
 }
 
 .inicio-clases-act-title h3 {
-    color: #FAFAFA;
-    font-weight: 600;
+  color: var(--text-color);    
+  font-weight: 600;
 }
 
 .turnos-ctn-turnos {
@@ -61,7 +63,7 @@
 }
 
 .cuota-reminder {
-    background: rgba(255, 193, 7, 0.12); /* amarillo suave */
+    background: rgba(255, 193, 7, 0.12);
     border: 1px solid rgba(255, 193, 7, 0.35);
     box-shadow: 0 6px 18px rgba(0,0,0,0.15);
     border-radius: 14px;

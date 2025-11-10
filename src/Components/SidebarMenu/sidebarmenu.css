@@ -1,3 +1,5 @@
+@import url(../../variables.css);
+
 /* ============================
    BASE SIDEBAR (desktop + mobile)
    ============================ */
@@ -6,9 +8,9 @@
     top: 0;
     width: 320px;
     min-height: 100vh;
-    background-color: #101010;
+    background-color: var(--background-color);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
-    color: #FAFAFA;
+    color: var(--text-color);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -33,7 +35,7 @@
   .menu-divider {
     height: 1.5px;
     width: 280px;
-    background-color: #303030;
+    background-color: #3030302d;
   }
   
   .sidebar-menu {
@@ -43,7 +45,7 @@
   .menu-title,
   .profile-title {
     font-size: 12px;
-    color: #aaa;
+    color: var(--text-color);
     margin-bottom: 10px;
   }
   
@@ -61,11 +63,12 @@
     border-radius: 10px;
     font-size: 15px;
     cursor: pointer;
+    color: var(--text-color);
     transition: background-color 0.3s;
   }
   
   .menu-item:hover {
-    background-color: #333;
+    background-color: var(--background-hover-color);
   }
   
   .menu-item.logout {
@@ -162,8 +165,13 @@
       width: 100%;
       height: 60px;
       padding: 0 16px;
-      background-color: #101010;
+      background-color: var(--background-color);
+      color: var(--text-color);
       z-index: 1003;
+    }
+    .svg-icon {
+      color: red;
+      fill: red;
     }
     .mobile-logo {
       height: 55px;

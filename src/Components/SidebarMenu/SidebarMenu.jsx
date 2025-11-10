@@ -67,8 +67,8 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
           onClick={() => setIsSidebarOpen(prev => !prev)}
         >
           {isSidebarOpen
-            ? <CloseIcon fill="#FAFAFA" width={35} height={35} />
-            : <MenuHamburguesaIcon fill="#FAFAFA" width={20} height={20} />
+            ? <CloseIcon width={35} height={35} className="svg-icon" />
+            : <MenuHamburguesaIcon width={20} height={20} className="svg-icon"/>
           }
         </button>
         <img
