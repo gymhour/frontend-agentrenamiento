@@ -8,9 +8,8 @@ import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropd
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as VideoIcon } from '../../../assets/icons/video-icon.svg';
-import { useNavigate } from 'react-router-dom';
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -56,14 +55,36 @@ const normalizeDias = (rutina) => {
 
 const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 
-// En SETS_REPS no usamos header; en el resto sí:
-const headerForBlock = (b) => {
+/* ===== Etiquetas por tipo (incluye TABATA mejorado) ===== */
+const formatWorkRest = (str = '') => {
+  const s = String(str).trim();
+  if (!s) return '';
+  const txt = s
+    .replace(/on|trabajo/gi, '')
+    .replace(/off|descanso/gi, '')
+    .replace(/[x×]/g, '/')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*\/\s*/g, '/')
+    .trim();
+  const [work, rest] = txt.split('/');
+  if (work && rest) return `${work.trim()} trabajo × ${rest.trim()} descanso`;
+  return s;
+};
+
+const blockLabel = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return '';
     case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
     case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
     case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'TABATA': return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
+    case 'TABATA': {
+      const chips = [];
+      if (b?.cantSeries) chips.push(`${b.cantSeries} series`);
+      if (b?.tiempoTrabajoDescansoTabata) chips.push(formatWorkRest(b.tiempoTrabajoDescansoTabata));
+      if (chips.length) return `Tabata — ${chips.join(' · ')}`;
+      if (b?.durationMin) return `Tabata ${b.durationMin}min:`;
+      return 'TABATA:';
+    }
     case 'LADDER': return b?.tipoEscalera || 'Escalera';
     default: return '';
   }
@@ -81,7 +102,7 @@ const itemText = (it, tipo) => {
   return showExtra ? `${left} — ${extra}` : left;
 };
 
-// === Nueva lógica de link + icono (igual que en MiRutina)
+// Link + icono video
 const isLinkableExercise = (it) => {
   const ej = it?.ejercicio;
   return !!(ej?.ID_Ejercicio && ej?.esGenerico === false);
@@ -107,7 +128,7 @@ const renderEjercicioItem = (it, tipo) => {
   return <span>{txt}</span>;
 };
 
-// Si un SETS_REPS no trae ejercicios, mostramos esta línea como item de cuerpo.
+// Fallback para SETS_REPS sin ejercicios
 const setsRepsFallback = (b) => {
   const parts = [
     b?.setsReps ? `${b.setsReps}` : '',
@@ -118,7 +139,75 @@ const setsRepsFallback = (b) => {
   return txt || null;
 };
 
-/* ===================== Component ===================== */
+/* ======== DROPSET helpers (mismo criterio que RutinasAsignadas/MiRutina) ======== */
+/** true si es bloque SETS_REPS con 2+ items del mismo ejercicio */
+const isDropSetBlock = (b) => {
+  if (!b || b.type !== 'SETS_REPS') return false;
+  const items = getBloqueItems(b);
+  if (!Array.isArray(items) || items.length < 2) return false;
+
+  const firstId = items[0]?.ejercicio?.ID_Ejercicio ?? items[0]?.ID_Ejercicio ?? null;
+  const firstName = (items[0]?.ejercicio?.nombre || b?.nombreEj || '').trim().toLowerCase();
+
+  return items.every(it => {
+    const id = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
+    const name = (it?.ejercicio?.nombre || '').trim().toLowerCase();
+    if (firstId != null && id != null) return id === firstId;
+    return name && name === firstName;
+  });
+};
+
+const repsWeightLine = (it) => {
+  const reps = (it?.reps || '').toString().replace(/x/gi, '×').trim();
+  const w = (it?.setRepWeight || '').toString().trim();
+  if (reps && w) return `${reps} - ${w}`;
+  if (reps) return reps;
+  if (w) return w;
+  return '—';
+};
+
+const renderDropSetBlock = (b) => {
+  const items = getBloqueItems(b);
+  if (!items || items.length === 0) return null;
+
+  const firstItem = items[0] || {};
+  const ej = firstItem.ejercicio || {};
+  const nombre = (b?.nombreEj || ej?.nombre || 'Ejercicio').trim();
+
+  // Reutilizamos la misma regla de link que en otros bloques
+  const hasLink = isLinkableExercise(firstItem); // usa ej.ID_Ejercicio && !ej.esGenerico
+
+  const titleNode = hasLink ? (
+    <span className="ejercicio-link-wrap">
+      <Link
+        to={`/alumno/ejercicios/${ej.ID_Ejercicio}`}
+        className="ejercicio-link"
+        title="Ver detalle del ejercicio"
+      >
+        {nombre}
+      </Link>
+      <VideoIcon className="video-icon" aria-hidden="true" />
+    </span>
+  ) : (
+    <span>{nombre}</span>
+  );
+
+  return (
+    <div className="bloque-card dropset-card">
+      <p className="bloque-header">
+        DROPSET — {titleNode}
+      </p>
+      <ul className="bloque-list dropset-list">
+        {items.map((it, idx) => (
+          <li key={idx}>{repsWeightLine(it)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+/* ================================================================== */
+
 const RutinasRecomendadas = () => {
   const [rutinas, setRutinas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -287,9 +376,14 @@ const RutinasRecomendadas = () => {
 
                       {(dias[0]?.bloques || []).map((b, i) => {
                         const items = getBloqueItems(b);
-                        const header = headerForBlock(b);
+                        const header = blockLabel(b);
 
                         if (b.type === 'SETS_REPS') {
+                          // DROPSET → card especial
+                          if (isDropSetBlock(b)) {
+                            return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+                          }
+
                           const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                           return (
                             <div key={i} className='bloque-card'>
@@ -320,9 +414,16 @@ const RutinasRecomendadas = () => {
                                 ))}
                               </ul>
                             )}
-                            {b.type === 'ROUNDS' && b.descansoRonda ? (
+
+                            {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
+                              <p className='bloque-footnote'>
+                                {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
+                              </p>
+                            )}
+
+                            {b.type === 'ROUNDS' && b?.descansoRonda != null && (
                               <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
-                            ) : null}
+                            )}
                           </div>
                         );
                       })}
@@ -348,9 +449,13 @@ const RutinasRecomendadas = () => {
 
                                 {(d.bloques || []).map((b, i) => {
                                   const items = getBloqueItems(b);
-                                  const header = headerForBlock(b);
+                                  const header = blockLabel(b);
 
                                   if (b.type === 'SETS_REPS') {
+                                    if (isDropSetBlock(b)) {
+                                      return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+                                    }
+
                                     const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                                     return (
                                       <div key={i} className='bloque-card'>
@@ -381,9 +486,20 @@ const RutinasRecomendadas = () => {
                                           ))}
                                         </ul>
                                       )}
-                                      {b.type === 'ROUNDS' && b.descansoRonda ? (
+
+                                      {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
+                                        <p className='bloque-footnote'>
+                                          {b?.cantSeries ? <><b>Series:</b> {b.cantSeries} · </> : null}
+                                          {b?.tiempoTrabajoDescansoTabata
+                                            ? <><b>Trabajo/Descanso:</b> {formatWorkRest(b.tiempoTrabajoDescansoTabata)} · </>
+                                            : null}
+                                          {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
+                                        </p>
+                                      )}
+
+                                      {b.type === 'ROUNDS' && b?.descansoRonda != null && (
                                         <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
-                                      ) : null}
+                                      )}
                                     </div>
                                   );
                                 })}
@@ -396,7 +512,10 @@ const RutinasRecomendadas = () => {
                   )}
 
                   <div style={{ marginTop: 12 }}>
-                    <button className='rutina-ver-detalle-btn' onClick={() => navigate(`/alumno/rutinas/${rutina.ID_Rutina}`)}>
+                    <button
+                      className='rutina-ver-detalle-btn'
+                      onClick={() => navigate(`/alumno/rutinas/${rutina.ID_Rutina}`)}
+                    >
                       Ver mas detalles
                     </button>
                   </div>

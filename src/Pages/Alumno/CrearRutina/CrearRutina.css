@@ -813,3 +813,67 @@
     background: rgba(255, 255, 255, 0.06);
     color: #fff;
 }
+
+.dropset-ctn {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.dropset-ctn .exercise-cell {
+    position: relative;
+}
+
+.dropset-ctn .exercise-cell .exercise-input {
+    width: 100%;
+}
+
+.sets-row--dropset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.sets-row--dropset .series-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+}
+
+.mini-label {
+    display: block;
+    margin: 0 0 6px 2px;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--text-muted, #6b7280);
+}
+
+/* .sets-row--dropset .delete-set-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+} */
+
+.dropset-ctn .sets-reps-ctn>a,
+.dropset-ctn .sets-reps-ctn>button {
+    margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+    .sets-row--dropset {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sets-row--dropset .series-group {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* .sets-row--dropset .delete-set-btn {
+        width: 100%;
+        height: 38px;
+    } */
+}
