@@ -58,15 +58,21 @@ const normalizeDias = (rutina) => {
 
 const getBloqueItems = (b) => Array.isArray(b?.ejercicios) ? b.ejercicios : [];
 
-// Encabezado por tipo (en SETS_REPS no mostramos header)
+/** Encabezado por tipo (actualizado TABATA) */
 const headerForBlock = (b) => {
   switch (b?.type) {
     case 'SETS_REPS': return '';
     case 'ROUNDS': return b?.cantRondas ? `${b.cantRondas} rondas de:` : 'Rondas:';
     case 'EMOM': return b?.durationMin ? `EMOM ${b.durationMin}min:` : 'EMOM:';
     case 'AMRAP': return b?.durationMin ? `AMRAP ${b.durationMin}min:` : 'AMRAP:';
-    case 'TABATA': return b?.durationMin ? `TABATA ${b.durationMin}min:` : 'TABATA:';
     case 'LADDER': return b?.tipoEscalera || 'Escalera';
+    case 'TABATA': {
+      // Nuevo formato: cantSeries / tiempoTrabajoDescansoTabata / descTabata
+      const series = (b?.cantSeries || b?.cantSeries === 0) ? `${b.cantSeries} series` : null;
+      const workRest = (b?.tiempoTrabajoDescansoTabata || '').trim() || null;
+      const parts = ['TABATA', series, workRest].filter(Boolean);
+      return parts.join(' · ') + ':';
+    }
     default: return '';
   }
 };
@@ -80,7 +86,7 @@ const itemText = (it, tipo) => {
 
   if (tipo === 'LADDER') return showExtra ? `${name} — ${extra}` : name;
 
-  const left = reps ? `${reps} ${name}` : name;
+  const left = reps ? `${reps} ${name}` : name; // En TABATA reps suele venir vacío -> muestra solo nombre
   return showExtra ? `${left} — ${extra}` : left;
 };
 
@@ -179,7 +185,7 @@ const RutinasAdmin = () => {
     }));
   };
 
-  // duplicar rutina
+  // duplicar rutina — actualizado para TABATA
   const buildDuplicatePayload = (rutina) => {
     const currentUserId = Number(localStorage.getItem('usuarioId')) || null;
     const alumnoId = rutina?.alumno?.ID_Usuario ?? currentUserId;
@@ -208,6 +214,10 @@ const RutinasAdmin = () => {
           cantRondas: b?.cantRondas ?? null,
           durationMin: b?.durationMin ?? null,
           tipoEscalera: b?.tipoEscalera ?? null,
+          // === Campos TABATA preservados ===
+          cantSeries: (b?.cantSeries ?? null),
+          descTabata: (b?.descTabata ?? null),
+          tiempoTrabajoDescansoTabata: (b?.tiempoTrabajoDescansoTabata ?? null),
           bloqueEjercicios,
         };
       });
@@ -287,6 +297,7 @@ const RutinasAdmin = () => {
                     {(dias[0]?.bloques || []).map((b, i) => {
                       const items = getBloqueItems(b);
                       const header = headerForBlock(b);
+
                       if (b.type === 'SETS_REPS') {
                         const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                         return (
@@ -301,6 +312,7 @@ const RutinasAdmin = () => {
                           </div>
                         );
                       }
+
                       return (
                         <div key={i} className='bloque-card'>
                           {header && <p className='bloque-header'>{header}</p>}
@@ -311,6 +323,10 @@ const RutinasAdmin = () => {
                           )}
                           {b.type === 'ROUNDS' && b.descansoRonda != null && (
                             <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
+                          )}
+                          {/* Nota TABATA */}
+                          {b.type === 'TABATA' && b.descTabata && (
+                            <p className='bloque-footnote'>Descanso: {b.descTabata}</p>
                           )}
                         </div>
                       );
@@ -337,6 +353,7 @@ const RutinasAdmin = () => {
                               {(d.bloques || []).map((b, i) => {
                                 const items = getBloqueItems(b);
                                 const header = headerForBlock(b);
+
                                 if (b.type === 'SETS_REPS') {
                                   const fallback = items.length === 0 ? setsRepsFallback(b) : null;
                                   return (
@@ -348,6 +365,7 @@ const RutinasAdmin = () => {
                                     </div>
                                   );
                                 }
+
                                 return (
                                   <div key={i} className='bloque-card'>
                                     {header && <p className='bloque-header'>{header}</p>}
@@ -358,6 +376,10 @@ const RutinasAdmin = () => {
                                     )}
                                     {b.type === 'ROUNDS' && b.descansoRonda != null && (
                                       <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
+                                    )}
+                                    {/* Nota TABATA */}
+                                    {b.type === 'TABATA' && b.descTabata && (
+                                      <p className='bloque-footnote'>Descanso: {b.descTabata}</p>
                                     )}
                                   </div>
                                 );
