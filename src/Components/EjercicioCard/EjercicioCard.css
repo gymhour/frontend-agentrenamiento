@@ -1,13 +1,13 @@
 @import url(../../variables.css);
 
 .exercise-card {
-    background-color: #000;
-    border: 1px solid #333;
+    background-color: var(--background-color-distinct);
+    border: 1px solid var(--light-grey);
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    color: #fff;
+    color: var(--text-color);
     margin: 10px;
     max-width: 300px;
     transition: all ease-in-out 150ms;
@@ -42,7 +42,7 @@
 .info__desc {
     margin: 0;
     font-size: 14px;
-    color: #ccc;
+    color: var(--text-color-distinct);
     text-transform: capitalize;
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -80,10 +80,10 @@
 
 .exercise-card__footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    gap: .5rem;
-    padding: 0 12px 12px;
+    gap: 4px;
+    padding: 0 6px 6px;
   }
   
   .action-btn {

@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 /* Contenedor para scroll horizontal en viewports chicos */
 .table-responsive {
   width: 100%;
@@ -173,15 +175,15 @@
 /* DatePicker / Select */
 .css-1yju044-control , .css-6anckf-control, .css-vdx20g-menu, .css-13cymwt-control, .css-t3ipsp-control, .css-t3ipsp-control:hover, .css-1nmdiq5-menu {
   width: 300px !important;
-  background-color: #252525 !important;
-  color: #FAFAFA;
+  background-color: var(--background-color) !important;
+  color: var(--text-color);
   min-height: 50px !important;
   border-radius: 8px !important;
   box-shadow: none !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--light-grey) !important;
 }
 
-.css-1dimb5e-singleValue, .css-1cfo1cf { color: white !important; }
+.css-1dimb5e-singleValue, .css-1cfo1cf { color: var(--text-color) !important; }
 
 .custom-datepicker-mes { width: 300px; }
 
@@ -220,7 +222,7 @@
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: 12px;
     overflow: hidden;
-    background: rgba(255,255,255,0.02);
+    background: var(--background-color-distinct);
   }
 
   .cuotas-table td {
