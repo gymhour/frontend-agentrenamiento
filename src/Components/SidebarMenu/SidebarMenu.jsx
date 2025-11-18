@@ -72,7 +72,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
           }
         </button>
         <img
-          src={ClientLogo}
+          src={OurLogo}
           alt="Wembley Logo"
           className="mobile-logo"
         />
@@ -98,7 +98,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
         {/* Logo cliente */}
         <div className="sidebar-logo">
           <img
-            src={ClientLogo}
+            src={OurLogo}
             alt="Wembley Logo"
             className="logo"
           />
