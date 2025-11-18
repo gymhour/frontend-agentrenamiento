@@ -108,7 +108,7 @@ const Login = () => {
       {/* {isLoading && <LoaderFullScreen />} */}
       <div className="login-subcontainer">
         <div className="gym-logo-container">
-          <img src={ClientLogo} alt="Logo del gimnasio" width={120} />
+          <img src={OurLogo} alt="Logo del gimnasio" width={120} />
         </div>
 
         <div className="form-container">
