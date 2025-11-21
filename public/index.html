@@ -15,6 +15,27 @@
   <!-- En el manifest va el icono para mobile -->
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
   <title>Gymhour</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Oswald:wght@500;700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Oswald', 'sans-serif'],
+          },
+          colors: {
+            neon: '#bef264',
+            dark: '#09090b',
+            teal: '#14b8a6',
+          }
+        }
+      }
+    }
+  </script>
 </head>
 
 <body>

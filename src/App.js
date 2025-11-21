@@ -43,7 +43,13 @@ import EjercicioDetail from './Pages/Shared/EjercicioDetail/EjercicioDetail';
 import RutinaDetail from './Pages/Shared/RutinaDetail/RutinaDetail';
 import CrearRutinaRecomendada from './Pages/Admin/CrearRutinaRecomendada/CrearRutinaRecomendada';
 import RutinasAsignadasAdmin from './Pages/Admin/RutinasAsignadasAdmin/RutinasAsignadasAdmin';
-
+import LandingGymOne from './Pages/Landing/LandingGymOne/LandingGymOne';
+import LandingGymTwo from './Pages/Landing/LandingGymTwo/LandingGymTwo';
+import LandingGymThree from './Pages/Landing/LandingGymThree/LandingGymThree';
+import LandingGymFour from './Pages/Landing/LandingGymFour/LandingGymFour';
+import LandingTrainerOne from './Pages/Landing/LandingTrainerOne/LandingTrainerOne';
+import LandingTrainerTwo from './Pages/Landing/LandingTrainerTwo/LandingPageTwo';
+import LandingTrainerThree from './Pages/Landing/LandingTrainerThree/LandingTrainerThree';
 function App() {
 
   const location = useLocation();
@@ -71,7 +77,14 @@ function App() {
       />
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<GymHourLanding />} />
+        <Route path="/landing-gym-one" element={<LandingGymOne />} />
+        <Route path="/landing-gym-two" element={<LandingGymTwo />} />
+        <Route path="/landing-gym-three" element={<LandingGymThree />} />
+        <Route path="/landing-gym-four" element={<LandingGymFour />} />
+        <Route path="/landing-trainer-one" element={<LandingTrainerOne />} />
+        <Route path="/landing-trainer-two" element={<LandingTrainerTwo />} />
+        <Route path="/landing-trainer-three" element={<LandingTrainerThree />} />
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
