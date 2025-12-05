@@ -22,3 +22,13 @@ code {
   padding: 0;
   box-sizing: border-box;
 }
+
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
