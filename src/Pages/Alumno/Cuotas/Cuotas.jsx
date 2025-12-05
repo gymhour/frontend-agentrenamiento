@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import './Cuotas.css';
 // import axios from 'axios'; // ← no se usa
-// import { ReactComponent as GaliciaIcon } from '../../../assets/icons/galicia_logo.svg';
+import { ReactComponent as GaliciaIcon } from '../../../assets/icons/galicia_logo.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/icons/copy.svg';
 import { toast } from 'react-toastify';
 import apiService from '../../../services/apiService';
@@ -75,18 +75,18 @@ const Cuotas = () => {
       <SidebarMenu isAdmin={false} />
 
       <div className="content-layout">
-        <h2>Cuotas</h2>
+        <h1>Cuotas</h1>
 
         <div className="cuotas-datos-pagos">
-          <h3>Datos de cuenta</h3>
+          <h2>Datos de cuenta</h2>
           <div className="cuotas-datos-pagos-info">
-            <span style={{ fontWeight: '600' }}>
+            <span style={{ fontWeight: '600' }} className="alias-and-bank">
               JUAN PEREZ
-              {/* <GaliciaIcon width="120" /> */}
+              <GaliciaIcon width="120" />
             </span>
-            <span>
+            {/* <span>
               GIMNASIO GYMHOUR
-            </span>
+            </span> */}
             <span>
               <b>ALIAS:</b> {alias}{' '}
               <button className="copy-button" onClick={() => handleCopy(alias)}>
@@ -110,7 +110,7 @@ const Cuotas = () => {
           </a>
         </div>
 
-        <h3>Historial de pagos</h3>
+        <h2>Historial de pagos</h2>
         {loading ? (
           <p style={{ marginTop: '20px' }}>Cargando cuotas...</p>
         ) : error ? (
