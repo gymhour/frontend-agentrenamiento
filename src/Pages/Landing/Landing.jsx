@@ -1,13 +1,9 @@
 import React, { useMemo, useState } from "react";
 import './Landing.css'
-import { Link } from "react-router-dom";
 import ImageRutinas from "../../assets/gymhour/sc_rutinas.png"
-import ImageLogin from "../../assets/gymhour/sc_login.png"
-import ImageInicio from "../../assets/gymhour/sc_inicio.png"
+import ImageInicio from "../../assets/gymhour/sc_cuotas.png"
 import ImageAdminKps from "../../assets/gymhour/sc_admin_kps.png"
 import ImageTurnos from "../../assets/gymhour/sc_turnos.png"
-import ImageClase from "../../assets/gymhour/sc_clase.png"
-import GymhourIsotipo from "../../assets/gymhour/logo_gymhour_isotipo.png"
 import GymhourTextoDerecha from "../../assets/gymhour/logo_gymhour_black_text_right.png"
 
 const Section = ({ id, eyebrow, title, subtitle, children, className = "" }) => (
@@ -54,30 +50,41 @@ const Feature = ({ icon, title, desc }) => (
 // ————————————————————————————————————————————————
 // Data de pantallas 
 // ————————————————————————————————————————————————
-const screens = [
+// ————————————————————————————————————————————————
+// Showcases (nuevo estilo "cards grandes" como la imagen)
+// ————————————————————————————————————————————————
+const showcases = [
     {
-        alt: "Pantalla de Login",
-        url: ImageLogin,
-    },
-    {
-        alt: "Inicio del Alumno con shortcuts a turnos y clases",
+        eyebrow: "CUOTAS",
+        title: "Cobros y cuotas sin dolores de cabeza",
+        desc:
+            "Generá cuotas para todos los usuarios, controlá vencimientos y visualizá pagos en segundos. Automatizá el seguimiento y mantené tus ingresos ordenados mes a mes.",
+        alt: "Cuotas",
         url: ImageInicio,
     },
     {
-        alt: "Sección de rutinas del alumno",
+        eyebrow: "CLASES Y TURNOS",
+        title: "Reservas simples para tus alumnos",
+        desc:
+            "Calendario claro, cupos, instructores y horarios. Tus alumnos reservan y vos controlás todo desde un solo lugar.",
+        alt: "Turnos",
+        url: ImageTurnos,
+    },
+    {
+        eyebrow: "RUTINAS",
+        title: "Rutinas listas en minutos",
+        desc:
+            "Creá, asigná y organizá rutinas por objetivos con una base de ejercicios visual y flexible. Tus entrenadores trabajan más rápido y tus alumnos progresan mejor.",
+        alt: "Rutinas",
         url: ImageRutinas,
     },
     {
-        alt: "Clases y actividades con imágenes, descripción, instructores y horarios.",
-        url: ImageClase
-    },
-    {
+        eyebrow: "ADMIN",
+        title: "Tu gimnasio en números, de un vistazo",
+        desc:
+            "Mirá alumnos activos, cuotas pagadas/impagas y métricas clave en una sola pantalla. Tomá decisiones rápidas con información clara y accionable.",
         alt: "Dashboard admin con KPIs de cobros y alumnos activos",
         url: ImageAdminKps,
-    },
-    {
-        alt: "Calendario de turnos",
-        url: ImageTurnos,
     },
 ];
 
@@ -268,20 +275,29 @@ export default function GymHourLanding() {
                 id="screens"
                 eyebrow="Producto"
                 title="Algunas pantallas de GymHour"
-                subtitle="Una interfaz moderna pensada para que alumnos, entrenadores y administradores trabajen más rápido."
+                subtitle="Un diseño cuidado para que alumnos, entrenadores y administradores trabajen más rápido y con menos fricción."
                 className="funcionalidades-section"
             >
-                <div className="gh-grid-3">
-                    {screens.map((s, i) => (
-                        <Card key={i} className="gh-card-screenshot">
-                            <figure className="gh-screenshot">
-                                <img src={s.url} alt={s.alt} />
-                            </figure>
-                            <figcaption className="gh-muted sm mt-8">{s.alt}</figcaption>
+                <div className="gh-showcase-stack">
+                    {showcases.map((item, i) => (
+                        <Card
+                            key={i}
+                            className={`gh-showcase-card ${i % 2 === 1 ? "is-reverse" : ""}`}
+                        >
+                            <div className="gh-showcase-content">
+                                <div className="gh-showcase-eyebrow">{item.eyebrow}</div>
+                                <h3 className="gh-showcase-title">{item.title}</h3>
+                                <p className="gh-showcase-desc">{item.desc}</p>
+                            </div>
+
+                            <div className="gh-showcase-frame">
+                                <img src={item.url} alt={item.alt} />
+                            </div>
                         </Card>
                     ))}
                 </div>
             </Section>
+
 
             {/* Pricing (nuevo layout) */}
             <section id="pricing" className="gh-pricing-section">

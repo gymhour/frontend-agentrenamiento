@@ -379,7 +379,8 @@
     margin-bottom: 18px;
 }
 
-/* Screenshots */
+/* Screenshots (viejo grid) 
+   Lo dejo por compatibilidad por si lo reutilizás en otra parte */
 .gh-screenshot {
     overflow: hidden;
     border-radius: var(--radius-1);
@@ -393,6 +394,85 @@
     height: 220px;
     object-fit: cover;
 }
+
+/* ————————————————————————————————————————————————
+   Screens nuevo estilo "showcase cards" (como imagen)
+   IMPORTANT: forzado a column siempre
+——————————————————————————————————————————————— */
+
+.gh-showcase-stack {
+    width: 100%;
+    display: grid;
+    gap: 22px;
+}
+
+/* Card grande */
+.gh-showcase-card {
+    padding: 34px 30px;
+    border-radius: var(--radius-3);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 22px;
+    text-align: left;
+}
+
+/* Anulamos reverse visual */
+.gh-showcase-card.is-reverse {
+    flex-direction: row;
+}
+
+/* Texto */
+.gh-showcase-content {
+    width: 100%;
+}
+
+.gh-showcase-eyebrow {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted-2);
+    margin-bottom: 10px;
+}
+
+.gh-showcase-title {
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    margin: 0 0 12px;
+}
+
+.gh-showcase-desc {
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+    max-width: 760px;
+}
+
+/* Frame blanco interno (como mock) */
+.gh-showcase-frame {
+    width: 75%;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.gh-showcase-frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
 
 /* ————————————————————————————————————————————————
    Pricing NUEVO (similar a imagen)
@@ -720,7 +800,11 @@
     }
 
     .gh-pricing-title {
-        font-size: 36px;
+        font-size: 32px;
+    }
+
+    .gh-showcase-title {
+        font-size: 28px;
     }
 }
 
@@ -764,10 +848,22 @@
     }
 
     .gh-pricing-title {
-        font-size: 30px;
+        font-size: 28px;
     }
 
     .gh-price-number {
         font-size: 38px;
+    }
+
+    .gh-showcase-card {
+        padding: 26px 22px;
+    }
+
+    .gh-showcase-title {
+        font-size: 24px;
+    }
+
+    .gh-showcase-desc {
+        font-size: 15.5px;
     }
 }
