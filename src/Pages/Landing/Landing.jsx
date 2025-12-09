@@ -8,19 +8,22 @@ import ImageAdminKps from "../../assets/gymhour/sc_admin_kps.png"
 import ImageTurnos from "../../assets/gymhour/sc_turnos.png"
 import ImageClase from "../../assets/gymhour/sc_clase.png"
 import GymhourIsotipo from "../../assets/gymhour/logo_gymhour_isotipo.png"
-import GymhourTextoDerecha from "../../assets/gymhour/logo_gymhour_text_right.png"
+import GymhourTextoDerecha from "../../assets/gymhour/logo_gymhour_black_text_right.png"
 
-const Section = ({ id, eyebrow, title, children, className = "" }) => (
+const Section = ({ id, eyebrow, title, subtitle, children, className = "" }) => (
     <section id={id} className={`gh-section ${className}`}>
-        <div className="gh-container">
-            {eyebrow && <div className="gh-eyebrow">{eyebrow}</div>}
+        <div className={`gh-container ${className}`}>
+            {/* {eyebrow && <div className="gh-eyebrow">{eyebrow}</div>} */}
             {title && <h2 className="gh-h2">{title}</h2>}
+            {subtitle && <p className="gh-section-subtitle">{subtitle}</p>}
             {children}
         </div>
     </section>
 );
 
-const Badge = ({ children }) => <span className="gh-badge">{children}</span>;
+const Badge = ({ children, variant = "soft" }) => (
+    <span className={`gh-badge ${variant}`}>{children}</span>
+);
 
 const Card = ({ children, className = "" }) => (
     <div className={`gh-card ${className}`}>{children}</div>
@@ -108,14 +111,63 @@ const adminFeatures = [
     { icon: "📈", title: "Dashboard con KPIs", desc: "Cobros pagados/impagos y alumnos activos en un vistazo." },
 ];
 
-const commonPillars = [
-    { icon: "✉️", title: "Emails transaccionales", desc: "Bienvenida y recuperación de contraseña listos out‑of‑the‑box." },
-    { icon: "🛡️", title: "Seguridad y roles", desc: "Accesos por perfil para mantener la operación ordenada." },
-    { icon: "⏱️", title: "Ahorro de tiempo", desc: "Flujos simples que reducen soporte y tareas repetitivas." },
+// ————————————————————————————————————————————————
+// Pricing (nuevo estilo similar a la imagen)
+// ————————————————————————————————————————————————
+const pricingPlans = [
+    {
+        key: "pro",
+        name: "Pro",
+        tagline: "Para gimnasios en crecimiento",
+        baseMonthly: 139900,
+        bulletsTop: [
+            "Te ayudamos a migrar tus datos",
+            "Soporte por WhatsApp o videollamada",
+        ],
+        bulletsBottom: [
+            "Hasta 10 usuarios",
+            "Hasta 3 sucursales",
+            "Gestión de cuotas, planes y turnos",
+            "Panel con métricas clave",
+        ],
+        cta: "Probar gratis por 10 días",
+        featured: false,
+    },
+    {
+        key: "max",
+        name: "Max",
+        tagline: "Para empresas en expansión",
+        baseMonthly: 229900,
+        bulletsTop: [
+            "Te ayudamos a migrar tus datos",
+            "Soporte por WhatsApp o videollamada",
+        ],
+        bulletsBottom: [
+            "Hasta 30 usuarios",
+            "Hasta 10 sucursales",
+            "Roles y permisos avanzados",
+            "Acceso a API",
+            "Incluye sitio web para tu gimnasio",
+        ],
+        cta: "Probar gratis por 10 días",
+        featured: true,
+    },
 ];
+
+const formatARS = (value) => {
+    // Formato simple tipo $139.900
+    try {
+        return new Intl.NumberFormat("es-AR").format(value);
+    } catch {
+        return String(value);
+    }
+};
 
 export default function GymHourLanding() {
     const [role, setRole] = useState("alumno");
+
+    // nuevo estado para toggle de pricing
+    const [billing, setBilling] = useState("monthly"); // "monthly" | "annual"
 
     const features = useMemo(
         () => ({ alumno: alumnoFeatures, entrenador: entrenadorFeatures, admin: adminFeatures }),
@@ -123,83 +175,82 @@ export default function GymHourLanding() {
     );
 
     const nav = [
-        { href: "#features", label: "Funcionalidades" },
-        { href: "#roles", label: "Para quién es" },
+        { href: "#funcionalidades", label: "Funcionalidades" },
         { href: "#screens", label: "Capturas" },
+        { href: "#pricing", label: "Precios" },
         { href: "#faq", label: "FAQ" },
     ];
 
+    const getDisplayedPrices = (plan) => {
+        const base = plan.baseMonthly;
+        const monthlyEquivalent = billing === "annual"
+            ? Math.round(base * 0.75) // 25% OFF
+            : base;
+
+        const promo = Math.round(monthlyEquivalent * 0.5); // 50% OFF primeros 3 meses
+
+        return {
+            promo,
+            after: monthlyEquivalent,
+        };
+    };
+
     return (
-        <div className="gh-landing">
+        <div className="gh-landing gh-theme-light">
             {/* Header */}
-            <header className="gh-header">
+            <header className="gh-header gh-header-light">
                 <div className="gh-container gh-header-inner">
-                    <a href="#" className="gh-brand">
-                        
-                        <img src={GymhourTextoDerecha} alt="" width={120}/>
+                    <a href="#hero" className="gh-brand">
+                        <img src={GymhourTextoDerecha} alt="GymHour" width={120} />
                     </a>
-                    <nav className="gh-nav">
+
+                    <nav className="gh-nav gh-nav-desktop">
                         {nav.map((n) => (
                             <a key={n.href} href={n.href} className="gh-nav-link">
                                 {n.label}
                             </a>
                         ))}
                     </nav>
+
                     <div className="gh-header-cta">
-                        {/* <Link to="/login" className="gh-btn gh-btn-ghost"> Login </Link> */}
-                        <a href="#cta" className="gh-btn gh-btn-primary">Solicitar demo</a>
+                        <a href="#cta" className="gh-btn gh-btn-primary">Agendar demo gratuita</a>
                     </div>
                 </div>
             </header>
 
             {/* Hero */}
-            <Section id="hero" className="gh-hero">
-                <div className="gh-container gh-hero-grid">
-                    <div>
-                        <Badge>Software para gimnasios y entrenadores</Badge>
-                        <h1 className="gh-h1">Gestioná tu gimnasio <span className="muted">en un solo lugar</span></h1>
-                        <p className="gh-muted">
-                            Reservas de clases, creación de rutinas, listado de ejercicios, administración de cuotas y mucho más. GymHour te permite simplificar la operación diaria y ofrecer una experiencia moderna para tus alumnos.
-                        </p>
-                        <div className="gh-hero-actions">
-                            <a href="#cta" className="gh-btn gh-btn-primary">Probar 100% gratis</a>
-                            <a href="#screens" className="gh-btn gh-btn-ghost">Ver funcionalidades →</a>
-                        </div>
-                        {/* <div className="gh-hero-hints">
-                            <span>✨ Fácil de usar</span>
-                            <span>🤖 Menos tareas manuales</span>
-                            <span>📈 Seguimiento 24/7</span>
-                        </div> */}
+            <Section id="hero" className="gh-hero-light">
+                <div className="gh-container gh-hero-center">
+
+                    <h1 className="gh-h1 gh-h1-light">
+                        Gestioná tu gimnasio <br />
+                        <span className="muted">en un solo lugar</span>
+                    </h1>
+
+                    <p className="gh-muted gh-hero-lead">
+                        Reservas de clases, creación de rutinas, listado de ejercicios, administración de cuotas y mucho más.
+                        GymHour te permite simplificar la operación diaria y ofrecer una experiencia moderna para tus alumnos.
+                    </p>
+
+                    <div className="gh-hero-actions gh-hero-actions-center">
+                        <a href="#pricing" className="gh-btn gh-btn-primary gh-btn-hero">Contactanos para una prueba gratuita de 1 mes</a>
                     </div>
-                    <div className="gh-hero-preview">
-                        {/* Screens de la app */}
+
+                    <div className="gh-hero-panel">
+                        <div className="gh-hero-preview-light" />
                     </div>
-                    {/* <Card>
-            <div className="gh-hero-preview">
-              <div className="gh-preview-caption">Preview UI</div>
-              <div className="gh-preview-title">Inicio del Alumno</div>
-              <p className="gh-muted sm">Tarjetas de clases, últimas reservas y rutinas</p>
-            </div>
-          </Card> */}
                 </div>
             </Section>
 
-            {/* Highlights */}
-            <Section id="features" eyebrow="Lo esencial" title="Funcionalidades que resuelven el día a día">
-                <div className="gh-grid-3">
-                    <Feature icon="📅" title="Reservas simples" desc="Disponibilidad de turnos y agenda inmediata." />
-                    <Feature icon="🏋️" title="Rutinas potentes" desc="Los entrenadores pueden asignar rutinas a los alumnos del gimnasio." />
-                    <Feature icon="📈" title="Progreso real" desc="Historial de ejercicios con seguimiento de pesos y repeticiones." />
-                </div>
-                <div className="gh-grid-3 mt-20">
-                    <Feature icon="👥" title="Equipos organizados" desc="Roles para administradores, entrenadores y alumnos con vistas dedicadas." />
-                    <Feature icon="🛡️" title="Cuotas y planes" desc="Cargá tus planes, asignáselos a tus alumnos y maneja sus cuotas mensuales." />
-                    <Feature icon="✉️" title="Ejercicios" desc="Cargá ejercicios con videos de demostración y descripciones." />
-                </div>
-            </Section>
 
             {/* Roles */}
-            <Section id="roles" eyebrow="Vistas por perfil" title="Una experiencia diseñada para cada rol">
+            <Section
+                id="funcionalidades"
+                eyebrow="Vistas por perfil"
+                title="Qué ofrece la plataforma"
+                subtitle="Todo lo necesario para administrar alumnos, rutinas, clases, cobros y turnos con una experiencia moderna y simple."
+                className="gh-section funcionalidades-section"
+            >
                 <div className="gh-role-pills">
                     <Pill active={role === "alumno"} onClick={() => setRole("alumno")}>Alumno</Pill>
                     <Pill active={role === "entrenador"} onClick={() => setRole("entrenador")}>Entrenador</Pill>
@@ -210,18 +261,19 @@ export default function GymHourLanding() {
                         <Feature key={i} icon={f.icon} title={f.title} desc={f.desc} />
                     ))}
                 </div>
-                {/* <div className="gh-pill-row">
-                    {commonPillars.map((p, i) => (
-                        <span key={i} className="gh-badge">{p.icon} {p.title}</span>
-                    ))}
-                </div> */}
             </Section>
 
             {/* Screenshots */}
-            <Section id="screens" eyebrow="Producto" title="Algunas pantallas de GymHour">
+            <Section
+                id="screens"
+                eyebrow="Producto"
+                title="Algunas pantallas de GymHour"
+                subtitle="Una interfaz moderna pensada para que alumnos, entrenadores y administradores trabajen más rápido."
+                className="funcionalidades-section"
+            >
                 <div className="gh-grid-3">
                     {screens.map((s, i) => (
-                        <Card key={i}>
+                        <Card key={i} className="gh-card-screenshot">
                             <figure className="gh-screenshot">
                                 <img src={s.url} alt={s.alt} />
                             </figure>
@@ -231,22 +283,97 @@ export default function GymHourLanding() {
                 </div>
             </Section>
 
-            {/* CTA */}
-            <Section id="cta" className="gh-cta">
-                <Card className="gh-cta-card">
-                    <div>
-                        <div className="gh-muted sm">¿Listo para modernizar tu gimnasio?</div>
-                        <h3 className="gh-h3 mt-2">Probá GymHour gratis</h3>
-                        <p className="gh-muted mt-2">En minutos podés crear clases, cargar rutinas y empezar a recibir reservas de tus alumnos.</p>
+            {/* Pricing (nuevo layout) */}
+            <section id="pricing" className="gh-pricing-section">
+                <div className="gh-container gh-pricing-container">
+                    <h2 className="gh-pricing-title">
+                        Empezá gratis, después aprovechá <br />
+                        los descuentos por meses.
+                    </h2>
+                    <p className="gh-pricing-subtitle">
+                        Elegí el plan que mejor se adapte a tu gimnasio.
+                        Con la contratación de cualquiera de los planes, también te realizamos un sitio web sin costo.
+                    </p>
+
+                    <div className="gh-pricing-toggle">
+                        <button
+                            type="button"
+                            className={`gh-pricing-toggle-btn ${billing === "monthly" ? "is-active" : ""}`}
+                            onClick={() => setBilling("monthly")}
+                        >
+                            Mensual
+                        </button>
+                        <button
+                            type="button"
+                            className={`gh-pricing-toggle-btn ${billing === "annual" ? "is-active" : ""}`}
+                            onClick={() => setBilling("annual")}
+                        >
+                            Anual <span className="gh-toggle-hint">(25% OFF)</span>
+                        </button>
                     </div>
-                    <div className="gh-cta-actions">
-                        <a href="#" className="gh-btn gh-btn-primary">Solicitar demo</a>
+
+                    <div className="gh-pricing-grid-new">
+                        {pricingPlans.map((plan) => {
+                            const prices = getDisplayedPrices(plan);
+
+                            return (
+                                <div
+                                    key={plan.key}
+                                    className={`gh-pricing-card-new ${plan.featured ? "is-featured" : ""}`}
+                                >
+                                    <div className="gh-pricing-card-head">
+                                        <h3 className="gh-pricing-card-name">{plan.name}</h3>
+                                        <div className="gh-pricing-card-tagline">{plan.tagline}</div>
+                                    </div>
+
+                                    <div className="gh-pricing-price-block">
+                                        <div className="gh-pricing-price-main">
+                                            <span className="gh-price-currency">$</span>
+                                            <span className="gh-price-number">{formatARS(prices.promo)}</span>
+                                            <span className="gh-price-suffix">/mes</span>
+                                        </div>
+                                        <div className="gh-pricing-promo-line">
+                                            <span className="gh-pricing-promo-badge">50% OFF</span>
+                                            <span>primeros 3 meses</span>
+                                        </div>
+                                        <div className="gh-pricing-after-line">
+                                            <span className="gh-pricing-after-amount">
+                                                ${formatARS(prices.after)}
+                                            </span>
+                                            <span className="gh-pricing-after-muted">/mes después</span>
+                                        </div>
+                                    </div>
+
+                                    <a href="#cta" className="gh-pricing-btn">
+                                        {plan.cta}
+                                    </a>
+
+                                    <ul className="gh-pricing-checklist">
+                                        {plan.bulletsTop.map((b, i) => (
+                                            <li key={i}>{b}</li>
+                                        ))}
+                                    </ul>
+
+                                    <div className="gh-pricing-divider" />
+
+                                    <ul className="gh-pricing-specs">
+                                        {plan.bulletsBottom.map((b, i) => (
+                                            <li key={i}>{b}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            );
+                        })}
                     </div>
-                </Card>
-            </Section>
+                </div>
+            </section>
 
             {/* FAQ */}
-            <Section id="faq" eyebrow="Preguntas frecuentes" title="Todo lo que suelen consultarnos">
+            <Section
+                id="faq"
+                eyebrow="Preguntas frecuentes"
+                title="Todo lo que suelen consultarnos"
+            >
                 <div className="gh-grid-2">
                     <Card>
                         <h4 className="gh-feature-title">¿GymHour sirve para gimnasios y también para entrenadores personales?</h4>
@@ -254,7 +381,7 @@ export default function GymHourLanding() {
                     </Card>
                     <Card>
                         <h4 className="gh-feature-title">¿Necesito instalar algo?</h4>
-                        <p className="gh-muted sm mt-6">No. Es 100% web y funciona desde cualquier tipo de dispositivo con acceso a Internet. </p>
+                        <p className="gh-muted sm mt-6">No. Es 100% web y funciona desde cualquier tipo de dispositivo con acceso a Internet.</p>
                     </Card>
                     <Card>
                         <h4 className="gh-feature-title">¿Cómo gestionan las cuotas?</h4>
@@ -268,14 +395,14 @@ export default function GymHourLanding() {
             </Section>
 
             {/* Footer */}
-            <footer className="gh-footer">
+            <footer className="gh-footer-light">
                 <div className="gh-container gh-footer-inner">
-                    <p className="gh-muted">© {new Date().getFullYear()} GymHour </p>
-                    {/* <div className="gh-footer-links">
-                        <a href="#">Política de privacidad</a>
-                        <a href="#">Términos</a>
-                        <a href="mailto:hola@gymhour.app">Contacto</a>
-                    </div> */}
+                    <p className="gh-muted">© {new Date().getFullYear()} GymHour</p>
+                    <div className="gh-footer-links">
+                        <a href="#pricing">Precios</a>
+                        <a href="#faq">FAQ</a>
+                        <a href="#cta">Solicitar demo</a>
+                    </div>
                 </div>
             </footer>
         </div>
