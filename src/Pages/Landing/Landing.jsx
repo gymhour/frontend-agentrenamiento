@@ -79,20 +79,20 @@ const showcases = [
         url: ImageInicio,
     },
     {
+        eyebrow: "RUTINAS",
+        title: "Rutinas listas en minutos",
+        desc:
+            "Creá y asigná rutinas a tus alumnos, con la ayuda de un banco de ejercicios. Tus alumnos pueden ver sus rutinas 24/7 desde la app y descargarlas en PDF para imprimirlas cuando quieran.",
+        alt: "Rutinas",
+        url: ImageRutinas,
+    },
+    {
         eyebrow: "CLASES Y TURNOS",
         title: "Reservas simples para tus alumnos",
         desc:
             "Calendario claro, cupos, instructores y horarios. Tus alumnos reservan y vos controlás todo desde un solo lugar.",
         alt: "Turnos",
         url: ImageTurnos,
-    },
-    {
-        eyebrow: "RUTINAS",
-        title: "Rutinas listas en minutos",
-        desc:
-            "Creá, asigná y organizá rutinas por objetivos con una base de ejercicios visual y flexible. Tus entrenadores trabajan más rápido y tus alumnos progresan mejor.",
-        alt: "Rutinas",
-        url: ImageRutinas,
     },
     {
         eyebrow: "ADMIN",
@@ -283,7 +283,7 @@ export default function GymHourLanding() {
                     </nav>
 
                     <div className="gh-header-cta">
-                        <a href="#cta" className="gh-btn gh-btn-primary">Agendar demo gratuita</a>
+                        <a href="https://calendly.com/gymhourmails/30min" target="_blank" className="gh-btn gh-btn-primary">Agendar demo gratuita</a>
                     </div>
                 </div>
             </header>
@@ -302,9 +302,29 @@ export default function GymHourLanding() {
                         GymHour te permite simplificar la operación diaria y ofrecer una experiencia moderna para tus alumnos.
                     </p>
 
-                    <div className="gh-hero-actions gh-hero-actions-center">
-                        <a href="#pricing" className="gh-btn gh-btn-primary gh-btn-hero">Contactanos para una prueba gratuita de 1 mes</a>
+                    <div className="gh-hero-cta-row">
+                        <a href="#pricing" className="gh-btn gh-btn-primary gh-hero-btn">
+                            Probar gratis <span className="gh-hero-arrow" aria-hidden>→</span>
+                        </a>
+
+                        <a href="https://calendly.com/gymhourmails/30min" target="_blank" className="gh-btn gh-hero-btn gh-btn-outline">
+                            <span className="gh-hero-icon" aria-hidden>
+                                {/* Calendar icon */}
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8 2v3M16 2v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M3.5 9h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                    <path
+                                        d="M6 5h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3Z"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </span>
+                            Pedir una demo
+                        </a>
                     </div>
+
 
                     <div className="gh-hero-panel">
                         <div className="gh-hero-preview-light" />
@@ -337,7 +357,7 @@ export default function GymHourLanding() {
             <Section
                 id="screens"
                 eyebrow="Producto"
-                title="Algunas secciones de GymHour"
+                title="Algunas secciones de Gymhour"
                 subtitle="Un diseño cuidado para que alumnos, entrenadores y administradores trabajen más rápido y con menos fricción."
                 className="funcionalidades-section"
             >
@@ -365,7 +385,7 @@ export default function GymHourLanding() {
             <Section
                 id="cta"
                 eyebrow="PROMO"
-                title="Sumá GymHour y te regalamos tu página web"
+                title="Sumá Gymhour y te regalamos tu página web"
                 subtitle="Cuando contratás cualquiera de nuestros planes, incluimos una web profesional para tu gimnasio o para tu servicio como entrenador. Sin vueltas, lista para publicar."
                 className="gh-promo-section"
             >
@@ -418,12 +438,6 @@ export default function GymHourLanding() {
                                     </div>
                                     <div className="gh-browser-cta" />
                                 </div>
-
-                                <div className="gh-browser-grid">
-                                    <div className="gh-browser-card" />
-                                    <div className="gh-browser-card" />
-                                    <div className="gh-browser-card" />
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -434,8 +448,7 @@ export default function GymHourLanding() {
             <section id="pricing" className="gh-pricing-section">
                 <div className="gh-container gh-pricing-container">
                     <h2 className="gh-pricing-title">
-                        Empezá gratis, después aprovechá <br />
-                        los descuentos por meses.
+                        Probalo 1 mes gratis y ahorrá más con planes por meses.
                     </h2>
                     <p className="gh-pricing-subtitle">
                         Elegí el plan que mejor se adapte a tu gimnasio.
@@ -499,26 +512,26 @@ export default function GymHourLanding() {
                                             )}
                                         </div>
 
-                                        {prices.opt.discount > 0 && (
+                                        {/* {prices.opt.discount > 0 && (
                                             <div className="gh-pricing-after-line">
                                                 <span className="gh-pricing-after-amount">
                                                     Base ${formatARS(prices.baseMonthly)}
                                                 </span>
                                                 <span className="gh-pricing-after-muted">/mes</span>
                                             </div>
-                                        )}
+                                        )} */}
 
-                                        <div className="gh-pricing-after-line">
+                                        {/* <div className="gh-pricing-after-line">
                                             <span className="gh-pricing-after-amount">
                                                 Total ${formatARS(prices.total)}
                                             </span>
                                             <span className="gh-pricing-after-muted">
                                                 por {prices.opt.months} mes{prices.opt.months > 1 ? "es" : ""}
                                             </span>
-                                        </div>
+                                        </div> */}
                                     </div>
 
-                                    <a href="#cta" className="gh-pricing-btn">
+                                    <a href="https://calendly.com/gymhourmails/30min" target="_blank" className="gh-pricing-btn">
                                         {plan.cta}
                                     </a>
 
@@ -574,9 +587,7 @@ export default function GymHourLanding() {
                 <div className="gh-container gh-footer-inner">
                     <p className="gh-muted">© {new Date().getFullYear()} GymHour</p>
                     <div className="gh-footer-links">
-                        <a href="#pricing">Precios</a>
-                        <a href="#faq">FAQ</a>
-                        <a href="#cta">Solicitar demo</a>
+                        <a href="https://www.gymhour.app/terms-and-conditions" target="_blank">Términos y condiciones</a>
                     </div>
                 </div>
             </footer>
