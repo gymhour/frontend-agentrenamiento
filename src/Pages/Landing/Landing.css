@@ -15,11 +15,11 @@
     --primary: #0b0b0f;
     --primary-contrast: #ffffff;
 
-    --accent: #22c55e; /* verde suave para promo */
+    --accent: #22c55e;
 
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-    --shadow-lg: 0 14px 40px rgba(0,0,0,0.10);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.10);
 
     --radius-1: 10px;
     --radius-2: 14px;
@@ -171,7 +171,9 @@
 
 .gh-hero-lead {
     max-width: 760px;
-    font-size: 16.5px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #6a6a6a;
 }
 
 .gh-hero-actions {
@@ -365,11 +367,25 @@
     gap: 18px;
 }
 
-.mt-20 { margin-top: 20px; }
-.mt-16 { margin-top: 16px; }
-.mt-8 { margin-top: 8px; }
-.mt-6 { margin-top: 6px; }
-.mt-2 { margin-top: 2px; }
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mt-16 {
+    margin-top: 16px;
+}
+
+.mt-8 {
+    margin-top: 8px;
+}
+
+.mt-6 {
+    margin-top: 6px;
+}
+
+.mt-2 {
+    margin-top: 2px;
+}
 
 /* Roles */
 .gh-role-pills {
@@ -462,7 +478,7 @@
     width: 75%;
     background: #ffffff;
     border-radius: 12px;
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     overflow: hidden;
 }
 
@@ -511,7 +527,7 @@
     align-items: center;
     gap: 6px;
     background: #f3f4f6;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     padding: 6px;
     border-radius: 999px;
     margin-bottom: 34px;
@@ -523,16 +539,16 @@
     padding: 10px 16px;
     border-radius: 999px;
     font-weight: 700;
-    font-size: 13.5px;
+    font-size: 14px;
     cursor: pointer;
-    color: rgba(0,0,0,0.65);
+    color: rgba(0, 0, 0, 0.65);
     transition: background .15s ease, color .15s ease, box-shadow .15s ease;
 }
 
 .gh-pricing-toggle-btn.is-active {
     background: #ffffff;
     color: var(--text);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .gh-toggle-hint {
@@ -543,7 +559,7 @@
 /* Grid 2 columnas centradas */
 .gh-pricing-grid-new {
     display: grid;
-    grid-template-columns: repeat(2, minmax(280px, 440px));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 26px;
     align-items: stretch;
     width: 100%;
@@ -554,17 +570,36 @@
 .gh-pricing-card-new {
     text-align: left;
     background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 16px;
     padding: 34px 30px 28px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .gh-pricing-card-new.is-featured {
-    border-color: rgba(34,197,94,0.55);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+    border-color: rgba(34, 197, 94, 0.55);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+    transform: translateY(-6px);
+}
+
+/* Badge de "Más elegido" en el plan del medio */
+.gh-pricing-popular-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+}
+
+/* Variante de badge popular */
+.gh-badge.popular {
+    background: #0b0b0f;
+    color: #ffffff;
+    border-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 10.5px;
 }
 
 /* Head */
@@ -620,7 +655,7 @@
     align-items: center;
     gap: 8px;
     font-size: 13.5px;
-    color: rgba(0,0,0,0.55);
+    color: rgba(0, 0, 0, 0.55);
     margin-bottom: 6px;
 }
 
@@ -666,7 +701,7 @@
 
 .gh-pricing-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
     opacity: .95;
 }
 
@@ -682,7 +717,7 @@
 .gh-pricing-checklist li {
     position: relative;
     padding-left: 22px;
-    color: rgba(0,0,0,0.7);
+    color: rgba(0, 0, 0, 0.7);
     font-size: 13.8px;
     font-weight: 500;
 }
@@ -693,13 +728,13 @@
     left: 0;
     top: -1px;
     font-weight: 900;
-    color: rgba(0,0,0,0.55);
+    color: rgba(0, 0, 0, 0.55);
 }
 
 /* Divider interno */
 .gh-pricing-divider {
     height: 1px;
-    background: rgba(0,0,0,0.08);
+    background: rgba(0, 0, 0, 0.08);
     margin: 6px 0 18px;
 }
 
@@ -713,7 +748,7 @@
 }
 
 .gh-pricing-specs li {
-    color: rgba(0,0,0,0.7);
+    color: rgba(0, 0, 0, 0.7);
     font-size: 13.8px;
     font-weight: 500;
     padding-left: 0;
@@ -865,5 +900,370 @@
 
     .gh-showcase-desc {
         font-size: 15.5px;
+    }
+}
+
+/* Pricing toggle - soporte 4 opciones */
+.gh-pricing-toggle {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.gh-pricing-toggle-btn {
+    padding: 9px 14px;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .gh-pricing-toggle {
+        border-radius: 18px;
+        padding: 8px;
+    }
+}
+
+
+/* ————————————————————————————————————————————————
+   PROMO WEB GRATIS (CTA #cta)
+——————————————————————————————————————————————— */
+.gh-promo-section {
+    background: var(--bg-soft);
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gh-promo-card {
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: linear-gradient(180deg, #ffffff, #fbfbfb);
+    border-radius: var(--radius-3);
+    box-shadow: var(--shadow-md);
+    padding: 34px;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 28px;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.gh-promo-card::before {
+    content: "";
+    position: absolute;
+    inset: -120px -80px auto auto;
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.14), transparent 60%);
+    pointer-events: none;
+}
+
+.gh-promo-badges {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.gh-badge.promo {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.28);
+    color: rgba(11, 11, 15, 0.78);
+}
+
+.gh-promo-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #0b0b0f;
+    color: #ffffff;
+    letter-spacing: .02em;
+}
+
+.gh-promo-title {
+    margin: 0 0 10px;
+    font-size: 26px;
+    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.gh-promo-lead {
+    margin: 0 0 16px;
+    max-width: 560px;
+    font-size: 15.5px;
+}
+
+.gh-promo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px;
+    display: grid;
+    gap: 10px;
+    color: rgba(0, 0, 0, 0.72);
+    font-weight: 600;
+    font-size: 13.8px;
+}
+
+.gh-promo-check {
+    display: inline-flex;
+    width: 18px;
+    justify-content: center;
+    margin-right: 8px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.gh-promo-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.gh-promo-footnote {
+    margin: 14px 0 0;
+    font-size: 12.5px;
+    color: rgba(0, 0, 0, 0.52);
+    line-height: 1.45;
+}
+
+/* Mock “browser” */
+.gh-promo-right {
+    display: grid;
+    justify-items: end;
+}
+
+.gh-browser-mock {
+    width: min(420px, 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    background: #ffffff;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
+}
+
+.gh-browser-top {
+    height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fbfbfb;
+}
+
+.gh-browser-top .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.16);
+}
+
+.gh-browser-url {
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 6px 10px;
+    border-radius: 999px;
+    flex: 1;
+    max-width: 220px;
+}
+
+.gh-browser-body {
+    padding: 16px;
+    background:
+        radial-gradient(400px 220px at 70% 0%, rgba(255, 82, 82, 0.10), transparent 60%),
+        radial-gradient(420px 240px at 30% 110%, rgba(34, 197, 94, 0.10), transparent 60%),
+        #ffffff;
+}
+
+.gh-browser-hero {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px;
+    display: grid;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.gh-browser-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #0b0b0f;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.gh-browser-lines .l1,
+.gh-browser-lines .l2,
+.gh-browser-lines .l3 {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.10);
+    margin-top: 8px;
+}
+
+.gh-browser-lines .l1 {
+    width: 90%;
+}
+
+.gh-browser-lines .l2 {
+    width: 78%;
+}
+
+.gh-browser-lines .l3 {
+    width: 62%;
+}
+
+.gh-browser-cta {
+    width: 54%;
+    height: 34px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.90);
+    margin-top: 10px;
+}
+
+.gh-browser-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.gh-browser-card {
+    height: 64px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+    .gh-promo-card {
+        grid-template-columns: 1fr;
+    }
+
+    .gh-promo-right {
+        justify-items: start;
+    }
+
+    .gh-browser-mock {
+        width: 100%;
+    }
+}
+
+/* ————————————————————————————————————————————————
+   TOP BAR (marquee infinito)
+——————————————————————————————————————————————— */
+/* ————————————————————————————————————————————————
+   TOP BAR (marquee infinito) — Modificaciones
+——————————————————————————————————————————————— */
+:root {
+    --topbar-h: 34px;
+}
+
+.gh-header {
+    top: var(--topbar-h);
+}
+
+.gh-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    height: var(--topbar-h);
+    background: #DA4632;
+    color: #FAFAFA;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    padding: 20px;
+}
+
+.gh-topbar-viewport {
+    width: 100%;
+    overflow: hidden;
+}
+
+.gh-topbar-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: gh-marquee 35s linear infinite;
+}
+
+/* Item */
+.gh-topbar-item {
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    /* Todo en mayúsculas */
+    color: #FAFAFA;
+    opacity: 0.98;
+}
+
+/* Separador (punto) entre frases */
+.gh-topbar-item::after {
+    content: "•";
+    margin-left: 20px;
+    /* Menor espacio entre las palabras */
+    opacity: 0.75;
+}
+
+/* Quitar separador al último item del track (no perfecto, pero queda bien) */
+.gh-topbar-track .gh-topbar-item:last-child::after {
+    content: "";
+    margin: 0;
+}
+
+/* Hover pause (opcional pero lindo) */
+.gh-topbar:hover .gh-topbar-track {
+    animation-play-state: paused;
+}
+
+@keyframes gh-marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .gh-topbar-track {
+        animation: none;
+        padding-left: 0;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    :root {
+        --topbar-h: 36px;
+    }
+
+    .gh-topbar-item {
+        font-size: 12px;
     }
 }

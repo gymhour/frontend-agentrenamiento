@@ -6,6 +6,22 @@ import ImageAdminKps from "../../assets/gymhour/sc_admin_kps.png"
 import ImageTurnos from "../../assets/gymhour/sc_turnos.png"
 import GymhourTextoDerecha from "../../assets/gymhour/logo_gymhour_black_text_right.png"
 
+const TopBar = ({ items }) => {
+    return (
+        <div className="gh-topbar" aria-label="Promociones">
+            <div className="gh-topbar-viewport">
+                <div className="gh-topbar-track">
+                    {[...items, ...items, ...items].map((text, idx) => (
+                        <span key={idx} className="gh-topbar-item">
+                            {text}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Section = ({ id, eyebrow, title, subtitle, children, className = "" }) => (
     <section id={id} className={`gh-section ${className}`}>
         <div className={`gh-container ${className}`}>
@@ -121,45 +137,75 @@ const adminFeatures = [
 // ————————————————————————————————————————————————
 // Pricing (nuevo estilo similar a la imagen)
 // ————————————————————————————————————————————————
+// ————————————————————————————————————————————————
+// Pricing - Planes reales del PDF (Gimnasios Institucionales)
+// ————————————————————————————————————————————————
 const pricingPlans = [
     {
-        key: "pro",
-        name: "Pro",
-        tagline: "Para gimnasios en crecimiento",
-        baseMonthly: 139900,
+        key: "institutional_basic",
+        name: "Gym básico",
+        tagline: "Ideal para gimnasios con hasta 5 entrenadores y 100 alumnos",
+        baseMonthly: 49000,
         bulletsTop: [
-            "Te ayudamos a migrar tus datos",
-            "Soporte por WhatsApp o videollamada",
+            "30 días gratis de prueba",
+            "Backups mensuales automáticos",
+            "Soporte personalizado (email + chat)",
         ],
         bulletsBottom: [
-            "Hasta 10 usuarios",
-            "Hasta 3 sucursales",
-            "Gestión de cuotas, planes y turnos",
-            "Panel con métricas clave",
+            "Hasta 200 usuarios alumnos y 5 entrenadores",
+            "Roles y permisos avanzados",
+            "Banco de ejercicios (imágenes + videos)",
+            "Progreso histórico de ejercicios por alumno",
+            "Filtros avanzados en listados",
+            "Reserva de turnos y clases",
         ],
-        cta: "Probar gratis por 10 días",
+        cta: "Solicitar demo",
         featured: false,
     },
     {
-        key: "max",
-        name: "Max",
-        tagline: "Para empresas en expansión",
-        baseMonthly: 229900,
+        key: "Gym Mediano",
+        name: "Gym en crecimiento",
+        tagline: "Para gimnasios en crecimiento",
+        baseMonthly: 89000,
         bulletsTop: [
-            "Te ayudamos a migrar tus datos",
-            "Soporte por WhatsApp o videollamada",
+            "30 días gratis de prueba",
+            "Backups mensuales automáticos",
+            "Soporte personalizado (email + chat)",
         ],
         bulletsBottom: [
-            "Hasta 30 usuarios",
-            "Hasta 10 sucursales",
-            "Roles y permisos avanzados",
-            "Acceso a API",
-            "Incluye sitio web para tu gimnasio",
+            "Hasta 500 usuarios y 10 entrenadores",
+            "Todo lo del plan Básico",
+            "Creación de rutinas con ejercicios vinculados",
+            "Muestra de rutinas recomendadas para todos los alumnos",
+            "Módulo de cuotas con validación diaria",
+            "Notificaciones automáticas",
+            "Dashboard admin con KPIs",
         ],
-        cta: "Probar gratis por 10 días",
+        cta: "Solicitar demo",
         featured: true,
     },
+    {
+        key: "institutional_premium",
+        name: "Gym Premium",
+        tagline: "Para cadenas y gimnasios grandes",
+        baseMonthly: 149000,
+        bulletsTop: [
+            "30 días gratis de prueba",
+            "Backups mensuales automáticos",
+            "Soporte personalizado (email + chat)",
+        ],
+        bulletsBottom: [
+            "Hasta 1000 usuarios y 20 entrenadores",
+            "Todo lo del plan Gym en crecimiento",
+            "Onboarding dedicado",
+            "Soporte premium",
+            "Branding y dominio personalizado",
+        ],
+        cta: "Hablar con ventas",
+        featured: false,
+    },
 ];
+
 
 const formatARS = (value) => {
     // Formato simple tipo $139.900
@@ -173,8 +219,21 @@ const formatARS = (value) => {
 export default function GymHourLanding() {
     const [role, setRole] = useState("alumno");
 
-    // nuevo estado para toggle de pricing
-    const [billing, setBilling] = useState("monthly"); // "monthly" | "annual"
+    const TOPBAR_ITEMS = [
+        "La app ideal para tu gimnasio",
+        "1 mes de prueba gratis — sin compromisos",
+        "Promoción especial: tu página web 100% gratis al contratar GymHour",
+    ];
+
+    const BILLING_OPTIONS = [
+        { key: "monthly", label: "Mensual", months: 1, discount: 0 },
+        { key: "quarterly", label: "3 meses", months: 3, discount: 0.10 },
+        { key: "semiannual", label: "6 meses", months: 6, discount: 0.15 },
+        { key: "annual", label: "Anual", months: 12, discount: 0.20 },
+    ];
+
+    const [billing, setBilling] = useState("monthly");
+
 
     const features = useMemo(
         () => ({ alumno: alumnoFeatures, entrenador: entrenadorFeatures, admin: adminFeatures }),
@@ -183,27 +242,31 @@ export default function GymHourLanding() {
 
     const nav = [
         { href: "#funcionalidades", label: "Funcionalidades" },
-        { href: "#screens", label: "Capturas" },
+        { href: "#screens", label: "Secciones" },
         { href: "#pricing", label: "Precios" },
         { href: "#faq", label: "FAQ" },
     ];
 
     const getDisplayedPrices = (plan) => {
-        const base = plan.baseMonthly;
-        const monthlyEquivalent = billing === "annual"
-            ? Math.round(base * 0.75) // 25% OFF
-            : base;
+        const opt = BILLING_OPTIONS.find((o) => o.key === billing) ?? BILLING_OPTIONS[0];
 
-        const promo = Math.round(monthlyEquivalent * 0.5); // 50% OFF primeros 3 meses
+        const discountedMonthly = Math.round(plan.baseMonthly * (1 - opt.discount));
+        const total = discountedMonthly * opt.months;
 
         return {
-            promo,
-            after: monthlyEquivalent,
+            opt,
+            discountedMonthly,
+            total,
+            baseMonthly: plan.baseMonthly,
         };
     };
 
+
     return (
         <div className="gh-landing gh-theme-light">
+            {/* Top Bar */}
+            <TopBar items={TOPBAR_ITEMS} />
+
             {/* Header */}
             <header className="gh-header gh-header-light">
                 <div className="gh-container gh-header-inner">
@@ -274,7 +337,7 @@ export default function GymHourLanding() {
             <Section
                 id="screens"
                 eyebrow="Producto"
-                title="Algunas pantallas de GymHour"
+                title="Algunas secciones de GymHour"
                 subtitle="Un diseño cuidado para que alumnos, entrenadores y administradores trabajen más rápido y con menos fricción."
                 className="funcionalidades-section"
             >
@@ -298,6 +361,74 @@ export default function GymHourLanding() {
                 </div>
             </Section>
 
+            {/* Promo Web Gratis (CTA real para #cta) */}
+            <Section
+                id="cta"
+                eyebrow="PROMO"
+                title="Sumá GymHour y te regalamos tu página web"
+                subtitle="Cuando contratás cualquiera de nuestros planes, incluimos una web profesional para tu gimnasio o para tu servicio como entrenador. Sin vueltas, lista para publicar."
+                className="gh-promo-section"
+            >
+                <div className="gh-promo-card">
+                    <div className="gh-promo-left">
+                        <div className="gh-promo-badges">
+                            <Badge variant="promo">BONUS INCLUIDO: TU WEB GRATIS</Badge>
+                        </div>
+
+                        <h3 className="gh-promo-title">
+                            Presencia profesional + sistema de gestión, en un solo combo
+                        </h3>
+
+                        <p className="gh-muted gh-promo-lead">
+                            Ideal para captar nuevos alumnos, mostrar tus servicios y llevar a la gente directo a tu demo o contacto.
+                        </p>
+
+                        <ul className="gh-promo-list">
+                            <li><span className="gh-promo-check">✓</span> Página web moderna con distintos estilos</li>
+                            <li><span className="gh-promo-check">✓</span> Secciones clave: servicios, planes, contacto, redes</li>
+                            <li><span className="gh-promo-check">✓</span> Diseño responsive (celu/compu)</li>
+                            <li><span className="gh-promo-check">✓</span> Lista para publicar y compartir</li>
+                        </ul>
+
+                        <div className="gh-promo-actions">
+                            <a href="#pricing" className="gh-btn gh-btn-primary">Ver planes</a>
+                        </div>
+
+                        <p className="gh-promo-footnote">
+                            *Promo disponible al contratar GymHour. Consultanos por tiempos y alcance según el plan.
+                        </p>
+                    </div>
+
+                    <div className="gh-promo-right" aria-hidden>
+                        <div className="gh-browser-mock">
+                            <div className="gh-browser-top">
+                                <span className="dot" />
+                                <span className="dot" />
+                                <span className="dot" />
+                                <div className="gh-browser-url">tugimnasio.com</div>
+                            </div>
+
+                            <div className="gh-browser-body">
+                                <div className="gh-browser-hero">
+                                    <div className="gh-browser-logo">Gym</div>
+                                    <div className="gh-browser-lines">
+                                        <div className="l1" />
+                                        <div className="l2" />
+                                        <div className="l3" />
+                                    </div>
+                                    <div className="gh-browser-cta" />
+                                </div>
+
+                                <div className="gh-browser-grid">
+                                    <div className="gh-browser-card" />
+                                    <div className="gh-browser-card" />
+                                    <div className="gh-browser-card" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Section>
 
             {/* Pricing (nuevo layout) */}
             <section id="pricing" className="gh-pricing-section">
@@ -312,20 +443,20 @@ export default function GymHourLanding() {
                     </p>
 
                     <div className="gh-pricing-toggle">
-                        <button
-                            type="button"
-                            className={`gh-pricing-toggle-btn ${billing === "monthly" ? "is-active" : ""}`}
-                            onClick={() => setBilling("monthly")}
-                        >
-                            Mensual
-                        </button>
-                        <button
-                            type="button"
-                            className={`gh-pricing-toggle-btn ${billing === "annual" ? "is-active" : ""}`}
-                            onClick={() => setBilling("annual")}
-                        >
-                            Anual <span className="gh-toggle-hint">(25% OFF)</span>
-                        </button>
+                        {BILLING_OPTIONS.map((opt) => (
+                            <button
+                                key={opt.key}
+                                type="button"
+                                className={`gh-pricing-toggle-btn ${billing === opt.key ? "is-active" : ""}`}
+                                onClick={() => setBilling(opt.key)}
+                                title={opt.discount ? `${Math.round(opt.discount * 100)}% OFF` : "Sin descuento"}
+                            >
+                                {opt.label}
+                                {opt.discount > 0 && (
+                                    <span className="gh-toggle-hint"> ({Math.round(opt.discount * 100)}% OFF)</span>
+                                )}
+                            </button>
+                        ))}
                     </div>
 
                     <div className="gh-pricing-grid-new">
@@ -337,6 +468,12 @@ export default function GymHourLanding() {
                                     key={plan.key}
                                     className={`gh-pricing-card-new ${plan.featured ? "is-featured" : ""}`}
                                 >
+                                    {plan.featured && (
+                                        <div className="gh-pricing-popular-badge">
+                                            <Badge variant="popular">Más elegido</Badge>
+                                        </div>
+                                    )}
+
                                     <div className="gh-pricing-card-head">
                                         <h3 className="gh-pricing-card-name">{plan.name}</h3>
                                         <div className="gh-pricing-card-tagline">{plan.tagline}</div>
@@ -345,18 +482,39 @@ export default function GymHourLanding() {
                                     <div className="gh-pricing-price-block">
                                         <div className="gh-pricing-price-main">
                                             <span className="gh-price-currency">$</span>
-                                            <span className="gh-price-number">{formatARS(prices.promo)}</span>
+                                            <span className="gh-price-number">{formatARS(prices.discountedMonthly)}</span>
                                             <span className="gh-price-suffix">/mes</span>
                                         </div>
+
                                         <div className="gh-pricing-promo-line">
-                                            <span className="gh-pricing-promo-badge">50% OFF</span>
-                                            <span>primeros 3 meses</span>
+                                            {prices.opt.discount > 0 ? (
+                                                <>
+                                                    <span className="gh-pricing-promo-badge">
+                                                        {Math.round(prices.opt.discount * 100)}% OFF
+                                                    </span>
+                                                    <span>pagando {prices.opt.label.toLowerCase()}</span>
+                                                </>
+                                            ) : (
+                                                <span>Pago mensual sin descuento</span>
+                                            )}
                                         </div>
+
+                                        {prices.opt.discount > 0 && (
+                                            <div className="gh-pricing-after-line">
+                                                <span className="gh-pricing-after-amount">
+                                                    Base ${formatARS(prices.baseMonthly)}
+                                                </span>
+                                                <span className="gh-pricing-after-muted">/mes</span>
+                                            </div>
+                                        )}
+
                                         <div className="gh-pricing-after-line">
                                             <span className="gh-pricing-after-amount">
-                                                ${formatARS(prices.after)}
+                                                Total ${formatARS(prices.total)}
                                             </span>
-                                            <span className="gh-pricing-after-muted">/mes después</span>
+                                            <span className="gh-pricing-after-muted">
+                                                por {prices.opt.months} mes{prices.opt.months > 1 ? "es" : ""}
+                                            </span>
                                         </div>
                                     </div>
 
@@ -381,6 +539,7 @@ export default function GymHourLanding() {
                             );
                         })}
                     </div>
+
                 </div>
             </section>
 
