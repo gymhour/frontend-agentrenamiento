@@ -113,6 +113,15 @@ const deleteRutina = async (id) => {
     }
 }
 
+const getRutinasAsignadas = async() => {
+    try {
+        const response = await apiClient.get("/rutinas/asignadas");
+        return response.data;
+    } catch {
+        throw new Error("Error al traer las rutinas asignadas");
+    }
+}
+
 const getRutinasEntrenadores = async (idEntrenador) => {
     try {
         const response = await apiClient.get(`/rutinas/entrenador/${idEntrenador}`)
@@ -458,6 +467,7 @@ export default {
     deleteRutina,
     getRutinasEntrenadores,
     getRutinasAdmins,
+    getRutinasAsignadas,
     // Entrenadores
     getEntrenadores,
     addEntrenadorToClase,

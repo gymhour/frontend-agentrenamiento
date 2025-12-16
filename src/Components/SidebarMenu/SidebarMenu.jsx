@@ -280,6 +280,17 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       </li>
                     </Link>
                     <Link
+                        to="/entrenador/turnos"
+                        className={`menu-link ${location.pathname === "/entrenador/turnos"
+                          ? "active"
+                          : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <MisTurnosIcon className="icon" /> Mis turnos
+                        </li>
+                      </Link>
+                    <Link
                       to="/entrenador/asignar-rutinas"
                       className={`menu-link ${location.pathname === "/entrenador/asignar-rutinas" ? "active" : ""
                         }`}
