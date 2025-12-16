@@ -16,7 +16,7 @@ const localizer = momentLocalizer(moment)
 const CURRENT_YEAR = new Date().getFullYear()
 const CURRENT_MONTH = moment().month()
 
-const TurnosAdmin = () => {
+const TurnosAdmin = ({ fromAdmin, fromEntrenador }) => {
   const [rawTurnos, setRawTurnos] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -139,7 +139,7 @@ const TurnosAdmin = () => {
 
   return (
     <div className='page-layout turnos-admin'>
-      <SidebarMenu isAdmin={true} />
+      <SidebarMenu isAdmin={fromAdmin} isEntrenador={fromEntrenador} />
       {loading && <LoaderFullScreen />}
       <div className='content-layout'>
         <h2>Turnos – {moment().month(selectedMonth).format('MMMM YYYY')}</h2>

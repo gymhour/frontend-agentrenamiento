@@ -109,7 +109,7 @@ function App() {
         <Route path="/admin/turnos"
           element={
             <ProtectedRoute>
-              <TurnosAdmin />
+              <TurnosAdmin fromAdmin={true} fromEntrenador={false} />
             </ProtectedRoute>
           }
         />
@@ -255,6 +255,13 @@ function App() {
           element={
             <ProtectedRoute>
               <InicioEntrenador />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/entrenador/turnos"
+          element={
+            <ProtectedRoute>
+              <TurnosAdmin fromEntrenador={true} fromAdmin={false} />
             </ProtectedRoute>
           }
         />

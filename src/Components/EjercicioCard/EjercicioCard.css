@@ -1,109 +1,173 @@
 @import url(../../variables.css);
 
 .exercise-card {
-    background-color: #000;
-    border: 1px solid #333;
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    color: #fff;
-    margin: 10px;
-    max-width: 300px;
-    transition: all ease-in-out 150ms;
+  background-color: #000;
+  border: 1px solid #333;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  margin: 10px;
+  max-width: 300px;
+  transition: all ease-in-out 150ms;
 }
+
 /* .exercise-card:hover {
     background-color: #202020;
 } */
 
 .exercise-card__media {
-    width: 100%;
-    height: 200px;
-    background: #111;
+  width: 100%;
+  height: 200px;
+  background: #111;
+  position: relative;
+  overflow: hidden;
 }
 
-.media__img,
 .media__iframe {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+.media__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .exercise-card__info {
-    padding: 16px;
+  padding: 16px;
 }
 
 .info__title {
-    margin: 0 0 8px;
-    font-size: 16px;
-    line-height: 1.2;
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 1.2;
 }
 
 .info__desc {
-    margin: 0;
-    font-size: 14px;
-    color: #ccc;
-    text-transform: capitalize;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-transform: lowercase;
-  }
+  margin: 0;
+  font-size: 14px;
+  color: #ccc;
+  text-transform: capitalize;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: lowercase;
+}
 
-  .info__desc::first-letter {
-    text-transform: uppercase;
-  }
+.info__desc::first-letter {
+  text-transform: uppercase;
+}
 
 .exercise-card__actions {
-    display: flex;
-    gap: 16px;
-    padding: 12px 16px 16px;
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px 16px;
 }
 
 .action-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 14px;
-    cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  cursor: pointer;
 }
 
 .action-btn.edit {
-    color: #fff;
+  color: #fff;
 }
 
 .action-btn.delete {
-    color: #e74c3c;
+  color: #e74c3c;
 }
 
 .exercise-card__footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: .5rem;
-    padding: 0 12px 12px;
-  }
-  
-  .action-btn {
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-  
-  .action-btn.view {
-    font-weight: 500;
-    background: var(--primary-color); color: #fff; 
-  }
-  .action-btn.view:hover { opacity: 0.9; }
-  .exercise-card__actions {
-    display: flex;
-    gap: .5rem;
-  }
-  .action-btn.edit { background: var(--primary-color); color: #fff; }
-  .action-btn.delete { background: none; color: #fff; }
-  .action-btn.edit:hover, .action-btn.delete:hover { opacity: 0.9; }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+  padding: 0 12px 12px;
+}
+
+.action-btn {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.action-btn.view {
+  font-weight: 500;
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.action-btn.view:hover {
+  opacity: 0.9;
+}
+
+.exercise-card__actions {
+  display: flex;
+  gap: .5rem;
+}
+
+.action-btn.edit {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.action-btn.delete {
+  background: none;
+  color: #fff;
+}
+
+.action-btn.edit:hover,
+.action-btn.delete:hover {
+  opacity: 0.9;
+}
+
+.media__thumbBtn {
+  all: unset;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+  height: 100%;
+}
+
+.media__playBadge {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  line-height: 1;
+  color: white;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .45);
+}
+
+.media__playerWrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.media__closeBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: 0;
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
