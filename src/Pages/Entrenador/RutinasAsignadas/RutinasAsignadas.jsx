@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Select from 'react-select';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
-import apiService, {fetchAllClientsActive} from '../../../services/apiService';
+import apiService, { fetchAllClientsActive } from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import './RutinasAsignadas.css';
@@ -244,9 +244,8 @@ const RutinasAsignadas = () => {
 
   const loadRutinasAsignadas = async () => {
     setLoading(true);
-    const entrenadorId = localStorage.getItem('usuarioId');
     try {
-      const { rutinas: lista = [] } = await apiService.getRutinasEntrenadores(entrenadorId);
+      const { rutinas: lista = [] } = await apiService.getRutinasAsignadas();
 
       // abrir primer día por defecto por rutina
       const init = {};
@@ -611,6 +610,10 @@ const RutinasAsignadas = () => {
 
                 <div className="rutina-asignada" style={{ marginTop: 10 }}>
                   <strong>Asignada a:</strong> {rutina?.alumno?.nombre} {rutina?.alumno?.apellido}
+
+                  <div>
+                    <strong>Por:</strong> {`${rutina?.entrenador?.nombre || ''} ${rutina?.entrenador?.apellido || ''}`.trim() || '—'}
+                  </div>
                 </div>
 
                 <div style={{ marginTop: 12 }}>
