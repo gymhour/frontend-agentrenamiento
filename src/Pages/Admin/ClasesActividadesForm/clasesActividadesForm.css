@@ -80,12 +80,6 @@
     cursor: pointer;
 }
 
-/* opcional heredado */
-.form-container form .forgot-password-link {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
-}
-
 /* ========== Tags entrenadores ========== */
 
 .selected-tags {

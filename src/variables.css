@@ -13,14 +13,17 @@
     --background-color: #101010; 
     --background-color-distinct: #1b1b1bab;
     --border-color: rgba(255,255,255,0.2);
+    --login-overlay: rgba(0, 0, 0, 0.2);
+    --login-card-bg: rgba(16, 16, 16, 0.72);
    
 
     /* Light */
     
-    --text-color: #101010;
+    /* --text-color: #101010;
     --text-color-distinct: #444444;
     --background-color: #fff;
     --background-color-distinct: #ececec78;
-    --border-color: rgba(0, 0, 0,0.2);
-   
+    --border-color: rgba(0, 0, 0,0.2);   
+    --login-overlay: rgba(255, 255, 255, 0.55);
+    --login-card-bg: rgba(255, 255, 255, 0.78); */
 }
