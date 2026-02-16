@@ -323,6 +323,7 @@
     cursor: pointer;
     transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
     outline: none;
+    display: flex;
 }
 
 .day-tab:hover {
@@ -919,4 +920,64 @@
         width: 100%;
         height: 38px;
     } */
+}
+
+.day-drag-handle {
+    background: transparent;
+    border: none;
+    cursor: grab;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    margin-right: 6px;
+    opacity: 0.75;
+}
+
+.day-drag-handle:active {
+    cursor: grabbing;
+}
+
+.day-tab-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.day-tab--dragging {
+    opacity: 0.6;
+}
+
+.day-tab--over {
+    outline: 2px dashed rgba(0, 0, 0, 0.25);
+    outline-offset: 2px;
+}
+
+.day-tab--dragging {
+    opacity: 0.6;
+}
+
+.day-drag-handle {
+    background: transparent;
+    border: none;
+    cursor: grab;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    margin-right: 6px;
+    opacity: 0.75;
+}
+
+.day-drag-handle:active {
+    cursor: grabbing;
+}
+
+.day-drop-indicator {
+    width: 3px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.35);
+    align-self: center;
+    margin: 0 6px;
 }

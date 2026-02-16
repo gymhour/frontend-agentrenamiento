@@ -12,8 +12,8 @@ const Cuotas = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const alias = 'augusto.grenon.ag';
-  // const cbu = '00700238-30004046522411';
+  const alias = 'gymhour.alias';
+  const cbu = '00700238-30004046522411';
 
   const handleCopy = async (text) => {
     try {
@@ -75,30 +75,30 @@ const Cuotas = () => {
       <SidebarMenu isAdmin={false} />
 
       <div className="content-layout">
-        <h2>Cuotas</h2>
+        <h1>Cuotas</h1>
 
         <div className="cuotas-datos-pagos">
-          <h3>Datos de cuenta</h3>
+          <h2>Datos de cuenta</h2>
           <div className="cuotas-datos-pagos-info">
-            <span style={{ fontWeight: '600' }}>
-              AUGUSTO GRENÓN
-              {/* <GaliciaIcon width="120" /> */}
+            <span style={{ fontWeight: '600' }} className="alias-and-bank">
+              JUAN PEREZ
+              <GaliciaIcon width="120" />
             </span>
-            <span>
-              AG Entrenamientos
-            </span>
+            {/* <span>
+              GIMNASIO GYMHOUR
+            </span> */}
             <span>
               <b>ALIAS:</b> {alias}{' '}
               <button className="copy-button" onClick={() => handleCopy(alias)}>
                 <Copy size={16} />
               </button>
             </span>
-            {/* <span>
+            <span>
               <b>CBU:</b> {cbu}{' '}
               <button className="copy-button" onClick={() => handleCopy(cbu)}>
                 <CopyIcon width={16} height={16}/>
               </button>
-            </span> */}
+            </span>
             <span><b>CUIL:</b> 20-35752545-5</span>
           </div>
           <a
@@ -110,7 +110,7 @@ const Cuotas = () => {
           </a>
         </div>
 
-        <h3>Historial de pagos</h3>
+        <h2>Historial de pagos</h2>
         {loading ? (
           <p style={{ marginTop: '20px' }}>Cargando cuotas...</p>
         ) : error ? (

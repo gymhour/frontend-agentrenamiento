@@ -15,6 +15,14 @@
     gap: 8px;
 }
 
+.alias-and-bank {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
 .cuotas-table-usuario {
     margin-top: 20px;
 }

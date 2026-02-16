@@ -106,7 +106,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
           }
         </button>
         <img
-          src={ClientLogo}
+          src={OurLogo}
           alt="Wembley Logo"
           className="mobile-logo"
         />
@@ -132,7 +132,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
         {/* Logo cliente */}
         <div className="sidebar-logo">
           <img
-            src={ClientLogo}
+            src={OurLogo}
             alt="Wembley Logo"
             className="logo"
           />
@@ -289,6 +289,17 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         <Home className="icon" /> Inicio
                       </li>
                     </Link>
+                    <Link
+                        to="/entrenador/turnos"
+                        className={`menu-link ${location.pathname === "/entrenador/turnos"
+                          ? "active"
+                          : ""
+                          }`}
+                      >
+                        <li className="menu-item">
+                          <MisTurnosIcon className="icon" /> Mis turnos
+                        </li>
+                      </Link>
                     <Link
                       to="/entrenador/asignar-rutinas"
                       className={`menu-link ${location.pathname === "/entrenador/asignar-rutinas" ? "active" : ""

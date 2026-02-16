@@ -285,9 +285,8 @@ const RutinasAsignadas = () => {
 
   const loadRutinasAsignadas = async () => {
     setLoading(true);
-    const entrenadorId = localStorage.getItem('usuarioId');
     try {
-      const { rutinas: lista = [] } = await apiService.getRutinasEntrenadores(entrenadorId);
+      const { rutinas: lista = [] } = await apiService.getRutinasAsignadas();
 
       // abrir primer día por defecto por rutina
       const init = {};
@@ -653,6 +652,10 @@ const RutinasAsignadas = () => {
 
                 <div className="rutina-asignada" style={{ marginTop: 10 }}>
                   <strong>Asignada a:</strong> {rutina?.alumno?.nombre} {rutina?.alumno?.apellido}
+
+                  <div>
+                    <strong>Por:</strong> {`${rutina?.entrenador?.nombre || ''} ${rutina?.entrenador?.apellido || ''}`.trim() || '—'}
+                  </div>
                 </div>
 
                 <div style={{ marginTop: 12 }}>

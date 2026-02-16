@@ -1,7 +1,6 @@
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify'; // Importa el ToastContainer
-import GymHourLanding from './Pages/Landing/Landing';
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Pages/Auth/Login/Login';
 import SignUp from './Pages/Auth/SignUp/SignUp';
@@ -85,7 +84,6 @@ function App() {
       <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/reset-password' element={<ResetPassword />} />
@@ -109,7 +107,7 @@ function App() {
         <Route path="/admin/turnos"
           element={
             <ProtectedRoute>
-              <TurnosAdmin />
+              <TurnosAdmin fromAdmin={true} fromEntrenador={false} />
             </ProtectedRoute>
           }
         />
@@ -255,6 +253,13 @@ function App() {
           element={
             <ProtectedRoute>
               <InicioEntrenador />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/entrenador/turnos"
+          element={
+            <ProtectedRoute>
+              <TurnosAdmin fromEntrenador={true} fromAdmin={false} />
             </ProtectedRoute>
           }
         />

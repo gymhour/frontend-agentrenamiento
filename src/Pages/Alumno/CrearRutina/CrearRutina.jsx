@@ -356,7 +356,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   const canAssign = !!(fromEntrenador || fromAdmin);
 
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(isEditing);
 
   const [formData, setFormData] = useState({ nombre: '', descripcion: '' });
   const [clases, setClases] = useState([]);
@@ -452,6 +452,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     })();
   }, [canAssign, selectedUserId, step, infoTab]);
 
+  const afterPaint = () =>
+    new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+
   const cryptoRandomId = () => {
     try {
       return Number((crypto.getRandomValues(new Uint32Array(1))[0]).toString());
@@ -542,6 +547,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         }]);
         setActiveDayIndex(0);
       }
+
+      await afterPaint();
+
     } catch (err) {
       console.error(err);
       toast.error('No se pudo cargar la rutina para editar');
@@ -890,6 +898,84 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     setDraggingBlockId(null);
     setDragOverBlockId(null);
   };
+
+  // Drag & drop de DÍAS (tabs) - con drop "entre" tabs
+  const [draggingDayKey, setDraggingDayKey] = useState(null);
+  const [dayDropIndex, setDayDropIndex] = useState(null); // 0..days.length
+
+  const onDayDragStart = (e, dayKey) => {
+    setDraggingDayKey(dayKey);
+    setDayDropIndex(null);
+    e.dataTransfer.setData('text/plain', String(dayKey));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const onDayDragOverTab = (e, overIndex) => {
+    e.preventDefault();
+    if (!draggingDayKey) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const isBefore = e.clientX < rect.left + rect.width / 2;
+    setDayDropIndex(isBefore ? overIndex : overIndex + 1);
+  };
+
+  const onDayDragOverContainer = (e) => {
+    e.preventDefault();
+    if (!draggingDayKey) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const nearRight = e.clientX > rect.right - 12;
+    if (nearRight) setDayDropIndex(days.length);
+  };
+
+  const onDayDrop = (e) => {
+    e.preventDefault();
+
+    const fromKey = e.dataTransfer.getData('text/plain');
+    if (!fromKey) return;
+
+    const dropIndexRaw = typeof dayDropIndex === 'number' ? dayDropIndex : null;
+    if (dropIndexRaw == null) {
+      setDraggingDayKey(null);
+      setDayDropIndex(null);
+      return;
+    }
+
+    const fromIndex = days.findIndex(d => d.key === fromKey);
+    if (fromIndex === -1) return;
+
+    const dropIndexClamped = Math.max(0, Math.min(dropIndexRaw, days.length));
+
+    const list = [...days];
+    const activeKey = days[activeDayIndex]?.key;
+
+    const [moved] = list.splice(fromIndex, 1);
+
+    let insertIndex = dropIndexClamped;
+    if (fromIndex < insertIndex) insertIndex -= 1;
+
+    insertIndex = Math.max(0, Math.min(insertIndex, list.length));
+    list.splice(insertIndex, 0, moved);
+
+    const newActiveIndex =
+      activeKey === fromKey
+        ? insertIndex
+        : Math.max(0, list.findIndex(d => d.key === activeKey));
+
+    const renumbered = list.map((d, i) => ({ ...d, key: `dia${i + 1}` }));
+
+    setDays(renumbered);
+    setActiveDayIndex(newActiveIndex);
+
+    setDraggingDayKey(null);
+    setDayDropIndex(null);
+  };
+
+  const onDayDragEnd = () => {
+    setDraggingDayKey(null);
+    setDayDropIndex(null);
+  };
+
 
   // Payload
   const buildPayload = () => {
@@ -1302,36 +1388,66 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                   style={{ marginBottom: '16px' }}
                 />
 
-                {/* Tabs días */}
-                <div className="days-tabs">
-                  {days.map((d, idx) => (
-                    <div
-                      key={d.key}
-                      className={`day-tab ${idx === activeDayIndex
-                        ? 'active'
-                        : ''
-                        }`}
-                      onClick={() =>
-                        setActiveDayIndex(idx)
-                      }
-                    >
-                      {`Día ${idx + 1}`}
-                      <button
-                        className="day-tab-close"
-                        title="Eliminar día"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeDay(idx);
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    className="day-tab add"
-                    onClick={addDay}
-                  >
+                {/* Tabs días (reordenables) */}
+                <div
+                  className="days-tabs"
+                  onDragOver={onDayDragOverContainer}
+                  onDrop={onDayDrop}
+                >
+                  {days.map((d, idx) => {
+                    const isDragging = draggingDayKey === d.key;
+
+                    return (
+                      <React.Fragment key={d.key}>
+                        {draggingDayKey && dayDropIndex === idx && (
+                          <div className="day-drop-indicator" />
+                        )}
+
+                        <div
+                          className={`day-tab ${idx === activeDayIndex ? 'active' : ''} ${isDragging ? 'day-tab--dragging' : ''}`}
+                          onClick={() => setActiveDayIndex(idx)}
+                          onDragOver={(e) => onDayDragOverTab(e, idx)}
+                          onDrop={onDayDrop}
+                          onDragEnd={onDayDragEnd}
+                        >
+                          <button
+                            className="day-drag-handle"
+                            draggable
+                            onDragStart={(e) => onDayDragStart(e, d.key)}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label="Reordenar día"
+                            title="Arrastrar para reordenar"
+                            type="button"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <path d="M4 7h16v2H4zM4 11h16v2H4zM4 15h16v2H4z"></path>
+                            </svg>
+                          </button>
+
+                          <span className="day-tab-label">{`Día ${idx + 1}`}</span>
+
+                          <button
+                            className="day-tab-close"
+                            title="Eliminar día"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeDay(idx);
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </React.Fragment>
+                    );
+                  })}
+
+                  {draggingDayKey && dayDropIndex === days.length && (
+                    <div className="day-drop-indicator" />
+                  )}
+
+                  <button className="day-tab add" onClick={addDay} type="button">
                     + Añadir día
                   </button>
                 </div>
@@ -1816,6 +1932,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                             e.target.value
                                           )
                                         }
+                                        aria-label="Peso"
                                       />
                                       <div className="exercise-cell">
                                         <input
