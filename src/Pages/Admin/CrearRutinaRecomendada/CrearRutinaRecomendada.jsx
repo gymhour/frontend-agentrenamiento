@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
+import { X } from 'lucide-react';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
@@ -107,12 +107,12 @@ const convertApiBlockData = (b) => {
         setsReps: mappedSets.length
           ? mappedSets
           : [{
-              series: b.setsReps || '',
-              exercise: b.nombreEj || '',
-              weight: b.weight || '',
-              placeholderExercise: '',
-              exerciseId: null
-            }]
+            series: b.setsReps || '',
+            exercise: b.nombreEj || '',
+            weight: b.weight || '',
+            placeholderExercise: '',
+            exerciseId: null
+          }]
       };
     case 'ROUNDS':
       return { rounds: b.cantRondas ?? '', descanso: b.descansoRonda ?? '', setsReps: mappedSets };
@@ -288,10 +288,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
           const d = r.dias[k] || {};
           const blocks = Array.isArray(d.bloques)
             ? d.bloques.map(b => ({
-                id: cryptoRandomId(),
-                type: apiToDisplayType[b.type] || b.type,
-                data: convertApiBlockData(b)
-              }))
+              id: cryptoRandomId(),
+              type: apiToDisplayType[b.type] || b.type,
+              data: convertApiBlockData(b)
+            }))
             : [];
           return { key: k, nombre: d.nombre || '', descripcion: d.descripcion || '', blocks };
         });
@@ -300,10 +300,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
       } else {
         const blocks = Array.isArray(r.Bloques)
           ? r.Bloques.map(b => ({
-              id: cryptoRandomId(),
-              type: apiToDisplayType[b.type] || b.type,
-              data: convertApiBlockData(b)
-            }))
+            id: cryptoRandomId(),
+            type: apiToDisplayType[b.type] || b.type,
+            data: convertApiBlockData(b)
+          }))
           : [];
         setDays([{ key: 'dia1', nombre: '', descripcion: '', blocks }]);
         setActiveDayIndex(0);
@@ -377,23 +377,23 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
         ? {
-            ...block,
-            data: {
-              ...block.data,
-              setsReps: [
-                ...block.data.setsReps,
-                block.type === "DROPSET"
-                  ? { series: '', weight: '' }
-                  : {
-                      series: '',
-                      exercise: '',
-                      weight: '',
-                      placeholderExercise: getRandomExercise(),
-                      exerciseId: null
-                    }
-              ]
-            }
+          ...block,
+          data: {
+            ...block.data,
+            setsReps: [
+              ...block.data.setsReps,
+              block.type === "DROPSET"
+                ? { series: '', weight: '' }
+                : {
+                  series: '',
+                  exercise: '',
+                  weight: '',
+                  placeholderExercise: getRandomExercise(),
+                  exerciseId: null
+                }
+            ]
           }
+        }
         : block
     ));
   };
@@ -401,12 +401,12 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
         ? {
-            ...block,
-            data: {
-              ...block.data,
-              setsReps: block.data.setsReps.filter((_, i) => i !== index)
-            }
+          ...block,
+          data: {
+            ...block.data,
+            setsReps: block.data.setsReps.filter((_, i) => i !== index)
           }
+        }
         : block
     ));
   };
@@ -443,10 +443,10 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
         const newSets = block.data.setsReps.map((sr, i) =>
           i === idx
             ? {
-                ...sr,
-                exercise: exerciseObj.nombre,
-                exerciseId: exerciseObj.ID_Ejercicio
-              }
+              ...sr,
+              exercise: exerciseObj.nombre,
+              exerciseId: exerciseObj.ID_Ejercicio
+            }
             : sr
         );
         return { ...block, data: { ...block.data, setsReps: newSets } };
@@ -463,13 +463,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
         ? {
-            ...block,
-            data: {
-              ...block.data,
-              exerciseName: value,
-              exerciseId: null
-            }
+          ...block,
+          data: {
+            ...block.data,
+            exerciseName: value,
+            exerciseId: null
           }
+        }
         : block
     ));
 
@@ -491,13 +491,13 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
     setActiveDayBlocks((activeDay?.blocks || []).map(block =>
       block.id === blockId
         ? {
-            ...block,
-            data: {
-              ...block.data,
-              exerciseName: exerciseObj.nombre,
-              exerciseId: exerciseObj.ID_Ejercicio
-            }
+          ...block,
+          data: {
+            ...block.data,
+            exerciseName: exerciseObj.nombre,
+            exerciseId: exerciseObj.ID_Ejercicio
           }
+        }
         : block
     ));
 
@@ -571,15 +571,15 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
             const weightNorm = (sr?.weight || '').trim();
             return ejId
               ? {
-                  ejercicioId: ejId,
-                  reps,
-                  setRepWeight: weightNorm || undefined
-                }
+                ejercicioId: ejId,
+                reps,
+                setRepWeight: weightNorm || undefined
+              }
               : {
-                  nuevoEjercicio: { nombre: name },
-                  reps,
-                  setRepWeight: weightNorm || undefined
-                };
+                nuevoEjercicio: { nombre: name },
+                reps,
+                setRepWeight: weightNorm || undefined
+              };
           });
 
           const first = rows[0] || {};
@@ -830,9 +830,9 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                     value={
                       selectedEmail
                         ? {
-                            label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
-                            value: selectedEmail
-                          }
+                          label: `${users.find(u => u.email === selectedEmail)?.nombre || ''} ${users.find(u => u.email === selectedEmail)?.apellido || ''} (${selectedEmail})`,
+                          value: selectedEmail
+                        }
                         : null
                     }
                     onChange={option => setSelectedEmail(option.value)}
@@ -947,7 +947,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                           className="delete-block-btn"
                           title="Eliminar bloque"
                         >
-                          <CloseIcon width={32} height={32} />
+                          <X width={24} height={24} />
                         </button>
                       </div>
 
@@ -1559,8 +1559,8 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                       ))}
                       {(!filteredExercises ||
                         filteredExercises.length === 0) && (
-                        <p className="info-empty">No se encontraron ejercicios.</p>
-                      )}
+                          <p className="info-empty">No se encontraron ejercicios.</p>
+                        )}
                     </div>
                   </div>
                 )}

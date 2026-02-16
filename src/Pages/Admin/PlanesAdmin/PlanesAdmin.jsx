@@ -4,8 +4,7 @@ import apiService from '../../../services/apiService'
 import './PlanesAdmin.css'
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton'
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton'
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg'
+import { Edit, Trash2 } from 'lucide-react'
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput'
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen'
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp'
@@ -131,10 +130,10 @@ const PlanesAdmin = () => {
                 <p className="plan-price">${plan.precio.toLocaleString()}</p>
                 <div className="plan-actions">
                   <div onClick={() => handleEdit(plan)} style={{ cursor: 'pointer' }}>
-                    <EditIcon width={20} height={20} />
+                    <Edit width={20} height={20} />
                   </div>
                   <div onClick={() => openDeletePopup(plan)} style={{ cursor: 'pointer' }}>
-                    <DeleteIcon width={20} height={20} />
+                    <Trash2 width={20} height={20} />
                   </div>
                 </div>
               </div>
@@ -146,7 +145,7 @@ const PlanesAdmin = () => {
         {showModal && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <h2 style={{marginBottom: '20px'}}> {editingPlan ? 'Editar Plan' : 'Nuevo Plan'}</h2>
+              <h2 style={{ marginBottom: '20px' }}> {editingPlan ? 'Editar Plan' : 'Nuevo Plan'}</h2>
               <form onSubmit={handleSubmit} className="plan-form">
                 <div className="plan-form-input-container">
                   <label>Nombre</label>
@@ -169,10 +168,10 @@ const PlanesAdmin = () => {
                 <div className="plan-form-input-container">
                   <label>Descripción</label>
                   <CustomInput
-                        placeholder="Descripción (opcional)"
-                        value={nuevaDesc}
-                        onChange={(e) => setNuevaDesc(e.target.value)}
-                    />
+                    placeholder="Descripción (opcional)"
+                    value={nuevaDesc}
+                    onChange={(e) => setNuevaDesc(e.target.value)}
+                  />
                 </div>
                 <div className="modal-actions">
                   <SecondaryButton text="Cancelar" onClick={handleClose} />

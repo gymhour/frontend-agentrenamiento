@@ -9,7 +9,8 @@ import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/Confi
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast } from "react-toastify";
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
-import { FaChevronDown, FaChevronUp, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 
 const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
   const [usuarios, setUsuarios] = useState([]);
@@ -133,7 +134,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
             className='toggle-filters-button'
             onClick={() => setShowFilters(prev => !prev)}
           >
-            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            Filtros {showFilters ? <ChevronUp /> : <ChevronDown />}
           </button>
         </div>
 
@@ -168,7 +169,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
 
             <div className='usuarios-filtros-form-inputs-ctn'>
               <label htmlFor="nombre">Nombre:</label>
-              <input
+              <CustomInput
                 type="text"
                 id="nombre"
                 name="nombre"
@@ -180,7 +181,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
 
             <div className='usuarios-filtros-form-inputs-ctn'>
               <label htmlFor="apellido">Apellido:</label>
-              <input
+              <CustomInput
                 type="text"
                 id="apellido"
                 name="apellido"
@@ -192,7 +193,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
 
             <div className='usuarios-filtros-form-inputs-ctn'>
               <label htmlFor="email">Email:</label>
-              <input
+              <CustomInput
                 type="text"
                 id="email"
                 name="email"
@@ -298,7 +299,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
             aria-label="Página anterior"
             title="Página anterior"
           >
-            <FaChevronLeft />
+            <ChevronLeft />
           </button>
           <span>Página {page}</span>
           <button
@@ -308,7 +309,7 @@ const UsuariosList = ({ fromAdmin, fromEntrenador }) => {
             aria-label="Página siguiente"
             title="Página siguiente"
           >
-            <FaChevronRight />
+            <ChevronRight />
           </button>
         </div>
 

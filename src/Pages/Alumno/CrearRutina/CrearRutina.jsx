@@ -10,10 +10,53 @@ import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
+import { X } from 'lucide-react';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? 'var(--primary-color)'
+      : state.isFocused
+        ? 'var(--background-hover-color)'
+        : 'var(--background-color)',
+    color: state.isSelected ? '#fff' : 'var(--text-color)',
+    cursor: 'pointer',
+    ':active': {
+      backgroundColor: 'var(--background-hover-color)',
+    },
+  }),
+  control: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color-distinct)',
+    borderColor: 'transparent', // CustomDropdown has no visible border usually or matches style
+    borderRadius: '12px',
+    padding: '6px',
+    boxShadow: 'none',
+    color: 'var(--text-color)',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color)',
+    border: '1px solid var(--border-color)',
+    zIndex: 100
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color-distinct)',
+  })
+};
+
 const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA", "DROPSET"];
 
 const apiToDisplayType = {
@@ -1319,6 +1362,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     placeholder="Seleccioná un usuario"
                     isSearchable
                     required={!!fromEntrenador}
+                    styles={customStyles}
                   />
                 )}
 
@@ -1510,9 +1554,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                             className="delete-block-btn"
                             title="Eliminar bloque"
                           >
-                            <CloseIcon
-                              width={32}
-                              height={32}
+                            <X
+                              width={24}
+                              height={24}
                             />
                           </button>
                         </div>
@@ -1888,6 +1932,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                             e.target.value
                                           )
                                         }
+                                        aria-label="Peso"
                                       />
                                       <div className="exercise-cell">
                                         <input

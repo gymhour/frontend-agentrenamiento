@@ -140,7 +140,7 @@ const CrearUsuario = () => {
           }}
         >
           <label htmlFor="email">Email:</label>
-          <input
+          <CustomInput
             type="email" id="email" name="email"
             value={formData.email} onChange={handleChange}
             required placeholder="Ingresa tu email"
@@ -154,14 +154,14 @@ const CrearUsuario = () => {
           />
 
           <label htmlFor="nombre">Nombre:</label>
-          <input
+          <CustomInput
             type="text" id="nombre" name="nombre"
             value={formData.nombre} onChange={handleChange}
             placeholder="Ingresa el nombre"
           />
 
           <label htmlFor="apellido">Apellido:</label>
-          <input
+          <CustomInput
             type="text" id="apellido" name="apellido"
             value={formData.apellido} onChange={handleChange}
             placeholder="Ingresa el apellido"
@@ -197,7 +197,7 @@ const CrearUsuario = () => {
           {formData.tipo === 'Entrenador' && (
             <>
               <label htmlFor="profesion">Profesión:</label>
-              <input
+              <CustomInput
                 type="text" id="profesion" name="profesion"
                 value={formData.profesion} onChange={handleChange}
                 placeholder="Ingresa la profesión"
@@ -206,21 +206,21 @@ const CrearUsuario = () => {
           )}
 
           <label htmlFor="direc">Dirección:</label>
-          <input
+          <CustomInput
             type="text" id="direc" name="direc"
             value={formData.direc} onChange={handleChange}
             placeholder="Ingresa la dirección"
           />
 
           <label htmlFor="tel">Teléfono:</label>
-          <input
+          <CustomInput
             type="tel" id="tel" name="tel"
             value={formData.tel} onChange={handleChange}
             placeholder="Ingresa el teléfono"
           />
 
           <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>
-          <input
+          <CustomInput
             type="date" id="fechaCumple" name="fechaCumple"
             value={formData.fechaCumple} onChange={handleChange}
           />

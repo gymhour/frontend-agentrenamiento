@@ -1,4 +1,4 @@
-/* EjercicioDetail.css */
+@import url("../../../variables.css");
 
 .ejercicio-detail {
     width: 90%;
@@ -14,7 +14,7 @@
     width: 100%;
     border-radius: 12px;
     overflow: hidden;
-    background-color: #000;
+    background-color: var(--background-color);
 }
 
 .ejercicio-detail__media.video iframe {
@@ -40,8 +40,8 @@
 }
 
 .header__tag {
-    background: #f0f0f0;
-    color: #333;
+    background: var(--background-color);
+    color: var(--text-color);
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 14px;
@@ -61,7 +61,7 @@
 .ejercicio-detail__section p,
 .ejercicio-detail__section ol {
     font-size: 15px;
-    color: #e4e4e4;
+    color: var(--text-color-distinct);
     line-height: 1.5;
     margin: 0;
 }
@@ -97,7 +97,7 @@
     border-radius: 16px;
     overflow: hidden;
     background-color: #000;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); */
     animation: fadeIn 0.4s ease-in;
 }
 

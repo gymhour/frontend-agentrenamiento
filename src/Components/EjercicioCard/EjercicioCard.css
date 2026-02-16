@@ -1,13 +1,13 @@
 @import url(../../variables.css);
 
 .exercise-card {
-  background-color: #000;
-  border: 1px solid #333;
+  background-color: var(--background-color-distinct);
+  border: 1px solid var(--light-grey);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  color: #fff;
+  color: var(--text-color);
   margin: 10px;
   max-width: 300px;
   transition: all ease-in-out 150ms;
@@ -21,22 +21,12 @@
   width: 100%;
   height: 200px;
   background: #111;
-  position: relative;
-  overflow: hidden;
 }
 
 .media__iframe {
   width: 100%;
   height: 100%;
-  display: block;
-  border: 0;
-}
-
-.media__img {
-  width: 100%;
-  height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .exercise-card__info {
@@ -52,7 +42,7 @@
 .info__desc {
   margin: 0;
   font-size: 14px;
-  color: #ccc;
+  color: var(--text-color-distinct);
   text-transform: capitalize;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -90,10 +80,10 @@
 
 .exercise-card__footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  gap: .5rem;
-  padding: 0 12px 12px;
+  gap: 4px;
+  padding: 0 6px 6px;
 }
 
 .action-btn {
@@ -126,48 +116,10 @@
 
 .action-btn.delete {
   background: none;
-  color: #fff;
+  color: var(--text-color);
 }
 
 .action-btn.edit:hover,
 .action-btn.delete:hover {
   opacity: 0.9;
-}
-
-.media__thumbBtn {
-  all: unset;
-  display: block;
-  width: 100%;
-  cursor: pointer;
-  position: relative;
-  height: 100%;
-}
-
-.media__playBadge {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 44px;
-  line-height: 1;
-  color: white;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, .45);
-}
-
-.media__playerWrap {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.media__closeBtn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: 0;
-  border-radius: 999px;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
 }

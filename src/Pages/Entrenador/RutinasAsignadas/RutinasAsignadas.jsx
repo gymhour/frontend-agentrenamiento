@@ -6,13 +6,10 @@ import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import './RutinasAsignadas.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import { Edit2, Trash2, ChevronDown, ChevronUp, Copy, Video } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -124,7 +121,7 @@ const renderEjercicioItem = (it, tipo) => {
         >
           {txt}
         </Link>
-        <VideoIcon className="video-icon" aria-hidden="true" />
+        <Video className="video-icon" aria-hidden="true" size={16} />
       </span>
     );
   }
@@ -192,7 +189,7 @@ const renderDropSetBlock = (b) => {
       >
         {nombre}
       </Link>
-      <VideoIcon className="video-icon" aria-hidden="true" />
+      <Video className="video-icon" aria-hidden="true" size={16} />
     </span>
   ) : (
     <span>{nombre}</span>
@@ -213,6 +210,50 @@ const renderDropSetBlock = (b) => {
 };
 
 /* ==================================================== */
+
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? 'var(--primary-color)'
+      : state.isFocused
+        ? 'var(--background-hover-color)'
+        : 'var(--background-color)',
+    color: state.isSelected ? '#fff' : 'var(--text-color)',
+    cursor: 'pointer',
+    ':active': {
+      backgroundColor: 'var(--background-hover-color)',
+    },
+  }),
+  control: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color-distinct)',
+    borderColor: 'transparent',
+    borderRadius: '12px',
+    padding: '6px',
+    boxShadow: 'none',
+    color: 'var(--text-color)',
+    width: '300px',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color)',
+    border: '1px solid var(--border-color)',
+    zIndex: 100
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color-distinct)',
+  })
+};
 
 const RutinasAsignadas = () => {
   const [loading, setLoading] = useState(false);
@@ -411,6 +452,7 @@ const RutinasAsignadas = () => {
             placeholder='Seleccioná un usuario'
             isClearable
             isSearchable
+            styles={customStyles}
           />
           <div className="rutinas-asignadas-filtros-btns">
             <PrimaryButton onClick={handleSearch} text="Buscar" />
@@ -436,29 +478,29 @@ const RutinasAsignadas = () => {
                       className='mi-rutina-eliminar-btn'
                       title='Duplicar rutina'
                     >
-                      <FaCopy size={18} />
+                      <Copy size={18} />
                     </button>
                     <button
                       onClick={() => openDeletePopup(rutina.ID_Rutina)}
                       className='mi-rutina-eliminar-btn'
                       title='Eliminar rutina'
                     >
-                      <DeleteIcon width={20} height={20} />
+                      <Trash2 size={20} />
                     </button>
                     <button
                       onClick={() => navigate(`/entrenador/editar-rutina/${rutina.ID_Rutina}`)}
                       className='mi-rutina-eliminar-btn'
                       title='Editar rutina'
                     >
-                      <EditIcon width={20} height={20} />
+                      <Edit2 size={20} />
                     </button>
                   </div>
                 </div>
 
                 <div className='rutina-data'>
-                  <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
-                  <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
-                  <p><strong>Días totales:</strong> {dias.length}</p>
+                  <p>Clase: {rutina.claseRutina || '—'}</p>
+                  <p>Grupo muscular: {rutina.grupoMuscularRutina || '—'}</p>
+                  <p>Días totales: {dias.length}</p>
                 </div>
 
                 {/* ===== DÍAS ===== */}
@@ -536,7 +578,7 @@ const RutinasAsignadas = () => {
                             aria-expanded={isOpen}
                           >
                             <span>{d.nombre || `Día ${idx + 1}`}</span>
-                            {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                            {isOpen ? <ChevronUp /> : <ChevronDown />}
                           </button>
 
                           {isOpen && (

@@ -26,19 +26,24 @@
     flex-wrap: wrap;
 }
 
-.form-input-container label{
-    color: #FAFAFA;
+.form-input-container label {
+    color: var(--text-color);
 }
 
 .custom-textarea {
-    background: #252525;
-    border-radius: 10px;
-    border: none;
-    padding: 8px;
-    /* max-width: 300px; */
+    background-color: var(--background-color-distinct);
+    border-radius: 12px;
+    /* border: none; */
+    border: 1.5px solid var(--background-color-distinct);
+    padding: 16px 12px;
     font-size: 16px;
-    color: white;
+    color: var(--text-color);
     font-family: sans-serif;
     outline: none;
     width: 100%;
+    transition: all ease-in-out 150ms;
+}
+
+.custom-textarea:focus {
+    border: 1.5px solid var(--border-color);
 }

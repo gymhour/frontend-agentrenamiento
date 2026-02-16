@@ -5,7 +5,8 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
 import { ReactComponent as ArrowRightIcon } from '../../../assets/icons/arrow-right.svg';
-import { ReactComponent as CloseIcon } from '../../../assets/icons/close.svg';
+
+import { X } from 'lucide-react';
 import TurnosCard from '../../../Components/TurnosCard/TurnosCard';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import apiService from '../../../services/apiService';
@@ -188,7 +189,7 @@ const AlumnoInicio = () => {
                 aria-label="Cerrar recordatorio"
                 onClick={() => setShowReminder(false)}
               >
-                <CloseIcon width={18} height={18} />
+                <X size={18} />
               </button>
             </div>
 
@@ -228,7 +229,12 @@ const AlumnoInicio = () => {
         <div className="turnos-ctn">
           <div className="turnos-ctn-title">
             <h3> Últimos turnos </h3>
-            <SecondaryButton linkTo="/alumno/turnos" text="Ver historial" icon={ArrowRightIcon} />
+            <SecondaryButton
+              linkTo="/alumno/turnos"
+              text="Ver historial"
+              icon={ArrowRightIcon}
+              iconClassName="allow-fill"
+            />
           </div>
 
           <div className="turnos-ctn-turnos">
@@ -259,7 +265,7 @@ const AlumnoInicio = () => {
         <div className="inicio-clases-act-ctn">
           <div className="inicio-clases-act-title">
             <h3> Clases y actividades </h3>
-            <SecondaryButton linkTo="/alumno/clases-actividades" text="Ver todas" icon={ArrowRightIcon} />
+            <SecondaryButton linkTo="/alumno/clases-actividades" text="Ver todas" icon={ArrowRightIcon} iconClassName="allow-fill" />
           </div>
 
           {error ? (

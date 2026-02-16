@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 .inicio-entrenador-shortcuts-title {
     margin: 16px 0px;
 }
@@ -12,7 +14,7 @@
 
 .inicio-entrenador-shortcuts-item {
     max-width: 300px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     display: flex;
     justify-content: center;
@@ -22,12 +24,12 @@
 }
 
 .inicio-entrenador-shortcuts-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--background-hover-color);
 }
 
 .inicio-entrenador-shortcut-link {
     padding: 20px 20px;
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     display: flex;
     justify-content: center;

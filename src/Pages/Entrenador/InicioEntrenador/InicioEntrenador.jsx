@@ -5,10 +5,7 @@ import SecondaryButton from '../../../Components/utils/SecondaryButton/Secondary
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import { toast } from 'react-toastify';
-import { ReactComponent as ArrowLeftIcon } from "../../../assets/icons/arrow-right.svg"
-import { ReactComponent as AsignarRutinaIcon } from '../../../assets/icons/sidebar/square-pen.svg';
-import { ReactComponent as MiRutinaIcon } from '../../../assets/icons/sidebar/notebook.svg';
-import { ReactComponent as UsuariosIcon } from '../../../assets/icons/users-icon.svg';
+import { SquarePen, Notebook, Users, ArrowRight } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
 
@@ -62,35 +59,35 @@ const InicioEntrenador = () => {
         </div>
         <h3 className='inicio-entrenador-shortcuts-title'> Accesos rápidos </h3>
         <div className="inicio-entrenador-shortcuts">
-            <div className="inicio-entrenador-shortcuts-item">
-              <Link
-                to="/entrenador/asignar-rutinas"
-                className="inicio-entrenador-shortcut-link"
-              >
-                  <AsignarRutinaIcon className="icon" color="#FAFAFA" /> Asignar Rutinas
-              </Link>
-            </div>
-            <div className="inicio-entrenador-shortcuts-item">
-              <Link
-                to="/entrenador/rutinas-asignadas"
-                className="inicio-entrenador-shortcut-link"
-              >
-                  <MiRutinaIcon className="icon" color="#FAFAFA" /> Ver rutinas asignadas
-              </Link>
-            </div>
-            <div className="inicio-entrenador-shortcuts-item">
-              <Link
-                to="/entrenador/usuarios"
-                className="inicio-entrenador-shortcut-link"
-              >
-                  <UsuariosIcon className="icon" color="#FAFAFA" /> Ver usuarios
-              </Link>
-            </div>
+          <div className="inicio-entrenador-shortcuts-item">
+            <Link
+              to="/entrenador/asignar-rutinas"
+              className="inicio-entrenador-shortcut-link"
+            >
+              <SquarePen className="icon" /> Asignar Rutinas
+            </Link>
           </div>
+          <div className="inicio-entrenador-shortcuts-item">
+            <Link
+              to="/entrenador/rutinas-asignadas"
+              className="inicio-entrenador-shortcut-link"
+            >
+              <Notebook className="icon" /> Ver rutinas asignadas
+            </Link>
+          </div>
+          <div className="inicio-entrenador-shortcuts-item">
+            <Link
+              to="/entrenador/usuarios"
+              className="inicio-entrenador-shortcut-link"
+            >
+              <Users className="icon" /> Ver usuarios
+            </Link>
+          </div>
+        </div>
         <div className="inicio-clases-act-ctn">
           <div className="inicio-clases-act-title">
             <h3> Clases y actividades </h3>
-            <SecondaryButton linkTo="/entrenador/clases-actividades" text="Ver todas" icon={ArrowLeftIcon} />
+            <SecondaryButton linkTo="/entrenador/clases-actividades" text="Ver todas" icon={ArrowRight} />
           </div>
           {error ? (
             <p className="error-message">{error}</p>

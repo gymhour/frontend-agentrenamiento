@@ -42,10 +42,23 @@ import EjercicioDetail from './Pages/Shared/EjercicioDetail/EjercicioDetail';
 import RutinaDetail from './Pages/Shared/RutinaDetail/RutinaDetail';
 import CrearRutinaRecomendada from './Pages/Admin/CrearRutinaRecomendada/CrearRutinaRecomendada';
 import RutinasAsignadasAdmin from './Pages/Admin/RutinasAsignadasAdmin/RutinasAsignadasAdmin';
+import React, { useState, useEffect } from 'react';
 
 function App() {
 
   const location = useLocation();
+
+  // Theme logic
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Expose toggle function globally for temporary testing or pass down if needed
+  window.toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+
 
   // Comprueba si el usuario está “logueado”.
   const isLoggedIn = Boolean(localStorage.getItem('token'));
@@ -66,7 +79,7 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme={theme}
       />
       <Routes>
         {/* Rutas públicas */}

@@ -6,7 +6,7 @@ import SecondaryButton from '../../../Components/utils/SecondaryButton/Secondary
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { toast } from "react-toastify";
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ArrowLeft } from 'lucide-react';
 import apiClient from '../../../axiosConfig';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
@@ -82,7 +82,7 @@ const ClasesActividadesAdminDetalle = ({ fromAdmin, fromEntrenador }) => {
               <SecondaryButton
                 text="Clases y actividades"
                 linkTo={fromAdmin ? "/admin/clases-actividades" : "/entrenador/clases-actividades"}
-                icon={ArrowLeftIcon}
+                icon={ArrowLeft}
                 reversed={true}
               />
               <div className='clases-actividades-detalle-actions-edit-delete'>

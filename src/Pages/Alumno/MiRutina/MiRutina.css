@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 .mi-rutina-title {
     display: flex;
     gap: 12px;
@@ -39,13 +41,18 @@
     margin-bottom: 40px;
     -webkit-column-break-inside: avoid;
     -moz-column-break-inside: avoid;
-    column-break-inside: avoid;
+    display: inline-block;
+    /* Opcional: mejora el comportamiento en algunos navegadores */
+    width: 100%;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    /* Soporte legacy */
     padding: 20px;
     width: 320px;
     min-width: 320px;
     max-width: 320px;
     border-radius: 8px;
-    background-color: #202020;
+    background-color: var(--background-color-distinct);
     height: 100%;
 }
 
@@ -64,15 +71,15 @@
 }
 
 .ejercicio-link {
-    color: #fafafa;
+    color: var(--text-color);
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(250, 250, 250, 0.35);
+    text-decoration-color: var(--medium-grey);
     text-decoration-thickness: 1px;
 }
 
 .ejercicio-link:hover {
-    text-decoration-color: rgba(255, 255, 255, 0.6);
+    text-decoration-color: var(--text-color-distinct);
 }
 
 .ejercicio-link-wrap {
@@ -86,12 +93,12 @@
     height: 16px;
     display: inline-block;
     vertical-align: middle;
-    stroke: currentColor;
+    stroke: var(--text-color);
 }
 
 .mi-rutina-eliminar-btn {
     color: rgb(243, 102, 102);
-    background-color: #202020;
+    background-color: var(--background-color);
     border-radius: 8px;
     outline: none;
     cursor: pointer;
@@ -169,16 +176,16 @@
 }
 
 .accordion-item {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    background: var(--background-color-distinct);
     border-radius: 12px;
     overflow: hidden;
     transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .accordion-item.open {
-    border-color: rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+    background: var(--background-color);
 }
 
 .accordion-trigger {
@@ -190,30 +197,30 @@
     background: transparent;
     border: none;
     padding: 14px 16px;
-    color: #fff;
+    color: var(--text-color);
     font-weight: 600;
     cursor: pointer;
 }
 
 .accordion-trigger:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--background-hover-color);
 }
 
 .accordion-content {
     padding: 10px 16px 14px 16px;
-    border-top: 1px dashed rgba(255, 255, 255, 0.12);
+    border-top: 1px dashed var(--border-color);
 }
 
 .dia-desc {
     margin: 2px 0 10px;
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--text-color-distinct);
     font-size: 0.95rem;
 }
 
 .bloque-header {
     margin: 0 0 6px;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-color);
 }
 
 .bloque-list {
@@ -224,21 +231,13 @@
 .bloque-list li {
     margin: 4px 0;
     line-height: 1.35;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-color);
 }
 
 .bloque-footnote {
     margin-top: 6px;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-/* ===== Tarjeta general de rutina ===== */
-.rutina-card {
-    border-radius: 14px;
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--text-color-distinct);
 }
 
 .rutina-header {
@@ -255,14 +254,14 @@
 .rutina-header-acciones button {
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     padding: 6px;
     border-radius: 8px;
 }
 
 .rutina-header-acciones button:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--background-hover-color);
 }
 
 /* Sección directa (sin desplegable) */
@@ -272,8 +271,8 @@
 
 .rutina-ver-detalle-btn {
     width: 100%;
-    background-color: #fafafa;
-    color: #000;
+    background-color: var(--text-color);
+    color: var(--background-color);
     font-size: 15px;
     padding: 10px 24px;
     border-radius: 12px;
@@ -282,5 +281,5 @@
 }
 
 .rutina-ver-detalle-btn:hover {
-    background-color: #e7e7e7;
+    background-color: var(--text-color-distinct);
 }

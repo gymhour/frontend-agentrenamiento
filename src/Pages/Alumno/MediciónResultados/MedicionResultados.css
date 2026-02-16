@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 .medicion-resultados-title {
   display: flex;
   flex-direction: column;
@@ -12,7 +14,7 @@
 
 .medicion-resultados-title p {
   font-size: 1rem;
-  color: #b3b3b3;
+  color: var(--text-color-distinct);
   margin-bottom: 2rem;
 }
 
@@ -32,12 +34,12 @@
 
 /* Botón o link para "Agregar nuevo" */
 .btn-agregar-nuevo {
-  background-color: #1f1f1f;
-  color: #ffffff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 0.5rem 1rem;
   text-decoration: none;
   border-radius: 6px;
-  border: 1px solid #333;
+  border: 1px solid var(--light-grey);
   font-size: 0.9rem;
   transition: background-color 0.2s, transform 0.2s;
 }
@@ -57,11 +59,11 @@
 }
 
 .med-resultados-card {
-  background-color: #151515;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
-  color: #ffffff;
+  color: var(--text-color);
   text-decoration: none;
   /* transition: transform 0.2s, box-shadow 0.2s; */
   transition: all ease-in-out 150ms;
@@ -74,8 +76,8 @@
 
 .med-resultados-card:hover {
   /* transform: scale(1.03); */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  background-color: #202020;
+  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); */
+  background-color: var(--background-color-distinct);
 }
 
 .med-resultados-card-content {
@@ -89,14 +91,14 @@
 
 .med-resultados-card-header span {
   font-size: 0.9rem;
-  color: #999999;
+  color: var(--text-color-distinct);
 }
 
 /* Nombre del ejercicio */
 .med-resultados-card-body p {
   margin-top: 0.75rem;
   font-size: 1rem;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .med-resultados-card {
@@ -112,6 +114,7 @@
   outline: none;
   cursor: pointer;
   z-index: 500;
+  color: var(--text-color);
 }
 
 @media screen and (max-width: 500px) {

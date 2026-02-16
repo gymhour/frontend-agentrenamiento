@@ -4,9 +4,7 @@ import './AdminInicio.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
-import { ReactComponent as UsuariosIcon } from '../../../assets/icons/users_icon_luc.svg';
-import { ReactComponent as IngresosIcon } from '../../../assets/icons/money-icon.svg';
-import { ReactComponent as IngresosPendientesIcon } from '../../../assets/icons/pending-icon.svg';
+import { Users, DollarSign, Clock } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -21,7 +19,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { toast } from 'react-toastify';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const AdminInicio = () => {
   const [loading, setLoading] = useState(false);
@@ -164,11 +162,9 @@ const AdminInicio = () => {
         <div className='cards-container'>
           <div className='card'>
             <div className='card-text-ctn'>
-              <UsuariosIcon
-                width={20}
-                height={20}
-                fill='none'
-                style={{ color: "#bfbfbf" }}
+              <Users
+                size={20}
+                className="icon-soft-grey"
               />
               <h3>Clientes activos</h3>
             </div>
@@ -177,11 +173,9 @@ const AdminInicio = () => {
 
           <div className='card'>
             <div className="card-text-ctn">
-              <IngresosIcon
-                width={20}
-                height={20}
-                fill='none'
-                style={{ color: "#bfbfbf" }}
+              <DollarSign
+                size={20}
+                className="icon-soft-grey"
               />
               <h3>
                 Cobros recibidos
@@ -198,11 +192,9 @@ const AdminInicio = () => {
 
           <div className='card'>
             <div className="card-text-ctn">
-              <IngresosPendientesIcon
-                width={20}
-                height={20}
-                fill='none'
-                style={{ color: "#bfbfbf" }}
+              <Clock
+                size={20}
+                className="icon-soft-grey"
               />
               <h3>
                 Cobros pendientes
@@ -219,11 +211,9 @@ const AdminInicio = () => {
 
           <div className='card'>
             <div className="card-text-ctn">
-              <IngresosPendientesIcon
-                width={20}
-                height={20}
-                fill='none'
-                style={{ color: "#bfbfbf" }}
+              <Clock
+                size={20}
+                className="icon-soft-grey"
               />
               <h3>Monto en cuotas vencidas</h3>
             </div>
@@ -231,14 +221,12 @@ const AdminInicio = () => {
               {currencyFormatter(kpi.totalAmountOverdue)}
             </p>
           </div>
-            
+
           <div className='card'>
             <div className="card-text-ctn">
-              <IngresosPendientesIcon
-                width={20}
-                height={20}
-                fill='none'
-                style={{ color: "#bfbfbf" }}
+              <Clock
+                size={20}
+                className="icon-soft-grey"
               />
               <h3>Cant. cuotas vencidas </h3>
             </div>
@@ -257,7 +245,7 @@ const AdminInicio = () => {
               className='toggle-filters-button'
               onClick={() => setShowFilters(prev => !prev)}
             >
-              Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+              Filtros {showFilters ? <ChevronUp /> : <ChevronDown />}
             </button>
           </div>
 
@@ -311,32 +299,32 @@ const AdminInicio = () => {
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid vertical={false} stroke="#444" strokeDasharray="3 3" />
+                <CartesianGrid vertical={false} stroke="var(--border-color)" strokeDasharray="3 3" />
 
                 <XAxis
                   dataKey="mes"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#aaa", fontSize: 12 }}
+                  tick={{ fill: "var(--text-color)", fontSize: 12 }}
                 />
 
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#aaa", fontSize: 12 }}
+                  tick={{ fill: "var(--text-color)", fontSize: 12 }}
                   tickFormatter={currencyFormatter}
                 />
 
                 <Tooltip
-                  cursor={{ fill: "rgba(0, 0, 0, 0.7)" }}
+                  cursor={{ fill: "var(--background-hover-color)" }}
                   contentStyle={{
-                    backgroundColor: "#000",
-                    border: "none",
+                    backgroundColor: "var(--background-color-distinct)",
+                    border: "1px solid var(--border-color)",
                     borderRadius: "8px",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
                   }}
-                  labelStyle={{ color: "#fff", fontSize: 12, fontWeight: "bold" }}
-                  itemStyle={{ color: "#fff", fontSize: 12 }}
+                  labelStyle={{ color: "var(--text-color)", fontSize: 12, fontWeight: "bold" }}
+                  itemStyle={{ color: "var(--text-color)", fontSize: 12 }}
                   formatter={(value, name) => [currencyFormatter(value), name]}
                 />
 

@@ -6,14 +6,11 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown.jsx';
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import { Edit2, Trash2, ChevronDown, ChevronUp, Video } from 'lucide-react';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
 import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -90,7 +87,7 @@ const renderEjercicioItem = (it, tipo) => {
         >
           {txt}
         </Link>
-        <VideoIcon className="video-icon" aria-hidden="true" />
+        <Video className="video-icon" aria-hidden="true" size={16} />
       </span>
     );
   }
@@ -154,7 +151,7 @@ const renderDropSetBlock = (b) => {
       >
         {nombre}
       </Link>
-      <VideoIcon className="video-icon" aria-hidden="true" />
+      <Video className="video-icon" aria-hidden="true" size={16} />
     </span>
   ) : (
     <span>{nombre}</span>
@@ -330,7 +327,7 @@ const MiRutina = () => {
 
         <div style={{ margin: '30px 0px' }}>
           <button className='toggle-filters-button' onClick={() => setShowFilters(prev => !prev)}>
-            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            Filtros {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
         </div>
 
@@ -376,9 +373,9 @@ const MiRutina = () => {
                   </div>
 
                   <div className='rutina-data'>
-                    <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
-                    <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
-                    <p><strong>Días totales:</strong> {dias.length}</p>
+                    <p>Clase: {rutina.claseRutina || '—'}</p>
+                    <p>Grupo muscular: {rutina.grupoMuscularRutina || '—'}</p>
+                    <p>Días totales: {dias.length}</p>
                   </div>
 
                   {/* ===== DÍAS ===== */}
@@ -451,7 +448,7 @@ const MiRutina = () => {
                               aria-expanded={isOpen}
                             >
                               <span>{d.nombre || `Día ${idx + 1}`}</span>
-                              {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </button>
 
                             {isOpen && (
