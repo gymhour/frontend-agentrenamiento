@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { X } from 'lucide-react'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
@@ -127,7 +128,7 @@ const TurnosAdmin = () => {
     day: 'Día',
     month: 'Mes',
     previous: isNarrow ? 'Día anterior' : 'Semana anterior',
-    next:     isNarrow ? 'Día siguiente' : 'Semana siguiente',
+    next: isNarrow ? 'Día siguiente' : 'Semana siguiente',
     yesterday: 'Ayer',
     tomorrow: 'Mañana',
     today: 'Hoy',
@@ -135,7 +136,7 @@ const TurnosAdmin = () => {
     noEventsInRange: 'No hay eventos en este rango.',
     showMore: total => `+ Ver más (${total})`,
   }), [isNarrow]);
-  
+
 
   return (
     <div className='page-layout turnos-admin'>
@@ -148,7 +149,7 @@ const TurnosAdmin = () => {
           <div className='turnos-filters-input-ctn'>
             <label>Mes: </label>
             <CustomDropdown
-              options={monthOptions} 
+              options={monthOptions}
               value={String(selectedMonth ?? '')}
               onChange={e => setSelectedMonth(+e.target.value)}
               name="month"
@@ -165,7 +166,7 @@ const TurnosAdmin = () => {
               onChange={e => setSelectedClass(e.target.value)}
               name="class"
               id="class"
-              placeholderOption="— Todas —" 
+              placeholderOption="— Todas —"
               placeholderDisabled={false}
             />
           </div>
@@ -196,7 +197,7 @@ const TurnosAdmin = () => {
       {isModalOpen && selectedEvent && (
         <div className="ta-modal" onClick={closeModal}>
           <div className="ta-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="ta-modal-close" onClick={closeModal}>×</button>
+            <button className="ta-modal-close" onClick={closeModal}><X size={24} /></button>
             <h4>Reservas para {selectedEvent.title}</h4>
             <ul>
               {selectedEvent.users.map((u, i) => (

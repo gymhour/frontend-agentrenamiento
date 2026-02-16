@@ -27,7 +27,7 @@
 /* Bloques */
 .block-container {
     margin-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid var(--border-color);
     padding: 14px 10px 10px 10px;
     position: relative;
     min-width: 0;
@@ -70,7 +70,7 @@
 
 .delete-block-btn:hover,
 .drag-handle:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--background-hover-color);
 }
 
 /* estados drag */
@@ -79,7 +79,7 @@
 }
 
 .block--over {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--background-hover-color);
 }
 
 /* Sección agregar bloque */
@@ -131,7 +131,7 @@
 
 .series-input:focus,
 .exercise-input:focus {
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border: 1.5px solid var(--border-color);
 }
 
 .exercise-cell {
@@ -282,7 +282,7 @@
     gap: 16px;
     margin: 12px 0 16px;
     padding: 6px 0px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border-color);
     overflow-x: auto;
     scrollbar-width: thin;
 }
@@ -303,7 +303,7 @@
 }
 
 .day-tab:hover {
-    background: rgba(255, 255, 255, 0.10);
+    background: var(--background-hover-color);
     transform: translateY(-1px);
 }
 
@@ -315,16 +315,16 @@
 .day-tab.active {
     background: rgba(17, 179, 101, 0.12);
     /* fallback si no hay var */
-    background: color-mix(in oklab, var(--primary-color) 20%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary-color) 55%, transparent);
+    background: color-mix(in oklab, var(--primary-color) 15%, var(--background-color));
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary-color) 40%, transparent);
 }
 
 /* Botón agregar */
 .day-tab.add {
     padding: 8px 10px;
     background: transparent;
-    color: color-mix(in oklab, var(--primary-color) 80%, #fff);
-    border: 1px dashed color-mix(in oklab, var(--primary-color) 55%, #888);
+    color: var(--text-color);
+    border: 1px dashed var(--border-color);
 }
 
 .day-tab.add:hover {
@@ -394,7 +394,8 @@
 }
 
 .css-1nmdiq5-menu .css-qr46ko .css-d7l1ni-option {
-    background: #303030;
+    background: var(--background-color);
+    color: var(--text-color);
 }
 
 /* ========= Panel de Información ========= */
@@ -491,7 +492,7 @@
 }
 
 .info-tab.active {
-    background: color-mix(in oklab, var(--primary-color) 18%, #151515);
+    background: color-mix(in oklab, var(--primary-color) 18%, var(--background-color));
     border-color: color-mix(in oklab, var(--primary-color) 48%, rgba(255, 255, 255, 0.16));
 }
 
@@ -632,16 +633,16 @@
 }
 
 .metric-sep {
-    color: #7a7a7a;
+    color: var(--text-color-distinct);
 }
 
 .metric-value {
-    color: #f0f0f0;
+    color: var(--text-color);
     font-weight: 600;
 }
 
 .metric-block--empty {
-    color: #9a9a9a;
+    color: var(--text-color-distinct);
     font-size: 12px;
 }
 

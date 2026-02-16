@@ -13,7 +13,7 @@
 }
 
 .usuarios-table tr {
-  border: 1px solid var(--light-grey);
+  border: 1px solid var(--border-color);
 }
 
 .usuarios-table th,
@@ -27,7 +27,7 @@
 }
 
 .usuarios-table th {
-  background-color: var(--light-grey);
+  background-color: var(--background-color-distinct);
   text-align: left;
 }
 
@@ -67,7 +67,7 @@
 
 .btn-page {
   background-color: transparent;
-  color: white;
+  color: var(--text-color);
   padding: 10px;
   border: none;
   cursor: pointer;
@@ -119,10 +119,10 @@
 
   .usuarios-table tr {
     margin: 0 0 12px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--background-color-distinct);
   }
 
   .usuarios-table td {
@@ -131,7 +131,7 @@
     padding: 12px 12px 12px 44%;
     position: relative;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-color);
     min-height: 44px;
   }
 

@@ -15,8 +15,8 @@
 }
 
 .assistant-bubble {
-  background-color: #161616;
-  color: #FAFAFA;
+  background-color: var(--background-color-distinct);
+  color: var(--text-color);
   border-radius: inherit;
   display: flex;
   align-items: center;
@@ -41,7 +41,7 @@
 
 .assistant-text {
   font-size: 14px;
-  color: white;
+  color: var(--text-color);
   white-space: nowrap;
 }
 
@@ -52,7 +52,7 @@
   right: 20px;
   width: 420px;
   height: 500px;
-  background: #161616;
+  background: var(--background-color);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
   display: flex;
@@ -62,7 +62,7 @@
 }
 
 .assistant-header {
-  background: #161616;
+  background: var(--primary-color);
   color: white;
   padding: 0px 8px;
   display: flex;
@@ -109,14 +109,14 @@
 }
 
 .message.user {
-  background: #fafafa;
-  color: #161616;
+  background: var(--primary-color);
+  color: white;
   align-self: flex-end;
 }
 
 .message.bot {
-  background: #222222;
-  color: #fafafa;
+  background: var(--background-color-distinct);
+  color: var(--text-color);
   align-self: flex-start;
 }
 
@@ -130,9 +130,9 @@
 .assistant-input input {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: #222222;
-  color: #fafafa;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
   border-radius: 6px;
   outline: none;
   min-height: 50px;

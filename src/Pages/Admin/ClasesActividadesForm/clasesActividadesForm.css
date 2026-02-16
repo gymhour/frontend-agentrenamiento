@@ -41,7 +41,7 @@
     outline: none;
     color: var(--text-color);
     font-size: 16px;
-    border: 1px solid var(--light-grey);
+    border: 1px solid var(--border-color);
 }
 
 .create-clase-form form textarea {
@@ -55,7 +55,7 @@
     min-height: 50px;
     background-color: var(--background-color);
     border-radius: 12px;
-    border: 1px solid var(--light-grey);
+    border: 1px solid var(--border-color);
     outline: none;
     color: var(--text-color);
     font-size: 16px;
@@ -71,7 +71,7 @@
 
 .create-clase-form form .submit-btn {
     background-color: var(--primary-color);
-    color: #FAFAFA;
+    color: var(--text-color-distinct);
     padding: 12px 32px;
     border: none;
     outline: none;
@@ -93,7 +93,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
     padding: 6px 8px;
     border-radius: 8px;
 }
@@ -135,8 +135,8 @@
 }
 
 .close-icon {
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
     align-self: end;
     margin-bottom: 4px;
     position: static;

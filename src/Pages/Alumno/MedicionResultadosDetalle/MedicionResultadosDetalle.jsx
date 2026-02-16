@@ -22,8 +22,7 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg'
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg'
+import { Edit2, Trash2 } from 'lucide-react';
 
 const MedicionResultadosDetalle = () => {
   const { id } = useParams();
@@ -48,7 +47,7 @@ const MedicionResultadosDetalle = () => {
     const parts = dateStr.split('-').map(Number);
     let year, month, day;
     if (parts[0] > 31) [year, month, day] = parts;
-    else [day, month, year] = parts;
+    else[day, month, year] = parts;
     return new Date(year, month - 1, day);
   };
   const formatAsLocalDate = (d) => parseDateString(d).toLocaleDateString();
@@ -300,7 +299,7 @@ const MedicionResultadosDetalle = () => {
                         title="Editar"
                         disabled={loading}
                       >
-                        <EditIcon width={18} height={18} />
+                        <Edit2 size={18} />
                       </button>
                       <button
                         type="button"
@@ -309,7 +308,7 @@ const MedicionResultadosDetalle = () => {
                         title="Eliminar"
                         disabled={loading}
                       >
-                        <DeleteIcon width={18} height={18} />
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </td>

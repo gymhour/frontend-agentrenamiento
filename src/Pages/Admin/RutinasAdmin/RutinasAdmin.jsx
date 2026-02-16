@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import '../../../App.css';
 import './RutinasAdmin.css';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu.jsx';
@@ -7,12 +9,7 @@ import SecondaryButton from '../../../Components/utils/SecondaryButton/Secondary
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import apiService from '../../../services/apiService.js';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
-import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
+import { ChevronDown, ChevronUp, Copy, Edit, Trash2, Video } from 'lucide-react';
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -127,7 +124,7 @@ const RutinasAdmin = () => {
           >
             {txt}
           </Link>
-          <VideoIcon className="video-icon" aria-hidden="true" />
+          <Video className="video-icon" size={20} aria-hidden="true" />
         </span>
       );
     }
@@ -276,9 +273,9 @@ const RutinasAdmin = () => {
                 <div className='rutina-header'>
                   <h3>{rutina.nombre}</h3>
                   <div className="rutina-header-acciones">
-                    <button onClick={() => handleDuplicate(rutina)} title='Duplicar rutina'><FaCopy size={18} /></button>
-                    <button onClick={() => openDeletePopup(rutina.ID_Rutina)} title='Eliminar rutina'><DeleteIcon width={20} height={20} /></button>
-                    <button onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)} title='Editar rutina'><EditIcon width={20} height={20} /></button>
+                    <button onClick={() => handleDuplicate(rutina)} title='Duplicar rutina'><Copy size={18} /></button>
+                    <button onClick={() => openDeletePopup(rutina.ID_Rutina)} title='Eliminar rutina'><Trash2 width={20} height={20} /></button>
+                    <button onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)} title='Editar rutina'><Edit width={20} height={20} /></button>
                   </div>
                 </div>
 
@@ -344,7 +341,7 @@ const RutinasAdmin = () => {
                             aria-expanded={isOpen}
                           >
                             <span>{d.nombre || `Día ${idx + 1}`}</span>
-                            {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                            {isOpen ? <ChevronUp /> : <ChevronDown />}
                           </button>
 
                           {isOpen && (

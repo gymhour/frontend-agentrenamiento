@@ -84,14 +84,20 @@
   .custom-datepicker-mes {
     width: 100% !important;
   }
+
   .admin-inicio-filtros-inputs-ctn {
     width: 100%;
   }
+
   .admin-inicio-filtros-btns-ctn {
     width: 100%;
-    display: flex; 
-    flex-direction: column; 
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
   }
+}
+
+.icon-soft-grey {
+  color: var(--text-color-distinct);
 }

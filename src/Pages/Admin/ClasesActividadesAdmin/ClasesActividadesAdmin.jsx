@@ -3,7 +3,7 @@ import '../../../App.css';
 import './clasesActividadesAdmin.css'
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton";
-import { ReactComponent as AddIconCircle } from '../../../assets/icons/add-circle.svg';
+import { PlusCircle } from 'lucide-react';
 import { Link } from "react-router-dom";
 import apiClient from "../../../axiosConfig";
 
@@ -44,7 +44,7 @@ const ClasesActividadesAdmin = ({ fromAdmin, fromEntrenador }) => {
                         <h2>Clases y actividades</h2>
                         {
                             fromAdmin &&
-                            <SecondaryButton text="Agregar" linkTo="/admin/agregar-clase" icon={AddIconCircle}></SecondaryButton>
+                            <SecondaryButton text="Agregar" linkTo="/admin/agregar-clase" icon={PlusCircle}></SecondaryButton>
                         }
                     </div>
                     {loading ? (

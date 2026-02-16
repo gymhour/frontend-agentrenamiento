@@ -3,7 +3,7 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import './Cuotas.css';
 // import axios from 'axios'; // ← no se usa
 // import { ReactComponent as GaliciaIcon } from '../../../assets/icons/galicia_logo.svg';
-import { ReactComponent as CopyIcon } from '../../../assets/icons/copy.svg';
+import { Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import apiService from '../../../services/apiService';
 
@@ -90,7 +90,7 @@ const Cuotas = () => {
             <span>
               <b>ALIAS:</b> {alias}{' '}
               <button className="copy-button" onClick={() => handleCopy(alias)}>
-                <CopyIcon width={16} height={16} />
+                <Copy size={16} />
               </button>
             </span>
             {/* <span>

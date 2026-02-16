@@ -28,13 +28,13 @@
 
 .react-datepicker {
     background-color: var(--background-color) !important;
-    border: 1px solid #444 !important;
+    border: 1px solid var(--border-color) !important;
     color: var(--text-color) !important;
 }
 
 .react-datepicker__header {
     background-color: var(--background-color) !important;
-    border-bottom: 1px solid #555 !important;
+    border-bottom: 1px solid var(--border-color) !important;
     color: var(--text-color);
 }
 
@@ -93,45 +93,54 @@
 
 /* Estilo para fechas deshabilitadas */
 .react-datepicker__day--disabled {
-    color: #777 !important; /* Color inactivo */
+    color: var(--medium-grey) !important;
+    /* Color inactivo */
     opacity: 0.5 !important;
-    pointer-events: none; /* Opcional: para evitar interacción */
-  }
+    pointer-events: none;
+    /* Opcional: para evitar interacción */
+}
 
 .react-datepicker__day--today {
     color: var(--primary-color);
 }
-  
+
 .react-datepicker__time-list-item--disabled {
     display: none;
 }
 
 .custom-date-picker-input:enabled::placeholder {
-    color: #fff; /* Color blanco para el placeholder cuando el input está habilitado */
-    opacity: 1; /* Asegura que no se vea semitransparente */
-  }
-  
-  /* Opcional: puedes definir un estilo distinto para cuando el input esté deshabilitado */
-  .custom-date-picker-input:disabled::placeholder {
-    color: #aaa; /* Color diferente para el placeholder en estado deshabilitado */
-  }
-  
-  @media screen and (max-width: 500px) {
+    color: var(--text-color-distinct);
+    /* Color para el placeholder cuando el input está habilitado */
+    opacity: 1;
+    /* Asegura que no se vea semitransparente */
+}
+
+/* Opcional: puedes definir un estilo distinto para cuando el input esté deshabilitado */
+.custom-date-picker-input:disabled::placeholder {
+    color: #aaa;
+    /* Color diferente para el placeholder en estado deshabilitado */
+}
+
+@media screen and (max-width: 500px) {
     .agendar-turno-title {
         text-align: center;
     }
+
     .agendar-turno-ctn {
         flex-direction: column;
         align-items: center;
         justify-content: center;
     }
+
     .react-datepicker {
         width: 100% !important;
     }
+
     .datepicker-container {
         width: 100% !important;
     }
+
     .custom-date-picker-input {
         max-width: none;
     }
-  }
+}

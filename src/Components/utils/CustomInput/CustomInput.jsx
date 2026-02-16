@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import './customInput.css'; 
-import { ReactComponent as EyeShowIcon } from '../../../assets/icons/ic_eye_show.svg';
-import { ReactComponent as EyeHideIcon } from '../../../assets/icons/ic_eye_hide.svg';
+import './customInput.css';
+import { Eye, EyeOff } from 'lucide-react';
 
 const CustomInput = ({
   type = 'text',
@@ -15,8 +14,8 @@ const CustomInput = ({
   const [showPassword, setShowPassword] = useState(false);
 
   // Si el input es de tipo password, usamos el estado para alternar
-  const inputType = type === 'password' 
-    ? (showPassword ? 'text' : 'password') 
+  const inputType = type === 'password'
+    ? (showPassword ? 'text' : 'password')
     : type;
 
   const togglePasswordVisibility = () => {
@@ -26,7 +25,7 @@ const CustomInput = ({
   return (
     <div className="custom-input-wrapper" style={{ width }}>
       <input
-        {...rest}  
+        {...rest}
         type={inputType}
         placeholder={placeholder}
         value={value}
@@ -41,9 +40,9 @@ const CustomInput = ({
           onClick={togglePasswordVisibility}
           aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
         >
-          {showPassword 
-            ? <EyeHideIcon className="eye-icon" /> 
-            : <EyeShowIcon className="eye-icon" />
+          {showPassword
+            ? <EyeOff className="eye-icon" size={20} />
+            : <Eye className="eye-icon" size={20} />
           }
         </button>
       )}

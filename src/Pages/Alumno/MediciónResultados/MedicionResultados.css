@@ -60,7 +60,7 @@
 
 .med-resultados-card {
   background-color: var(--background-color);
-  border: 1px solid var(--light-grey);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
   color: var(--text-color);
@@ -114,6 +114,7 @@
   outline: none;
   cursor: pointer;
   z-index: 500;
+  color: var(--text-color);
 }
 
 @media screen and (max-width: 500px) {

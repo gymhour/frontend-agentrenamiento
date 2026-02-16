@@ -25,7 +25,7 @@
     height: 20px;
 }
 
-.turno-name, 
+.turno-name,
 .turno-date {
     text-align: start;
 }
@@ -37,7 +37,7 @@
 }
 
 .cancel-button {
-    background-color: #1A1A1A;
+    background-color: transparent;
     color: rgb(243, 102, 102);
     cursor: pointer;
     transition: all ease-in-out 200ms;
@@ -46,7 +46,7 @@
 }
 
 .cancel-button:hover {
-   color: #bb4f4f;
+    color: #bb4f4f;
 }
 
 @media screen and (max-width: 500px) {

@@ -3,10 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown';
+import CustomInput from '../../../Components/utils/CustomInput/CustomInput';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { ReactComponent as ArrowLeftIcon } from '../../../assets/icons/arrow-left.svg';
+import { ArrowLeft } from 'lucide-react';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 
 const EditarUsuario = () => {
@@ -53,35 +54,35 @@ const EditarUsuario = () => {
     const fetchUser = async () => {
       try {
         const user = await apiService.getUserById(id);
-  
+
         const fechaISO = user?.fechaCumple
           ? new Date(user.fechaCumple).toISOString().slice(0, 10)
           : '';
-  
+
         const tipoLower = (user?.tipo || '').toLowerCase();
         const tipoCapitalizado =
           tipoLower ? tipoLower.charAt(0).toUpperCase() + tipoLower.slice(1) : 'Cliente';
-  
+
         // Nombre de plan si existe (API puede devolver { plan: { nombre, ID_Plan } } o solo ID)
         const planNombre =
           user?.plan?.nombre
-            || user?.plan?.label
-            || ''; // si no hay plan, queda vacío y no rompe
-  
+          || user?.plan?.label
+          || ''; // si no hay plan, queda vacío y no rompe
+
         setFormData({
-          email:       user?.email    || '',
-          nombre:      user?.nombre   || '',
-          apellido:    user?.apellido || '',
-          profesion:   user?.profesion|| '',
-          direc:       user?.direc    || '',
-          tel:         user?.tel      || '',
-          tipo:        tipoCapitalizado,
+          email: user?.email || '',
+          nombre: user?.nombre || '',
+          apellido: user?.apellido || '',
+          profesion: user?.profesion || '',
+          direc: user?.direc || '',
+          tel: user?.tel || '',
+          tipo: tipoCapitalizado,
           fechaCumple: fechaISO,
-          estado:      !!user?.estado,
+          estado: !!user?.estado,
           // Solo precargar plan para clientes; en admin/entrenador lo dejamos vacío
-          plan:        tipoLower === 'cliente' ? planNombre : ''
+          plan: tipoLower === 'cliente' ? planNombre : ''
         });
-  
+
       } catch (err) {
         console.error(err);
         toast.error('No se pudo cargar los datos del usuario');
@@ -89,10 +90,10 @@ const EditarUsuario = () => {
         setIsLoading(false);
       }
     };
-  
+
     if (id) fetchUser();
   }, [id]);
-  
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -128,7 +129,7 @@ const EditarUsuario = () => {
         : '';
 
       const selectedPlan = planOptions.find(p => p.label === formData.plan);
-      
+
       const payload = new FormData();
       payload.append('email', formData.email);
       payload.append('nombre', formData.nombre);
@@ -197,13 +198,13 @@ const EditarUsuario = () => {
       `}</style>
 
       <div className="page-layout">
-        { isLoading && <LoaderFullScreen/> }
+        {isLoading && <LoaderFullScreen />}
         <SidebarMenu isAdmin={true} />
         <div className="content-layout">
           <SecondaryButton
             text="Volver atrás"
             linkTo="/admin/usuarios"
-            icon={ArrowLeftIcon}
+            icon={ArrowLeft}
             reversed={true}
           />
           <h2>Editar usuario</h2>
@@ -213,7 +214,7 @@ const EditarUsuario = () => {
           >
             <div className="form-field">
               <label htmlFor="email">Email:</label>
-              <input
+              <CustomInput
                 type="email"
                 id="email"
                 name="email"
@@ -221,30 +222,33 @@ const EditarUsuario = () => {
                 onChange={handleChange}
                 required
                 placeholder="Ingresa tu email"
+                width="100%"
               />
             </div>
 
             <div className="form-field">
               <label htmlFor="nombre">Nombre:</label>
-              <input
+              <CustomInput
                 type="text"
                 id="nombre"
                 name="nombre"
                 value={formData.nombre}
                 onChange={handleChange}
                 placeholder="Ingresa el nombre"
+                width="100%"
               />
             </div>
 
             <div className="form-field">
               <label htmlFor="apellido">Apellido:</label>
-              <input
+              <CustomInput
                 type="text"
                 id="apellido"
                 name="apellido"
                 value={formData.apellido}
                 onChange={handleChange}
                 placeholder="Ingresa el apellido"
+                width="100%"
               />
             </div>
 
@@ -260,58 +264,61 @@ const EditarUsuario = () => {
             </div>
 
             {formData.tipo === 'Cliente' && (
-            <div className="form-field">
-              <label htmlFor="plan">Plan:</label>
-              <CustomDropdown
-                options={planOptions.map(p => p.label)}
-                value={formData.plan}
-                onChange={e =>
-                  setFormData(f => ({
-                    ...f,
-                    plan: e.target.value
-                  }))
-                }
-                name="plan"
-                id="plan"
-              />
-            </div>
-          )}
+              <div className="form-field">
+                <label htmlFor="plan">Plan:</label>
+                <CustomDropdown
+                  options={planOptions.map(p => p.label)}
+                  value={formData.plan}
+                  onChange={e =>
+                    setFormData(f => ({
+                      ...f,
+                      plan: e.target.value
+                    }))
+                  }
+                  name="plan"
+                  id="plan"
+                />
+              </div>
+            )}
 
             {formData.tipo === 'Entrenador' && (
               <div className="form-field">
                 <label htmlFor="profesion">Profesión:</label>
-                <input
+                <CustomInput
                   type="text"
                   id="profesion"
                   name="profesion"
                   value={formData.profesion}
                   onChange={handleChange}
                   placeholder="Ingresa la profesión"
+                  width="100%"
                 />
               </div>
             )}
 
             <div className="form-field">
               <label htmlFor="direc">Dirección:</label>
-              <input
+              <CustomInput
                 type="text"
                 id="direc"
                 name="direc"
                 value={formData.direc}
                 onChange={handleChange}
                 placeholder="Ingresa la dirección"
+                width="100%"
               />
             </div>
 
             <div className="form-field">
               <label htmlFor="tel">Teléfono:</label>
-              <input
+              <CustomInput
                 type="tel"
                 id="tel"
                 name="tel"
                 value={formData.tel}
                 onChange={handleChange}
                 placeholder="Ingresa el teléfono"
+                width="100%"
               />
             </div>
 
@@ -328,12 +335,13 @@ const EditarUsuario = () => {
 
             <div className="form-field">
               <label htmlFor="fechaCumple">Fecha de Nacimiento:</label>
-              <input
+              <CustomInput
                 type="date"
                 id="fechaCumple"
                 name="fechaCumple"
                 value={formData.fechaCumple}
                 onChange={handleChange}
+                width="100%"
               />
             </div>
 
@@ -349,7 +357,7 @@ const EditarUsuario = () => {
             </div>
 
             <div className="form-field full-width button-container">
-              <PrimaryButton text="Actualizar usuario" type="submit" onClick={handleSubmit}  />
+              <PrimaryButton text="Actualizar usuario" type="submit" onClick={handleSubmit} />
             </div>
           </form>
         </div>

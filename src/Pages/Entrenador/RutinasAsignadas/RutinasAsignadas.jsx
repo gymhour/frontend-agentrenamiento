@@ -1,18 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Select from 'react-select';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
-import apiService, {fetchAllClientsActive} from '../../../services/apiService';
+import apiService, { fetchAllClientsActive } from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import './RutinasAsignadas.css';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import { Edit2, Trash2, ChevronDown, ChevronUp, Copy, Video } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -124,7 +121,7 @@ const renderEjercicioItem = (it, tipo) => {
         >
           {txt}
         </Link>
-        <VideoIcon className="video-icon" aria-hidden="true" />
+        <Video className="video-icon" aria-hidden="true" size={16} />
       </span>
     );
   }
@@ -192,7 +189,7 @@ const renderDropSetBlock = (b) => {
       >
         {nombre}
       </Link>
-      <VideoIcon className="video-icon" aria-hidden="true" />
+      <Video className="video-icon" aria-hidden="true" size={16} />
     </span>
   ) : (
     <span>{nombre}</span>
@@ -437,21 +434,21 @@ const RutinasAsignadas = () => {
                       className='mi-rutina-eliminar-btn'
                       title='Duplicar rutina'
                     >
-                      <FaCopy size={18} />
+                      <Copy size={18} />
                     </button>
                     <button
                       onClick={() => openDeletePopup(rutina.ID_Rutina)}
                       className='mi-rutina-eliminar-btn'
                       title='Eliminar rutina'
                     >
-                      <DeleteIcon width={20} height={20} />
+                      <Trash2 size={20} />
                     </button>
                     <button
                       onClick={() => navigate(`/entrenador/editar-rutina/${rutina.ID_Rutina}`)}
                       className='mi-rutina-eliminar-btn'
                       title='Editar rutina'
                     >
-                      <EditIcon width={20} height={20} />
+                      <Edit2 size={20} />
                     </button>
                   </div>
                 </div>
@@ -537,7 +534,7 @@ const RutinasAsignadas = () => {
                             aria-expanded={isOpen}
                           >
                             <span>{d.nombre || `Día ${idx + 1}`}</span>
-                            {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                            {isOpen ? <ChevronUp /> : <ChevronDown />}
                           </button>
 
                           {isOpen && (

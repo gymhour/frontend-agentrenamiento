@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
+import { X } from 'lucide-react';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
@@ -222,12 +222,12 @@ const convertApiBlockData = (b) => {
         setsReps: mappedSets.length
           ? mappedSets
           : [{
-              series: b.setsReps || '',
-              exercise: b.nombreEj || '',
-              weight: b.weight || '',
-              placeholderExercise: '',
-              exerciseId: null
-            }]
+            series: b.setsReps || '',
+            exercise: b.nombreEj || '',
+            weight: b.weight || '',
+            placeholderExercise: '',
+            exerciseId: null
+          }]
       };
 
     case 'ROUNDS':
@@ -1263,11 +1263,10 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                   {days.map((d, idx) => (
                     <div
                       key={d.key}
-                      className={`day-tab ${
-                        idx === activeDayIndex
+                      className={`day-tab ${idx === activeDayIndex
                           ? 'active'
                           : ''
-                      }`}
+                        }`}
                       onClick={() =>
                         setActiveDayIndex(idx)
                       }
@@ -1348,20 +1347,17 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                       draggingBlockId === block.id;
                     const isOver =
                       dragOverBlockId === block.id;
-                    const sugKeyPrefix = `${
-                      activeDay?.key || 'dia'
-                    }-${block.id}-`;
+                    const sugKeyPrefix = `${activeDay?.key || 'dia'
+                      }-${block.id}-`;
 
                     return (
                       <div
                         key={block.id ?? idxBlock}
-                        className={`block-container ${
-                          isDragging
+                        className={`block-container ${isDragging
                             ? 'block--dragging'
                             : ''
-                        } ${
-                          isOver ? 'block--over' : ''
-                        }`}
+                          } ${isOver ? 'block--over' : ''
+                          }`}
                         onDragOver={(e) =>
                           onDragOver(e, block.id)
                         }
@@ -1398,7 +1394,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                             className="delete-block-btn"
                             title="Eliminar bloque"
                           >
-                            <CloseIcon
+                            <X
                               width={32}
                               height={32}
                             />
@@ -1412,172 +1408,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                         {/* SERIES Y REPETICIONES */}
                         {block.type ===
                           "Series y repeticiones" && (
-                          <div className="sets-reps-ctn">
-                            {block.data.setsReps.map(
-                              (setRep, idx) => (
-                                <div
-                                  key={idx}
-                                  className="sets-row"
-                                >
-                                  <input
-                                    type="text"
-                                    className="series-input"
-                                    placeholder="ej. 5x5"
-                                    value={
-                                      setRep.series
-                                    }
-                                    onChange={e =>
-                                      handleSetRepChange(
-                                        block.id,
-                                        idx,
-                                        'series',
-                                        e.target.value
-                                      )
-                                    }
-                                  />
-                                  <div className="exercise-cell">
-                                    <input
-                                      type="text"
-                                      className="exercise-input"
-                                      placeholder={
-                                        setRep.placeholderExercise
-                                      }
-                                      value={
-                                        setRep.exercise
-                                      }
-                                      onChange={e =>
-                                        handleExerciseInputChange(
-                                          block.id,
-                                          idx,
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                    {(suggestions[
-                                      `${sugKeyPrefix}${idx}`
-                                    ] || [])
-                                      .length >
-                                      0 && (
-                                      <ul className="suggestions-list">
-                                        {suggestions[
-                                          `${sugKeyPrefix}${idx}`
-                                        ].map(
-                                          ex => (
-                                            <li
-                                              key={
-                                                ex.ID_Ejercicio
-                                              }
-                                              onClick={() =>
-                                                handleSelectSuggestion(
-                                                  block.id,
-                                                  idx,
-                                                  ex
-                                                )
-                                              }
-                                            >
-                                              {
-                                                ex.nombre
-                                              }
-                                            </li>
-                                          )
-                                        )}
-                                      </ul>
-                                    )}
-                                  </div>
-                                  <input
-                                    type="text"
-                                    className="weight-input"
-                                    placeholder="ej. 30kg"
-                                    value={
-                                      setRep.weight
-                                    }
-                                    onChange={e =>
-                                      handleSetRepChange(
-                                        block.id,
-                                        idx,
-                                        'weight',
-                                        e.target.value
-                                      )
-                                    }
-                                    aria-label="Peso"
-                                  />
-                                  <button
-                                    onClick={() =>
-                                      handleDeleteSetRep(
-                                        block.id,
-                                        idx
-                                      )
-                                    }
-                                    className="delete-set-btn"
-                                    title="Eliminar este set"
-                                  >
-                                    –
-                                  </button>
-                                </div>
-                              )
-                            )}
-                            <PrimaryButton
-                              text="+"
-                              linkTo="#"
-                              onClick={() =>
-                                handleAddSetRep(
-                                  block.id
-                                )
-                              }
-                            />
-                          </div>
-                        )}
-
-                        {/* RONDAS */}
-                        {block.type ===
-                          "Rondas" && (
-                          <div className="rondas-ctn">
-                            <div className="cantidad-rondas-descanso">
-                              <div className='cant-rondas-subctn'>
-                                <input
-                                  className='cant-rondas-subctn-input-chico'
-                                  placeholder="3"
-                                  value={
-                                    block.data
-                                      .rounds
-                                  }
-                                  onChange={(e) =>
-                                    handleBlockFieldChange(
-                                      block.id,
-                                      'rounds',
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                <span>
-                                  {' '}
-                                  rondas con{' '}
-                                </span>
-                              </div>
-                              <div className='cant-rondas-subctn'>
-                                <input
-                                  className='cant-rondas-subctn-input-chico'
-                                  placeholder="90"
-                                  value={
-                                    block.data
-                                      .descanso
-                                  }
-                                  onChange={(e) =>
-                                    handleBlockFieldChange(
-                                      block.id,
-                                      'descanso',
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                                <span>
-                                  {' '}
-                                  segundos de
-                                  descanso{' '}
-                                </span>
-                              </div>
-                            </div>
-
                             <div className="sets-reps-ctn">
                               {block.data.setsReps.map(
                                 (setRep, idx) => (
@@ -1588,7 +1418,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                     <input
                                       type="text"
                                       className="series-input"
-                                      placeholder="ej. 3x12"
+                                      placeholder="ej. 5x5"
                                       value={
                                         setRep.series
                                       }
@@ -1624,36 +1454,36 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                       ] || [])
                                         .length >
                                         0 && (
-                                        <ul className="suggestions-list">
-                                          {suggestions[
-                                            `${sugKeyPrefix}${idx}`
-                                          ].map(
-                                            ex => (
-                                              <li
-                                                key={
-                                                  ex.ID_Ejercicio
-                                                }
-                                                onClick={() =>
-                                                  handleSelectSuggestion(
-                                                    block.id,
-                                                    idx,
-                                                    ex
-                                                  )
-                                                }
-                                              >
-                                                {
-                                                  ex.nombre
-                                                }
-                                              </li>
-                                            )
-                                          )}
-                                        </ul>
-                                      )}
+                                          <ul className="suggestions-list">
+                                            {suggestions[
+                                              `${sugKeyPrefix}${idx}`
+                                            ].map(
+                                              ex => (
+                                                <li
+                                                  key={
+                                                    ex.ID_Ejercicio
+                                                  }
+                                                  onClick={() =>
+                                                    handleSelectSuggestion(
+                                                      block.id,
+                                                      idx,
+                                                      ex
+                                                    )
+                                                  }
+                                                >
+                                                  {
+                                                    ex.nombre
+                                                  }
+                                                </li>
+                                              )
+                                            )}
+                                          </ul>
+                                        )}
                                     </div>
                                     <input
                                       type="text"
                                       className="weight-input"
-                                      placeholder="-"
+                                      placeholder="ej. 30kg"
                                       value={
                                         setRep.weight
                                       }
@@ -1692,56 +1522,371 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                 }
                               />
                             </div>
-                          </div>
-                        )}
+                          )}
+
+                        {/* RONDAS */}
+                        {block.type ===
+                          "Rondas" && (
+                            <div className="rondas-ctn">
+                              <div className="cantidad-rondas-descanso">
+                                <div className='cant-rondas-subctn'>
+                                  <input
+                                    className='cant-rondas-subctn-input-chico'
+                                    placeholder="3"
+                                    value={
+                                      block.data
+                                        .rounds
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'rounds',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <span>
+                                    {' '}
+                                    rondas con{' '}
+                                  </span>
+                                </div>
+                                <div className='cant-rondas-subctn'>
+                                  <input
+                                    className='cant-rondas-subctn-input-chico'
+                                    placeholder="90"
+                                    value={
+                                      block.data
+                                        .descanso
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'descanso',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <span>
+                                    {' '}
+                                    segundos de
+                                    descanso{' '}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="sets-reps-ctn">
+                                {block.data.setsReps.map(
+                                  (setRep, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="sets-row"
+                                    >
+                                      <input
+                                        type="text"
+                                        className="series-input"
+                                        placeholder="ej. 3x12"
+                                        value={
+                                          setRep.series
+                                        }
+                                        onChange={e =>
+                                          handleSetRepChange(
+                                            block.id,
+                                            idx,
+                                            'series',
+                                            e.target.value
+                                          )
+                                        }
+                                      />
+                                      <div className="exercise-cell">
+                                        <input
+                                          type="text"
+                                          className="exercise-input"
+                                          placeholder={
+                                            setRep.placeholderExercise
+                                          }
+                                          value={
+                                            setRep.exercise
+                                          }
+                                          onChange={e =>
+                                            handleExerciseInputChange(
+                                              block.id,
+                                              idx,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        {(suggestions[
+                                          `${sugKeyPrefix}${idx}`
+                                        ] || [])
+                                          .length >
+                                          0 && (
+                                            <ul className="suggestions-list">
+                                              {suggestions[
+                                                `${sugKeyPrefix}${idx}`
+                                              ].map(
+                                                ex => (
+                                                  <li
+                                                    key={
+                                                      ex.ID_Ejercicio
+                                                    }
+                                                    onClick={() =>
+                                                      handleSelectSuggestion(
+                                                        block.id,
+                                                        idx,
+                                                        ex
+                                                      )
+                                                    }
+                                                  >
+                                                    {
+                                                      ex.nombre
+                                                    }
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          )}
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="weight-input"
+                                        placeholder="-"
+                                        value={
+                                          setRep.weight
+                                        }
+                                        onChange={e =>
+                                          handleSetRepChange(
+                                            block.id,
+                                            idx,
+                                            'weight',
+                                            e.target.value
+                                          )
+                                        }
+                                        aria-label="Peso"
+                                      />
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteSetRep(
+                                            block.id,
+                                            idx
+                                          )
+                                        }
+                                        className="delete-set-btn"
+                                        title="Eliminar este set"
+                                      >
+                                        –
+                                      </button>
+                                    </div>
+                                  )
+                                )}
+                                <PrimaryButton
+                                  text="+"
+                                  linkTo="#"
+                                  onClick={() =>
+                                    handleAddSetRep(
+                                      block.id
+                                    )
+                                  }
+                                />
+                              </div>
+                            </div>
+                          )}
 
                         {/* EMOM */}
                         {block.type ===
                           "EMOM" && (
-                          <div className="emom-ctn">
-                            <div className="cantidad-emom-ctn">
-                              <div className='cant-rondas-subctn'>
-                                <span>
-                                  {' '}
-                                  Cada{' '}
-                                </span>
-                                <input
-                                  className='cant-rondas-subctn-input-chico'
-                                  placeholder="1"
-                                  value={
-                                    block.data
-                                      .interval
-                                  }
-                                  onChange={(e) =>
-                                    handleBlockFieldChange(
-                                      block.id,
-                                      'interval',
-                                      e.target.value
+                            <div className="emom-ctn">
+                              <div className="cantidad-emom-ctn">
+                                <div className='cant-rondas-subctn'>
+                                  <span>
+                                    {' '}
+                                    Cada{' '}
+                                  </span>
+                                  <input
+                                    className='cant-rondas-subctn-input-chico'
+                                    placeholder="1"
+                                    value={
+                                      block.data
+                                        .interval
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'interval',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <input
+                                    className='cant-rondas-subctn-input-grande'
+                                    placeholder="minuto"
+                                    disabled
+                                  />
+                                </div>
+                                <div className='cant-rondas-subctn'>
+                                  <span>
+                                    {' '}
+                                    por{' '}
+                                  </span>
+                                  <input
+                                    className='cant-rondas-subctn-input-chico'
+                                    placeholder="20"
+                                    value={
+                                      block.data
+                                        .totalMinutes
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'totalMinutes',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                  <input
+                                    className='cant-rondas-subctn-input-grande'
+                                    placeholder="minutos"
+                                    disabled
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="sets-reps-ctn">
+                                {block.data.setsReps.map(
+                                  (setRep, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="sets-row"
+                                    >
+                                      <input
+                                        type="text"
+                                        className="series-input"
+                                        placeholder="ej. 10"
+                                        value={
+                                          setRep.series
+                                        }
+                                        onChange={e =>
+                                          handleSetRepChange(
+                                            block.id,
+                                            idx,
+                                            'series',
+                                            e.target.value
+                                          )
+                                        }
+                                      />
+                                      <div className="exercise-cell">
+                                        <input
+                                          type="text"
+                                          className="exercise-input"
+                                          placeholder={
+                                            setRep.placeholderExercise
+                                          }
+                                          value={
+                                            setRep.exercise
+                                          }
+                                          onChange={e =>
+                                            handleExerciseInputChange(
+                                              block.id,
+                                              idx,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        {(suggestions[
+                                          `${sugKeyPrefix}${idx}`
+                                        ] || [])
+                                          .length >
+                                          0 && (
+                                            <ul className="suggestions-list">
+                                              {suggestions[
+                                                `${sugKeyPrefix}${idx}`
+                                              ].map(
+                                                ex => (
+                                                  <li
+                                                    key={
+                                                      ex.ID_Ejercicio
+                                                    }
+                                                    onClick={() =>
+                                                      handleSelectSuggestion(
+                                                        block.id,
+                                                        idx,
+                                                        ex
+                                                      )
+                                                    }
+                                                  >
+                                                    {
+                                                      ex.nombre
+                                                    }
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          )}
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="weight-input"
+                                        placeholder="-"
+                                        value={
+                                          setRep.weight
+                                        }
+                                        onChange={e =>
+                                          handleSetRepChange(
+                                            block.id,
+                                            idx,
+                                            'weight',
+                                            e.target.value
+                                          )
+                                        }
+                                        aria-label="Peso"
+                                      />
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteSetRep(
+                                            block.id,
+                                            idx
+                                          )
+                                        }
+                                        className="delete-set-btn"
+                                        title="Eliminar este set"
+                                      >
+                                        –
+                                      </button>
+                                    </div>
+                                  )
+                                )}
+                                <PrimaryButton
+                                  text="+"
+                                  linkTo="#"
+                                  onClick={() =>
+                                    handleAddSetRep(
+                                      block.id
                                     )
                                   }
                                 />
-                                <input
-                                  className='cant-rondas-subctn-input-grande'
-                                  placeholder="minuto"
-                                  disabled
-                                />
                               </div>
-                              <div className='cant-rondas-subctn'>
+                            </div>
+                          )}
+
+                        {/* AMRAP */}
+                        {block.type ===
+                          "AMRAP" && (
+                            <div className="amrap-ctn">
+                              <div className="cantidad-amrap-ctn">
                                 <span>
                                   {' '}
-                                  por{' '}
+                                  AMRAP de{' '}
                                 </span>
                                 <input
                                   className='cant-rondas-subctn-input-chico'
                                   placeholder="20"
                                   value={
                                     block.data
-                                      .totalMinutes
+                                      .duration
                                   }
                                   onChange={(e) =>
                                     handleBlockFieldChange(
                                       block.id,
-                                      'totalMinutes',
+                                      'duration',
                                       e.target.value
                                     )
                                   }
@@ -1752,757 +1897,608 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                   disabled
                                 />
                               </div>
-                            </div>
 
-                            <div className="sets-reps-ctn">
-                              {block.data.setsReps.map(
-                                (setRep, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="sets-row"
-                                  >
-                                    <input
-                                      type="text"
-                                      className="series-input"
-                                      placeholder="ej. 10"
-                                      value={
-                                        setRep.series
-                                      }
-                                      onChange={e =>
-                                        handleSetRepChange(
-                                          block.id,
-                                          idx,
-                                          'series',
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                    <div className="exercise-cell">
+                              <div className="sets-reps-ctn">
+                                {block.data.setsReps.map(
+                                  (setRep, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="sets-row"
+                                    >
                                       <input
                                         type="text"
-                                        className="exercise-input"
-                                        placeholder={
-                                          setRep.placeholderExercise
-                                        }
+                                        className="series-input"
+                                        placeholder="ej. 12"
                                         value={
-                                          setRep.exercise
+                                          setRep.series
                                         }
                                         onChange={e =>
-                                          handleExerciseInputChange(
+                                          handleSetRepChange(
                                             block.id,
                                             idx,
+                                            'series',
                                             e.target.value
                                           )
                                         }
                                       />
-                                      {(suggestions[
-                                        `${sugKeyPrefix}${idx}`
-                                      ] || [])
-                                        .length >
-                                        0 && (
-                                        <ul className="suggestions-list">
-                                          {suggestions[
-                                            `${sugKeyPrefix}${idx}`
-                                          ].map(
-                                            ex => (
-                                              <li
-                                                key={
-                                                  ex.ID_Ejercicio
-                                                }
-                                                onClick={() =>
-                                                  handleSelectSuggestion(
-                                                    block.id,
-                                                    idx,
-                                                    ex
-                                                  )
-                                                }
-                                              >
-                                                {
-                                                  ex.nombre
-                                                }
-                                              </li>
+                                      <div className="exercise-cell">
+                                        <input
+                                          type="text"
+                                          className="exercise-input"
+                                          placeholder={
+                                            setRep.placeholderExercise
+                                          }
+                                          value={
+                                            setRep.exercise
+                                          }
+                                          onChange={e =>
+                                            handleExerciseInputChange(
+                                              block.id,
+                                              idx,
+                                              e.target.value
                                             )
+                                          }
+                                        />
+                                        {(suggestions[
+                                          `${sugKeyPrefix}${idx}`
+                                        ] || [])
+                                          .length >
+                                          0 && (
+                                            <ul className="suggestions-list">
+                                              {suggestions[
+                                                `${sugKeyPrefix}${idx}`
+                                              ].map(
+                                                ex => (
+                                                  <li
+                                                    key={
+                                                      ex.ID_Ejercicio
+                                                    }
+                                                    onClick={() =>
+                                                      handleSelectSuggestion(
+                                                        block.id,
+                                                        idx,
+                                                        ex
+                                                      )
+                                                    }
+                                                  >
+                                                    {
+                                                      ex.nombre
+                                                    }
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
                                           )}
-                                        </ul>
-                                      )}
-                                    </div>
-                                    <input
-                                      type="text"
-                                      className="weight-input"
-                                      placeholder="-"
-                                      value={
-                                        setRep.weight
-                                      }
-                                      onChange={e =>
-                                        handleSetRepChange(
-                                          block.id,
-                                          idx,
-                                          'weight',
-                                          e.target.value
-                                        )
-                                      }
-                                      aria-label="Peso"
-                                    />
-                                    <button
-                                      onClick={() =>
-                                        handleDeleteSetRep(
-                                          block.id,
-                                          idx
-                                        )
-                                      }
-                                      className="delete-set-btn"
-                                      title="Eliminar este set"
-                                    >
-                                      –
-                                    </button>
-                                  </div>
-                                )
-                              )}
-                              <PrimaryButton
-                                text="+"
-                                linkTo="#"
-                                onClick={() =>
-                                  handleAddSetRep(
-                                    block.id
-                                  )
-                                }
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* AMRAP */}
-                        {block.type ===
-                          "AMRAP" && (
-                          <div className="amrap-ctn">
-                            <div className="cantidad-amrap-ctn">
-                              <span>
-                                {' '}
-                                AMRAP de{' '}
-                              </span>
-                              <input
-                                className='cant-rondas-subctn-input-chico'
-                                placeholder="20"
-                                value={
-                                  block.data
-                                    .duration
-                                }
-                                onChange={(e) =>
-                                  handleBlockFieldChange(
-                                    block.id,
-                                    'duration',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              <input
-                                className='cant-rondas-subctn-input-grande'
-                                placeholder="minutos"
-                                disabled
-                              />
-                            </div>
-
-                            <div className="sets-reps-ctn">
-                              {block.data.setsReps.map(
-                                (setRep, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="sets-row"
-                                  >
-                                    <input
-                                      type="text"
-                                      className="series-input"
-                                      placeholder="ej. 12"
-                                      value={
-                                        setRep.series
-                                      }
-                                      onChange={e =>
-                                        handleSetRepChange(
-                                          block.id,
-                                          idx,
-                                          'series',
-                                          e.target.value
-                                        )
-                                      }
-                                    />
-                                    <div className="exercise-cell">
+                                      </div>
                                       <input
                                         type="text"
-                                        className="exercise-input"
-                                        placeholder={
-                                          setRep.placeholderExercise
-                                        }
+                                        className="weight-input"
+                                        placeholder="-"
                                         value={
-                                          setRep.exercise
+                                          setRep.weight
                                         }
                                         onChange={e =>
-                                          handleExerciseInputChange(
+                                          handleSetRepChange(
                                             block.id,
                                             idx,
+                                            'weight',
                                             e.target.value
                                           )
                                         }
+                                        aria-label="Peso"
                                       />
-                                      {(suggestions[
-                                        `${sugKeyPrefix}${idx}`
-                                      ] || [])
-                                        .length >
-                                        0 && (
-                                        <ul className="suggestions-list">
-                                          {suggestions[
-                                            `${sugKeyPrefix}${idx}`
-                                          ].map(
-                                            ex => (
-                                              <li
-                                                key={
-                                                  ex.ID_Ejercicio
-                                                }
-                                                onClick={() =>
-                                                  handleSelectSuggestion(
-                                                    block.id,
-                                                    idx,
-                                                    ex
-                                                  )
-                                                }
-                                              >
-                                                {
-                                                  ex.nombre
-                                                }
-                                              </li>
-                                            )
-                                          )}
-                                        </ul>
-                                      )}
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteSetRep(
+                                            block.id,
+                                            idx
+                                          )
+                                        }
+                                        className="delete-set-btn"
+                                        title="Eliminar este set"
+                                      >
+                                        –
+                                      </button>
                                     </div>
-                                    <input
-                                      type="text"
-                                      className="weight-input"
-                                      placeholder="-"
-                                      value={
-                                        setRep.weight
-                                      }
-                                      onChange={e =>
-                                        handleSetRepChange(
-                                          block.id,
-                                          idx,
-                                          'weight',
-                                          e.target.value
-                                        )
-                                      }
-                                      aria-label="Peso"
-                                    />
-                                    <button
-                                      onClick={() =>
-                                        handleDeleteSetRep(
-                                          block.id,
-                                          idx
-                                        )
-                                      }
-                                      className="delete-set-btn"
-                                      title="Eliminar este set"
-                                    >
-                                      –
-                                    </button>
-                                  </div>
-                                )
-                              )}
-                              <PrimaryButton
-                                text="+"
-                                linkTo="#"
-                                onClick={() =>
-                                  handleAddSetRep(
-                                    block.id
                                   )
-                                }
-                              />
+                                )}
+                                <PrimaryButton
+                                  text="+"
+                                  linkTo="#"
+                                  onClick={() =>
+                                    handleAddSetRep(
+                                      block.id
+                                    )
+                                  }
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                         {/* ESCALERA */}
                         {block.type ===
                           "Escalera" && (
-                          <div className="escalera-ctn">
-                            <div className="cantidad-escalera-ctn">
-                              <input
-                                className='cant-rondas-subctn-input-grande'
-                                placeholder="Ej. 21-15-9"
-                                value={
-                                  block.data
-                                    .escaleraType
-                                }
-                                onChange={(e) =>
-                                  handleBlockFieldChange(
-                                    block.id,
-                                    'escaleraType',
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
+                            <div className="escalera-ctn">
+                              <div className="cantidad-escalera-ctn">
+                                <input
+                                  className='cant-rondas-subctn-input-grande'
+                                  placeholder="Ej. 21-15-9"
+                                  value={
+                                    block.data
+                                      .escaleraType
+                                  }
+                                  onChange={(e) =>
+                                    handleBlockFieldChange(
+                                      block.id,
+                                      'escaleraType',
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </div>
 
-                            <div className="sets-reps-ctn">
-                              {block.data.setsReps.map(
-                                (setRep, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="sets-ladder sets-row--no-series"
-                                  >
+                              <div className="sets-reps-ctn">
+                                {block.data.setsReps.map(
+                                  (setRep, idx) => (
                                     <div
-                                      className="exercise-cell"
-                                      style={{
-                                        width:
-                                          '100%'
-                                      }}
+                                      key={idx}
+                                      className="sets-ladder sets-row--no-series"
                                     >
-                                      <input
+                                      <div
+                                        className="exercise-cell"
                                         style={{
                                           width:
                                             '100%'
                                         }}
+                                      >
+                                        <input
+                                          style={{
+                                            width:
+                                              '100%'
+                                          }}
+                                          type="text"
+                                          className="exercise-input"
+                                          placeholder={
+                                            setRep.placeholderExercise
+                                          }
+                                          value={
+                                            setRep.exercise
+                                          }
+                                          onChange={e =>
+                                            handleExerciseInputChange(
+                                              block.id,
+                                              idx,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        {(suggestions[
+                                          `${sugKeyPrefix}${idx}`
+                                        ] || [])
+                                          .length >
+                                          0 && (
+                                            <ul className="suggestions-list">
+                                              {suggestions[
+                                                `${sugKeyPrefix}${idx}`
+                                              ].map(
+                                                ex => (
+                                                  <li
+                                                    key={
+                                                      ex.ID_Ejercicio
+                                                    }
+                                                    onClick={() =>
+                                                      handleSelectSuggestion(
+                                                        block.id,
+                                                        idx,
+                                                        ex
+                                                      )
+                                                    }
+                                                  >
+                                                    {
+                                                      ex.nombre
+                                                    }
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          )}
+                                      </div>
+                                      <input
                                         type="text"
-                                        className="exercise-input"
-                                        placeholder={
-                                          setRep.placeholderExercise
-                                        }
+                                        className="weight-input"
+                                        placeholder="ej. 24kg"
                                         value={
-                                          setRep.exercise
+                                          setRep.weight
                                         }
                                         onChange={e =>
-                                          handleExerciseInputChange(
+                                          handleSetRepChange(
                                             block.id,
                                             idx,
+                                            'weight',
                                             e.target.value
                                           )
                                         }
+                                        aria-label="Peso"
                                       />
-                                      {(suggestions[
-                                        `${sugKeyPrefix}${idx}`
-                                      ] || [])
-                                        .length >
-                                        0 && (
-                                        <ul className="suggestions-list">
-                                          {suggestions[
-                                            `${sugKeyPrefix}${idx}`
-                                          ].map(
-                                            ex => (
-                                              <li
-                                                key={
-                                                  ex.ID_Ejercicio
-                                                }
-                                                onClick={() =>
-                                                  handleSelectSuggestion(
-                                                    block.id,
-                                                    idx,
-                                                    ex
-                                                  )
-                                                }
-                                              >
-                                                {
-                                                  ex.nombre
-                                                }
-                                              </li>
-                                            )
-                                          )}
-                                        </ul>
-                                      )}
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteSetRep(
+                                            block.id,
+                                            idx
+                                          )
+                                        }
+                                        className="delete-set-btn"
+                                        title="Eliminar este set"
+                                      >
+                                        –
+                                      </button>
                                     </div>
-                                    <input
-                                      type="text"
-                                      className="weight-input"
-                                      placeholder="ej. 24kg"
-                                      value={
-                                        setRep.weight
-                                      }
-                                      onChange={e =>
-                                        handleSetRepChange(
-                                          block.id,
-                                          idx,
-                                          'weight',
-                                          e.target.value
-                                        )
-                                      }
-                                      aria-label="Peso"
-                                    />
-                                    <button
-                                      onClick={() =>
-                                        handleDeleteSetRep(
-                                          block.id,
-                                          idx
-                                        )
-                                      }
-                                      className="delete-set-btn"
-                                      title="Eliminar este set"
-                                    >
-                                      –
-                                    </button>
-                                  </div>
-                                )
-                              )}
-                              <PrimaryButton
-                                text="+"
-                                linkTo="#"
-                                onClick={() =>
-                                  handleAddSetRep(
-                                    block.id
                                   )
-                                }
-                              />
+                                )}
+                                <PrimaryButton
+                                  text="+"
+                                  linkTo="#"
+                                  onClick={() =>
+                                    handleAddSetRep(
+                                      block.id
+                                    )
+                                  }
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                         {/* TABATA */}
                         {block.type ===
                           "TABATA" && (
-                          <div className="tabata-ctn">
-                            <div
-                              className="cantidad-tabata-ctn"
-                              style={{
-                                display: 'flex',
-                                gap: 12,
-                                flexWrap:
-                                  'wrap',
-                                alignItems:
-                                  'center'
-                              }}
-                            >
-                              <div className='cant-rondas-subctn'>
-                                <span>
-                                  Series:{' '}
-                                </span>
-                                <input
-                                  className='cant-rondas-subctn-input-chico'
-                                  placeholder="4"
-                                  value={
-                                    block.data
-                                      .cantSeries
-                                  }
-                                  onChange={(e) =>
-                                    handleBlockFieldChange(
-                                      block.id,
-                                      'cantSeries',
-                                      e.target.value
-                                    )
-                                  }
-                                />
+                            <div className="tabata-ctn">
+                              <div
+                                className="cantidad-tabata-ctn"
+                                style={{
+                                  display: 'flex',
+                                  gap: 12,
+                                  flexWrap:
+                                    'wrap',
+                                  alignItems:
+                                    'center'
+                                }}
+                              >
+                                <div className='cant-rondas-subctn'>
+                                  <span>
+                                    Series:{' '}
+                                  </span>
+                                  <input
+                                    className='cant-rondas-subctn-input-chico'
+                                    placeholder="4"
+                                    value={
+                                      block.data
+                                        .cantSeries
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'cantSeries',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className='cant-rondas-subctn'>
+                                  <span>
+                                    Trabajo/descanso:{' '}
+                                  </span>
+                                  <input
+                                    className='cant-rondas-subctn-input-grande'
+                                    placeholder='ej. 20s x 10s'
+                                    value={
+                                      block.data
+                                        .tiempoTrabajoDescansoTabata
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'tiempoTrabajoDescansoTabata',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
+                                <div className='cant-rondas-subctn'>
+                                  <span>
+                                    Descanso entre
+                                    series:{' '}
+                                  </span>
+                                  <input
+                                    className='cant-rondas-subctn-input-grande'
+                                    placeholder='ej. 1 minuto'
+                                    value={
+                                      block.data
+                                        .descTabata
+                                    }
+                                    onChange={(e) =>
+                                      handleBlockFieldChange(
+                                        block.id,
+                                        'descTabata',
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                </div>
                               </div>
-                              <div className='cant-rondas-subctn'>
-                                <span>
-                                  Trabajo/descanso:{' '}
-                                </span>
-                                <input
-                                  className='cant-rondas-subctn-input-grande'
-                                  placeholder='ej. 20s x 10s'
-                                  value={
-                                    block.data
-                                      .tiempoTrabajoDescansoTabata
-                                  }
-                                  onChange={(e) =>
-                                    handleBlockFieldChange(
-                                      block.id,
-                                      'tiempoTrabajoDescansoTabata',
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </div>
-                              <div className='cant-rondas-subctn'>
-                                <span>
-                                  Descanso entre
-                                  series:{' '}
-                                </span>
-                                <input
-                                  className='cant-rondas-subctn-input-grande'
-                                  placeholder='ej. 1 minuto'
-                                  value={
-                                    block.data
-                                      .descTabata
-                                  }
-                                  onChange={(e) =>
-                                    handleBlockFieldChange(
-                                      block.id,
-                                      'descTabata',
-                                      e.target.value
-                                    )
-                                  }
-                                />
-                              </div>
-                            </div>
 
-                            <div className="sets-reps-ctn">
-                              {block.data.setsReps.map(
-                                (setRep, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="sets-row sets-row--no-series"
-                                  >
+                              <div className="sets-reps-ctn">
+                                {block.data.setsReps.map(
+                                  (setRep, idx) => (
                                     <div
-                                      className="exercise-cell"
-                                      style={{
-                                        width:
-                                          '100%'
-                                      }}
+                                      key={idx}
+                                      className="sets-row sets-row--no-series"
                                     >
-                                      <input
-                                        type="text"
-                                        className="exercise-input"
+                                      <div
+                                        className="exercise-cell"
                                         style={{
                                           width:
                                             '100%'
                                         }}
-                                        placeholder={
-                                          setRep.placeholderExercise
-                                        }
+                                      >
+                                        <input
+                                          type="text"
+                                          className="exercise-input"
+                                          style={{
+                                            width:
+                                              '100%'
+                                          }}
+                                          placeholder={
+                                            setRep.placeholderExercise
+                                          }
+                                          value={
+                                            setRep.exercise
+                                          }
+                                          onChange={e =>
+                                            handleExerciseInputChange(
+                                              block.id,
+                                              idx,
+                                              e.target.value
+                                            )
+                                          }
+                                        />
+                                        {(suggestions[
+                                          `${sugKeyPrefix}${idx}`
+                                        ] || [])
+                                          .length >
+                                          0 && (
+                                            <ul className="suggestions-list">
+                                              {suggestions[
+                                                `${sugKeyPrefix}${idx}`
+                                              ].map(
+                                                ex => (
+                                                  <li
+                                                    key={
+                                                      ex.ID_Ejercicio
+                                                    }
+                                                    onClick={() =>
+                                                      handleSelectSuggestion(
+                                                        block.id,
+                                                        idx,
+                                                        ex
+                                                      )
+                                                    }
+                                                  >
+                                                    {
+                                                      ex.nombre
+                                                    }
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          )}
+                                      </div>
+                                      <input
+                                        type="text"
+                                        className="weight-input"
+                                        placeholder="ej. 16kg"
                                         value={
-                                          setRep.exercise
+                                          setRep.weight
                                         }
                                         onChange={e =>
-                                          handleExerciseInputChange(
+                                          handleSetRepChange(
                                             block.id,
                                             idx,
+                                            'weight',
                                             e.target.value
                                           )
                                         }
+                                        aria-label="Peso"
                                       />
-                                      {(suggestions[
-                                        `${sugKeyPrefix}${idx}`
-                                      ] || [])
-                                        .length >
-                                        0 && (
-                                        <ul className="suggestions-list">
-                                          {suggestions[
-                                            `${sugKeyPrefix}${idx}`
-                                          ].map(
-                                            ex => (
-                                              <li
-                                                key={
-                                                  ex.ID_Ejercicio
-                                                }
-                                                onClick={() =>
-                                                  handleSelectSuggestion(
-                                                    block.id,
-                                                    idx,
-                                                    ex
-                                                  )
-                                                }
-                                              >
-                                                {
-                                                  ex.nombre
-                                                }
-                                              </li>
-                                            )
-                                          )}
-                                        </ul>
-                                      )}
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteSetRep(
+                                            block.id,
+                                            idx
+                                          )
+                                        }
+                                        className="delete-set-btn"
+                                        title="Eliminar este ejercicio"
+                                      >
+                                        –
+                                      </button>
                                     </div>
-                                    <input
-                                      type="text"
-                                      className="weight-input"
-                                      placeholder="ej. 16kg"
-                                      value={
-                                        setRep.weight
-                                      }
-                                      onChange={e =>
-                                        handleSetRepChange(
-                                          block.id,
-                                          idx,
-                                          'weight',
-                                          e.target.value
-                                        )
-                                      }
-                                      aria-label="Peso"
-                                    />
-                                    <button
-                                      onClick={() =>
-                                        handleDeleteSetRep(
-                                          block.id,
-                                          idx
-                                        )
-                                      }
-                                      className="delete-set-btn"
-                                      title="Eliminar este ejercicio"
-                                    >
-                                      –
-                                    </button>
-                                  </div>
-                                )
-                              )}
-                              <PrimaryButton
-                                text="+"
-                                linkTo="#"
-                                onClick={() =>
-                                  handleAddSetRep(
-                                    block.id
                                   )
-                                }
-                              />
+                                )}
+                                <PrimaryButton
+                                  text="+"
+                                  linkTo="#"
+                                  onClick={() =>
+                                    handleAddSetRep(
+                                      block.id
+                                    )
+                                  }
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                         {/* DROPSET */}
                         {block.type ===
                           "DROPSET" && (
-                          <div className="dropset-ctn">
-                            <div
-                              className="exercise-cell"
-                              style={{
-                                width:
-                                  '100%',
-                                marginBottom: 12
-                              }}
-                            >
-                              <input
-                                type="text"
-                                className="exercise-input"
+                            <div className="dropset-ctn">
+                              <div
+                                className="exercise-cell"
                                 style={{
                                   width:
-                                    '100%'
+                                    '100%',
+                                  marginBottom: 12
                                 }}
-                                placeholder={
-                                  block.data
-                                    .exercisePlaceholder ||
-                                  'Nombre ejercicio'
-                                }
-                                value={
-                                  block.data
-                                    .exerciseName ||
-                                  ''
-                                }
-                                onChange={(e) =>
-                                  handleDropsetNameChange(
-                                    block.id,
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {(suggestions[
-                                `${activeDay?.key || 'dia'}-${block.id}-dropsetname`
-                              ] || []).length >
-                                0 && (
-                                <ul className="suggestions-list">
-                                  {suggestions[
-                                    `${activeDay?.key || 'dia'}-${block.id}-dropsetname`
-                                  ].map(
-                                    ex => (
-                                      <li
-                                        key={
-                                          ex.ID_Ejercicio
-                                        }
+                              >
+                                <input
+                                  type="text"
+                                  className="exercise-input"
+                                  style={{
+                                    width:
+                                      '100%'
+                                  }}
+                                  placeholder={
+                                    block.data
+                                      .exercisePlaceholder ||
+                                    'Nombre ejercicio'
+                                  }
+                                  value={
+                                    block.data
+                                      .exerciseName ||
+                                    ''
+                                  }
+                                  onChange={(e) =>
+                                    handleDropsetNameChange(
+                                      block.id,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                {(suggestions[
+                                  `${activeDay?.key || 'dia'}-${block.id}-dropsetname`
+                                ] || []).length >
+                                  0 && (
+                                    <ul className="suggestions-list">
+                                      {suggestions[
+                                        `${activeDay?.key || 'dia'}-${block.id}-dropsetname`
+                                      ].map(
+                                        ex => (
+                                          <li
+                                            key={
+                                              ex.ID_Ejercicio
+                                            }
+                                            onClick={() =>
+                                              handleSelectDropsetName(
+                                                block.id,
+                                                ex
+                                              )
+                                            }
+                                          >
+                                            {
+                                              ex.nombre
+                                            }
+                                          </li>
+                                        )
+                                      )}
+                                    </ul>
+                                  )}
+                              </div>
+
+                              <div className="sets-reps-ctn">
+                                {block.data.setsReps.map(
+                                  (sr, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="sets-row sets-row--dropset"
+                                    >
+                                      <div
+                                        className="series-group"
+                                        style={{
+                                          display:
+                                            'flex',
+                                          gap: 8,
+                                          width:
+                                            '100%'
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            flex: 1
+                                          }}
+                                        >
+                                          <label className="mini-label">
+                                            Serie y
+                                            reps
+                                          </label>
+                                          <input
+                                            type="text"
+                                            className="series-input"
+                                            placeholder="Ej. 2×20"
+                                            value={
+                                              sr.series
+                                            }
+                                            onChange={e =>
+                                              handleSetRepChange(
+                                                block.id,
+                                                idx,
+                                                'series',
+                                                e.target.value
+                                              )
+                                            }
+                                          />
+                                        </div>
+                                        <div
+                                          style={{
+                                            flex: 1
+                                          }}
+                                        >
+                                          <label className="mini-label">
+                                            Kilos
+                                          </label>
+                                          <input
+                                            type="text"
+                                            className="weight-input"
+                                            placeholder="Ej. 50kg"
+                                            value={
+                                              sr.weight
+                                            }
+                                            onChange={e =>
+                                              handleSetRepChange(
+                                                block.id,
+                                                idx,
+                                                'weight',
+                                                e.target.value
+                                              )
+                                            }
+                                          />
+                                        </div>
+                                      </div>
+                                      <button
                                         onClick={() =>
-                                          handleSelectDropsetName(
+                                          handleDeleteSetRep(
                                             block.id,
-                                            ex
+                                            idx
                                           )
                                         }
+                                        className="delete-set-btn"
+                                        title="Eliminar fila"
                                       >
-                                        {
-                                          ex.nombre
-                                        }
-                                      </li>
-                                    )
-                                  )}
-                                </ul>
-                              )}
-                            </div>
-
-                            <div className="sets-reps-ctn">
-                              {block.data.setsReps.map(
-                                (sr, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="sets-row sets-row--dropset"
-                                  >
-                                    <div
-                                      className="series-group"
-                                      style={{
-                                        display:
-                                          'flex',
-                                        gap: 8,
-                                        width:
-                                          '100%'
-                                      }}
-                                    >
-                                      <div
-                                        style={{
-                                          flex: 1
-                                        }}
-                                      >
-                                        <label className="mini-label">
-                                          Serie y
-                                          reps
-                                        </label>
-                                        <input
-                                          type="text"
-                                          className="series-input"
-                                          placeholder="Ej. 2×20"
-                                          value={
-                                            sr.series
-                                          }
-                                          onChange={e =>
-                                            handleSetRepChange(
-                                              block.id,
-                                              idx,
-                                              'series',
-                                              e.target.value
-                                            )
-                                          }
-                                        />
-                                      </div>
-                                      <div
-                                        style={{
-                                          flex: 1
-                                        }}
-                                      >
-                                        <label className="mini-label">
-                                          Kilos
-                                        </label>
-                                        <input
-                                          type="text"
-                                          className="weight-input"
-                                          placeholder="Ej. 50kg"
-                                          value={
-                                            sr.weight
-                                          }
-                                          onChange={e =>
-                                            handleSetRepChange(
-                                              block.id,
-                                              idx,
-                                              'weight',
-                                              e.target.value
-                                            )
-                                          }
-                                        />
-                                      </div>
+                                        –
+                                      </button>
                                     </div>
-                                    <button
-                                      onClick={() =>
-                                        handleDeleteSetRep(
-                                          block.id,
-                                          idx
-                                        )
-                                      }
-                                      className="delete-set-btn"
-                                      title="Eliminar fila"
-                                    >
-                                      –
-                                    </button>
-                                  </div>
-                                )
-                              )}
-                              <PrimaryButton
-                                text="+"
-                                linkTo="#"
-                                onClick={() =>
-                                  handleAddSetRep(
-                                    block.id
                                   )
-                                }
-                              />
+                                )}
+                                <PrimaryButton
+                                  text="+"
+                                  linkTo="#"
+                                  onClick={() =>
+                                    handleAddSetRep(
+                                      block.id
+                                    )
+                                  }
+                                />
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
                       </div>
                     );
                   }
@@ -2516,11 +2512,10 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         {canAssign && step === 2 && (
           <>
             <div
-              className={`info-backdrop ${
-                isMobile && infoOpen
+              className={`info-backdrop ${isMobile && infoOpen
                   ? 'show'
                   : ''
-              }`}
+                }`}
               onClick={() =>
                 setInfoOpen(false)
               }
@@ -2528,9 +2523,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
             />
             <aside
               id="info-panel"
-              className={`info-panel ${
-                isMobile ? 'drawer' : ''
-              } ${infoOpen ? 'open' : ''}`}
+              className={`info-panel ${isMobile ? 'drawer' : ''
+                } ${infoOpen ? 'open' : ''}`}
               role={isMobile ? 'dialog' : undefined}
               aria-modal={isMobile ? 'true' : undefined}
               aria-label="Información contextual"
@@ -2553,12 +2547,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
               <div className="info-panel__content">
                 <div className="info-tabs">
                   <button
-                    className={`info-tab ${
-                      infoTab ===
-                      'ejercicios'
+                    className={`info-tab ${infoTab ===
+                        'ejercicios'
                         ? 'active'
                         : ''
-                    }`}
+                      }`}
                     onClick={() =>
                       setInfoTab('ejercicios')
                     }
@@ -2566,12 +2559,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     Ejercicios
                   </button>
                   <button
-                    className={`info-tab ${
-                      infoTab ===
-                      'usuario'
+                    className={`info-tab ${infoTab ===
+                        'usuario'
                         ? 'active'
                         : ''
-                    }`}
+                      }`}
                     onClick={() =>
                       setInfoTab('usuario')
                     }
@@ -2583,304 +2575,304 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
                 {infoTab ===
                   'ejercicios' && (
-                  <div>
-                    <input
-                      type="text"
-                      className="info-search"
-                      placeholder="Buscar ejercicio..."
-                      value={
-                        exerciseSearch
-                      }
-                      onChange={(e) =>
-                        setExerciseSearch(
-                          e.target.value
-                        )
-                      }
-                    />
-                    <div className="info-list">
-                      {(filteredExercises ||
-                        []).map(
-                        (ej) => (
-                          <div
-                            key={
-                              ej.ID_Ejercicio
-                            }
-                            className="info-card"
-                          >
-                            <div className="info-card__row">
-                              <strong className="info-card__title">
-                                {
-                                  ej.nombre
-                                }
-                              </strong>
+                    <div>
+                      <input
+                        type="text"
+                        className="info-search"
+                        placeholder="Buscar ejercicio..."
+                        value={
+                          exerciseSearch
+                        }
+                        onChange={(e) =>
+                          setExerciseSearch(
+                            e.target.value
+                          )
+                        }
+                      />
+                      <div className="info-list">
+                        {(filteredExercises ||
+                          []).map(
+                            (ej) => (
                               <div
-                                style={{
-                                  display:
-                                    'flex',
-                                  gap: 8,
-                                  alignItems:
-                                    'center'
-                                }}
-                              >
-                                <PrimaryButton
-                                  className="info-card__add"
-                                  onClick={() =>
-                                    addExerciseIntoBuildingBlock(
-                                      ej
-                                    )
-                                  }
-                                  text="Agregar"
-                                />
-                              </div>
-                            </div>
-                            {ej.descripcion && (
-                              <p className="info-card__desc">
-                                {
-                                  ej.descripcion
+                                key={
+                                  ej.ID_Ejercicio
                                 }
-                              </p>
-                            )}
-                            <div className="info-card__meta">
-                              {ej.musculos && (
-                                <small>
-                                  <b>
-                                    Músculos:
-                                  </b>{' '}
-                                  {
-                                    ej.musculos
-                                  }
-                                </small>
-                              )}
-                              {ej.equipamiento && (
-                                <small>
-                                  <b>
-                                    Equipo:
-                                  </b>{' '}
-                                  {
-                                    ej.equipamiento
-                                  }
-                                </small>
-                              )}
-                              {ej.youtubeUrl && (
-                                <a
-                                  href={
-                                    ej.youtubeUrl
-                                  }
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="info-card__link"
-                                >
-                                  YouTube
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      )}
-                      {(!filteredExercises ||
-                        filteredExercises.length ===
+                                className="info-card"
+                              >
+                                <div className="info-card__row">
+                                  <strong className="info-card__title">
+                                    {
+                                      ej.nombre
+                                    }
+                                  </strong>
+                                  <div
+                                    style={{
+                                      display:
+                                        'flex',
+                                      gap: 8,
+                                      alignItems:
+                                        'center'
+                                    }}
+                                  >
+                                    <PrimaryButton
+                                      className="info-card__add"
+                                      onClick={() =>
+                                        addExerciseIntoBuildingBlock(
+                                          ej
+                                        )
+                                      }
+                                      text="Agregar"
+                                    />
+                                  </div>
+                                </div>
+                                {ej.descripcion && (
+                                  <p className="info-card__desc">
+                                    {
+                                      ej.descripcion
+                                    }
+                                  </p>
+                                )}
+                                <div className="info-card__meta">
+                                  {ej.musculos && (
+                                    <small>
+                                      <b>
+                                        Músculos:
+                                      </b>{' '}
+                                      {
+                                        ej.musculos
+                                      }
+                                    </small>
+                                  )}
+                                  {ej.equipamiento && (
+                                    <small>
+                                      <b>
+                                        Equipo:
+                                      </b>{' '}
+                                      {
+                                        ej.equipamiento
+                                      }
+                                    </small>
+                                  )}
+                                  {ej.youtubeUrl && (
+                                    <a
+                                      href={
+                                        ej.youtubeUrl
+                                      }
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="info-card__link"
+                                    >
+                                      YouTube
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
+                        {(!filteredExercises ||
+                          filteredExercises.length ===
                           0) && (
-                        <p className="info-empty">
-                          No se
-                          encontraron
-                          ejercicios.
-                        </p>
-                      )}
+                            <p className="info-empty">
+                              No se
+                              encontraron
+                              ejercicios.
+                            </p>
+                          )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {infoTab ===
                   'usuario' && (
-                  <div>
-                    <div className="user-meta">
-                      <div className="user-meta__line">
-                        <b>
-                          Usuario
-                          asignado:
-                        </b>{' '}
-                        {selectedUserId
-                          ? `${selectedUser?.nombre || ''} ${selectedUser?.apellido || ''}`
-                          : '— seleccioná un usuario'}
+                    <div>
+                      <div className="user-meta">
+                        <div className="user-meta__line">
+                          <b>
+                            Usuario
+                            asignado:
+                          </b>{' '}
+                          {selectedUserId
+                            ? `${selectedUser?.nombre || ''} ${selectedUser?.apellido || ''}`
+                            : '— seleccioná un usuario'}
+                        </div>
                       </div>
-                    </div>
 
-                    {!selectedUserId && (
-                      <p className="info-empty">
-                        Para ver
-                        mediciones, primero
-                        seleccioná un
-                        usuario en el
-                        desplegable de la
-                        izquierda.
-                      </p>
-                    )}
+                      {!selectedUserId && (
+                        <p className="info-empty">
+                          Para ver
+                          mediciones, primero
+                          seleccioná un
+                          usuario en el
+                          desplegable de la
+                          izquierda.
+                        </p>
+                      )}
 
-                    {selectedUserId && (
-                      <>
-                        {loadingMetrics && (
-                          <p className="info-loading">
-                            Cargando
-                            mediciones...
-                          </p>
-                        )}
-
-                        {!loadingMetrics &&
-                          (!userMetrics ||
-                            !Array.isArray(
-                              userMetrics.ejercicios
-                            ) ||
-                            userMetrics
-                              .ejercicios
-                              .length ===
-                              0) && (
-                            <p className="info-empty">
-                              Sin datos de
-                              mediciones.
+                      {selectedUserId && (
+                        <>
+                          {loadingMetrics && (
+                            <p className="info-loading">
+                              Cargando
+                              mediciones...
                             </p>
                           )}
 
-                        {!loadingMetrics &&
-                          Array.isArray(
-                            userMetrics?.ejercicios
-                          ) &&
-                          userMetrics
-                            .ejercicios
-                            .length >
+                          {!loadingMetrics &&
+                            (!userMetrics ||
+                              !Array.isArray(
+                                userMetrics.ejercicios
+                              ) ||
+                              userMetrics
+                                .ejercicios
+                                .length ===
+                              0) && (
+                              <p className="info-empty">
+                                Sin datos de
+                                mediciones.
+                              </p>
+                            )}
+
+                          {!loadingMetrics &&
+                            Array.isArray(
+                              userMetrics?.ejercicios
+                            ) &&
+                            userMetrics
+                              .ejercicios
+                              .length >
                             0 && (
-                            <div className="metrics-list">
-                              {userMetrics.ejercicios.map(
-                                (e) => {
-                                  const historico =
-                                    Array.isArray(
-                                      e.HistoricoEjercicios
-                                    )
-                                      ? [
+                              <div className="metrics-list">
+                                {userMetrics.ejercicios.map(
+                                  (e) => {
+                                    const historico =
+                                      Array.isArray(
+                                        e.HistoricoEjercicios
+                                      )
+                                        ? [
                                           ...e.HistoricoEjercicios
                                         ]
-                                      : [];
-                                  historico.sort(
-                                    (a, b) =>
-                                      new Date(
-                                        b.Fecha
-                                      ) -
-                                      new Date(
-                                        a.Fecha
-                                      )
-                                  );
-                                  const last3 =
-                                    historico.slice(
-                                      0,
-                                      3
+                                        : [];
+                                    historico.sort(
+                                      (a, b) =>
+                                        new Date(
+                                          b.Fecha
+                                        ) -
+                                        new Date(
+                                          a.Fecha
+                                        )
                                     );
+                                    const last3 =
+                                      historico.slice(
+                                        0,
+                                        3
+                                      );
 
-                                  let pr =
-                                    null;
-                                  for (const h of historico) {
-                                    if (
-                                      !pr ||
-                                      h.Cantidad >
+                                    let pr =
+                                      null;
+                                    for (const h of historico) {
+                                      if (
+                                        !pr ||
+                                        h.Cantidad >
                                         pr.Cantidad
-                                    ) {
-                                      pr =
-                                        h;
-                                    }
-                                  }
-
-                                  return (
-                                    <div
-                                      key={
-                                        e.ID_EjercicioMedicion
+                                      ) {
+                                        pr =
+                                          h;
                                       }
-                                      className="info-card"
-                                    >
-                                      <div className="info-card__row">
-                                        <strong className="info-card__title">
-                                          {
-                                            e.nombre
-                                          }
-                                        </strong>
-                                        <small className="info-card__badge">
-                                          {
-                                            e.tipoMedicion
-                                          }
-                                        </small>
-                                      </div>
+                                    }
 
-                                      {last3.length >
-                                        0 ? (
-                                        <div className="metric-block">
-                                          <div className="metric-block__title">
-                                            Últimos 3
+                                    return (
+                                      <div
+                                        key={
+                                          e.ID_EjercicioMedicion
+                                        }
+                                        className="info-card"
+                                      >
+                                        <div className="info-card__row">
+                                          <strong className="info-card__title">
+                                            {
+                                              e.nombre
+                                            }
+                                          </strong>
+                                          <small className="info-card__badge">
+                                            {
+                                              e.tipoMedicion
+                                            }
+                                          </small>
+                                        </div>
+
+                                        {last3.length >
+                                          0 ? (
+                                          <div className="metric-block">
+                                            <div className="metric-block__title">
+                                              Últimos 3
+                                              registros
+                                            </div>
+                                            <ul className="metric-history">
+                                              {last3.map(
+                                                h => (
+                                                  <li
+                                                    key={
+                                                      h.ID_HistoricoEjercicio
+                                                    }
+                                                  >
+                                                    <span className="metric-date">
+                                                      {new Date(
+                                                        h.Fecha
+                                                      ).toLocaleDateString()}
+                                                    </span>
+                                                    <span className="metric-sep">
+                                                      —
+                                                    </span>
+                                                    <span className="metric-value">
+                                                      {
+                                                        h.Cantidad
+                                                      }
+                                                    </span>
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          </div>
+                                        ) : (
+                                          <div className="metric-block metric-block--empty">
+                                            Sin
                                             registros
                                           </div>
-                                          <ul className="metric-history">
-                                            {last3.map(
-                                              h => (
-                                                <li
-                                                  key={
-                                                    h.ID_HistoricoEjercicio
-                                                  }
-                                                >
-                                                  <span className="metric-date">
-                                                    {new Date(
-                                                      h.Fecha
-                                                    ).toLocaleDateString()}
-                                                  </span>
-                                                  <span className="metric-sep">
-                                                    —
-                                                  </span>
-                                                  <span className="metric-value">
-                                                    {
-                                                      h.Cantidad
-                                                    }
-                                                  </span>
-                                                </li>
-                                              )
-                                            )}
-                                          </ul>
-                                        </div>
-                                      ) : (
-                                        <div className="metric-block metric-block--empty">
-                                          Sin
-                                          registros
-                                        </div>
-                                      )}
-
-                                      <div className="metric-block metric-block--pr">
-                                        <span className="metric-pr-label">
-                                          PR
-                                          histórico:
-                                        </span>
-                                        {pr ? (
-                                          <span className="metric-pr-value">
-                                            {
-                                              pr.Cantidad
-                                            }{' '}
-                                            <span className="metric-pr-date">
-                                              (
-                                              {new Date(
-                                                pr.Fecha
-                                              ).toLocaleDateString()}
-                                              )
-                                            </span>
-                                          </span>
-                                        ) : (
-                                          <span className="metric-pr-value">
-                                            —
-                                          </span>
                                         )}
+
+                                        <div className="metric-block metric-block--pr">
+                                          <span className="metric-pr-label">
+                                            PR
+                                            histórico:
+                                          </span>
+                                          {pr ? (
+                                            <span className="metric-pr-value">
+                                              {
+                                                pr.Cantidad
+                                              }{' '}
+                                              <span className="metric-pr-date">
+                                                (
+                                                {new Date(
+                                                  pr.Fecha
+                                                ).toLocaleDateString()}
+                                                )
+                                              </span>
+                                            </span>
+                                          ) : (
+                                            <span className="metric-pr-value">
+                                              —
+                                            </span>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  );
-                                }
-                              )}
-                            </div>
-                          )}
-                      </>
-                    )}
-                  </div>
-                )}
+                                    );
+                                  }
+                                )}
+                              </div>
+                            )}
+                        </>
+                      )}
+                    </div>
+                  )}
               </div>
             </aside>
           </>

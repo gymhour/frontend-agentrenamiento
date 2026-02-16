@@ -12,7 +12,7 @@
     flex-direction: column;
     justify-content: start;
     align-items: start;
-    gap: 8px; 
+    gap: 8px;
 }
 
 .cuotas-table-usuario {
@@ -24,7 +24,7 @@
     border: none;
     outline: none;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color-distinct);
     margin-left: 5px;
     position: relative;
     top: 4px;
@@ -32,7 +32,7 @@
 }
 
 .copy-button:hover {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--primary-color);
 }
 
 .cuotas-wsp-btn {

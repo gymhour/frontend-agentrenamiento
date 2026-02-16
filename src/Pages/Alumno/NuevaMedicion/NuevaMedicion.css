@@ -4,7 +4,7 @@
 .nueva-medicion-container h2 {
   margin-top: 10px;
   margin-bottom: 20px;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 /* Mensaje de error */
