@@ -214,6 +214,50 @@ const renderDropSetBlock = (b) => {
 
 /* ==================================================== */
 
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? 'var(--primary-color)'
+      : state.isFocused
+        ? 'var(--background-hover-color)'
+        : 'var(--background-color)',
+    color: state.isSelected ? '#fff' : 'var(--text-color)',
+    cursor: 'pointer',
+    ':active': {
+      backgroundColor: 'var(--background-hover-color)',
+    },
+  }),
+  control: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color-distinct)',
+    borderColor: 'transparent',
+    borderRadius: '12px',
+    padding: '6px',
+    boxShadow: 'none',
+    color: 'var(--text-color)',
+    width: '300px',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color)',
+    border: '1px solid var(--border-color)',
+    zIndex: 100
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color-distinct)',
+  })
+};
+
 const RutinasAsignadas = () => {
   const [loading, setLoading] = useState(false);
   const [allRutinas, setAllRutinas] = useState([]);
@@ -413,6 +457,7 @@ const RutinasAsignadas = () => {
             placeholder='Seleccioná un usuario'
             isClearable
             isSearchable
+            styles={customStyles}
           />
           <div className="rutinas-asignadas-filtros-btns">
             <PrimaryButton onClick={handleSearch} text="Buscar" />

@@ -120,7 +120,7 @@
 .exercise-input {
     background-color: var(--background-color);
     border-radius: 12px;
-    padding: 16px 12px;
+    padding: 10px;
     border: 1.5px solid var(--border-color);
     outline: none;
     color: var(--text-color);
@@ -177,10 +177,33 @@
 .cant-rondas-subctn-input-chico {
     width: 60px;
     margin-right: 6px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px;
+    border-radius: 8px;
+    outline: none;
 }
 
 .cant-rondas-subctn-input-grande {
     width: 160px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px;
+    border-radius: 8px;
+    outline: none;
+}
+
+.weight-input {
+    width: 100px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 12px;
+    outline: none;
+    font-size: 16px;
 }
 
 /* Autocomplete */
@@ -671,6 +694,24 @@
     color: #a9cdbb;
     font-weight: 500;
     margin-left: 2px;
+}
+
+/* Light mode overrides for PR metrics */
+[data-theme='light'] .metric-block--pr {
+    background: rgba(17, 179, 101, 0.15);
+    border: 1px solid rgba(17, 179, 101, 0.4);
+}
+
+[data-theme='light'] .metric-pr-label {
+    color: #0b6e40;
+}
+
+[data-theme='light'] .metric-pr-value {
+    color: #085d34;
+}
+
+[data-theme='light'] .metric-pr-date {
+    color: #4a8c6f;
 }
 
 /* Sticky panel y responsive */

@@ -35,7 +35,7 @@
 .menu-divider {
   height: 1.5px;
   width: 280px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--border-color);
 }
 
 .sidebar-menu {
@@ -72,7 +72,7 @@
 }
 
 .menu-item.logout {
-  color: #CC8889;
+  color: #b45a5b;
 }
 
 .profile-section {

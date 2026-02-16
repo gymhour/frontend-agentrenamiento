@@ -5,6 +5,7 @@ import "./sidebarmenu.css";
 // Assets
 import ClientLogo from "../../assets/client/ag_entrenamiento.png";
 import OurLogo from "../../assets/gymhour/logo_gymhour.png";
+import OurLogoBlack from "../../assets/gymhour/logo_gymhour_black.png";
 // Iconos sidebar
 import {
   Home,
@@ -39,6 +40,36 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
   const location = useLocation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  // Listen for theme changes on body attribute
+  React.useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.body.getAttribute('data-theme');
+          setCurrentTheme(newTheme || 'dark');
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    // Initial check in case it changed before observe
+    const initialTheme = document.body.getAttribute('data-theme');
+    if (initialTheme) {
+      setCurrentTheme(initialTheme);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const logoSrc = currentTheme === 'light' ? OurLogoBlack : OurLogo;
 
   const handleLogoutClick = () => setIsPopupOpen(true);
   const handleLogoutConfirm = () => {
@@ -461,7 +492,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
 
           <div className="sidebar-footer">
             <img
-              src={OurLogo}
+              src={logoSrc}
               alt="GymHour Logo"
               className="logo"
             />

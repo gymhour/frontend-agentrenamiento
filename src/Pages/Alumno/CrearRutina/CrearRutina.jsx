@@ -14,6 +14,49 @@ import { X } from 'lucide-react';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? 'var(--primary-color)'
+      : state.isFocused
+        ? 'var(--background-hover-color)'
+        : 'var(--background-color)',
+    color: state.isSelected ? '#fff' : 'var(--text-color)',
+    cursor: 'pointer',
+    ':active': {
+      backgroundColor: 'var(--background-hover-color)',
+    },
+  }),
+  control: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color-distinct)',
+    borderColor: 'transparent', // CustomDropdown has no visible border usually or matches style
+    borderRadius: '12px',
+    padding: '6px',
+    boxShadow: 'none',
+    color: 'var(--text-color)',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color)',
+    border: '1px solid var(--border-color)',
+    zIndex: 100
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color-distinct)',
+  })
+};
+
 const DISPLAY_TYPES = ["Series y repeticiones", "Rondas", "EMOM", "AMRAP", "Escalera", "TABATA", "DROPSET"];
 
 const apiToDisplayType = {
@@ -1233,6 +1276,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     placeholder="Seleccioná un usuario"
                     isSearchable
                     required={!!fromEntrenador}
+                    styles={customStyles}
                   />
                 )}
 
@@ -1264,8 +1308,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     <div
                       key={d.key}
                       className={`day-tab ${idx === activeDayIndex
-                          ? 'active'
-                          : ''
+                        ? 'active'
+                        : ''
                         }`}
                       onClick={() =>
                         setActiveDayIndex(idx)
@@ -1354,8 +1398,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                       <div
                         key={block.id ?? idxBlock}
                         className={`block-container ${isDragging
-                            ? 'block--dragging'
-                            : ''
+                          ? 'block--dragging'
+                          : ''
                           } ${isOver ? 'block--over' : ''
                           }`}
                         onDragOver={(e) =>
@@ -1395,8 +1439,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                             title="Eliminar bloque"
                           >
                             <X
-                              width={32}
-                              height={32}
+                              width={24}
+                              height={24}
                             />
                           </button>
                         </div>
@@ -2513,8 +2557,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
           <>
             <div
               className={`info-backdrop ${isMobile && infoOpen
-                  ? 'show'
-                  : ''
+                ? 'show'
+                : ''
                 }`}
               onClick={() =>
                 setInfoOpen(false)
@@ -2548,9 +2592,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                 <div className="info-tabs">
                   <button
                     className={`info-tab ${infoTab ===
-                        'ejercicios'
-                        ? 'active'
-                        : ''
+                      'ejercicios'
+                      ? 'active'
+                      : ''
                       }`}
                     onClick={() =>
                       setInfoTab('ejercicios')
@@ -2560,9 +2604,9 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                   </button>
                   <button
                     className={`info-tab ${infoTab ===
-                        'usuario'
-                        ? 'active'
-                        : ''
+                      'usuario'
+                      ? 'active'
+                      : ''
                       }`}
                     onClick={() =>
                       setInfoTab('usuario')

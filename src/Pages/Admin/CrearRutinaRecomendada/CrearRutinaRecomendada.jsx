@@ -947,7 +947,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                           className="delete-block-btn"
                           title="Eliminar bloque"
                         >
-                          <X width={32} height={32} />
+                          <X width={24} height={24} />
                         </button>
                       </div>
 
