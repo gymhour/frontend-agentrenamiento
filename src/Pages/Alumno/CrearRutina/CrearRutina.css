@@ -932,6 +932,7 @@
     padding: 4px;
     margin-right: 6px;
     opacity: 0.75;
+    color: var(--text-color);
 }
 
 .day-drag-handle:active {
@@ -957,21 +958,7 @@
     opacity: 0.6;
 }
 
-.day-drag-handle {
-    background: transparent;
-    border: none;
-    cursor: grab;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    margin-right: 6px;
-    opacity: 0.75;
-}
 
-.day-drag-handle:active {
-    cursor: grabbing;
-}
 
 .day-drop-indicator {
     width: 3px;

@@ -82,7 +82,7 @@ const Cuotas = () => {
           <div className="cuotas-datos-pagos-info">
             <span style={{ fontWeight: '600' }} className="alias-and-bank">
               JUAN PEREZ
-              <GaliciaIcon width="120" />
+              {/* <GaliciaIcon width="120" /> */}
             </span>
             {/* <span>
               GIMNASIO GYMHOUR
@@ -96,7 +96,7 @@ const Cuotas = () => {
             <span>
               <b>CBU:</b> {cbu}{' '}
               <button className="copy-button" onClick={() => handleCopy(cbu)}>
-                <CopyIcon width={16} height={16}/>
+                <Copy width={16} height={16} />
               </button>
             </span>
             <span><b>CUIL:</b> 20-35752545-5</span>

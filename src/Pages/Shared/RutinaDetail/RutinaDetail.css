@@ -70,6 +70,26 @@
     gap: 16px;
 }
 
+.rutina-detail-datos {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.rutina-detail-datos>.gh-surface {
+    flex: 1;
+}
+
+@media (max-width: 640px) {
+    .rutina-detail-datos {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
 @media (min-width: 960px) {
     .page-layout .content-layout .gh-grid-2 {
         grid-template-columns: 1fr;

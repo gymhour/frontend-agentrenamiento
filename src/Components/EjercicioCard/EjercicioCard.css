@@ -8,42 +8,99 @@
   display: flex;
   flex-direction: column;
   color: var(--text-color);
-  margin: 10px;
+  margin: 0;
   max-width: 300px;
+  width: 100%;
   transition: all ease-in-out 150ms;
 }
-
-/* .exercise-card:hover {
-    background-color: #202020;
-} */
 
 .exercise-card__media {
   width: 100%;
   height: 200px;
   background: #111;
+  position: relative;
+  /* Ensure children (img or button) fill this space properly */
+}
+
+/* Fix for broken images/video thumbnails */
+.media__img,
+.media__thumbBtn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .media__iframe {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  border: 0;
+  display: block;
+}
+
+.media__thumbBtn {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  position: relative;
+  display: block;
+}
+
+.media__playerWrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.media__closeBtn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Play badge centered */
+.media__playBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
 }
 
 .exercise-card__info {
   padding: 16px;
+  flex: 1;
+  /* Allow content to grow/shrink if needed */
 }
 
 .info__title {
   margin: 0 0 8px;
   font-size: 16px;
   line-height: 1.2;
+  font-weight: 600;
 }
 
 .info__desc {
   margin: 0;
   font-size: 14px;
   color: var(--text-color-distinct);
-  text-transform: capitalize;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -56,34 +113,21 @@
   text-transform: uppercase;
 }
 
-.exercise-card__actions {
-  display: flex;
-  gap: 16px;
-  padding: 12px 16px 16px;
-}
-
-.action-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.action-btn.edit {
-  color: #fff;
-}
-
-.action-btn.delete {
-  color: #e74c3c;
-}
-
 .exercise-card__footer {
   display: flex;
   justify-content: flex-start;
+  /* View left, others follow */
   align-items: center;
-  gap: 4px;
-  padding: 0 6px 6px;
+  gap: 8px;
+  padding: 0 16px 16px;
+  flex-wrap: wrap;
+}
+
+.exercise-card__actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  /* Push edit/delete to the right if space allows */
 }
 
 .action-btn {
@@ -92,6 +136,12 @@
   border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: opacity 0.2s;
+  background: none;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
 }
 
 .action-btn.view {
@@ -100,26 +150,17 @@
   color: #fff;
 }
 
-.action-btn.view:hover {
-  opacity: 0.9;
-}
-
-.exercise-card__actions {
-  display: flex;
-  gap: .5rem;
-}
-
 .action-btn.edit {
   background: var(--primary-color);
   color: #fff;
 }
 
 .action-btn.delete {
-  background: none;
+  /* background: transparent; */
   color: var(--text-color);
 }
 
-.action-btn.edit:hover,
 .action-btn.delete:hover {
-  opacity: 0.9;
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
 }

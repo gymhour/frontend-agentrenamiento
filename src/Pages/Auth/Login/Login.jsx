@@ -5,6 +5,7 @@ import './login.css';
 import LoginBackgroundImage from '../../../assets/login/login_background.png';
 import ClientLogo from '../../../assets/client/ag_entrenamiento.png'
 import OurLogo from '../../../assets/gymhour/logo_gymhour_sin_texto.png'
+import OurLogoBlack from '../../../assets/gymhour/logo_gymhour_sin_texto_negro.png'
 // Funciones
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -21,6 +22,36 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  // Listen for theme changes on body attribute
+  React.useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.body.getAttribute('data-theme');
+          setCurrentTheme(newTheme || 'dark');
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    // Initial check in case it changed before observe
+    const initialTheme = document.body.getAttribute('data-theme');
+    if (initialTheme) {
+      setCurrentTheme(initialTheme);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const logoSrc = currentTheme === 'light' ? OurLogoBlack : OurLogo;
 
   // --- Nuevo: estado del modal de cumpleaños y redirección pendiente ---
   const [showBirthdayModal, setShowBirthdayModal] = useState(false);
@@ -41,7 +72,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     try {
       const response = await authClient.post('/auth/login', { email, password });
       const token = response.data.token;
@@ -49,19 +80,19 @@ const Login = () => {
 
       // Almacena el token en localStorage
       localStorage.setItem('token', token);
-  
+
       // Decodifica el token
       const decodedToken = jwtDecode(token);
       localStorage.setItem("usuarioId", decodedToken.id);
-  
+
       // Normaliza tipo
       const tipoNormalized = (decodedToken.tipo || '').toLowerCase();
 
       // Determina a dónde va a navegar
       const targetRoute =
         tipoNormalized === 'admin' ? '/admin/inicio'
-        : tipoNormalized === 'entrenador' ? '/entrenador/inicio'
-        : '/alumno/inicio';
+          : tipoNormalized === 'entrenador' ? '/entrenador/inicio'
+            : '/alumno/inicio';
 
       // Control de cumpleaños: si es su cumpleaños y no lo descartó hoy, mostramos modal
       const userId = decodedToken.id;
@@ -101,7 +132,7 @@ const Login = () => {
       {/* {isLoading && <LoaderFullScreen />} */}
       <div className="login-subcontainer">
         <div className="gym-logo-container">
-          <img src={OurLogo} alt="Logo del gimnasio" width={120} />
+          <img src={logoSrc} alt="Logo del gimnasio" width={120} />
         </div>
 
         <div className="form-container">
