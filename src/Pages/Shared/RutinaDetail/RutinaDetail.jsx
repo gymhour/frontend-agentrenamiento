@@ -324,9 +324,9 @@ const renderDropSetPDF = (doc, { M, pageW, title, items, startY }) => {
 const safeFileName = (titulo, alumnoObj) => {
   const alumnoName = alumnoObj
     ? `${pretty(alumnoObj?.nombre, '')} ${pretty(
-        alumnoObj?.apellido,
-        ''
-      )}`.trim()
+      alumnoObj?.apellido,
+      ''
+    )}`.trim()
     : 'alumno';
   const today = new Date().toISOString().slice(0, 10);
   const raw = `Rutina_${alumnoName || 'alumno'}_${titulo || 'detalle'}_${today}.pdf`;
@@ -420,15 +420,15 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
 
     const alumno = rutina?.alumno
       ? `${pretty(rutina.alumno.nombre, '')} ${pretty(
-          rutina.alumno.apellido,
-          ''
-        )}`.trim()
+        rutina.alumno.apellido,
+        ''
+      )}`.trim()
       : '';
     const entrenador = rutina?.entrenador
       ? `${pretty(rutina.entrenador.nombre, '')} ${pretty(
-          rutina.entrenador.apellido,
-          ''
-        )}`.trim()
+        rutina.entrenador.apellido,
+        ''
+      )}`.trim()
       : '—';
     const creada = rutina?.createdAt
       ? new Date(rutina.createdAt).toLocaleDateString()
@@ -673,19 +673,19 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                 )}
               </div>
 
-              <div className="gh-grid-3">
+              <div className="rutina-detail-datos">
                 <div className="gh-surface">
                   <div className="gh-label xs">Alumno</div>
                   <div className="gh-text">
                     {pretty(
                       rutina?.alumno
                         ? `${pretty(
-                            rutina.alumno.nombre,
-                            ''
-                          )} ${pretty(
-                            rutina.alumno.apellido,
-                            ''
-                          )}`.trim()
+                          rutina.alumno.nombre,
+                          ''
+                        )} ${pretty(
+                          rutina.alumno.apellido,
+                          ''
+                        )}`.trim()
                         : ''
                     )}
                   </div>
@@ -696,12 +696,12 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     {pretty(
                       rutina?.entrenador
                         ? `${pretty(
-                            rutina.entrenador.nombre,
-                            ''
-                          )} ${pretty(
-                            rutina.entrenador.apellido,
-                            ''
-                          )}`.trim()
+                          rutina.entrenador.nombre,
+                          ''
+                        )} ${pretty(
+                          rutina.entrenador.apellido,
+                          ''
+                        )}`.trim()
                         : '—'
                     )}
                   </div>
@@ -712,8 +712,8 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                     {pretty(
                       rutina?.createdAt
                         ? new Date(
-                            rutina.createdAt
-                          ).toLocaleDateString()
+                          rutina.createdAt
+                        ).toLocaleDateString()
                         : ''
                     )}
                   </div>
@@ -756,11 +756,10 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                       aria-selected={
                         activeDiaKey === d.key
                       }
-                      className={`gh-tab ${
-                        activeDiaKey === d.key
+                      className={`gh-tab ${activeDiaKey === d.key
                           ? 'active'
                           : ''
-                      }`}
+                        }`}
                       onClick={() =>
                         setActiveDiaKey(d.key)
                       }
@@ -801,7 +800,7 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                         {bloques.map((b) => {
                           if (
                             b?.type ===
-                              'SETS_REPS' &&
+                            'SETS_REPS' &&
                             isDropSetBlock(b)
                           ) {
                             return (
@@ -862,7 +861,7 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                 {(b.ejercicios ||
                                   [])
                                   .length ===
-                                0 ? (
+                                  0 ? (
                                   <div className="gh-muted sm">
                                     Este
                                     bloque no
@@ -895,11 +894,11 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
                                         );
                                       const title =
                                         peso &&
-                                        String(
-                                          peso
-                                        )
-                                          .trim()
-                                          .length >
+                                          String(
+                                            peso
+                                          )
+                                            .trim()
+                                            .length >
                                           0
                                           ? `${nombre} - ${peso}`
                                           : nombre;
