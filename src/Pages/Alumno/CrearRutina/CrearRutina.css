@@ -305,7 +305,7 @@
     gap: 16px;
     margin: 12px 0 16px;
     padding: 6px 0px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: none;
     overflow-x: auto;
     scrollbar-width: thin;
 }
@@ -758,11 +758,11 @@
     transform: translateY(-2px);
 }
 
-@media (min-width: 721px) {
+/* @media (min-width: 721px) {
     .fab-info {
         display: none;
     }
-}
+} */
 
 /* ===== Backdrop para drawer ===== */
 .info-backdrop {
@@ -797,6 +797,22 @@
     background: #0f0f0f;
     box-shadow: -10px 0 30px rgba(0, 0, 0, .5);
     overflow: hidden;
+}
+
+/* Hide Info Panel on Desktop when closed */
+@media (min-width: 721px) {
+    .info-panel:not(.open) {
+        display: none;
+    }
+}
+
+/* Draggable cursor for week tabs */
+.day-tab.week-tab {
+    cursor: grab;
+}
+
+.day-tab.week-tab:active {
+    cursor: grabbing;
 }
 
 /* Estructura interna del panel como columna */

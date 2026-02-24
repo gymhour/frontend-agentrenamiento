@@ -343,6 +343,8 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [activeSemanaId, setActiveSemanaId] = useState(null);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -352,8 +354,16 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         const data = await apiService.getRutinaById(id);
         if (!mounted) return;
         setRutina(data);
-        const diasArr = normalizeDias(data?.dias);
-        setActiveDiaKey(diasArr[0]?.key || null);
+
+        // Init tabs
+        if (data?.semanas && data.semanas.length > 0) {
+          setActiveSemanaId(data.semanas[0].id || data.semanas[0].numero || 0);
+          const firstSemDias = normalizeDias(data.semanas[0].dias);
+          setActiveDiaKey(firstSemDias[0]?.key || null);
+        } else {
+          const diasArr = normalizeDias(data?.dias);
+          setActiveDiaKey(diasArr[0]?.key || null);
+        }
       } catch (e) {
         console.error(e);
         if (!mounted) return;
@@ -368,6 +378,7 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
   }, [id]);
 
   const dias = useMemo(() => normalizeDias(rutina?.dias), [rutina]);
+  const semanas = useMemo(() => rutina?.semanas || [], [rutina]);
 
   const headerSubtitle = useMemo(() => {
     if (!rutina) return '';
@@ -399,21 +410,21 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
     const addSectionTitle = (text) => {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
-      doc.setTextColor(0);
+      doc.setTextColor(50);
       doc.text(text, M, cursorY);
-      cursorY += 10;
-      doc.setDrawColor(150);
-      doc.line(M, cursorY, pageW - M, cursorY);
       cursorY += 12;
+      doc.setDrawColor(220);
+      doc.line(M, cursorY, pageW - M, cursorY);
+      cursorY += 18;
     };
 
     // Header doc
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.setTextColor(0);
+    doc.setFontSize(20);
+    doc.setTextColor(20);
     const titulo = pretty(rutina.nombre, 'Rutina');
     doc.text(titulo, M, cursorY);
-    cursorY += 22;
+    cursorY += 28;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(11);
@@ -457,165 +468,181 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       });
     }
 
-    cursorY += 8;
-    doc.setDrawColor(200);
+    cursorY += 12;
+    doc.setDrawColor(220);
     doc.line(M, cursorY, pageW - M, cursorY);
-    cursorY += 18;
+    cursorY += 24;
 
-    const diasArr = normalizeDias(rutina?.dias);
-    if (diasArr.length === 0) {
-      doc.setFont('helvetica', 'italic');
-      doc.text('Esta rutina no tiene días cargados.', M, cursorY);
-      doc.save(safeFileName(titulo, rutina?.alumno));
-      return;
-    }
-
-    diasArr.forEach((d, idxDia) => {
-      ensureSpace(80);
-      const nombreDia = pretty(
-        d?.nombre,
-        d?.key?.replace('dia', 'Día ') || `Día ${idxDia + 1}`
-      );
-      addSectionTitle(nombreDia);
-
-      const bloques = Array.isArray(d?.bloques) ? d.bloques : [];
-      if (bloques.length === 0) {
+    const exportDias = (diasArr, prefix = '') => {
+      if (diasArr.length === 0 && !prefix) {
         doc.setFont('helvetica', 'italic');
-        doc.setFontSize(11);
-        doc.text('Este día no tiene bloques cargados.', M, cursorY);
-        cursorY += 18;
+        doc.text('Esta rutina no tiene días cargados.', M, cursorY);
         return;
       }
 
-      bloques.forEach((b, iB) => {
-        ensureSpace(70);
+      diasArr.forEach((d, idxDia) => {
+        ensureSpace(80);
+        const nombreDia = pretty(
+          d?.nombre,
+          d?.key?.replace('dia', 'Día ') || `Día ${idxDia + 1}`
+        );
+        addSectionTitle(`${prefix ? prefix + ' - ' : ''}${nombreDia}`);
 
-        // —— DROPSET PDF
-        if (b?.type === 'SETS_REPS' && isDropSetBlockPDF(b)) {
-          const items = getBloqueItems(b);
-          const nombre =
-            (b?.nombreEj ||
-              items[0]?.ejercicio?.nombre ||
-              'Ejercicio').trim();
-          const title = `DROPSET — ${nombre}`;
+        const bloques = Array.isArray(d?.bloques) ? d.bloques : [];
+        if (bloques.length === 0) {
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(11);
+          doc.text('Este día no tiene bloques cargados.', M, cursorY);
+          cursorY += 18;
+          return;
+        }
 
-          const endY = renderDropSetPDF(doc, {
-            M,
-            pageW,
-            title,
-            items,
-            startY: cursorY,
+        bloques.forEach((b, iB) => {
+          ensureSpace(70);
+
+          // —— DROPSET PDF
+          if (b?.type === 'SETS_REPS' && isDropSetBlockPDF(b)) {
+            const items = getBloqueItems(b);
+            const nombre =
+              (b?.nombreEj ||
+                items[0]?.ejercicio?.nombre ||
+                'Ejercicio').trim();
+            const title = `DROPSET — ${nombre}`;
+
+            const endY = renderDropSetPDF(doc, {
+              M,
+              pageW,
+              title,
+              items,
+              startY: cursorY,
+            });
+
+            cursorY = endY + 10;
+
+            if (iB !== bloques.length - 1) {
+              doc.setDrawColor(230);
+              doc.line(M, cursorY, pageW - M, cursorY);
+              cursorY += 10;
+            }
+            return;
+          }
+
+          // —— Resto de bloques
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(12);
+          doc.setTextColor(50);
+          const tituloBloque = typeLabel(b?.type, b);
+          if (tituloBloque) {
+            doc.text(tituloBloque, M, cursorY);
+            cursorY += 10;
+          }
+
+          const rows = (b?.ejercicios || []).map((e) => {
+            const ej = e?.ejercicio || {};
+            const nombre = pretty(ej?.nombre, 'Ejercicio');
+            const reps = deriveReps(e, b);
+            const peso = derivePeso(e, b);
+            return {
+              ejercicio: nombre,
+              reps: reps || '',
+              peso: peso || '',
+            };
           });
 
-          cursorY = endY + 10;
+          if (rows.length === 0) {
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(10);
+            doc.text('Este bloque no tiene ejercicios.', M, cursorY + 16);
+            cursorY += 32;
+          } else {
+            autoTable(doc, {
+              startY: cursorY + 8,
+              margin: { left: M, right: M },
+              theme: 'grid',
+              styles: {
+                font: 'helvetica',
+                fontSize: 9,
+                cellPadding: 6,
+                overflow: 'linebreak',
+                textColor: 60,
+                lineColor: [230, 230, 230],
+                lineWidth: 0.5,
+              },
+              headStyles: {
+                fillColor: [248, 248, 248],
+                textColor: 40,
+                fontStyle: 'bold',
+              },
+              head: [['Ejercicio', 'Series / Reps', 'Peso']],
+              body: rows.map((r) => [r.ejercicio, r.reps, r.peso]),
+            });
+            cursorY = (doc.lastAutoTable?.finalY || cursorY) + 14;
+          }
 
-          // Separador entre bloques
+          if (
+            b?.type === 'TABATA' &&
+            (b?.cantSeries ||
+              b?.tiempoTrabajoDescansoTabata ||
+              b?.descTabata)
+          ) {
+            ensureSpace(18);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            const meta = [];
+            if (b?.descTabata)
+              meta.push(`Pausa entre series: ${b.descTabata}`);
+            if (meta.length) {
+              doc.text(meta.join('   ·   '), M, cursorY);
+              cursorY += 12;
+            }
+          }
+
+          if (pretty(b?.descansoRonda, '')) {
+            ensureSpace(16);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text(`Descanso entre rondas: ${b.descansoRonda}`, M, cursorY);
+            cursorY += 12;
+          }
+
           if (iB !== bloques.length - 1) {
             doc.setDrawColor(230);
             doc.line(M, cursorY, pageW - M, cursorY);
-            cursorY += 10;
+            cursorY += 16;
           }
-          return; // siguiente bloque
-        }
-
-        // —— Resto de bloques
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(12);
-        doc.setTextColor(0);
-        const tituloBloque = typeLabel(b?.type, b);
-        if (tituloBloque) {
-          doc.text(tituloBloque, M, cursorY);
-          cursorY += 6;
-        }
-
-        const rows = (b?.ejercicios || []).map((e) => {
-          const ej = e?.ejercicio || {};
-          const nombre = pretty(ej?.nombre, 'Ejercicio');
-          const reps = deriveReps(e, b);
-          const peso = derivePeso(e, b);
-          return {
-            ejercicio: nombre,
-            reps: reps || '',
-            peso: peso || '',
-          };
         });
 
-        if (rows.length === 0) {
-          doc.setFont('helvetica', 'italic');
-          doc.setFontSize(10);
-          doc.text('Este bloque no tiene ejercicios.', M, cursorY + 16);
-          cursorY += 32;
-        } else {
-          autoTable(doc, {
-            startY: cursorY + 10,
-            margin: { left: M, right: M },
-            theme: 'grid',
-            styles: {
-              font: 'helvetica',
-              fontSize: 9,
-              cellPadding: 4,
-              overflow: 'linebreak',
-              textColor: 0,
-            },
-            headStyles: {
-              fillColor: [240, 240, 240],
-              textColor: 0,
-              fontStyle: 'bold',
-            },
-            head: [['Ejercicio', 'Series / Reps', 'Peso']],
-            body: rows.map((r) => [r.ejercicio, r.reps, r.peso]),
-          });
-          cursorY = (doc.lastAutoTable?.finalY || cursorY) + 10;
-        }
-
-        // Meta TABATA
-        if (
-          b?.type === 'TABATA' &&
-          (b?.cantSeries ||
-            b?.tiempoTrabajoDescansoTabata ||
-            b?.descTabata)
-        ) {
-          ensureSpace(18);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(9);
-          const meta = [];
-          if (b?.descTabata)
-            meta.push(`Pausa entre series: ${b.descTabata}`);
-          if (meta.length) {
-            doc.text(meta.join('   ·   '), M, cursorY);
-            cursorY += 12;
-          }
-        }
-
-        // Meta ROUNDS
-        if (pretty(b?.descansoRonda, '')) {
-          ensureSpace(16);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(9);
-          doc.text(
-            `Descanso entre rondas: ${b.descansoRonda}`,
-            M,
-            cursorY
-          );
-          cursorY += 12;
-        }
-
-        // Separador entre bloques
-        if (iB !== bloques.length - 1) {
-          doc.setDrawColor(230);
+        if (idxDia !== diasArr.length - 1) {
+          ensureSpace(30);
+          doc.setDrawColor(210);
           doc.line(M, cursorY, pageW - M, cursorY);
-          cursorY += 10;
+          cursorY += 22;
         }
       });
+    };
 
-      // Separador entre días
-      if (idxDia !== diasArr.length - 1) {
-        ensureSpace(20);
-        doc.setDrawColor(180);
-        doc.line(M, cursorY, pageW - M, cursorY);
-        cursorY += 16;
-      }
-    });
+    if (rutina.semanas && rutina.semanas.length > 0) {
+      rutina.semanas.forEach((s, sIdx) => {
+        ensureSpace(60);
+        if (sIdx > 0) cursorY += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(30);
+        doc.text(s.nombre || `Semana ${s.numero || sIdx + 1}`, M, cursorY);
+        cursorY += 24;
+
+        const diasSemanales = normalizeDias(s.dias);
+        exportDias(diasSemanales);
+
+        if (sIdx !== rutina.semanas.length - 1) {
+          ensureSpace(40);
+          cursorY += 30;
+        }
+      });
+    } else {
+      const diasArr = normalizeDias(rutina?.dias);
+      exportDias(diasArr);
+    }
 
     doc.save(safeFileName(titulo, rutina?.alumno));
   };
@@ -732,260 +759,285 @@ const RutinaDetail = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
               )}
             </div>
 
-            {/* Tabs de días */}
-            <div
-              className="tab-dias"
-              style={{ display: 'grid', gap: 12 }}
-            >
-              <div className="gh-tabs">
-                <div
-                  className="gh-tabs-list"
-                  role="tablist"
-                  aria-label="Días de la rutina"
-                >
-                  {dias.length === 0 && (
-                    <span className="gh-muted sm">
-                      Esta rutina no tiene días
-                      cargados.
-                    </span>
-                  )}
-                  {dias.map((d) => (
-                    <button
-                      key={d.key}
-                      role="tab"
-                      aria-selected={
-                        activeDiaKey === d.key
-                      }
-                      className={`gh-tab ${activeDiaKey === d.key
-                          ? 'active'
-                          : ''
-                        }`}
-                      onClick={() =>
-                        setActiveDiaKey(d.key)
-                      }
-                    >
-                      {pretty(
-                        d?.nombre,
-                        d.key.replace('dia', 'Día ')
-                      )}
-                    </button>
-                  ))}
+            {/* Semanas TABS */}
+            {semanas.length > 0 && (
+              <div
+                className="tab-dias"
+                style={{ display: 'grid', gap: 12, marginBottom: '20px' }}
+              >
+                <div className="gh-tabs">
+                  <div
+                    className="gh-tabs-list"
+                    role="tablist"
+                    aria-label="Semanas de la rutina"
+                  >
+                    {semanas.map((s, idx) => {
+                      const idNum = s.id || s.numero || idx;
+                      return (
+                        <button
+                          key={idNum}
+                          role="tab"
+                          aria-selected={activeSemanaId === idNum}
+                          className={`gh-tab ${activeSemanaId === idNum ? 'active' : ''}`}
+                          onClick={() => {
+                            setActiveSemanaId(idNum);
+                            const semDias = normalizeDias(s.dias);
+                            setActiveDiaKey(semDias[0]?.key || null);
+                          }}
+                        >
+                          {s.nombre || `Semana ${s.numero || idx + 1}`}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Panel del día activo */}
-              {dias.map((d) => {
-                const isActive =
-                  d.key === activeDiaKey;
-                if (!isActive) return null;
+            {/* Obtener dias de la semana activa o dias nativos */}
+            {(() => {
+              let currentDias = dias;
+              if (semanas.length > 0) {
+                const activeWeek = semanas.find(s => (s.id || s.numero) === activeSemanaId) || semanas[0];
+                currentDias = activeWeek ? normalizeDias(activeWeek.dias) : [];
+              }
 
-                const bloques = Array.isArray(
-                  d?.bloques
-                )
-                  ? d.bloques
-                  : [];
+              return (
+                <div
+                  className="tab-dias"
+                  style={{ display: 'grid', gap: 12 }}
+                >
+                  <div className="gh-tabs">
+                    <div
+                      className="gh-tabs-list"
+                      role="tablist"
+                      aria-label="Días de la rutina"
+                    >
+                      {currentDias.length === 0 && (
+                        <span className="gh-muted sm">
+                          Esta configuración no tiene días cargados.
+                        </span>
+                      )}
+                      {currentDias.map((d) => (
+                        <button
+                          key={d.key}
+                          role="tab"
+                          aria-selected={activeDiaKey === d.key}
+                          className={`gh-tab ${activeDiaKey === d.key ? 'active' : ''}`}
+                          onClick={() => setActiveDiaKey(d.key)}
+                        >
+                          {pretty(d?.nombre, d.key.replace('dia', 'Día '))}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                return (
-                  <div
-                    key={`${d.key}-panel`}
-                    role="tabpanel"
-                  >
-                    {bloques.length === 0 ? (
-                      <div className="gh-muted">
-                        Este día no tiene bloques
-                        cargados.
-                      </div>
-                    ) : (
-                      <div className="gh-grid-2 gh-grid-fullwidth">
-                        {bloques.map((b) => {
-                          if (
-                            b?.type ===
-                            'SETS_REPS' &&
-                            isDropSetBlock(b)
-                          ) {
-                            return (
-                              <DropSetDetail
-                                key={
-                                  b.ID_Bloque
-                                }
-                                bloque={b}
-                              />
-                            );
-                          }
+                  {/* Panel del día activo */}
+                  {currentDias.map((d) => {
+                    const isActive = d.key === activeDiaKey;
+                    if (!isActive) return null;
 
-                          return (
-                            <div
-                              className="gh-surface"
-                              key={b.ID_Bloque}
-                              style={{
-                                display:
-                                  'grid',
-                                gap: 12,
-                              }}
-                            >
-                              {/* header del bloque */}
-                              <div
-                                style={{
-                                  display:
-                                    'flex',
-                                  justifyContent:
-                                    'space-between',
-                                  alignItems:
-                                    'center',
-                                  gap: 8,
-                                  flexWrap:
-                                    'wrap',
-                                }}
-                              >
-                                <h4
-                                  className="gh-feature-title"
+                    const bloques = Array.isArray(d?.bloques) ? d.bloques : [];
+
+                    return (
+                      <div key={`${d.key}-panel`} role="tabpanel">
+                        {bloques.length === 0 ? (
+                          <div className="gh-muted">
+                            Este día no tiene bloques cargados.
+                          </div>
+                        ) : (
+                          <div className="gh-grid-2 gh-grid-fullwidth">
+                            {bloques.map((b) => {
+                              if (
+                                b?.type ===
+                                'SETS_REPS' &&
+                                isDropSetBlock(b)
+                              ) {
+                                return (
+                                  <DropSetDetail
+                                    key={
+                                      b.ID_Bloque
+                                    }
+                                    bloque={b}
+                                  />
+                                );
+                              }
+
+                              return (
+                                <div
+                                  className="gh-surface"
+                                  key={b.ID_Bloque}
                                   style={{
-                                    margin: 0,
+                                    display:
+                                      'grid',
+                                    gap: 12,
                                   }}
                                 >
-                                  {typeLabel(
-                                    b?.type,
-                                    b
-                                  )}
-                                </h4>
-                              </div>
-
-                              {/* lista de ejercicios */}
-                              <div
-                                style={{
-                                  display:
-                                    'grid',
-                                  gap: 10,
-                                }}
-                              >
-                                {(b.ejercicios ||
-                                  [])
-                                  .length ===
-                                  0 ? (
-                                  <div className="gh-muted sm">
-                                    Este
-                                    bloque no
-                                    tiene
-                                    ejercicios.
+                                  {/* header del bloque */}
+                                  <div
+                                    style={{
+                                      display:
+                                        'flex',
+                                      justifyContent:
+                                        'space-between',
+                                      alignItems:
+                                        'center',
+                                      gap: 8,
+                                      flexWrap:
+                                        'wrap',
+                                    }}
+                                  >
+                                    <h4
+                                      className="gh-feature-title"
+                                      style={{
+                                        margin: 0,
+                                      }}
+                                    >
+                                      {typeLabel(
+                                        b?.type,
+                                        b
+                                      )}
+                                    </h4>
                                   </div>
-                                ) : (
-                                  b.ejercicios.map(
-                                    (
-                                      e,
-                                      idx
-                                    ) => {
-                                      const ej =
-                                        e?.ejercicio ||
-                                        {};
-                                      const nombre =
-                                        pretty(
-                                          ej?.nombre,
-                                          'Ejercicio'
-                                        );
-                                      const reps =
-                                        deriveReps(
-                                          e,
-                                          b
-                                        );
-                                      const peso =
-                                        derivePeso(
-                                          e,
-                                          b
-                                        );
-                                      const title =
-                                        peso &&
-                                          String(
-                                            peso
-                                          )
-                                            .trim()
-                                            .length >
-                                          0
-                                          ? `${nombre} - ${peso}`
-                                          : nombre;
 
-                                      return (
-                                        <div
-                                          key={`${b.ID_Bloque}-${e.ID_Ejercicio}-${idx}`}
-                                          className="gh-list-item gh-ej-row"
-                                        >
-                                          <div className="gh-media-slot">
-                                            <RenderMedia
-                                              ej={
-                                                ej
-                                              }
-                                            />
-                                            {!ej?.mediaUrl && (
-                                              <div className="gh-ej-thumb-placeholder show" />
-                                            )}
-                                          </div>
+                                  {/* lista de ejercicios */}
+                                  <div
+                                    style={{
+                                      display:
+                                        'grid',
+                                      gap: 10,
+                                    }}
+                                  >
+                                    {(b.ejercicios ||
+                                      [])
+                                      .length ===
+                                      0 ? (
+                                      <div className="gh-muted sm">
+                                        Este
+                                        bloque no
+                                        tiene
+                                        ejercicios.
+                                      </div>
+                                    ) : (
+                                      b.ejercicios.map(
+                                        (
+                                          e,
+                                          idx
+                                        ) => {
+                                          const ej =
+                                            e?.ejercicio ||
+                                            {};
+                                          const nombre =
+                                            pretty(
+                                              ej?.nombre,
+                                              'Ejercicio'
+                                            );
+                                          const reps =
+                                            deriveReps(
+                                              e,
+                                              b
+                                            );
+                                          const peso =
+                                            derivePeso(
+                                              e,
+                                              b
+                                            );
+                                          const title =
+                                            peso &&
+                                              String(
+                                                peso
+                                              )
+                                                .trim()
+                                                .length >
+                                              0
+                                              ? `${nombre} - ${peso}`
+                                              : nombre;
 
-                                          <div className="gh-ej-main">
-                                            <div className="gh-ej-title">
-                                              <span className="gh-text bold">
-                                                {
-                                                  title
-                                                }
-                                              </span>
-                                            </div>
-                                            <div className="gh-ej-info">
-                                              {reps && (
-                                                <span className="gh-muted sm">
-                                                  {
-                                                    reps
+                                          return (
+                                            <div
+                                              key={`${b.ID_Bloque}-${e.ID_Ejercicio}-${idx}`}
+                                              className="gh-list-item gh-ej-row"
+                                            >
+                                              <div className="gh-media-slot">
+                                                <RenderMedia
+                                                  ej={
+                                                    ej
                                                   }
-                                                </span>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      );
-                                    }
-                                  )
-                                )}
-                              </div>
+                                                />
+                                                {!ej?.mediaUrl && (
+                                                  <div className="gh-ej-thumb-placeholder show" />
+                                                )}
+                                              </div>
 
-                              {/* Meta TABATA */}
-                              {b?.type ===
-                                'TABATA' &&
-                                (b?.cantSeries ||
-                                  b?.tiempoTrabajoDescansoTabata ||
-                                  b?.descTabata) && (
-                                  <div className="bloque-footnote tabata-meta">
-                                    {b?.descTabata && (
-                                      <span className="meta-chip">
-                                        <b>
-                                          Pausa
-                                          entre
-                                          series:
-                                        </b>{' '}
-                                        {
-                                          b.descTabata
+                                              <div className="gh-ej-main">
+                                                <div className="gh-ej-title">
+                                                  <span className="gh-text bold">
+                                                    {
+                                                      title
+                                                    }
+                                                  </span>
+                                                </div>
+                                                <div className="gh-ej-info">
+                                                  {reps && (
+                                                    <span className="gh-muted sm">
+                                                      {
+                                                        reps
+                                                      }
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          );
                                         }
-                                      </span>
+                                      )
                                     )}
                                   </div>
-                                )}
 
-                              {/* Meta Rounds */}
-                              {b?.type ===
-                                'ROUNDS' &&
-                                pretty(
-                                  b.descansoRonda,
-                                  ''
-                                ) && (
-                                  <div className="gh-inline">
-                                    <span>{`Descanso entre rondas: ${b.descansoRonda}`}</span>
-                                  </div>
-                                )}
-                            </div>
-                          );
-                        })}
+                                  {/* Meta TABATA */}
+                                  {b?.type ===
+                                    'TABATA' &&
+                                    (b?.cantSeries ||
+                                      b?.tiempoTrabajoDescansoTabata ||
+                                      b?.descTabata) && (
+                                      <div className="bloque-footnote tabata-meta">
+                                        {b?.descTabata && (
+                                          <span className="meta-chip">
+                                            <b>
+                                              Pausa
+                                              entre
+                                              series:
+                                            </b>{' '}
+                                            {
+                                              b.descTabata
+                                            }
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+
+                                  {/* Meta Rounds */}
+                                  {b?.type ===
+                                    'ROUNDS' &&
+                                    pretty(
+                                      b.descansoRonda,
+                                      ''
+                                    ) && (
+                                      <div className="gh-inline">
+                                        <span>{`Descanso entre rondas: ${b.descansoRonda}`}</span>
+                                      </div>
+                                    )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </>
         )}
       </div>
