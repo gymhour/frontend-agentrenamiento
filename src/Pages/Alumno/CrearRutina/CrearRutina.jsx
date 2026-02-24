@@ -1360,7 +1360,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       weeks.forEach((w, i) => {
         const key = `semana${i + 1}`;
         semanasObj[key] = {
-          id: w.id, // Send back ID if exists
+          // id: w.id, // Send back ID if exists
           nombre: w.nombre || `Semana ${i + 1}`,
           numero: i + 1,
           dias: buildDaysObject(w.days)
@@ -1371,6 +1371,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       payload.dias = buildDaysObject(days);
     }
 
+    console.log('Payload:', payload);
     return payload;
   };
 

@@ -530,11 +530,17 @@ const RutinasAsignadas = () => {
       return resultObj;
     };
 
-    const semanasPayload = Array.isArray(rutina?.semanas) ? rutina.semanas.map((s, idx) => ({
-      numero: s.numero || (idx + 1),
-      nombre: s.nombre || `Semana ${idx + 1}`,
-      dias: parseDias(s.dias),
-    })) : [];
+    const semanasPayload = {};
+    if (Array.isArray(rutina?.semanas)) {
+      rutina.semanas.forEach((s, idx) => {
+        const key = `semana${idx + 1}`;
+        semanasPayload[key] = {
+          numero: s.numero || (idx + 1),
+          nombre: s.nombre || `Semana ${idx + 1}`,
+          dias: parseDias(s.dias),
+        };
+      });
+    }
 
     return {
       ID_Usuario: alumnoId,
