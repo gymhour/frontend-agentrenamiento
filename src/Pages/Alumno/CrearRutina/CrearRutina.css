@@ -27,7 +27,7 @@
 /* Bloques */
 .block-container {
     margin-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid var(--border-color);
     padding: 14px 10px 10px 10px;
     position: relative;
     min-width: 0;
@@ -54,7 +54,7 @@
 .delete-block-btn {
     background: transparent;
     border: none;
-    color: #ccc;
+    color: var(--text-color-distinct);
     padding: 4px;
     border-radius: 8px;
     cursor: grab;
@@ -70,7 +70,7 @@
 
 .delete-block-btn:hover,
 .drag-handle:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--background-hover-color);
 }
 
 /* estados drag */
@@ -79,7 +79,7 @@
 }
 
 .block--over {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--background-hover-color);
 }
 
 /* Sección agregar bloque */
@@ -118,12 +118,12 @@
 
 .series-input,
 .exercise-input {
-    background-color: #252525;
+    background-color: var(--background-color);
     border-radius: 12px;
-    padding: 16px 12px;
-    border: 1.5px solid #252525;
+    padding: 10px;
+    border: 1.5px solid var(--border-color);
     outline: none;
-    color: #FAFAFA;
+    color: var(--text-color);
     font-size: 16px;
     transition: all ease-in-out 150ms;
     width: 100%;
@@ -131,7 +131,7 @@
 
 .series-input:focus,
 .exercise-input:focus {
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border: 1.5px solid var(--border-color);
 }
 
 .exercise-cell {
@@ -146,7 +146,7 @@
     text-align: center;
     border-radius: 6px;
     background: transparent;
-    border: 1px solid rgba(229, 85, 85, 0.4);
+    border: 1px solid var(--border-color);
     color: #e55;
     font-size: 20px;
     cursor: pointer;
@@ -177,10 +177,33 @@
 .cant-rondas-subctn-input-chico {
     width: 60px;
     margin-right: 6px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px;
+    border-radius: 8px;
+    outline: none;
 }
 
 .cant-rondas-subctn-input-grande {
     width: 160px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px;
+    border-radius: 8px;
+    outline: none;
+}
+
+.weight-input {
+    width: 100px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 10px;
+    border-radius: 12px;
+    outline: none;
+    font-size: 16px;
 }
 
 /* Autocomplete */
@@ -189,11 +212,11 @@
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    background: #101010;
-    color: #fafafa;
+    background: var(--background-color);
+    color: var(--text-color);
     max-height: 180px;
     overflow-y: auto;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     z-index: 10;
     list-style: none;
@@ -207,7 +230,7 @@
 }
 
 .suggestions-list li:hover {
-    background: #202020;
+    background: var(--background-color-distinct);
 }
 
 /* Responsive */
@@ -282,7 +305,7 @@
     gap: 16px;
     margin: 12px 0 16px;
     padding: 6px 0px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
     overflow-x: auto;
     scrollbar-width: thin;
 }
@@ -292,8 +315,8 @@
     flex: 0 0 auto;
     padding: 8px 14px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.06);
-    color: #e8e8e8;
+    background: var(--background-color);
+    color: var(--text-color);
     font-size: 0.95rem;
     line-height: 1;
     user-select: none;
@@ -304,7 +327,7 @@
 }
 
 .day-tab:hover {
-    background: rgba(255, 255, 255, 0.10);
+    background: var(--background-hover-color);
     transform: translateY(-1px);
 }
 
@@ -316,16 +339,16 @@
 .day-tab.active {
     background: rgba(17, 179, 101, 0.12);
     /* fallback si no hay var */
-    background: color-mix(in oklab, var(--primary-color) 20%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary-color) 55%, transparent);
+    background: color-mix(in oklab, var(--primary-color) 15%, var(--background-color));
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary-color) 40%, transparent);
 }
 
 /* Botón agregar */
 .day-tab.add {
     padding: 8px 10px;
     background: transparent;
-    color: color-mix(in oklab, var(--primary-color) 80%, #fff);
-    border: 1px dashed color-mix(in oklab, var(--primary-color) 55%, #888);
+    color: var(--text-color);
+    border: 1px dashed var(--border-color);
 }
 
 .day-tab.add:hover {
@@ -341,9 +364,9 @@
     width: 20px;
     height: 20px;
     border-radius: 10px;
-    border: none;
-    background: rgba(255, 255, 255, 0.10);
-    color: #ddd;
+    border: var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
     display: grid;
     place-items: center;
     font-size: 14px;
@@ -353,7 +376,7 @@
 }
 
 .day-tab .day-tab-close:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--background-color-distinct);
     transform: scale(1.05);
 }
 
@@ -395,7 +418,8 @@
 }
 
 .css-1nmdiq5-menu .css-qr46ko .css-d7l1ni-option {
-    background: #303030;
+    background: var(--background-color);
+    color: var(--text-color);
 }
 
 /* ========= Panel de Información ========= */
@@ -406,16 +430,16 @@
 .info-toggle-btn {
     padding: 8px 12px;
     border-radius: 8px;
-    border: 1px solid #2b2b2b;
-    background: #161616;
-    color: #f1f1f1;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
     cursor: pointer;
     transition: background .12s ease, border-color .12s ease, transform .08s ease;
 }
 
 .info-toggle-btn:hover {
-    background: #1e1e1e;
-    border-color: #3a3a3a;
+    background: var(--background-color-distinct);
+    border-color: var(--border-color);
 }
 
 .info-toggle-btn:active {
@@ -425,16 +449,16 @@
 .info-panel {
     width: 360px;
     flex: 0 0 360px;
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 1px solid var(--border-color);
     padding: 12px;
     border-radius: 10px;
-    background: #0f0f0f;
+    background: var(--background-color);
     align-self: flex-start;
     position: sticky;
     top: 16px;
     max-height: calc(100vh - 32px);
     overflow: auto;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    /* box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03); */
 }
 
 .info-panel__header {
@@ -442,19 +466,20 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
+    color: var(--text-color);
 }
 
 .info-panel__header h3 {
     margin: 0;
     font-size: 1.05rem;
-    color: #f1f1f1;
+    color: var(--text-color);
 }
 
 .info-panel__close {
     border: none;
     background: transparent;
     font-size: 20px;
-    color: #bbb;
+    color: var(--medium-grey);
     cursor: pointer;
     border-radius: 6px;
     width: 28px;
@@ -463,8 +488,8 @@
 }
 
 .info-panel__close:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
+    background: var(--background-color-distinct);
+    color: var(--text-color);
 }
 
 /* Tabs del panel */
@@ -477,21 +502,21 @@
 .info-tab {
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: #151515;
-    color: #eaeaea;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--text-color);
     cursor: pointer;
     transition: background .12s ease, border-color .12s ease, transform .08s ease;
     font-size: 0.92rem;
 }
 
 .info-tab:hover {
-    background: #1b1b1b;
-    border-color: rgba(255, 255, 255, 0.16);
+    background: var(--background-color-distinct);
+    border-color: var(--border-color);
 }
 
 .info-tab.active {
-    background: color-mix(in oklab, var(--primary-color) 18%, #151515);
+    background: color-mix(in oklab, var(--primary-color) 18%, var(--background-color));
     border-color: color-mix(in oklab, var(--primary-color) 48%, rgba(255, 255, 255, 0.16));
 }
 
@@ -501,14 +526,14 @@
     padding: 10px 12px;
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    background: #161616;
-    color: #fafafa;
+    background: var(--background-color);
+    color: var(--text-color);
     outline: none;
     margin-bottom: 10px;
 }
 
 .info-search:focus {
-    border-color: rgba(255, 255, 255, 0.18);
+    border-color: var(--border-color);
 }
 
 /* Listado y tarjetas */
@@ -519,10 +544,10 @@
 }
 
 .info-card {
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 10px;
-    background: #121212;
+    background: var(--background-color);
 }
 
 .info-card__row {
@@ -534,12 +559,12 @@
 
 .info-card__title {
     font-size: 14px;
-    color: #f5f5f5;
+    color: var(--text-color);
 }
 
 .info-card__link {
     font-size: 12px;
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     padding-top: 8px;
 }
@@ -551,7 +576,7 @@
 .info-card__desc {
     margin: 6px 0;
     font-size: 12px;
-    color: #cfcfcf;
+    color: var(--text-color-distinct);
 }
 
 .info-card__meta {
@@ -561,17 +586,17 @@
 }
 
 .info-card__meta small {
-    color: #aaa;
+    color: var(--text-color-distinct);
     display: block;
 }
 
 .info-empty {
-    color: #9a9a9a;
+    color: var(--text-color-distinct);
     font-size: 13px;
 }
 
 .info-loading {
-    color: #cfcfcf;
+    color: var(--text-color-distinct);
     font-size: 13px;
 }
 
@@ -582,7 +607,7 @@
 
 .user-meta__line {
     font-size: 13px;
-    color: #dfdfdf;
+    color: var(--text-color-distinct);
 }
 
 .metrics-list {
@@ -592,9 +617,9 @@
 }
 
 .info-card__badge {
-    color: #cfd4cf;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-color);
+    background: var(--background-color-distinct);
+    border: 1px solid var(--border-color);
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 999px;
@@ -606,7 +631,7 @@
 
 .metric-block__title {
     font-size: 12px;
-    color: #bfbfbf;
+    color: var(--text-color-distinct);
     margin-bottom: 4px;
 }
 
@@ -621,27 +646,27 @@
 
 .metric-history li {
     font-size: 12px;
-    color: #eaeaea;
+    color: var(--text-color-distinct);
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
 .metric-date {
-    color: #c7c7c7;
+    color: var(--text-color-distinct);
 }
 
 .metric-sep {
-    color: #7a7a7a;
+    color: var(--text-color-distinct);
 }
 
 .metric-value {
-    color: #f0f0f0;
+    color: var(--text-color);
     font-weight: 600;
 }
 
 .metric-block--empty {
-    color: #9a9a9a;
+    color: var(--text-color-distinct);
     font-size: 12px;
 }
 
@@ -670,6 +695,24 @@
     color: #a9cdbb;
     font-weight: 500;
     margin-left: 2px;
+}
+
+/* Light mode overrides for PR metrics */
+[data-theme='light'] .metric-block--pr {
+    background: rgba(17, 179, 101, 0.15);
+    border: 1px solid rgba(17, 179, 101, 0.4);
+}
+
+[data-theme='light'] .metric-pr-label {
+    color: #0b6e40;
+}
+
+[data-theme='light'] .metric-pr-value {
+    color: #085d34;
+}
+
+[data-theme='light'] .metric-pr-date {
+    color: #4a8c6f;
 }
 
 /* Sticky panel y responsive */
@@ -715,11 +758,11 @@
     transform: translateY(-2px);
 }
 
-@media (min-width: 721px) {
+/* @media (min-width: 721px) {
     .fab-info {
         display: none;
     }
-}
+} */
 
 /* ===== Backdrop para drawer ===== */
 .info-backdrop {
@@ -754,6 +797,22 @@
     background: #0f0f0f;
     box-shadow: -10px 0 30px rgba(0, 0, 0, .5);
     overflow: hidden;
+}
+
+/* Hide Info Panel on Desktop when closed */
+@media (min-width: 721px) {
+    .info-panel:not(.open) {
+        display: none;
+    }
+}
+
+/* Draggable cursor for week tabs */
+.day-tab.week-tab {
+    cursor: grab;
+}
+
+.day-tab.week-tab:active {
+    cursor: grabbing;
 }
 
 /* Estructura interna del panel como columna */
@@ -889,6 +948,7 @@
     padding: 4px;
     margin-right: 6px;
     opacity: 0.75;
+    color: var(--text-color);
 }
 
 .day-drag-handle:active {
@@ -914,21 +974,7 @@
     opacity: 0.6;
 }
 
-.day-drag-handle {
-    background: transparent;
-    border: none;
-    cursor: grab;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-    margin-right: 6px;
-    opacity: 0.75;
-}
 
-.day-drag-handle:active {
-    cursor: grabbing;
-}
 
 .day-drop-indicator {
     width: 3px;

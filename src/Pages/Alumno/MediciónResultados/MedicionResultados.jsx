@@ -6,7 +6,7 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import apiService from '../../../services/apiService';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import { Trash2 } from 'lucide-react';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
 import { toast } from 'react-toastify';
 
@@ -154,7 +154,7 @@ const MedicionResultados = () => {
                           handlePopupOpen(ejercicio.ID_EjercicioMedicion);
                         }}
                       >
-                        <DeleteIcon width={20} />
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </Link>

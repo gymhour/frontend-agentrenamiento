@@ -1,17 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import Select from 'react-select';
 import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import apiService, { fetchAllClientsActive } from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen';
 import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
-import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp';
-import { FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
+import { ChevronDown, ChevronUp, Copy, Edit, Trash2, Video } from 'lucide-react';
+import '../../Entrenador/RutinasAsignadas/RutinasAsignadas.css';
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -129,7 +127,7 @@ const renderEjercicioItem = (it, tipo) => {
         >
           {txt}
         </Link>
-        <VideoIcon className="video-icon" aria-hidden="true" />
+        <Video className="video-icon" size={20} aria-hidden="true" />
       </span>
     );
   }
@@ -195,7 +193,7 @@ const renderDropSetBlock = (b) => {
       >
         {nombre}
       </Link>
-      <VideoIcon className="video-icon" aria-hidden="true" />
+      <Video className="video-icon" size={20} aria-hidden="true" />
     </span>
   ) : (
     <span>{nombre}</span>
@@ -215,7 +213,152 @@ const renderDropSetBlock = (b) => {
   );
 };
 
+// ====== Component rendering helper for blocks ======
+const renderBloques = (bloques) => {
+  return (bloques || []).map((b, i) => {
+    const items = getBloqueItems(b);
+    const header = blockLabel(b);
+
+    if (b.type === 'SETS_REPS') {
+      if (isDropSetBlock(b)) {
+        return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+      }
+      const fallback = items.length === 0 ? setsRepsFallback(b) : null;
+      return (
+        <div key={i} className='bloque-card'>
+          {(items.length > 0) ? (
+            <ul className='bloque-list'>
+              {items.map((it, j) => (
+                <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+              ))}
+            </ul>
+          ) : (
+            fallback && (
+              <ul className='bloque-list'>
+                <li>{fallback}</li>
+              </ul>
+            )
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div key={i} className='bloque-card'>
+        {header && <p className='bloque-header'>{header}</p>}
+        {items.length > 0 && (
+          <ul className='bloque-list'>
+            {items.map((it, j) => (
+              <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+            ))}
+          </ul>
+        )}
+
+        {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
+          <p className='bloque-footnote'>
+            {b?.cantSeries ? <><b>Series:</b> {b.cantSeries} &middot; </> : null}
+            {b?.tiempoTrabajoDescansoTabata
+              ? <><b>Trabajo/Descanso:</b> {formatWorkRest(b.tiempoTrabajoDescansoTabata)} &middot; </>
+              : null}
+            {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
+          </p>
+        )}
+
+        {b.type === 'ROUNDS' && b.descansoRonda != null && (
+          <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
+        )}
+      </div>
+    );
+  });
+};
+
+const renderDiasContent = (dias, rutinaId, openState, toggleDia, prefix = '') => {
+  if (!dias || dias.length === 0) return null;
+
+  if (dias.length <= 1 && !prefix) {
+    const d = dias[0];
+    return (
+      <div className='rutina-dia'>
+        {d && <h4>{d.nombre}</h4>}
+        {d?.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
+        {renderBloques(d.bloques)}
+      </div>
+    );
+  }
+
+  return (
+    <div className='rutina-dias-accordion'>
+      {dias.map((d, idx) => {
+        const key = `${prefix}${d.key}`;
+        const isOpen = !!openState?.[rutinaId]?.[key];
+        return (
+          <div key={key} className={`accordion-item ${isOpen ? 'open' : ''}`}>
+            <button
+              className='accordion-trigger'
+              onClick={() => toggleDia(rutinaId, key)}
+              aria-expanded={isOpen}
+            >
+              <span>{d.nombre || `Día ${idx + 1}`}</span>
+              {isOpen ? <ChevronUp /> : <ChevronDown />}
+            </button>
+            {isOpen && (
+              <div className='accordion-content'>
+                {d.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
+                {renderBloques(d.bloques)}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 /* ==================================================== */
+
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isSelected
+      ? 'var(--primary-color)'
+      : state.isFocused
+        ? 'var(--background-hover-color)'
+        : 'var(--background-color)',
+    color: state.isSelected ? '#fff' : 'var(--text-color)',
+    cursor: 'pointer',
+    ':active': {
+      backgroundColor: 'var(--background-hover-color)',
+    },
+  }),
+  control: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color-distinct)',
+    borderColor: 'transparent',
+    borderRadius: '12px',
+    padding: '6px',
+    boxShadow: 'none',
+    color: 'var(--text-color)',
+    width: '300px',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--background-color)',
+    border: '1px solid var(--border-color)',
+    zIndex: 100
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color-distinct)',
+  })
+};
 
 const RutinasAsignadas = () => {
   const [loading, setLoading] = useState(false);
@@ -223,6 +366,7 @@ const RutinasAsignadas = () => {
   const [rutinas, setRutinas] = useState([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [asignadasPorMi, setAsignadasPorMi] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRutinaId, setSelectedRutinaId] = useState(null);
   const navigate = useNavigate();
@@ -252,9 +396,22 @@ const RutinasAsignadas = () => {
       // abrir primer día por defecto por rutina
       const init = {};
       lista.forEach(r => {
-        const dias = normalizeDias(r);
         init[r.ID_Rutina] = {};
-        dias.forEach((d, i) => { init[r.ID_Rutina][d.key] = (i === 0); });
+        if (r.semanas && r.semanas.length > 0) {
+          const firstSem = r.semanas[0];
+          const semKey = `sem_${firstSem.id || 0}`;
+          init[r.ID_Rutina][semKey] = true;
+          // open first day of first week
+          const semDias = normalizeDias({ dias: firstSem.dias });
+          if (semDias.length > 0) {
+            init[r.ID_Rutina][`${semKey}_${semDias[0].key}`] = true;
+          }
+        } else {
+          const dias = normalizeDias(r);
+          if (dias.length > 0) {
+            init[r.ID_Rutina][dias[0].key] = true;
+          }
+        }
       });
 
       setAllRutinas(lista);
@@ -269,17 +426,24 @@ const RutinasAsignadas = () => {
   };
 
   const handleSearch = () => {
-    if (!selectedUser) {
-      setRutinas(allRutinas);
-      return;
+    let filtrado = [...allRutinas];
+
+    if (selectedUser) {
+      const userId = Number(selectedUser.value);
+      filtrado = filtrado.filter(r => Number(r?.alumno?.ID_Usuario) === userId);
     }
-    const userId = Number(selectedUser.value);
-    const filtrado = allRutinas.filter(r => Number(r?.alumno?.ID_Usuario) === userId);
+
+    if (asignadasPorMi) {
+      const myId = Number(localStorage.getItem('usuarioId'));
+      filtrado = filtrado.filter(r => Number(r?.ID_Entrenador) === myId || Number(r?.entrenador?.ID_Usuario) === myId);
+    }
+
     setRutinas(filtrado);
   };
 
   const limpiarFiltros = () => {
     setSelectedUser(null);
+    setAsignadasPorMi(false);
     setRutinas(allRutinas);
   };
 
@@ -323,14 +487,9 @@ const RutinasAsignadas = () => {
     const entrenadorId = Number(localStorage.getItem('usuarioId')) || null;
     const alumnoId = rutina?.alumno?.ID_Usuario || null;
 
-    const originalDias = rutina?.dias || {};
-    const diasPayload = {};
-
-    Object.keys(originalDias).forEach((diaKey, idx) => {
-      const dia = originalDias[diaKey] || {};
-      const bloques = Array.isArray(dia.bloques) ? dia.bloques : [];
-
-      const bloquesPayload = bloques.map((b) => {
+    const parseBloques = (bloquesArr) => {
+      const bloques = Array.isArray(bloquesArr) ? bloquesArr : [];
+      return bloques.map((b) => {
         const ejercicios = Array.isArray(b?.ejercicios) ? b.ejercicios : [];
         const bloqueEjercicios = ejercicios.map((it) => {
           const ejercicioId = it?.ejercicio?.ID_Ejercicio ?? it?.ID_Ejercicio ?? null;
@@ -350,21 +509,38 @@ const RutinasAsignadas = () => {
           cantRondas: b?.cantRondas ?? null,
           durationMin: b?.durationMin ?? null,
           tipoEscalera: b?.tipoEscalera ?? null,
-          // —— campos TABATA
           cantSeries: b?.cantSeries ?? null,
           descTabata: b?.descTabata ?? null,
           tiempoTrabajoDescansoTabata: b?.tiempoTrabajoDescansoTabata ?? null,
-          // ejercicios
           bloqueEjercicios,
         };
       });
+    };
 
-      diasPayload[diaKey] = {
-        nombre: dia?.nombre || `Día ${idx + 1}`,
-        descripcion: dia?.descripcion || '',
-        bloques: bloquesPayload,
-      };
-    });
+    const parseDias = (diasObj) => {
+      const resultObj = {};
+      Object.keys(diasObj || {}).forEach((diaKey, idx) => {
+        const d = diasObj[diaKey] || {};
+        resultObj[diaKey] = {
+          nombre: d?.nombre || `Día ${idx + 1}`,
+          descripcion: d?.descripcion || '',
+          bloques: parseBloques(d.bloques)
+        };
+      });
+      return resultObj;
+    };
+
+    const semanasPayload = {};
+    if (Array.isArray(rutina?.semanas)) {
+      rutina.semanas.forEach((s, idx) => {
+        const key = `semana${idx + 1}`;
+        semanasPayload[key] = {
+          numero: s.numero || (idx + 1),
+          nombre: s.nombre || `Semana ${idx + 1}`,
+          dias: parseDias(s.dias),
+        };
+      });
+    }
 
     return {
       ID_Usuario: alumnoId,
@@ -373,7 +549,8 @@ const RutinasAsignadas = () => {
       desc: rutina?.desc || '',
       claseRutina: rutina?.claseRutina || 'Combinada',
       grupoMuscularRutina: rutina?.grupoMuscularRutina || 'Mixto',
-      dias: diasPayload,
+      dias: parseDias(rutina?.dias),
+      semanas: semanasPayload,
     };
   };
 
@@ -414,7 +591,18 @@ const RutinasAsignadas = () => {
             placeholder='Seleccioná un usuario'
             isClearable
             isSearchable
+            styles={customStyles}
           />
+          <div className="rutinas-asignadas-checkbox-ctn">
+            <input
+              type="checkbox"
+              id="asignadasPorMi"
+              checked={asignadasPorMi}
+              onChange={(e) => setAsignadasPorMi(e.target.checked)}
+              style={{ cursor: 'pointer', width: '18px', height: '18px', accentColor: 'var(--primary-color)' }}
+            />
+            <label htmlFor="asignadasPorMi" style={{ cursor: 'pointer', margin: 0, fontWeight: 500 }}>Asignadas por mi</label>
+          </div>
           <div className="rutinas-asignadas-filtros-btns">
             <PrimaryButton onClick={handleSearch} text="Buscar" />
             <SecondaryButton onClick={limpiarFiltros} text="Limpiar" />
@@ -438,170 +626,65 @@ const RutinasAsignadas = () => {
                       className='mi-rutina-eliminar-btn'
                       title='Duplicar rutina'
                     >
-                      <FaCopy size={18} />
+                      <Copy size={18} />
                     </button>
                     <button
                       onClick={() => openDeletePopup(rutina.ID_Rutina)}
                       className='mi-rutina-eliminar-btn'
                       title='Eliminar rutina'
                     >
-                      <DeleteIcon width={20} height={20} />
+                      <Trash2 width={20} height={20} />
                     </button>
                     <button
                       onClick={() => navigate(`/admin/editar-rutina/${rutina.ID_Rutina}`)}
                       className='mi-rutina-eliminar-btn'
                       title='Editar rutina'
                     >
-                      <EditIcon width={20} height={20} />
+                      <Edit width={20} height={20} />
                     </button>
                   </div>
                 </div>
 
                 <div className='rutina-data'>
-                  <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
-                  <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
-                  <p><strong>Días totales:</strong> {dias.length}</p>
+                  <p>Clase: {rutina.claseRutina || '—'}</p>
+                  <p>Grupo muscular: {rutina.grupoMuscularRutina || '—'}</p>
+                  <p>
+                    {rutina.semanas && rutina.semanas.length > 0
+                      ? `Semanas totales: ${rutina.semanas.length}`
+                      : `Días totales: ${dias.length}`}
+                  </p>
                 </div>
 
-                {/* ===== DÍAS ===== */}
-                {dias.length <= 1 ? (
-                  <div className='rutina-dia'>
-                    {dias[0] && <h4>{dias[0].nombre}</h4>}
-                    {dias[0]?.descripcion && <p className='dia-desc'>{dias[0].descripcion}</p>}
-
-                    {(dias[0]?.bloques || []).map((b, i) => {
-                      const items = getBloqueItems(b);
-                      const header = blockLabel(b);
-
-                      if (b.type === 'SETS_REPS') {
-                        if (isDropSetBlock(b)) {
-                          return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
-                        }
-                        const fallback = items.length === 0 ? setsRepsFallback(b) : null;
-                        return (
-                          <div key={i} className='bloque-card'>
-                            {(items.length > 0) ? (
-                              <ul className='bloque-list'>
-                                {items.map((it, j) => (
-                                  <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                ))}
-                              </ul>
-                            ) : (
-                              fallback && (
-                                <ul className='bloque-list'>
-                                  <li>{fallback}</li>
-                                </ul>
-                              )
-                            )}
-                          </div>
-                        );
-                      }
+                {/* ===== SEMANAS o DÍAS ===== */}
+                {rutina.semanas && rutina.semanas.length > 0 ? (
+                  <div className='rutina-semanas-accordion'>
+                    {rutina.semanas.map((s, idx) => {
+                      const key = `sem_${s.id || idx}`;
+                      const isOpen = !!openState?.[rutina.ID_Rutina]?.[key];
+                      const diasSemanales = normalizeDias({ dias: s.dias });
 
                       return (
-                        <div key={i} className='bloque-card'>
-                          {header && <p className='bloque-header'>{header}</p>}
-                          {items.length > 0 && (
-                            <ul className='bloque-list'>
-                              {items.map((it, j) => (
-                                <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                              ))}
-                            </ul>
-                          )}
-
-                          {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
-                            <p className='bloque-footnote'>
-                              {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
-                            </p>
-                          )}
-
-                          {b.type === 'ROUNDS' && b.descansoRonda != null && (
-                            <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  // Acordeón
-                  <div className='rutina-dias-accordion'>
-                    {dias.map((d, idx) => {
-                      const isOpen = !!openState?.[rutina.ID_Rutina]?.[d.key];
-                      return (
-                        <div key={d.key} className={`accordion-item ${isOpen ? 'open' : ''}`}>
+                        <div key={key} className={`accordion-item semana-accordion ${isOpen ? 'open' : ''}`}>
                           <button
-                            className='accordion-trigger'
-                            onClick={() => toggleDia(rutina.ID_Rutina, d.key)}
+                            className='accordion-trigger semana-trigger'
+                            onClick={() => toggleDia(rutina.ID_Rutina, key)}
                             aria-expanded={isOpen}
+                            style={isOpen ? { borderLeft: '4px solid var(--primary-color)' } : {}}
                           >
-                            <span>{d.nombre || `Día ${idx + 1}`}</span>
-                            {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                            <span>{s.nombre || `Semana ${s.numero || idx + 1}`}</span>
+                            {isOpen ? <ChevronUp /> : <ChevronDown />}
                           </button>
-
                           {isOpen && (
-                            <div className='accordion-content'>
-                              {d.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
-
-                              {(d.bloques || []).map((b, i) => {
-                                const items = getBloqueItems(b);
-                                const header = blockLabel(b);
-
-                                if (b.type === 'SETS_REPS') {
-                                  if (isDropSetBlock(b)) {
-                                    return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
-                                  }
-                                  const fallback = items.length === 0 ? setsRepsFallback(b) : null;
-                                  return (
-                                    <div key={i} className='bloque-card'>
-                                      {(items.length > 0) ? (
-                                        <ul className='bloque-list'>
-                                          {items.map((it, j) => (
-                                            <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        fallback && (
-                                          <ul className='bloque-list'>
-                                            <li>{fallback}</li>
-                                          </ul>
-                                        )
-                                      )}
-                                    </div>
-                                  );
-                                }
-
-                                return (
-                                  <div key={i} className='bloque-card'>
-                                    {header && <p className='bloque-header'>{header}</p>}
-                                    {items.length > 0 && (
-                                      <ul className='bloque-list'>
-                                        {items.map((it, j) => (
-                                          <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                        ))}
-                                      </ul>
-                                    )}
-
-                                    {b.type === 'TABATA' && (b?.cantSeries || b?.tiempoTrabajoDescansoTabata || b?.descTabata) && (
-                                      <p className='bloque-footnote'>
-                                        {b?.cantSeries ? <><b>Series:</b> {b.cantSeries} · </> : null}
-                                        {b?.tiempoTrabajoDescansoTabata
-                                          ? <><b>Trabajo/Descanso:</b> {formatWorkRest(b.tiempoTrabajoDescansoTabata)} · </>
-                                          : null}
-                                        {b?.descTabata ? <><b>Pausa entre series:</b> {b.descTabata}</> : null}
-                                      </p>
-                                    )}
-
-                                    {b.type === 'ROUNDS' && b.descansoRonda != null && (
-                                      <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
-                                    )}
-                                  </div>
-                                );
-                              })}
+                            <div className='accordion-content semana-content' style={{ padding: '10px' }}>
+                              {renderDiasContent(diasSemanales, rutina.ID_Rutina, openState, toggleDia, `${key}_`)}
                             </div>
                           )}
                         </div>
                       );
                     })}
                   </div>
+                ) : (
+                  renderDiasContent(dias, rutina.ID_Rutina, openState, toggleDia)
                 )}
 
                 <div className="rutina-asignada" style={{ marginTop: 10 }}>

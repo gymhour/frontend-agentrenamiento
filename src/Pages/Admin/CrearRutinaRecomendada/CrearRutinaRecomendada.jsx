@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
+import { X } from 'lucide-react';
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton.jsx";
 
 /* ================= Helpers ================= */
@@ -947,7 +947,7 @@ const CrearRutinaRecomendada = ({ fromAdmin, fromEntrenador }) => {
                           className="delete-block-btn"
                           title="Eliminar bloque"
                         >
-                          <CloseIcon width={32} height={32} />
+                          <X width={24} height={24} />
                         </button>
                       </div>
 

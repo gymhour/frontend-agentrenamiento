@@ -3,9 +3,7 @@ import "../../../App.css";
 import "./clasesActividadesForm.css";
 import SidebarMenu from "../../../Components/SidebarMenu/SidebarMenu";
 import SecondaryButton from "../../../Components/utils/SecondaryButton/SecondaryButton";
-import { ReactComponent as ArrowLeftIcon } from "../../../assets/icons/arrow-left.svg";
-import { ReactComponent as AddIconCircle } from "../../../assets/icons/add-circle.svg";
-import { ReactComponent as CloseIcon } from "../../../assets/icons/close.svg";
+import { ArrowLeft, PlusCircle, X } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiClient from "../../../axiosConfig";
 import apiService from "../../../services/apiService";
@@ -522,7 +520,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
             <SecondaryButton
               text="Volver atrás"
               linkTo={fromAdmin ? "/admin/clases-actividades" : "/entrenador/clases-actividades"}
-              icon={ArrowLeftIcon}
+              icon={ArrowLeft}
               reversed={true}
             />
             <h2>{isEditing ? "Editar clase o actividad" : "Crear nueva clase o actividad"}</h2>
@@ -587,7 +585,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                   {selectedEntrenadores.map((ent) => (
                     <div key={ent.ID_Usuario} className="tag">
                       <span>{`${ent.nombre} ${ent.apellido}`}</span>
-                      <CloseIcon
+                      <X
                         className="tag-close"
                         width={20}
                         height={20}
@@ -689,7 +687,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                               <div className="row-actions">
                                 {/* EDITAR → habilita campos */}
                                 <SecondaryButton text="Editar" onClick={() => enterEditRow(idx)} />
-                                <CloseIcon className="close-icon" onClick={() => requestDeleteRow(idx)} />
+                                <X className="close-icon" onClick={() => requestDeleteRow(idx)} />
                               </div>
                             ) : (
                               <div className="row-actions edit-mode">
@@ -702,7 +700,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                             // Fila NUEVA
                             <div className="row-actions">
                               <SecondaryButton text="Guardar" onClick={() => saveNewRow(idx)} />
-                              <CloseIcon className="close-icon" onClick={() => cancelEditRow(idx)} />
+                              <X className="close-icon" onClick={() => cancelEditRow(idx)} />
                             </div>
                           )}
                         </div>
@@ -711,7 +709,7 @@ const ClasesActividadesForm = ({ isEditing, classId: classIdProp, fromAdmin, fro
                   })}
 
                 <div className="clase-actividad-form-agg-horario-btn">
-                  <SecondaryButton text="Agregar horario" icon={AddIconCircle} onClick={handleAddHorario} />
+                  <SecondaryButton text="Agregar horario" icon={PlusCircle} onClick={handleAddHorario} />
                 </div>
               </div>
 

@@ -40,6 +40,27 @@ const ClasesActividadesDetalle = () => {
     const isActive = (val) => val === true || val === 1 || val === '1' || val === 'true';
     const horariosActivos = (claseDetalle?.HorariosClase ?? []).filter(h => isActive(h?.activo));
 
+    const diasOrdenados = ['Lunes', 'Martes', 'Miércoles', 'Miercoles', 'Jueves', 'Viernes', 'Sábado', 'Sabado', 'Domingo'];
+
+    const horariosPorDia = horariosActivos.reduce((acc, curr) => {
+        const dia = curr.diaSemana;
+        if (!acc[dia]) acc[dia] = [];
+        acc[dia].push(curr);
+        return acc;
+    }, {});
+
+    const diasDisponibles = Object.keys(horariosPorDia).sort(
+        (a, b) => diasOrdenados.indexOf(a) - diasOrdenados.indexOf(b)
+    );
+
+    diasDisponibles.forEach(dia => {
+        horariosPorDia[dia].sort((a, b) => {
+            const timeA = new Date(a.horaIni).getTime();
+            const timeB = new Date(b.horaIni).getTime();
+            return timeA - timeB;
+        });
+    });
+
     return (
         <div className='page-layout'>
             <SidebarMenu isAdmin={false} />
@@ -68,15 +89,21 @@ const ClasesActividadesDetalle = () => {
                         </div>
                         <div className="clases-actividades-item clases-actividades-detalle-info-horario">
                             <h3> Horarios </h3>
-                            {horariosActivos.length > 0 ? (
-                                <ul>
-                                    {horariosActivos.map((horario) => (
-                                        <li key={horario.ID_HorarioClase}>
-                                            {horario.diaSemana} de{' '}
-                                            {horario.horaIni.slice(11, 16)} a {horario.horaFin.slice(11, 16)}
-                                        </li>
+                            {diasDisponibles.length > 0 ? (
+                                <div className="horarios-agrupados-ctn">
+                                    {diasDisponibles.map((dia) => (
+                                        <div key={dia} className="horario-dia-bloque">
+                                            <h4 className="horario-dia-titulo">{dia}</h4>
+                                            <div className="horario-badges-ctn">
+                                                {horariosPorDia[dia].map((horario) => (
+                                                    <span key={horario.ID_HorarioClase} className="horario-badge">
+                                                        {horario.horaIni.slice(11, 16)} - {horario.horaFin.slice(11, 16)} hs
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
                                     ))}
-                                </ul>
+                                </div>
                             ) : (
                                 <p>No hay horarios disponibles.</p>
                             )}

@@ -3,7 +3,7 @@ import SidebarMenu from '../../../Components/SidebarMenu/SidebarMenu';
 import './Cuotas.css';
 // import axios from 'axios'; // ← no se usa
 // import { ReactComponent as GaliciaIcon } from '../../../assets/icons/galicia_logo.svg';
-import { ReactComponent as CopyIcon } from '../../../assets/icons/copy.svg';
+import { Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import apiService from '../../../services/apiService';
 
@@ -12,8 +12,8 @@ const Cuotas = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const alias = 'augusto.grenon.ag';
-  // const cbu = '00700238-30004046522411';
+  const alias = 'gymhour.alias';
+  const cbu = '00700238-30004046522411';
 
   const handleCopy = async (text) => {
     try {
@@ -75,30 +75,30 @@ const Cuotas = () => {
       <SidebarMenu isAdmin={false} />
 
       <div className="content-layout">
-        <h2>Cuotas</h2>
+        <h1>Cuotas</h1>
 
         <div className="cuotas-datos-pagos">
-          <h3>Datos de cuenta</h3>
+          <h2>Datos de cuenta</h2>
           <div className="cuotas-datos-pagos-info">
-            <span style={{ fontWeight: '600' }}>
-              AUGUSTO GRENÓN
+            <span style={{ fontWeight: '600' }} className="alias-and-bank">
+              JUAN PEREZ
               {/* <GaliciaIcon width="120" /> */}
             </span>
-            <span>
-              AG Entrenamientos
-            </span>
+            {/* <span>
+              GIMNASIO GYMHOUR
+            </span> */}
             <span>
               <b>ALIAS:</b> {alias}{' '}
               <button className="copy-button" onClick={() => handleCopy(alias)}>
-                <CopyIcon width={16} height={16} />
+                <Copy size={16} />
               </button>
             </span>
-            {/* <span>
+            <span>
               <b>CBU:</b> {cbu}{' '}
               <button className="copy-button" onClick={() => handleCopy(cbu)}>
-                <CopyIcon width={16} height={16}/>
+                <Copy width={16} height={16} />
               </button>
-            </span> */}
+            </span>
             <span><b>CUIL:</b> 20-35752545-5</span>
           </div>
           <a
@@ -111,7 +111,7 @@ const Cuotas = () => {
 
         </div>
 
-        <h3>Historial de pagos</h3>
+        <h2>Historial de pagos</h2>
         {loading ? (
           <p style={{ marginTop: '20px' }}>Cargando cuotas...</p>
         ) : error ? (

@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 .planes-header {
     display: flex;
     justify-content: space-between;
@@ -12,13 +14,14 @@
 }
 
 .plan-card {
-    background: #1c1c1c;
+    background: var(--background-color-distinct);
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
     padding: 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border: 1px solid var(--border-color);
 }
 
 .plan-card-header {
@@ -35,20 +38,20 @@
 
 .plan-id {
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-color-distinct);
 }
 
 .plan-desc {
     flex: 1;
     font-size: 0.95rem;
-    color: #FAFAFA;
+    color: var(--text-color);
     margin-bottom: 12px;
 }
 
 .plan-price {
     font-size: 1.1rem;
     font-weight: 500;
-    color: #fafafa;
+    color: var(--text-color);
     margin-bottom: 16px;
 }
 

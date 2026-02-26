@@ -2,7 +2,7 @@ import React from 'react';
 import './secondaryButton.css';
 import { Link } from 'react-router-dom';
 
-const SecondaryButton = ({ text, icon: Icon, linkTo, reversed=false, onClick }) => {
+const SecondaryButton = ({ text, icon: Icon, iconClassName = "", linkTo, reversed=false, onClick }) => {
     return (
         <Link 
             to={linkTo} 
@@ -10,7 +10,7 @@ const SecondaryButton = ({ text, icon: Icon, linkTo, reversed=false, onClick }) 
             onClick={onClick}
         >
             {text}
-            {Icon && <Icon className="icon" />}
+            {Icon && <Icon className={`icon secondary-btn-icon ${iconClassName}`} />}
         </Link>
     );
 };

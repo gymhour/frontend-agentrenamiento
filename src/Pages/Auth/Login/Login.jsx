@@ -5,6 +5,7 @@ import './login.css';
 import LoginBackgroundImage from '../../../assets/login/login_background.png';
 import ClientLogo from '../../../assets/client/ag_entrenamiento.png'
 import OurLogo from '../../../assets/gymhour/logo_gymhour_sin_texto.png'
+import OurLogoBlack from '../../../assets/gymhour/logo_gymhour_sin_texto_negro.png'
 // Funciones
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -21,6 +22,36 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  // Listen for theme changes on body attribute
+  React.useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.body.getAttribute('data-theme');
+          setCurrentTheme(newTheme || 'dark');
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    // Initial check in case it changed before observe
+    const initialTheme = document.body.getAttribute('data-theme');
+    if (initialTheme) {
+      setCurrentTheme(initialTheme);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const logoSrc = currentTheme === 'light' ? ClientLogo : ClientLogo;
 
   // --- Nuevo: estado del modal de cumpleaños y redirección pendiente ---
   const [showBirthdayModal, setShowBirthdayModal] = useState(false);
@@ -41,7 +72,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     try {
       const response = await authClient.post('/auth/login', { email, password });
       const token = response.data.token;
@@ -49,19 +80,19 @@ const Login = () => {
 
       // Almacena el token en localStorage
       localStorage.setItem('token', token);
-  
+
       // Decodifica el token
       const decodedToken = jwtDecode(token);
       localStorage.setItem("usuarioId", decodedToken.id);
-  
+
       // Normaliza tipo
       const tipoNormalized = (decodedToken.tipo || '').toLowerCase();
 
       // Determina a dónde va a navegar
       const targetRoute =
         tipoNormalized === 'admin' ? '/admin/inicio'
-        : tipoNormalized === 'entrenador' ? '/entrenador/inicio'
-        : '/alumno/inicio';
+          : tipoNormalized === 'entrenador' ? '/entrenador/inicio'
+            : '/alumno/inicio';
 
       // Control de cumpleaños: si es su cumpleaños y no lo descartó hoy, mostramos modal
       const userId = decodedToken.id;
@@ -80,7 +111,6 @@ const Login = () => {
       }
 
     } catch (error) {
-      // console.log("error", error?.response?.data)
       toast.error(
         error?.response?.data?.error
           ? error.response.data.error
@@ -92,12 +122,6 @@ const Login = () => {
   };
 
   const handleCloseBirthdayModal = () => {
-    // Marca como descartado para hoy y continúa la navegación
-    // if (currentUserForBirthdayKey) {
-    //   localStorage.setItem(currentUserForBirthdayKey, '1');
-    // }
-    // setShowBirthdayModal(false);
-    // Redirige si hay ruta pendiente
     if (pendingRedirect) {
       navigate(pendingRedirect);
     }
@@ -108,7 +132,7 @@ const Login = () => {
       {/* {isLoading && <LoaderFullScreen />} */}
       <div className="login-subcontainer">
         <div className="gym-logo-container">
-          <img src={ClientLogo} alt="Logo del gimnasio" width={120} />
+          <img src={logoSrc} alt="Logo del gimnasio" width={120} />
         </div>
 
         <div className="form-container">
@@ -118,14 +142,15 @@ const Login = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              width='100%'
               required
             />
-            {/* TODO: Agregar el ojito */}
             <CustomInput
               type="password"
               placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              width='100%'
               required
             />
 
@@ -140,52 +165,20 @@ const Login = () => {
         </div>
 
         <div className="our-logo-container">
-          {/* <img src={OurLogo} alt="Logo de nuestra empresa" width={120} /> */}
           <p> Gymhour - Software para gimnasios </p>
         </div>
       </div>
 
       {/* -------- Modal de Feliz Cumpleaños -------- */}
       {showBirthdayModal && (
-        <div
-          className="birthday-overlay"
-          style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-          }}
-          aria-modal="true"
-          role="dialog"
-        >
-          <div
-            className="birthday-modal"
-            style={{
-              background: '#fff',
-              borderRadius: 16,
-              padding: '24px 20px',
-              width: 'min(420px, 92vw)',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-              textAlign: 'center'
-            }}
-          >
+        <div className="birthday-overlay" aria-modal="true" role="dialog">
+          <div className="birthday-modal">
             <h3 style={{ margin: 0, fontSize: 22 }}>🎉 ¡Feliz cumpleaños! 🎉</h3>
             <p style={{ margin: '14px 0 0', lineHeight: 1.5 }}>
               Te deseamos un gran día y muchos logros. ¡A entrenar con todo! 💪
             </p>
 
-            <button
-              onClick={handleCloseBirthdayModal}
-              className="btn-primary"
-              style={{
-                marginTop: 18,
-                padding: '10px 16px',
-                borderRadius: 10,
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 600,
-                background: '#7b5cff',
-                color: '#fff'
-              }}
-            >
+            <button onClick={handleCloseBirthdayModal} className="btn-primary">
               Gracias 🙌
             </button>
           </div>

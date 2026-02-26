@@ -11,7 +11,7 @@ import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderF
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton';
-import { FaChevronDown, FaChevronLeft, FaChevronRight, FaChevronUp } from 'react-icons/fa';
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react';
 import apiService from '../../../services/apiService';
 import { toast } from 'react-toastify';
 import Select from 'react-select';
@@ -256,7 +256,7 @@ const CuotasUsuarios = () => {
     }
 
     const mesString = buildMesString(mesDate);
-    const venceIso  = toIsoUtcEndOfDay(venceDate);
+    const venceIso = toIsoUtcEndOfDay(venceDate);
 
     const payload = { mes: mesString, importe: Number(importe), vence: venceIso };
     try {
@@ -282,8 +282,8 @@ const CuotasUsuarios = () => {
     setLoading(true);
     try {
       const mesString = buildMesString(bulkMesDate);
-      const venceIso  = toIsoUtcEndOfDay(bulkVenceDate);
-      const payload   = { mes: mesString, vence: venceIso };
+      const venceIso = toIsoUtcEndOfDay(bulkVenceDate);
+      const payload = { mes: mesString, vence: venceIso };
       await apiService.postCuotasMasivas(payload);
       setShowBulkModal(false);
       setPage(1);
@@ -358,7 +358,7 @@ const CuotasUsuarios = () => {
             className='toggle-filters-button'
             onClick={() => setShowFilters(prev => !prev)}
           >
-            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            Filtros {showFilters ? <ChevronUp /> : <ChevronDown />}
           </button>
         </div>
 
@@ -487,11 +487,11 @@ const CuotasUsuarios = () => {
         {/* — Paginación — */}
         <div className="paginacion-controls" style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button onClick={goPrevPage} disabled={page === 1} className="btn-page" aria-label="Página anterior" title="Página anterior">
-            <FaChevronLeft />
+            <ChevronLeft />
           </button>
           <span>Página {page}</span>
           <button onClick={goNextPage} disabled={!hasMore} className="btn-page" aria-label="Página siguiente" title="Página siguiente">
-            <FaChevronRight />
+            <ChevronRight />
           </button>
         </div>
       </div>

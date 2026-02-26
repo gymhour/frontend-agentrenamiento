@@ -1,3 +1,5 @@
+@import url("../../../variables.css");
+
 .mis-turnos-ctn {
     display: flex;
     flex-direction: column;
@@ -25,11 +27,11 @@
 }
 
 .historial-turno-title h2 {
-    color: #FAFAFA;
+    color: var(--text-color);
 }
 
 .turnos-ctn-title h2 {
-    color: #FAFAFA;
+    color: var(--text-color);
 }
 
 @media screen and (max-width: 550px) {

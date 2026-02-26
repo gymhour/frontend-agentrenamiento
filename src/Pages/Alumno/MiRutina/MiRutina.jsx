@@ -6,14 +6,11 @@ import PrimaryButton from '../../../Components/utils/PrimaryButton/PrimaryButton
 import CustomDropdown from '../../../Components/utils/CustomDropdown/CustomDropdown.jsx';
 import apiService from '../../../services/apiService';
 import LoaderFullScreen from '../../../Components/utils/LoaderFullScreen/LoaderFullScreen.jsx';
-import { ReactComponent as EditIcon } from '../../../assets/icons/edit.svg';
-import { ReactComponent as DeleteIcon } from '../../../assets/icons/trash.svg';
+import { Edit2, Trash2, ChevronDown, ChevronUp, Video } from 'lucide-react';
 import ConfirmationPopup from '../../../Components/utils/ConfirmationPopUp/ConfirmationPopUp.jsx';
 import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import SecondaryButton from '../../../Components/utils/SecondaryButton/SecondaryButton.jsx';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { ReactComponent as VideoIcon } from "../../../assets/icons/video-icon.svg";
 
 /* ===================== Helpers ===================== */
 const WEEK_ORDER = [
@@ -90,7 +87,7 @@ const renderEjercicioItem = (it, tipo) => {
         >
           {txt}
         </Link>
-        <VideoIcon className="video-icon" aria-hidden="true" />
+        <Video className="video-icon" aria-hidden="true" size={16} />
       </span>
     );
   }
@@ -154,7 +151,7 @@ const renderDropSetBlock = (b) => {
       >
         {nombre}
       </Link>
-      <VideoIcon className="video-icon" aria-hidden="true" />
+      <Video className="video-icon" aria-hidden="true" size={16} />
     </span>
   ) : (
     <span>{nombre}</span>
@@ -222,6 +219,100 @@ const renderTabataMeta = (b) => {
   );
 };
 
+const renderBloques = (bloques) => {
+  return (bloques || []).map((b, i) => {
+    const items = getBloqueItems(b);
+    const header = headerForBlock(b);
+
+    if (b.type === 'SETS_REPS') {
+      if (isDropSetBlock(b)) {
+        return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
+      }
+
+      const fallback = items.length === 0 ? setsRepsFallback(b) : null;
+      return (
+        <div key={i} className='bloque-card'>
+          {(items.length > 0) ? (
+            <ul className='bloque-list'>
+              {items.map((it, j) => (
+                <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+              ))}
+            </ul>
+          ) : (
+            fallback && (
+              <ul className='bloque-list'>
+                <li>{fallback}</li>
+              </ul>
+            )
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div key={i} className='bloque-card'>
+        {header && <p className='bloque-header'>{header}</p>}
+
+        {items.length > 0 && (
+          <ul className='bloque-list'>
+            {items.map((it, j) => (
+              <li key={j}>{renderEjercicioItem(it, b.type)}</li>
+            ))}
+          </ul>
+        )}
+
+        {b.type === 'TABATA' && renderTabataMeta(b)}
+
+        {b.type === 'ROUNDS' && b.descansoRonda ? (
+          <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
+        ) : null}
+      </div>
+    );
+  });
+};
+
+const renderDiasContent = (dias, rutinaId, openState, toggleDia, prefix = '') => {
+  if (!dias || dias.length === 0) return null;
+
+  if (dias.length <= 1 && !prefix) {
+    const d = dias[0];
+    return (
+      <div className='rutina-dia'>
+        {d && <h4>{d.nombre}</h4>}
+        {d?.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
+        {renderBloques(d.bloques)}
+      </div>
+    );
+  }
+
+  return (
+    <div className='rutina-dias-accordion'>
+      {dias.map((d, idx) => {
+        const key = `${prefix}${d.key}`;
+        const isOpen = !!openState?.[rutinaId]?.[key];
+        return (
+          <div key={key} className={`accordion-item ${isOpen ? 'open' : ''}`}>
+            <button
+              className='accordion-trigger'
+              onClick={() => toggleDia(rutinaId, key)}
+              aria-expanded={isOpen}
+            >
+              <span>{d.nombre || `Día ${idx + 1}`}</span>
+              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {isOpen && (
+              <div className='accordion-content'>
+                {d.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
+                {renderBloques(d.bloques)}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 /* ===================== Component ===================== */
 const MiRutina = () => {
   const [rutinas, setRutinas] = useState([]);
@@ -259,9 +350,22 @@ const MiRutina = () => {
 
           const init = {};
           list.forEach(r => {
-            const dias = normalizeDias(r);
             init[r.ID_Rutina] = {};
-            dias.forEach((d, i) => { init[r.ID_Rutina][d.key] = (i === 0); });
+            if (r.semanas && r.semanas.length > 0) {
+              const firstSem = r.semanas[0];
+              const semKey = `sem_${firstSem.id || 0}`;
+              init[r.ID_Rutina][semKey] = true;
+
+              const semDias = normalizeDias({ dias: firstSem.dias });
+              if (semDias.length > 0) {
+                init[r.ID_Rutina][`${semKey}_${semDias[0].key}`] = true;
+              }
+            } else {
+              const dias = normalizeDias(r);
+              if (dias.length > 0) {
+                init[r.ID_Rutina][dias[0].key] = true;
+              }
+            }
           });
           setOpenState(init);
         } else {
@@ -282,8 +386,16 @@ const MiRutina = () => {
   const diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
 
   const filteredRutinas = rutinas.filter(r => {
-    const tieneDia = (fDia === '') ||
-      (r?.dias && Object.keys(r.dias).some(k => k.toLowerCase() === fDia.toLowerCase()));
+    let tieneDia = fDia === '';
+    if (!tieneDia) {
+      if (r.semanas && r.semanas.length > 0) {
+        tieneDia = r.semanas.some(sem =>
+          sem.dias && Object.keys(sem.dias).some(k => k.toLowerCase() === fDia.toLowerCase())
+        );
+      } else {
+        tieneDia = r?.dias && Object.keys(r.dias).some(k => k.toLowerCase() === fDia.toLowerCase());
+      }
+    }
     return (
       (fClase === '' || r.claseRutina === fClase) &&
       (fGrupo === '' || r.grupoMuscularRutina === fGrupo) &&
@@ -330,7 +442,7 @@ const MiRutina = () => {
 
         <div style={{ margin: '30px 0px' }}>
           <button className='toggle-filters-button' onClick={() => setShowFilters(prev => !prev)}>
-            Filtros {showFilters ? <FaChevronUp /> : <FaChevronDown />}
+            Filtros {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
         </div>
 
@@ -376,143 +488,45 @@ const MiRutina = () => {
                   </div>
 
                   <div className='rutina-data'>
-                    <p><strong>Clase:</strong> {rutina.claseRutina || '—'}</p>
-                    <p><strong>Grupo muscular:</strong> {rutina.grupoMuscularRutina || '—'}</p>
-                    <p><strong>Días totales:</strong> {dias.length}</p>
+                    <p>Clase: {rutina.claseRutina || '—'}</p>
+                    <p>Grupo muscular: {rutina.grupoMuscularRutina || '—'}</p>
+                    <p>
+                      {rutina.semanas && rutina.semanas.length > 0
+                        ? `Semanas totales: ${rutina.semanas.length}`
+                        : `Días totales: ${dias.length}`}
+                    </p>
                   </div>
 
-                  {/* ===== DÍAS ===== */}
-                  {dias.length === 1 ? (
-                    <div className='rutina-dia'>
-                      <h4>{dias[0].nombre}</h4>
-                      {dias[0].descripcion && <p className='dia-desc'>{dias[0].descripcion}</p>}
+                  {/* ===== SEMANAS o DÍAS ===== */}
+                  {rutina.semanas && rutina.semanas.length > 0 ? (
+                    <div className='rutina-semanas-accordion'>
+                      {rutina.semanas.map((s, idx) => {
+                        const key = `sem_${s.id || idx}`;
+                        const isOpen = !!openState?.[rutina.ID_Rutina]?.[key];
+                        const diasSemanales = normalizeDias({ dias: s.dias });
 
-                      {(dias[0].bloques || []).map((b, i) => {
-                        const items = getBloqueItems(b);
-                        const header = headerForBlock(b);
-
-                        if (b.type === 'SETS_REPS') {
-                          // DROPSET detectado → layout especial
-                          if (isDropSetBlock(b)) {
-                            return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
-                          }
-
-                          const fallback = items.length === 0 ? setsRepsFallback(b) : null;
-                          return (
-                            <div key={i} className='bloque-card'>
-                              {(items.length > 0) ? (
-                                <ul className='bloque-list'>
-                                  {items.map((it, j) => (
-                                    <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                fallback && (
-                                  <ul className='bloque-list'>
-                                    <li>{fallback}</li>
-                                  </ul>
-                                )
-                              )}
-                            </div>
-                          );
-                        }
-
-                        // Resto de tipos con header
                         return (
-                          <div key={i} className='bloque-card'>
-                            {header && <p className='bloque-header'>{header}</p>}
-
-                            {items.length > 0 && (
-                              <ul className='bloque-list'>
-                                {items.map((it, j) => (
-                                  <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                ))}
-                              </ul>
-                            )}
-
-                            {b.type === 'TABATA' && renderTabataMeta(b)}
-
-                            {b.type === 'ROUNDS' && b.descansoRonda ? (
-                              <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
-                            ) : null}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className='rutina-dias-accordion'>
-                      {dias.map((d, idx) => {
-                        const isOpen = !!openState?.[rutina.ID_Rutina]?.[d.key];
-                        return (
-                          <div key={d.key} className={`accordion-item ${isOpen ? 'open' : ''}`}>
+                          <div key={key} className={`accordion-item semana-accordion ${isOpen ? 'open' : ''}`}>
                             <button
-                              className='accordion-trigger'
-                              onClick={() => toggleDia(rutina.ID_Rutina, d.key)}
+                              className='accordion-trigger semana-trigger'
+                              onClick={() => toggleDia(rutina.ID_Rutina, key)}
                               aria-expanded={isOpen}
+                              style={isOpen ? { borderLeft: '4px solid var(--primary-color)' } : {}}
                             >
-                              <span>{d.nombre || `Día ${idx + 1}`}</span>
-                              {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+                              <span>{s.nombre || `Semana ${s.numero || idx + 1}`}</span>
+                              {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </button>
-
                             {isOpen && (
-                              <div className='accordion-content'>
-                                {d.descripcion && <p className='dia-desc'>{d.descripcion}</p>}
-
-                                {(d.bloques || []).map((b, i) => {
-                                  const items = getBloqueItems(b);
-                                  const header = headerForBlock(b);
-
-                                  if (b.type === 'SETS_REPS') {
-                                    if (isDropSetBlock(b)) {
-                                      return <React.Fragment key={i}>{renderDropSetBlock(b)}</React.Fragment>;
-                                    }
-
-                                    const fallback = items.length === 0 ? setsRepsFallback(b) : null;
-                                    return (
-                                      <div key={i} className='bloque-card'>
-                                        {(items.length > 0) ? (
-                                          <ul className='bloque-list'>
-                                            {items.map((it, j) => (
-                                              <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                            ))}
-                                          </ul>
-                                        ) : (
-                                          fallback && (
-                                            <ul className='bloque-list'>
-                                              <li>{fallback}</li>
-                                            </ul>
-                                          )
-                                        )}
-                                      </div>
-                                    );
-                                  }
-
-                                  return (
-                                    <div key={i} className='bloque-card'>
-                                      {header && <p className='bloque-header'>{header}</p>}
-
-                                      {items.length > 0 && (
-                                        <ul className='bloque-list'>
-                                          {items.map((it, j) => (
-                                            <li key={j}>{renderEjercicioItem(it, b.type)}</li>
-                                          ))}
-                                        </ul>
-                                      )}
-
-                                      {b.type === 'TABATA' && renderTabataMeta(b)}
-
-                                      {b.type === 'ROUNDS' && b.descansoRonda ? (
-                                        <p className='bloque-footnote'>Descanso: {b.descansoRonda}s</p>
-                                      ) : null}
-                                    </div>
-                                  );
-                                })}
+                              <div className='accordion-content semana-content' style={{ padding: '10px' }}>
+                                {renderDiasContent(diasSemanales, rutina.ID_Rutina, openState, toggleDia, `${key}_`)}
                               </div>
                             )}
                           </div>
                         );
                       })}
                     </div>
+                  ) : (
+                    renderDiasContent(dias, rutina.ID_Rutina, openState, toggleDia)
                   )}
 
                   <div style={{ marginTop: 12 }}>

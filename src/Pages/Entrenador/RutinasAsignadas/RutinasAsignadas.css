@@ -2,7 +2,7 @@
   margin-top: 10px;
   padding-top: 16px;
   /* margin: 6px 0px; */
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid var(--border-color);
   /* border-bottom: 1px solid rgba(255, 255, 255, 0.15); */
   display: flex;
   align-items: center;
@@ -22,9 +22,26 @@
   gap: 8px;
 }
 
-.rutinas-asignadas-filtros-btns {
-  margin-top: 15px;
+.rutinas-asignadas-filtro-ctn {
   display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 20px;
+  color: var(--text-color);
+  padding: 10px 0px;
+}
+
+.rutinas-asignadas-filtros-btns {
+  display: flex;
+  margin-left: 20px
+}
+
+.rutinas-asignadas-checkbox-ctn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-color);
+  padding: 10px 0px;
 }
 
 @media screen and (max-width: 500px) {

@@ -14,12 +14,14 @@
 
 .ta-modal-content {
     position: relative;
-    background: #fff;
+    background: var(--background-color);
     padding: 20px;
     border-radius: 8px;
     width: 90%;
     max-width: 400px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
 }
 
 .ta-modal-close {
@@ -30,6 +32,10 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .ta-modal-content ul {
@@ -82,8 +88,8 @@
 
 .rbc-btn-group button {
     border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
 }
 
 .rbc-btn-group>button:first-child:not(:last-child) {
@@ -103,7 +109,7 @@
     display: flex;
     min-width: 0;
     flex-direction: column;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--border-color);
 }
 
 .rbc-time-view .rbc-row {
@@ -125,21 +131,21 @@
     vertical-align: middle;
     font-weight: bold;
     font-size: 90%;
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid var(--border-color);
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .rbc-header+.rbc-header {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid var(--border-color);
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .rbc-time-view .rbc-allday-cell {
@@ -151,7 +157,7 @@
 }
 
 .rbc-today {
-    background-color: #212121;
+    background-color: var(--background-color-distinct);
 }
 
 .rbc-current-time-indicator {
@@ -159,24 +165,24 @@
 }
 
 .rbc-time-view {
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
 }
 
 .rbc-time-header.rbc-overflowing {
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid var(--border-color);
 }
 
 .rbc-time-header-content {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid var(--border-color);
 }
 
 .rbc-header+.rbc-header {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid var(--border-color);
 }
 
 .rbc-time-content {
-    border-top: rgba(255, 255, 255, 0.2);
+    border-top: 1px solid var(--border-color);
 }
 
 .rbc-time-slot {
@@ -187,11 +193,11 @@
 }
 
 .rbc-time-content>*+*>* {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid var(--border-color);
 }
 
 .rbc-timeslot-group {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--border-color);
     min-height: 40px;
     display: flex;
     flex-flow: column nowrap;
@@ -201,7 +207,8 @@
     border-top: none;
 }
 
-.rbc-event.rbc-selected, .rbc-day-slot .rbc-selected.rbc-background-event {
+.rbc-event.rbc-selected,
+.rbc-day-slot .rbc-selected.rbc-background-event {
     background-color: #FFFFDA;
 }
 
@@ -276,33 +283,38 @@ rbc-day-slot .rbc-event,
     border: none;
 }
 
-.rbc-event:focus, .rbc-day-slot .rbc-background-event:focus {
+.rbc-event:focus,
+.rbc-day-slot .rbc-background-event:focus {
     outline: none;
 }
 
-.calendar-wrapper { height: 75vh; margin: 24px 0; }
-
-@media (max-width: 850px) {
-  .calendar-wrapper { height: 68vh; }
-
-  .rbc-toolbar {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 10px;
-  }
-
-  .turnos-filters {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
-  }
-
-  .turnos-filters-input-ctn {
-    width: 100%;
-  }
+.calendar-wrapper {
+    height: 75vh;
+    margin: 24px 0;
 }
 
+@media (max-width: 850px) {
+    .calendar-wrapper {
+        height: 68vh;
+    }
+
+    .rbc-toolbar {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .turnos-filters {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: start;
+    }
+
+    .turnos-filters-input-ctn {
+        width: 100%;
+    }
+}

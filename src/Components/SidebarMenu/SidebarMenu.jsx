@@ -5,37 +5,71 @@ import "./sidebarmenu.css";
 // Assets
 import ClientLogo from "../../assets/client/ag_entrenamiento.png";
 import OurLogo from "../../assets/gymhour/logo_gymhour.png";
+import OurLogoBlack from "../../assets/gymhour/logo_gymhour_black.png";
 // Iconos sidebar
-import { ReactComponent as InicioIcon } from '../../assets/icons/sidebar/inicio.svg';
-import { ReactComponent as ClasesActividadesIcon } from '../../assets/icons/sidebar/clases-actividades.svg';
-import { ReactComponent as AgendarTurnoIcon } from '../../assets/icons/sidebar/agendar-turno.svg';
-import { ReactComponent as AjustesIcon } from '../../assets/icons/sidebar/ajustes.svg';
-import { ReactComponent as CerrarSesionIcon } from '../../assets/icons/sidebar/cerrar-sesion.svg';
-import { ReactComponent as MedicionResultadosIcon } from '../../assets/icons/sidebar/medicion-resultados.svg';
-import { ReactComponent as MiRutinaIcon } from '../../assets/icons/sidebar/notebook.svg';
-import { ReactComponent as MisTurnosIcon } from '../../assets/icons/sidebar/mis-turnos.svg';
-import { ReactComponent as RutinasRecomendadasIcon } from '../../assets/icons/sidebar/rutinas-recomendadas.svg';
-import { ReactComponent as CrearUsuarioIcon } from '../../assets/icons/sidebar/user-plus.svg';
-import { ReactComponent as UsuariosIcon } from '../../assets/icons/users-icon.svg';
-import { ReactComponent as MenuHamburguesaIcon } from '../../assets/icons/sidebar/ic_menu_hamburguesa.svg';
-import { ReactComponent as CloseIcon } from '../../assets/icons/close.svg';
-import { ReactComponent as IngresosIcon } from '../../assets/icons/money-icon.svg';
-import { ReactComponent as EntrenadoresIcon } from '../../assets/icons/sidebar/entrenadores-icon.svg';
-import { ReactComponent as PlanesIcon } from '../../assets/icons/sidebar/admin-planes.svg';
-import { ReactComponent as DumbbellIcon } from '../../assets/icons/sidebar/dumbbell.svg';
-import { ReactComponent as AsignarRutinaIcon } from '../../assets/icons/sidebar/square-pen.svg';
+import {
+  Home,
+  Calendar,
+  CalendarPlus,
+  Settings,
+  LogOut,
+  Activity,
+  Notebook,
+  CalendarCheck,
+  Star,
+  UserPlus,
+  Users,
+  Menu,
+  X,
+  DollarSign,
+  UserCog,
+  FileText,
+  Dumbbell,
+  FilePenLine
+} from 'lucide-react';
 
 
 // Routing
 import { useNavigate, useLocation, Link } from "react-router-dom";
 // Componentes
 import ConfirmationPopup from "../utils/ConfirmationPopUp/ConfirmationPopUp";
+import ThemeToggle from "../utils/ThemeToggle/ThemeToggle";
 
 const SidebarMenu = ({ isAdmin, isEntrenador }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  // Listen for theme changes on body attribute
+  React.useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const newTheme = document.body.getAttribute('data-theme');
+          setCurrentTheme(newTheme || 'dark');
+        }
+      });
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    // Initial check in case it changed before observe
+    const initialTheme = document.body.getAttribute('data-theme');
+    if (initialTheme) {
+      setCurrentTheme(initialTheme);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const logoSrc = currentTheme === 'light' ? ClientLogo : ClientLogo;
 
   const handleLogoutClick = () => setIsPopupOpen(true);
   const handleLogoutConfirm = () => {
@@ -67,12 +101,12 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
           onClick={() => setIsSidebarOpen(prev => !prev)}
         >
           {isSidebarOpen
-            ? <CloseIcon fill="#FAFAFA" width={35} height={35} />
-            : <MenuHamburguesaIcon fill="#FAFAFA" width={20} height={20} />
+            ? <X size={35} className="svg-icon" />
+            : <Menu size={20} className="svg-icon" />
           }
         </button>
         <img
-          src={ClientLogo}
+          src={logoSrc}
           alt="Wembley Logo"
           className="mobile-logo"
         />
@@ -98,7 +132,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
         {/* Logo cliente */}
         <div className="sidebar-logo">
           <img
-            src={ClientLogo}
+            src={logoSrc}
             alt="Wembley Logo"
             className="logo"
           />
@@ -121,7 +155,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <InicioIcon className="icon" fill="#A2A2A2" />{" "}
+                      <Home className="icon" />{" "}
                       Inicio
                     </li>
                   </Link>
@@ -134,10 +168,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <ClasesActividadesIcon
-                        className="icon"
-                        fill="#A2A2A2"
-                      />{" "}
+                      <Calendar className="icon" />{" "}
                       Turnos
                     </li>
                   </Link>
@@ -150,10 +181,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <ClasesActividadesIcon
-                        className="icon"
-                        fill="#A2A2A2"
-                      />{" "}
+                      <Activity className="icon" />{" "}
                       Clases y actividades
                     </li>
                   </Link>
@@ -165,10 +193,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <UsuariosIcon
-                        className="icon"
-                        stroke="#A2A2A2"
-                      />{" "}
+                      <Users className="icon" />{" "}
                       Usuarios
                     </li>
                   </Link>
@@ -180,10 +205,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <CrearUsuarioIcon
-                        className="icon"
-                        stroke="#A2A2A2"
-                      />{" "}
+                      <UserPlus className="icon" />{" "}
                       Crear usuario
                     </li>
                   </Link>
@@ -195,10 +217,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <DumbbellIcon
-                        className="icon"
-                        color="#A2A2A2"
-                      />{" "}
+                      <Dumbbell className="icon" />{" "}
                       Ejercicios
                     </li>
                   </Link>
@@ -208,17 +227,17 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                      <FilePenLine className="icon" /> Asignar Rutinas
                     </li>
                   </Link>
                   <Link
-                      to="/admin/rutinas-asignadas"
-                      className={`menu-link ${location.pathname === "/admin/rutinas-asignadas" ? "active" : ""
-                        }`}
-                    >
-                      <li className="menu-item">
-                        <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Rutinas Asignadas
-                      </li>
+                    to="/admin/rutinas-asignadas"
+                    className={`menu-link ${location.pathname === "/admin/rutinas-asignadas" ? "active" : ""
+                      }`}
+                  >
+                    <li className="menu-item">
+                      <FilePenLine className="icon" /> Rutinas Asignadas
+                    </li>
                   </Link>
                   <Link
                     to="/admin/rutinas"
@@ -228,10 +247,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <MiRutinaIcon
-                        className="icon"
-                        color="#A2A2A2"
-                      />{" "}
+                      <Notebook className="icon" />{" "}
                       Rutinas recomendadas
                     </li>
                   </Link>
@@ -243,10 +259,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <PlanesIcon
-                        className="icon"
-                        stroke="#A2A2A2"
-                      />{" "}
+                      <FileText className="icon" />{" "}
                       Planes
                     </li>
                   </Link>
@@ -258,10 +271,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       }`}
                   >
                     <li className="menu-item">
-                      <IngresosIcon
-                        className="icon"
-                        stroke="#A2A2A2"
-                      />{" "}
+                      <DollarSign className="icon" />{" "}
                       Cuotas
                     </li>
                   </Link>
@@ -276,7 +286,18 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <InicioIcon className="icon" fill="#A2A2A2" /> Inicio
+                        <Home className="icon" /> Inicio
+                      </li>
+                    </Link>
+                    <Link
+                      to="/entrenador/turnos"
+                      className={`menu-link ${location.pathname === "/entrenador/turnos"
+                        ? "active"
+                        : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <CalendarCheck className="icon" /> Mis turnos
                       </li>
                     </Link>
                     <Link
@@ -296,7 +317,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <AsignarRutinaIcon className="icon" color="#A2A2A2" /> Asignar Rutinas
+                        <FilePenLine className="icon" /> Asignar Rutinas
                       </li>
                     </Link>
                     <Link
@@ -305,7 +326,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <MiRutinaIcon className="icon" color="#A2A2A2" /> Rutinas asignadas
+                        <Notebook className="icon" /> Rutinas asignadas
                       </li>
                     </Link>
                     <Link
@@ -316,10 +337,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <DumbbellIcon
-                          className="icon"
-                          color="#A2A2A2"
-                        />{" "}
+                        <Dumbbell className="icon" />{" "}
                         Ejercicios
                       </li>
                     </Link>
@@ -329,7 +347,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <UsuariosIcon className="icon" fill="#A2A2A2" /> Usuarios
+                        <Users className="icon" /> Usuarios
                       </li>
                     </Link>
                     <Link
@@ -338,7 +356,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                         }`}
                     >
                       <li className="menu-item">
-                        <ClasesActividadesIcon className="icon" fill="#A2A2A2" /> Clases y actividades
+                        <Activity className="icon" /> Clases y actividades
                       </li>
                     </Link>
                   </>
@@ -354,7 +372,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <InicioIcon className="icon" fill="#A2A2A2" />{" "}
+                          <Home className="icon" />{" "}
                           Inicio
                         </li>
                       </Link>
@@ -366,7 +384,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <MisTurnosIcon className="icon" /> Mis turnos
+                          <CalendarCheck className="icon" /> Mis turnos
                         </li>
                       </Link>
                       <Link
@@ -378,7 +396,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <AgendarTurnoIcon className="icon" /> Agendar turno
+                          <CalendarPlus className="icon" /> Agendar turno
                         </li>
                       </Link>
                       <Link
@@ -390,10 +408,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <ClasesActividadesIcon
-                            className="icon"
-                            fill="#A2A2A2"
-                          />{" "}
+                          <Activity className="icon" />{" "}
                           Clases y actividades
                         </li>
                       </Link>
@@ -405,7 +420,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <MiRutinaIcon className="icon" color="#A2A2A2" /> Mi
+                          <Notebook className="icon" /> Mi
                           rutina
                         </li>
                       </Link>
@@ -417,10 +432,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <DumbbellIcon
-                            className="icon"
-                            color="#A2A2A2"
-                          />{" "}
+                          <Dumbbell className="icon" />{" "}
                           Ejercicios
                         </li>
                       </Link>
@@ -433,7 +445,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <MedicionResultadosIcon className="icon" /> Medición
+                          <Activity className="icon" /> Medición
                           de ejercicios
                         </li>
                       </Link>
@@ -445,7 +457,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <EntrenadoresIcon className="icon" /> Entrenadores
+                          <UserCog className="icon" /> Entrenadores
                         </li>
                       </Link>
                       <Link
@@ -457,7 +469,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <RutinasRecomendadasIcon className="icon" /> Rutinas
+                          <Star className="icon" /> Rutinas
                           recomendadas
                         </li>
                       </Link>
@@ -470,7 +482,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                           }`}
                       >
                         <li className="menu-item">
-                          <IngresosIcon className="icon" /> Cuotas
+                          <DollarSign className="icon" /> Cuotas
                         </li>
                       </Link>
                     </>
@@ -486,19 +498,23 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                   }`}
               >
                 <li className="menu-item">
-                  <AjustesIcon className="icon" fill="#A2A2A2" /> Cambiar contraseña
+                  <Settings className="icon" /> Cambiar contraseña
                 </li>
               </Link>
 
+              <li className="menu-item">
+                <ThemeToggle />
+              </li>
+
               <li className="menu-item logout" onClick={handleLogoutClick}>
-                <CerrarSesionIcon className="icon" fill="#CC8889" /> Cerrar sesión
+                <LogOut className="icon" /> Cerrar sesión
               </li>
             </ul>
           </div>
 
           <div className="sidebar-footer">
             <img
-              src={OurLogo}
+              src={logoSrc}
               alt="GymHour Logo"
               className="logo"
             />
@@ -511,7 +527,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
           onConfirm={handleLogoutConfirm}
           message="¿Estás seguro de que desea cerrar sesión?"
         />
-      </aside>
+      </aside >
     </>
   );
 };

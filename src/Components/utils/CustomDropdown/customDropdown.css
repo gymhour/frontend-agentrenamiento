@@ -1,12 +1,13 @@
+@import url("../../../variables.css");
 .custom-dropdown {
-    background-color: #252525;
+    background-color: var(--background-color-distinct);
     border-radius: 12px;
     width: 300px;
     min-width: 300px;
     padding: 16px 32px 16px 20px;
     border: none;
     outline: none;
-    color: #FAFAFA;
+    color: var(--text-color);
     font-size: 16px;
     appearance: none; 
     cursor: pointer;

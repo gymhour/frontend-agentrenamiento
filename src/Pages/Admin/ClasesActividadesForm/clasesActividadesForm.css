@@ -33,14 +33,15 @@
 
 .create-clase-form form input,
 .create-clase-form form textarea {
-    background-color: #252525;
+    background-color: var(--background-color);
     border-radius: 12px;
     width: 100%;
     padding: 16px 32px 16px 20px;
     border: none;
     outline: none;
-    color: #FAFAFA;
+    color: var(--text-color);
     font-size: 16px;
+    border: 1px solid var(--border-color);
 }
 
 .create-clase-form form textarea {
@@ -52,11 +53,11 @@
     width: 100%;
     min-width: 0;
     min-height: 50px;
-    background-color: #252525;
+    background-color: var(--background-color);
     border-radius: 12px;
-    border: none;
+    border: 1px solid var(--border-color);
     outline: none;
-    color: #FAFAFA;
+    color: var(--text-color);
     font-size: 16px;
     padding: 0 10px;
     appearance: none;
@@ -70,19 +71,13 @@
 
 .create-clase-form form .submit-btn {
     background-color: var(--primary-color);
-    color: #FAFAFA;
     padding: 12px 32px;
     border: none;
     outline: none;
     border-radius: 12px;
     font-size: 16px;
     cursor: pointer;
-}
-
-/* opcional heredado */
-.form-container form .forgot-password-link {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.6);
+    color: white;
 }
 
 /* ========== Tags entrenadores ========== */
@@ -98,7 +93,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
     padding: 6px 8px;
     border-radius: 8px;
 }
@@ -140,8 +135,8 @@
 }
 
 .close-icon {
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
     align-self: end;
     margin-bottom: 4px;
     position: static;
@@ -306,4 +301,31 @@
     font-size: 13px;
     line-height: 1.35;
     color: rgba(255, 255, 255, .72);
+}
+
+/* Light Mode Overrides */
+[data-theme='light'] .editmode-option>div {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='light'] .editmode-option strong {
+    color: var(--text-color);
+}
+
+[data-theme='light'] .editmode-option p {
+    color: var(--text-color-distinct);
+}
+
+[data-theme='light'] .editmode-option:hover>div {
+    background: #f9f9f9;
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme='light'] .editmode-option>input[type="radio"]:checked+div {
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+    box-shadow: 0 0 0 2px var(--primary-color) inset;
 }
