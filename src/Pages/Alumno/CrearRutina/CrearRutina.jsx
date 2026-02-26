@@ -493,11 +493,6 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       requestAnimationFrame(() => requestAnimationFrame(resolve))
     );
 
-  const afterPaint = () =>
-    new Promise((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(resolve))
-    );
-
   const cryptoRandomId = () => {
     try {
       return Number((crypto.getRandomValues(new Uint32Array(1))[0]).toString());
