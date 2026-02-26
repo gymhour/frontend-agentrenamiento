@@ -493,6 +493,11 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
       requestAnimationFrame(() => requestAnimationFrame(resolve))
     );
 
+  const afterPaint = () =>
+    new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+
   const cryptoRandomId = () => {
     try {
       return Number((crypto.getRandomValues(new Uint32Array(1))[0]).toString());
@@ -1275,7 +1280,8 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
               type,
               setsReps: block.data.setsReps[0]?.series || null,
               nombreEj: block.data.setsReps[0]?.exercise || null,
-              weight: (block.data.setsReps[0]?.weight || '').trim() || null,
+              weight:
+                (block.data.setsReps[0]?.weight || '').trim() || null,
               descansoRonda: block.data.descanso || null,
               bloqueEjercicios
             });

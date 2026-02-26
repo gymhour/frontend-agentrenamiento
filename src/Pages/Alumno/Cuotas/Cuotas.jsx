@@ -108,6 +108,7 @@ const Cuotas = () => {
           >
             <button class="cuotas-wsp-btn">Enviar comprobante por WhatsApp</button>
           </a>
+
         </div>
 
         <h2>Historial de pagos</h2>
