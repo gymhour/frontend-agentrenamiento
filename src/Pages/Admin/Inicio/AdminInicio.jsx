@@ -294,8 +294,8 @@ const AdminInicio = () => {
               >
                 <defs>
                   <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#e63946" stopOpacity={0.8} />
-                    <stop offset="100%" stopColor="#e63946" stopOpacity={0.2} />
+                    <stop offset="0%" stopColor="var(--primary-color)" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="var(--primary-color)" stopOpacity={0.2} />
                   </linearGradient>
                 </defs>
 
