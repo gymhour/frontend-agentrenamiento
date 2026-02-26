@@ -301,16 +301,16 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
                       </li>
                     </Link>
                     <Link
-                        to="/entrenador/turnos"
-                        className={`menu-link ${location.pathname === "/entrenador/turnos"
-                          ? "active"
-                          : ""
-                          }`}
-                      >
-                        <li className="menu-item">
-                          <MisTurnosIcon className="icon" /> Turnos
-                        </li>
-                      </Link>
+                      to="/entrenador/turnos"
+                      className={`menu-link ${location.pathname === "/entrenador/turnos"
+                        ? "active"
+                        : ""
+                        }`}
+                    >
+                      <li className="menu-item">
+                        <CalendarCheck className="icon" /> Turnos
+                      </li>
+                    </Link>
                     <Link
                       to="/entrenador/asignar-rutinas"
                       className={`menu-link ${location.pathname === "/entrenador/asignar-rutinas" ? "active" : ""
