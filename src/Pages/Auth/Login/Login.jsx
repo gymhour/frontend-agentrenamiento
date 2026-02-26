@@ -51,7 +51,7 @@ const Login = () => {
     return () => observer.disconnect();
   }, []);
 
-  const logoSrc = currentTheme === 'light' ? OurLogoBlack : OurLogo;
+  const logoSrc = currentTheme === 'light' ? ClientLogo : ClientLogo;
 
   // --- Nuevo: estado del modal de cumpleaños y redirección pendiente ---
   const [showBirthdayModal, setShowBirthdayModal] = useState(false);

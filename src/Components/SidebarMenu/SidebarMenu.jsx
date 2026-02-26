@@ -69,7 +69,7 @@ const SidebarMenu = ({ isAdmin, isEntrenador }) => {
     return () => observer.disconnect();
   }, []);
 
-  const logoSrc = currentTheme === 'light' ? OurLogoBlack : OurLogo;
+  const logoSrc = currentTheme === 'light' ? ClientLogo : ClientLogo;
 
   const handleLogoutClick = () => setIsPopupOpen(true);
   const handleLogoutConfirm = () => {

@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-const BASE_URL = 'https://gym-backend-rust.vercel.app';
-// const BASE_URL = 'https://backend-agentrenamiento.vercel.app';
+// const BASE_URL = 'https://gym-backend-rust.vercel.app';
+const BASE_URL = 'https://backend-agentrenamiento.vercel.app';
 
 // Cliente para login / register / cambiar contraseña (sin interceptores)
 export const authClient = axios.create({
