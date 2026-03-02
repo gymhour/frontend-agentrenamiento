@@ -578,7 +578,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         });
       };
 
-      if (r?.semanas && typeof r.semanas === 'object') {
+      if (r?.semanas && typeof r.semanas === 'object' && Object.keys(r.semanas).length > 0) {
         setIsWeekly(true);
         const sKeys = Object.keys(r.semanas).sort();
         const loadedWeeks = sKeys.map((k, idx) => {
@@ -599,7 +599,7 @@ const CrearRutina = ({ fromAdmin, fromEntrenador, fromAlumno }) => {
         setActiveWeekIndex(0);
         setActiveDayIndex(0);
 
-      } else if (r?.dias && typeof r.dias === 'object') {
+      } else if (r?.dias && typeof r.dias === 'object' && Object.keys(r.dias).length > 0) {
         setIsWeekly(false);
         const loaded = parseDays(r.dias);
         setDays(
