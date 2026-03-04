@@ -12,7 +12,7 @@ const Cuotas = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const alias = 'gymhour.alias';
+  const alias = 'augusto.grenon.ag';
   const cbu = '00700238-30004046522411';
 
   const handleCopy = async (text) => {
@@ -81,7 +81,7 @@ const Cuotas = () => {
           <h2>Datos de cuenta</h2>
           <div className="cuotas-datos-pagos-info">
             <span style={{ fontWeight: '600' }} className="alias-and-bank">
-              JUAN PEREZ
+              AUGUSTO GRENON
               {/* <GaliciaIcon width="120" /> */}
             </span>
             {/* <span>
@@ -93,12 +93,12 @@ const Cuotas = () => {
                 <Copy size={16} />
               </button>
             </span>
-            <span>
+            {/* <span>
               <b>CBU:</b> {cbu}{' '}
               <button className="copy-button" onClick={() => handleCopy(cbu)}>
                 <Copy width={16} height={16} />
               </button>
-            </span>
+            </span> */}
             <span><b>CUIL:</b> 20-35752545-5</span>
           </div>
           <a
